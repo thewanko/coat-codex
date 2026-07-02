@@ -1,0 +1,84 @@
+/* ColorSelect — 検索可能コンボ（デザイン仕様書§4「Input」: 入力と同皮 --color-bg-sunken） */
+
+.root {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: var(--focus-ring);
+}
+
+.list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--color-bg-sunken);
+  outline: none;
+}
+
+.optionName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 768px) {
+  .input {
+    min-height: 36px;
+  }
+}
