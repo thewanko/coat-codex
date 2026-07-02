@@ -5,6 +5,11 @@ Chronicle your painting rituals — a modern codex for miniature and model paint
 ミニチュア・プラモデル・ガンプラの塗装レシピ作成・保存・出力ツール（クライアントサイド完結SPA）。
 仕様は [docs/coat-codex_要件定義.md](docs/coat-codex_要件定義.md) と [docs/coat-codex_技術計画_v2.md](docs/coat-codex_技術計画_v2.md) を参照。
 
+## 動作検証記録
+
+- **2026-07-02 T2（React 19×@dnd-kit peer依存スパイク）**: `@dnd-kit/core@6.3.1`＋`@dnd-kit/sortable@10.0.0`を採用確定。`npm install`でpeer依存警告なし。StrictMode下でKeyboardSensor経由の並び替え動作をブラウザ実機（Chrome/dev server）で確認、コンソール警告ゼロ。Safari・モバイル実機での追確認は任意（採用判断には影響しない）
+- **2026-07-02 T6（SPAフォールバック）**: `wrangler pages dev dist`で `/`・`/terms`・`/recipe/xxx/print`（深いURL直接アクセス）すべて200＋index.htmlフォールバックを確認。`dist/`に`_redirects`・`404.html`が無いことを確認（wrangler 4.106.0）
+
 ---
 
 ## 開発ループ運用（fable-loop-starter）
