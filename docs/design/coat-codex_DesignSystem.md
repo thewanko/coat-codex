@@ -1,5 +1,7 @@
 # coat-codex — DesignSystem案（初期値）
 
+> **⚠ 本書は初期値（設計時の資料）です。** デザイン決定稿は [coat-codex_デザイン仕様書.md](coat-codex_デザイン仕様書.md) と [theme.css](theme.css)（2026-07-02納品）が正。値・仕様が食い違う場合は決定稿に従うこと。
+
 > 本書はcoat-codexのビジュアルデザイン検討（Claude Design）用資料の一部です。3点セット: [依頼プロンプト](coat-codex_ClaudeDesign_プロンプト.md)／[DesignSystem初期値](coat-codex_DesignSystem.md)／[画面テンプレート](coat-codex_画面テンプレート.md)。機能仕様の原典は [技術計画v2](../coat-codex_技術計画_v2.md)。
 
 
