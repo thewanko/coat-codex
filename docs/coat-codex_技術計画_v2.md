@@ -23,7 +23,8 @@ coat-codex/
 │       ├── index.json             # ブランド一覧メタ
 │       ├── citadel.json
 │       ├── vallejo.json
-│       └── ak.json
+│       ├── ak.json
+│       └── coatdarms.json         # Coat d'arms全150色（マスタ: docs/paints/coatdarms-master.json）
 │   # 注意: public/_redirects と 404.html は「置かない」こと自体が仕様（§5.2 SPAフォールバック）
 ├── src/
 │   ├── main.tsx / App.tsx / router.tsx   # 7ルート定義（§3.1）
@@ -911,5 +912,5 @@ pages_build_output_dir = "dist"
 ## 6. 未決事項（実装フェーズでの判断待ち）
 
 - **PDFダウンロードの実現方式**: 機能としてのPDF導線は確定済み（§3.3 `ExportActionBar`）。まず印刷CSS＋ブラウザ「PDFとして保存」への誘導UI（`PrintToolbar`）で出荷し、専用生成ライブラリ（jsPDF等。日本語フォント同梱で+2〜3MBのバンドル増）まで踏み込むかはユーザー確認後に判断する
-- **プリセット塗料DBの収録範囲**: Citadel／Vallejo／AKの3ブランド×各主要50〜100色を初期整備の推奨とするが、データ作成コストと相談して実装フェーズで確定する
+- **プリセット塗料DBの収録範囲**: 収録ブランドはCitadel／Vallejo／AK／**Coat d'arms**の4種で確定（2026-07-02ユーザー決定）。Coat d'armsは公式カラーチャートから**全150色のマスタ整備済み**（[docs/paints/coatdarms-master.json](paints/coatdarms-master.json)。hexはチャート目視推定値のためM3で校正）。残るCitadel／Vallejo／AKの**収録数のみ未決**（推奨: 各主要50〜100色）
 - **JSONエクスポートの写真同梱デフォルト**: スキーマ・インポート処理は写真あり／なしの両形式に対応済み（§2.2／§2.7）。UI上のデフォルトをどちらにするかは、同梱時のファイルサイズ実測後に判断する
