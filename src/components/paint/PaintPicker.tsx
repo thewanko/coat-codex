@@ -43,41 +43,73 @@ function hasMessageKey(err: unknown): err is HasMessageKey {
   );
 }
 
-function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
-  const { t } = useTranslation();
-  const toast = useToast();
-  const [brands, setBrands] = useState<PaintBrandMeta[]>([]);
-
-  const initialBrandId =
+/** valueから内部stateの初期値/再同期先を導出する（brandId/selectedColor/custom*系の単一情報源） */
+function deriveStateFromValue(value: PaletteColor | undefined) {
+  const brandId =
     value && value.source === "preset" && value.presetId
       ? (value.presetId.split(":")[0] ?? null)
       : null;
-
-  const [brandId, setBrandId] = useState<string | null>(initialBrandId);
-  const [selectedColor, setSelectedColor] = useState<PaintPresetColor | null>(
+  const selectedColor: PaintPresetColor | null =
     value && value.source === "preset" && value.presetId
       ? {
           id: value.presetId,
           name: value.name,
           hex: value.hex,
         }
-      : null,
+      : null;
+  const customBrandName =
+    value && value.source === "custom" ? (value.brand ?? "") : "";
+  const customColorName = value && value.source === "custom" ? value.name : "";
+  const customHex = value && value.source === "custom" ? (value.hex ?? "") : "";
+  const customChipPhotoId =
+    value && value.source === "custom" ? value.chipPhotoId : null;
+
+  return {
+    brandId,
+    selectedColor,
+    customBrandName,
+    customColorName,
+    customHex,
+    customChipPhotoId,
+  };
+}
+
+function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [brands, setBrands] = useState<PaintBrandMeta[]>([]);
+
+  const initialState = deriveStateFromValue(value);
+
+  const [brandId, setBrandId] = useState<string | null>(initialState.brandId);
+  const [selectedColor, setSelectedColor] = useState<PaintPresetColor | null>(
+    initialState.selectedColor,
   );
 
   // 自由入力モードの下書き
   const [customBrandName, setCustomBrandName] = useState(
-    value && value.source === "custom" ? (value.brand ?? "") : "",
+    initialState.customBrandName,
   );
   const [customColorName, setCustomColorName] = useState(
-    value && value.source === "custom" ? value.name : "",
+    initialState.customColorName,
   );
-  const [customHex, setCustomHex] = useState(
-    value && value.source === "custom" ? (value.hex ?? "") : "",
-  );
+  const [customHex, setCustomHex] = useState(initialState.customHex);
   const [customChipPhotoId, setCustomChipPhotoId] = useState<string | null>(
-    value && value.source === "custom" ? value.chipPhotoId : null,
+    initialState.customChipPhotoId,
   );
   const [uploadingChip, setUploadingChip] = useState(false);
+
+  // propsのvalueが変更されたら内部stateを再同期する（初期化子は初回マウント時のみ
+  // 評価されるため、外部から確定色が変わった場合に反映されない問題への対応）
+  useEffect(() => {
+    const next = deriveStateFromValue(value);
+    setBrandId(next.brandId);
+    setSelectedColor(next.selectedColor);
+    setCustomBrandName(next.customBrandName);
+    setCustomColorName(next.customColorName);
+    setCustomHex(next.customHex);
+    setCustomChipPhotoId(next.customChipPhotoId);
+  }, [value]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,7 +255,9 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
       {isCustomMode && (
         <div className={styles.customPanel}>
           <label className={styles.field}>
-            <span className={styles.fieldLabel}>{t("paint.brandLabel")}</span>
+            <span className={styles.fieldLabel}>
+              {t("paint.customBrandName")}
+            </span>
             <input
               type="text"
               className={styles.textInput}

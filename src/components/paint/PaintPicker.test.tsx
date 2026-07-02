@@ -11,6 +11,7 @@ import i18next from "../../i18n";
 import PaintPicker from "./PaintPicker";
 import ToastHost from "../common/ToastHost";
 import { savePhoto } from "../../db/photoStore";
+import type { PaletteColor } from "../../models/recipe";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -208,5 +209,89 @@ describe("PaintPicker — custom flow", () => {
         }),
       );
     });
+  });
+});
+
+describe("PaintPicker — valueプロパティの再同期", () => {
+  test("rerenderでvalue（preset形状）を与えると選択状態表示（ブランド・色名）に復元される", async () => {
+    const onCommit = vi.fn();
+    const { rerender } = render(
+      <ToastHost>
+        <PaintPicker recipeId="rcp_1" onCommit={onCommit} />
+      </ToastHost>,
+    );
+
+    // ブランドがロードされるまで待つ（loadBrandIndexは非同期）
+    await screen.findByRole("combobox", { name: "メーカー" });
+
+    const presetValue: PaletteColor = {
+      id: "col_existing",
+      source: "preset",
+      brand: "Citadel",
+      name: "Mephiston Red",
+      presetId: "citadel:mephiston-red",
+      hex: "#960C0C",
+      chipPhotoId: null,
+    };
+
+    rerender(
+      <ToastHost>
+        <PaintPicker recipeId="rcp_1" value={presetValue} onCommit={onCommit} />
+      </ToastHost>,
+    );
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    await waitFor(() => {
+      expect((brandSelect as HTMLSelectElement).value).toBe("citadel");
+    });
+
+    const colorInput = (await screen.findByLabelText(
+      "カラー",
+    )) as HTMLInputElement;
+    await waitFor(() => {
+      expect(colorInput.value).toContain("Mephiston Red");
+    });
+  });
+
+  test("valueをundefined→確定色に切替えても表示が追従する", async () => {
+    const onCommit = vi.fn();
+    const { rerender } = render(
+      <ToastHost>
+        <PaintPicker recipeId="rcp_1" onCommit={onCommit} />
+      </ToastHost>,
+    );
+    await screen.findByRole("combobox", { name: "メーカー" });
+
+    // 初期はカスタムモード（brandId=null）のためカラー名入力が表示される
+    expect(await screen.findByLabelText("カラー名")).toBeInTheDocument();
+
+    const customValue: PaletteColor = {
+      id: "col_custom_1",
+      source: "custom",
+      brand: "自家調合",
+      name: "自作レッド",
+      presetId: null,
+      hex: "#AA3300",
+      chipPhotoId: null,
+    };
+
+    rerender(
+      <ToastHost>
+        <PaintPicker recipeId="rcp_1" value={customValue} onCommit={onCommit} />
+      </ToastHost>,
+    );
+
+    await waitFor(() => {
+      const colorNameInput = screen.getByLabelText(
+        "カラー名",
+      ) as HTMLInputElement;
+      expect(colorNameInput.value).toBe("自作レッド");
+    });
+    const brandNameInput = screen.getByLabelText(
+      "ブランド名（任意）",
+    ) as HTMLInputElement;
+    expect(brandNameInput.value).toBe("自家調合");
   });
 });

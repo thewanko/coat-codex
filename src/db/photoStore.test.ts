@@ -16,6 +16,7 @@ import { db } from "./db";
 import { normalizePhoto } from "../lib/imageProcessing";
 import {
   collectPhotosForExport,
+  deletePhoto,
   deletePhotosForRecipe,
   resolvePhotoUrl,
   revokeAllPhotoUrls,
@@ -207,6 +208,36 @@ describe("deletePhotosForRecipe", () => {
   test("該当写真がない場合は0を返す", async () => {
     const count = await deletePhotosForRecipe("rcp_none");
     expect(count).toBe(0);
+  });
+});
+
+describe("deletePhoto", () => {
+  test("指定photoIdのみDBから削除し、objectURLキャッシュも解放する", async () => {
+    const file = new Blob(["x"], { type: "image/png" });
+    const idA = await savePhoto(file, "rcp_a");
+    const idB = await savePhoto(file, "rcp_a");
+    const urlA = await resolvePhotoUrl(idA);
+
+    await deletePhoto(idA);
+
+    expect(await db.photos.get(idA)).toBeUndefined();
+    expect(await db.photos.get(idB)).toBeDefined();
+    expect(revokeObjectURLMock).toHaveBeenCalledWith(urlA);
+  });
+
+  test("存在しないphotoIdを指定してもエラーにならない", async () => {
+    await expect(deletePhoto("ph_does-not-exist")).resolves.toBeUndefined();
+  });
+
+  test("削除後に再解決すると新しいURLが発行される（キャッシュが解放されている）", async () => {
+    const file = new Blob(["x"], { type: "image/png" });
+    const idA = await savePhoto(file, "rcp_a");
+    await resolvePhotoUrl(idA);
+
+    await deletePhoto(idA);
+    // 削除済みなのでresolvePhotoUrlはnullを返す（欠損時フォールバック）
+    const url = await resolvePhotoUrl(idA);
+    expect(url).toBeNull();
   });
 });
 

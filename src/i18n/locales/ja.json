@@ -26,11 +26,13 @@
     "brandLabel": "メーカー",
     "colorLabel": "カラー",
     "customBrand": "その他（自由入力）",
+    "customBrandName": "ブランド名（任意）",
     "customColorName": "カラー名",
     "pickHex": "色見本を指定",
     "attachChip": "カラーチップ写真",
     "hexUnset": "hex未指定",
-    "searchPlaceholder": "カラー名で検索"
+    "searchPlaceholder": "カラー名で検索",
+    "noResults": "該当するカラーがありません"
   },
   "mix": {
     "label": "MIX",

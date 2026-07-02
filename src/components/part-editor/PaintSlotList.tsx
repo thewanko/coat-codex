@@ -9,8 +9,14 @@
 // 衝突は現状発生し得ないが、INV-7（paints内colorId重複禁止）を守る防御的ガードとして、
 // 「選択確定時に他スロットで使用中のcolorIdなら反映を拒否しトースト警告」を実装する
 // （候補除外ではなく選択後ガード — 実装の単純さを優先。挙動はタスク報告に明記）。
-// 警告文言のi18nキー`mix.duplicateColor`は未追加（不足キーとしてタスク報告に明記。
-// locales編集は本タスクの範囲外のため追加しない。t()は未定義キーをキー名のまま返す）。
+// 警告文言のi18nキーは`mix.duplicateColor`（locales定義済み）。
+//
+// 確定色と同一の既存palette色（preset: presetId一致／custom: brand+name+hex一致）が
+// あればその既存idを再利用し、onAddColorは新規追加時のみ呼ぶ（palette肥大化防止）。
+// 再利用したidが他スロットで使用中なら上記の重複ガード（toast）に掛かる。
+//
+// pendingスロット（未確定の一時プレースホルダcolorId）の判定はlib/pendingPaints.tsの
+// PENDING_COLOR_PREFIXを単一情報源とする。autosave手前でのstrip適用はM4の結線タスクの責務。
 
 import { useTranslation } from "react-i18next";
 import type { PaletteColor } from "../../models/recipe";
@@ -20,6 +26,7 @@ import {
   removePaintSlot,
   type MixState,
 } from "../../lib/mixRatio";
+import { PENDING_COLOR_PREFIX } from "../../lib/pendingPaints";
 import { useToast } from "../common/toastContext";
 import PaintSlot from "./PaintSlot";
 import MixRatioInput from "../paint/MixRatioInput";
@@ -55,7 +62,7 @@ function PaintSlotList({
     // 未選択の新スロットには一時的なプレースホルダcolorIdを割り当てず、
     // ユーザーがPaintPickerで色を確定した時点でcolorIdを持つ。
     // addPaintSlotはcolorIdを要求するため、確定前は一意な仮IDを発行する。
-    const placeholderId = `col_pending_${crypto.randomUUID()}`;
+    const placeholderId = `${PENDING_COLOR_PREFIX}${crypto.randomUUID()}`;
     onChange(addPaintSlot(state, placeholderId));
   }
 
@@ -67,18 +74,42 @@ function PaintSlotList({
     onChange(commitPercentInput(state, index, value));
   }
 
+  /** 確定色と同一の既存palette色を探す（preset: presetId一致／custom: brand+name+hex一致） */
+  function findExistingPaletteColor(
+    color: PaletteColor,
+  ): PaletteColor | undefined {
+    if (color.source === "preset") {
+      return palette.find(
+        (existing) =>
+          existing.source === "preset" && existing.presetId === color.presetId,
+      );
+    }
+    return palette.find(
+      (existing) =>
+        existing.source === "custom" &&
+        existing.brand === color.brand &&
+        existing.name === color.name &&
+        existing.hex === color.hex,
+    );
+  }
+
   function handleCommitColor(index: number, color: PaletteColor) {
+    const existing = findExistingPaletteColor(color);
+    const resolvedId = existing?.id ?? color.id;
+
     const usedElsewhere = state.paints.some(
-      (paint, i) => i !== index && paint.colorId === color.id,
+      (paint, i) => i !== index && paint.colorId === resolvedId,
     );
     if (usedElsewhere) {
       toast.error(t("mix.duplicateColor"));
       return;
     }
 
-    onAddColor(color);
+    if (!existing) {
+      onAddColor(color);
+    }
     const nextPaints = state.paints.map((paint, i) =>
-      i === index ? { colorId: color.id } : paint,
+      i === index ? { colorId: resolvedId } : paint,
     );
     onChange({ paints: nextPaints, mix: state.mix });
   }
@@ -88,7 +119,7 @@ function PaintSlotList({
       <div className={styles.slots}>
         {state.paints.map((paint, index) => (
           <PaintSlot
-            key={index}
+            key={paint.colorId}
             index={index}
             recipeId={recipeId}
             color={paletteById.get(paint.colorId)}

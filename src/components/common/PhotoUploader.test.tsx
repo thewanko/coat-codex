@@ -4,7 +4,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import i18next from "../../i18n";
 import PhotoUploader from "./PhotoUploader";
 import ToastHost from "./ToastHost";
-import { savePhoto, StorageQuotaError } from "../../db/photoStore";
+import { savePhoto, deletePhoto, StorageQuotaError } from "../../db/photoStore";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -18,17 +18,9 @@ vi.mock("../../db/photoStore", async () => {
     ...actual,
     savePhoto: vi.fn(),
     resolvePhotoUrl: vi.fn().mockResolvedValue("blob:mock-url"),
-    revokePhotoUrl: vi.fn(),
+    deletePhoto: vi.fn().mockResolvedValue(undefined),
   };
 });
-
-vi.mock("../../db/db", () => ({
-  db: {
-    photos: {
-      delete: vi.fn().mockResolvedValue(undefined),
-    },
-  },
-}));
 
 function makeFile(name = "photo.png") {
   return new File(["binary"], name, { type: "image/png" });
@@ -87,5 +79,32 @@ describe("PhotoUploader", () => {
       ).toBeInTheDocument();
     });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test("削除確定でdeletePhotoが呼ばれ、onChangeから該当photoIdが除かれる", async () => {
+    const onChange = vi.fn();
+
+    render(
+      <ToastHost>
+        <PhotoUploader
+          recipeId="r1"
+          value={["ph_a", "ph_b"]}
+          onChange={onChange}
+        />
+      </ToastHost>,
+    );
+
+    const deleteButtons = screen.getAllByLabelText("削除");
+    fireEvent.click(deleteButtons[0]);
+
+    const confirmButton = await screen.findByRole("button", {
+      name: "削除する",
+    });
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(deletePhoto).toHaveBeenCalledWith("ph_a");
+    });
+    expect(onChange).toHaveBeenCalledWith(["ph_b"]);
   });
 });

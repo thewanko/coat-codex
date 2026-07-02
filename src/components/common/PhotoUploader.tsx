@@ -10,12 +10,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  savePhoto,
-  resolvePhotoUrl,
-  revokePhotoUrl,
-} from "../../db/photoStore";
-import { db } from "../../db/db";
+import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "./toastContext";
 import ConfirmDialog from "./ConfirmDialog";
 import Skeleton from "./Skeleton";
@@ -154,8 +149,7 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
     if (!photoId) {
       return;
     }
-    await db.photos.delete(photoId);
-    revokePhotoUrl(photoId);
+    await deletePhoto(photoId);
     onChange(value.filter((id) => id !== photoId));
   }
 

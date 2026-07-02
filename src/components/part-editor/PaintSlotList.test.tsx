@@ -71,6 +71,25 @@ vi.mock("../paint/PaintPicker", () => ({
       >
         pick-blue
       </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCommit({
+            // PaintPickerは選択のたびに新規idを発行する。ここでは既存palette色
+            // （col_citadel_red／presetId citadel:mephiston-red）と同一presetIdだが
+            // 新規発行idを持つcolor要素を模して再選択を再現する。
+            id: `col_new_${crypto.randomUUID()}`,
+            source: "preset",
+            brand: "Citadel",
+            name: "Mephiston Red",
+            presetId: "citadel:mephiston-red",
+            hex: "#960C0C",
+            chipPhotoId: null,
+          })
+        }
+      >
+        pick-existing-preset
+      </button>
     </div>
   ),
 }));
@@ -261,5 +280,61 @@ describe("PaintSlotList — colorId重複防止", () => {
       { colorId: "col_red" },
       { colorId: "col_blue" },
     ]);
+  });
+});
+
+describe("PaintSlotList — 既存palette色の再利用", () => {
+  test("同一presetIdを再選択してもpaletteは増えず（onAddColor不発）、既存idが反映される", () => {
+    const state = makeState(
+      [{ colorId: "col_pending_1" }, { colorId: "col_pending_2" }],
+      [50, 50],
+    );
+    const palette: PaletteColor[] = [
+      {
+        id: "col_citadel_red",
+        source: "preset",
+        brand: "Citadel",
+        name: "Mephiston Red",
+        presetId: "citadel:mephiston-red",
+        hex: "#960C0C",
+        chipPhotoId: null,
+      },
+    ];
+    const { onChange, onAddColor } = renderList(state, palette);
+
+    const pickButtons = screen.getAllByText("pick-existing-preset");
+    // index=0のスロットでは既存paletteのpresetIdと同一色を選択（他スロットでは未使用）
+    fireEvent.click(pickButtons[0]);
+
+    expect(onAddColor).not.toHaveBeenCalled();
+    const next = onChange.mock.calls[0][0] as MixState;
+    expect(next.paints[0]).toEqual({ colorId: "col_citadel_red" });
+  });
+
+  test("同一presetIdの既存色が別スロットで使用中なら重複ガード（toast）に掛かる", () => {
+    const state = makeState(
+      [{ colorId: "col_citadel_red" }, { colorId: "col_pending_2" }],
+      [50, 50],
+    );
+    const palette: PaletteColor[] = [
+      {
+        id: "col_citadel_red",
+        source: "preset",
+        brand: "Citadel",
+        name: "Mephiston Red",
+        presetId: "citadel:mephiston-red",
+        hex: "#960C0C",
+        chipPhotoId: null,
+      },
+    ];
+    const { onChange, onAddColor } = renderList(state, palette);
+
+    const pickButtons = screen.getAllByText("pick-existing-preset");
+    // index=1のスロットで、既にindex=0が使用中のcol_citadel_redと同一presetIdを選択する
+    fireEvent.click(pickButtons[1]);
+
+    expect(onAddColor).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).not.toBeEmptyDOMElement();
   });
 });

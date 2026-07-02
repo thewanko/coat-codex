@@ -107,6 +107,18 @@ export function revokeAllPhotoUrls(): void {
 }
 
 /**
+ * 単一の写真を削除する（PhotoUploaderの個別削除UIから使用）。
+ * db.photos.deleteとrevokePhotoUrlをトランザクションで囲み、削除とキャッシュ解放の
+ * 一貫性を保つ（deletePhotosForRecipeと同じ方針）。
+ */
+export async function deletePhoto(photoId: string): Promise<void> {
+  await db.transaction("rw", db.photos, async () => {
+    await db.photos.delete(photoId);
+    revokePhotoUrl(photoId);
+  });
+}
+
+/**
  * レシピ削除時のGC。recipeIdインデックスで該当写真を検索し、DBから削除しつつ
  * objectURLキャッシュも解放する。削除件数を返す。
  * toArray()→delete()の2クエリをトランザクションで囲み、間に別経路でのphotos書き込みが

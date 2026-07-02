@@ -26,11 +26,13 @@
     "brandLabel": "Brand",
     "colorLabel": "Color",
     "customBrand": "Other (custom)",
+    "customBrandName": "Brand name (optional)",
     "customColorName": "Color name",
     "pickHex": "Pick a swatch color",
     "attachChip": "Color chip photo",
     "hexUnset": "No hex",
-    "searchPlaceholder": "Search colors"
+    "searchPlaceholder": "Search colors",
+    "noResults": "No matching colors"
   },
   "mix": {
     "label": "MIX",

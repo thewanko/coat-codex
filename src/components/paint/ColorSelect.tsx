@@ -80,7 +80,7 @@ function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
       {open && (
         <ul className={styles.list} role="listbox">
           {results.length === 0 && (
-            <li className={styles.empty}>{t("paint.searchPlaceholder")}</li>
+            <li className={styles.empty}>{t("paint.noResults")}</li>
           )}
           {results.map((color) => (
             <li key={color.id}>
