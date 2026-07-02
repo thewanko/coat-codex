@@ -5,5 +5,17 @@
   },
   "nav": {
     "terms": "利用規約・免責"
+  },
+  "techniques": {
+    "prime": "プライマー",
+    "basecoat": "ベースコート",
+    "layer": "レイヤー",
+    "wash": "ウォッシュ",
+    "drybrush": "ドライブラシ",
+    "edge-highlight": "エッジハイライト",
+    "glaze": "グレーズ",
+    "stipple": "スティップリング",
+    "masking": "マスキング",
+    "varnish": "バーニッシュ（ニス）"
   }
 }

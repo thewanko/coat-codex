@@ -5,5 +5,17 @@
   },
   "nav": {
     "terms": "Terms & Disclaimer"
+  },
+  "techniques": {
+    "prime": "Prime",
+    "basecoat": "Basecoat",
+    "layer": "Layer",
+    "wash": "Wash",
+    "drybrush": "Drybrush",
+    "edge-highlight": "Edge Highlight",
+    "glaze": "Glaze",
+    "stipple": "Stipple",
+    "masking": "Masking",
+    "varnish": "Varnish"
   }
 }
