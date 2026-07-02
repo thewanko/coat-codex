@@ -19,6 +19,7 @@
     "varnish": "バーニッシュ（ニス）"
   },
   "errors": {
-    "unsupportedImageFormat": "対応していない画像形式です"
+    "unsupportedImageFormat": "対応していない画像形式です",
+    "storageQuota": "容量不足です。写真を減らすか、バックアップ後に不要なレシピを削除してください"
   }
 }
