@@ -3,10 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-02 (loop: M3-presets 完了)
+最終更新: 2026-07-02 (loop: M4-editor 完了)
 
 ## 完了
 
+- 2026-07-02: **M4 編集画面（T16＋T22〜T28）** — useRecipeStore（Zustand・autosave 500ms・D-8既定名補完・INV-12 pending strip・pagehide flush）／HomePage／RecipeSetupPage（PaletteEditor削除ガード=必須事項③）／TechniqueSelect・ToolSelect・MemoField／StepCard＋StepPhotoTile（§8-A）／StepList（dnd-kit）／PartEditorPage（base予約ルート・768pxパネル分岐・StepPhotoStrip）／RecipeOverviewPage（PartCardList D&D・D-1バッジ・ExportActionBar枠）。**実機フロー一巡検証PASS**（新規作成→Setup→Overview→パーツ/ベース編集・リロード永続化・INV-12 strip・必須事項④再現記録）。**opusレビュー2ラウンド**（R1 FAIL: StepPhotoStripスクロール不発High等8件→修正→同一レビュアーR2 PASS: C0/H0/M0/L1）。計446テスト。※T16はM2/M3の番号の谷間で未実装だったことをM4入口で発見し先頭で実装
 - 2026-07-02: 計画フェーズ — 技術計画v2.2確定（3観点レビュー約30件＋デザイン決定稿§8の提案A/B反映済み）。デザイン引き継ぎ資料＋決定稿一式は docs/design/
 - 2026-07-02: **Cloudflare Pages本番デプロイ** — coat-codex.pages.dev（Pages Git連携）。本番で `/`・`/terms`・深いURL直接アクセスの200＋SPAフォールバックを確認。※初回に誤ってWorkers Buildsで作成→Pagesで作り直し（§5.5の注意点として学び）
 - 2026-07-02: **カスタムドメイン設定** — https://coat-codex.com （Cloudflare Pages Custom domains。SSL・深いURLフォールバック確認済み。要件定義の「ドメイン取得可否は別途確認」は解決。www側は未設定=任意）
@@ -17,12 +18,12 @@
 
 ## 進行中
 
-- (なし。M3のPRマージ待ち)
+- (なし。M4のPRマージ待ち)
 
 ## 次の候補 (優先順)
 
-1. M4 編集画面（T22〜: 新規作成→Setup→Overview→パーツ/ベース工程編集の全フロー。**着手前に計画§4.2 M4冒頭の必須事項①〜④を必ず読むこと**。デザイン決定稿dc.htmlとの突き合わせ開始点）
-2. M5 データ保全＆エクスポート/インポート
+1. M5 データ保全＆エクスポート/インポート（T29〜T35）
+2. M5送りのM4レビュー事項2件（下記申し送り参照。独立タスク化推奨）
 
 ## 決定事項 (変更には理由が要る)
 
@@ -33,9 +34,12 @@
 
 ## 申し送り (次セッションの自分へ)
 
+- **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
+- **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで
+- **M4レビューLow申し送り**: `color-mix()`をRecipeCard.module.cssで初導入（Baseline 2023、Safari 16.2+が実質のブラウザ下限に）／写真表示系のobjectURL未revokeはphotoStore共有キャッシュ設計と整合した意図的挙動／pagehideのflushAutosaveはbest-effort（非同期完了非保証）
 - **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。**受信転送の設定（Cloudflare Email Routing等）が公開前に必要=ユーザー作業**。商用要素追加前は専門家レビュー推奨の注記あり
-- **M4結線の必須事項3点**（M3レビュー申し送り。計画§4.2 M4冒頭に詳細）: ①autosave/エクスポート手前でstripPendingPaints必須（INV-12保護） ②palette要素の参照同一性維持（PaintPicker再同期が参照比較） ③palette孤児エントリの整理方針確認
-- ToastHost: successの自動消滅タイマーがclearTimeout管理されていない（レビューLow）。手動閉じUI追加時に対応（M4）
+- ~~M4結線の必須事項3点~~（M4で充足済み: ①ストアのstripStepPending ②updater参照同一性（テストでtoBe検証） ③PaletteEditor未使用削除UI。④は実機確認の上M5送り②へ）
+- ToastHost: successの自動消滅タイマーがclearTimeout管理されていない（レビューLow）。手動閉じUI追加時に対応（M5以降）
 - favicon: vite.svg参照は削除済み。正式には封蝋logo.svg（デザイン仕様書§7=唯一のSVG供給アセット）を作成してindex.htmlへ結線（M4/M7）
 - i18n永続化キーは独自の `coat-codex:lang`。LanguageDetector導入時は標準`i18nextLng`との整合に注意（レビューLow）
 - devサーバープレビューは .claude/launch.json の `coat-codex-dev`（port 5173）
