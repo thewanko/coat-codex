@@ -9,6 +9,7 @@
 
 - 2026-07-02: 計画フェーズ — 技術計画v2.2確定（3観点レビュー約30件＋デザイン決定稿§8の提案A/B反映済み）。デザイン引き継ぎ資料＋決定稿一式は docs/design/
 - 2026-07-02: **Cloudflare Pages本番デプロイ** — coat-codex.pages.dev（Pages Git連携）。本番で `/`・`/terms`・深いURL直接アクセスの200＋SPAフォールバックを確認。※初回に誤ってWorkers Buildsで作成→Pagesで作り直し（§5.5の注意点として学び）
+- 2026-07-02: **カスタムドメイン設定** — https://coat-codex.com （Cloudflare Pages Custom domains。SSL・深いURLフォールバック確認済み。要件定義の「ドメイン取得可否は別途確認」は解決。www側は未設定=任意）
 - 2026-07-02: **M2 データ永続層（T12〜T15）** — Dexie 3テーブル＋recipeStore（lazy migration5分岐・書き戻しtx化）／imageProcessing（§2.6の4段規則・依存注入設計・canvas実機4経路確認済み）／photoStore（objectURLキャッシュrevoke・GC tx化・StorageQuotaError変換）／storageHealth（persist/estimate・meta3キー・リマインダー純関数=14日/7日境界）。2回の並列委譲。opusレビューRound 1 PASS（C0/H0/M0/L3→全件反映）。計212+テスト
 - 2026-07-02: **M1 純ロジック層（T7〜T11）** — mixRatio全12関数（§2.4の50ケース）／techniques10種＋i18n／recipe.ts zodスキーマ=不変条件1〜20を[INV-nn]付きsuperRefineで実装（受理/拒否49ケース）／recipeRefs／migrations（レジストリ注入・多段チェーン・欠落throw）。T10/T11は並列委譲。opusレビューRound 1 PASS（C0/H0/M2/L3→全5件反映済み）。計137テスト
 - 2026-07-02: **M0 基盤（T1〜T6）** — Vite+React19+TS scaffold（§4.1固定バージョン）／React19×dnd-kit採用確定（core@6.3.1+sortable@10、StrictMode動作確認済み）／react-router v7全7ルート／i18n ja/en＋localStorage永続化／AppShell＋theme.css結線＋基底部品（EmptyState・Skeleton・ToastHost）／wrangler.toml＋SPAフォールバック検証。出口一括opusレビュー Round 1 PASS（C0/H0/M1/L3。M1=favicon参照は修正済み）
