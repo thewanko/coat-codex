@@ -1,0 +1,543 @@
+{
+  "_meta": {
+    "hexNote": "hexは近似値。公式チャートでの校正はQA時"
+  },
+  "brandId": "citadel",
+  "label": "Citadel",
+  "colors": [
+    {
+      "id": "citadel:abaddon-black",
+      "name": "Abaddon Black",
+      "nameJa": "アバドンブラック",
+      "hex": "#141414"
+    },
+    {
+      "id": "citadel:mephiston-red",
+      "name": "Mephiston Red",
+      "nameJa": "メフィストンレッド",
+      "hex": "#960C0C"
+    },
+    {
+      "id": "citadel:khorne-red",
+      "name": "Khorne Red",
+      "nameJa": "コーンレッド",
+      "hex": "#5D0A0A"
+    },
+    {
+      "id": "citadel:wazdakka-red",
+      "name": "Wazdakka Red",
+      "nameJa": "ワズダッカレッド",
+      "hex": "#9C1F0E"
+    },
+    {
+      "id": "citadel:evil-sunz-scarlet",
+      "name": "Evil Sunz Scarlet",
+      "nameJa": "イーブルサンズスカーレット",
+      "hex": "#C41E11"
+    },
+    {
+      "id": "citadel:jokaero-orange",
+      "name": "Jokaero Orange",
+      "nameJa": "ジョカエロオレンジ",
+      "hex": "#E0631E"
+    },
+    {
+      "id": "citadel:troll-slayer-orange",
+      "name": "Troll Slayer Orange",
+      "nameJa": "トロールスレイヤーオレンジ",
+      "hex": "#F27324"
+    },
+    {
+      "id": "citadel:fire-dragon-bright",
+      "name": "Fire Dragon Bright",
+      "nameJa": "ファイアドラゴンブライト",
+      "hex": "#F58020"
+    },
+    {
+      "id": "citadel:averland-sunset",
+      "name": "Averland Sunset",
+      "nameJa": "アバーランドサンセット",
+      "hex": "#F2A900"
+    },
+    {
+      "id": "citadel:yriel-yellow",
+      "name": "Yriel Yellow",
+      "nameJa": "ユリエルイエロー",
+      "hex": "#F6EB1B"
+    },
+    {
+      "id": "citadel:flash-gitz-yellow",
+      "name": "Flash Gitz Yellow",
+      "nameJa": "フラッシュギッツイエロー",
+      "hex": "#F7E017"
+    },
+    {
+      "id": "citadel:zandri-dust",
+      "name": "Zandri Dust",
+      "nameJa": "ザンドリダスト",
+      "hex": "#9C7A3C"
+    },
+    {
+      "id": "citadel:karak-stone",
+      "name": "Karak Stone",
+      "nameJa": "カラクストーン",
+      "hex": "#C5B27E"
+    },
+    {
+      "id": "citadel:rhinox-hide",
+      "name": "Rhinox Hide",
+      "nameJa": "ライノックスハイド",
+      "hex": "#4B3220"
+    },
+    {
+      "id": "citadel:doombull-brown",
+      "name": "Doombull Brown",
+      "nameJa": "ドゥームブルブラウン",
+      "hex": "#5C3A21"
+    },
+    {
+      "id": "citadel:mournfang-brown",
+      "name": "Mournfang Brown",
+      "nameJa": "モーンファングブラウン",
+      "hex": "#4A2E1C"
+    },
+    {
+      "id": "citadel:steel-legion-drab",
+      "name": "Steel Legion Drab",
+      "nameJa": "スティールレギオンドラブ",
+      "hex": "#7B7256"
+    },
+    {
+      "id": "citadel:death-guard-green",
+      "name": "Death Guard Green",
+      "nameJa": "デスガードグリーン",
+      "hex": "#8A9A5B"
+    },
+    {
+      "id": "citadel:ork-flesh",
+      "name": "Ork Flesh",
+      "nameJa": "オークフレッシュ",
+      "hex": "#5A7318"
+    },
+    {
+      "id": "citadel:waaagh-flesh",
+      "name": "Waaagh! Flesh",
+      "nameJa": "ワァァグフレッシュ",
+      "hex": "#1F5C21"
+    },
+    {
+      "id": "citadel:warboss-green",
+      "name": "Warboss Green",
+      "nameJa": "ウォーボスグリーン",
+      "hex": "#1C4B22"
+    },
+    {
+      "id": "citadel:caliban-green",
+      "name": "Caliban Green",
+      "nameJa": "カリバングリーン",
+      "hex": "#0E3B1E"
+    },
+    {
+      "id": "citadel:castellan-green",
+      "name": "Castellan Green",
+      "nameJa": "カステラングリーン",
+      "hex": "#1B4D2E"
+    },
+    {
+      "id": "citadel:kabalite-green",
+      "name": "Kabalite Green",
+      "nameJa": "カバライトグリーン",
+      "hex": "#0F3D2A"
+    },
+    {
+      "id": "citadel:skarsnik-green",
+      "name": "Skarsnik Green",
+      "nameJa": "スカースニックグリーン",
+      "hex": "#4E8F3D"
+    },
+    {
+      "id": "citadel:warpstone-glow",
+      "name": "Warpstone Glow",
+      "nameJa": "ワープストーングロウ",
+      "hex": "#1FA646"
+    },
+    {
+      "id": "citadel:moot-green",
+      "name": "Moot Green",
+      "nameJa": "ムートグリーン",
+      "hex": "#7BC142"
+    },
+    {
+      "id": "citadel:kantor-blue",
+      "name": "Kantor Blue",
+      "nameJa": "カントールブルー",
+      "hex": "#1B2A4A"
+    },
+    {
+      "id": "citadel:macragge-blue",
+      "name": "Macragge Blue",
+      "nameJa": "マクラッジブルー",
+      "hex": "#0F2C5C"
+    },
+    {
+      "id": "citadel:altdorf-guard-blue",
+      "name": "Altdorf Guard Blue",
+      "nameJa": "アルトドルフガードブルー",
+      "hex": "#1750A5"
+    },
+    {
+      "id": "citadel:calgar-blue",
+      "name": "Calgar Blue",
+      "nameJa": "カルガーブルー",
+      "hex": "#153E7A"
+    },
+    {
+      "id": "citadel:teclis-blue",
+      "name": "Teclis Blue",
+      "nameJa": "テクリスブルー",
+      "hex": "#3E7FC1"
+    },
+    {
+      "id": "citadel:lothern-blue",
+      "name": "Lothern Blue",
+      "nameJa": "ロサーンブルー",
+      "hex": "#1C8FC1"
+    },
+    {
+      "id": "citadel:caledor-sky",
+      "name": "Caledor Sky",
+      "nameJa": "キャレドアスカイ",
+      "hex": "#4A9FD8"
+    },
+    {
+      "id": "citadel:kabalite-wraithbone",
+      "name": "Kabalite Wraithbone",
+      "nameJa": "カバライトレイスボーン",
+      "hex": "#D6CFB4"
+    },
+    {
+      "id": "citadel:rakarth-flesh",
+      "name": "Rakarth Flesh",
+      "nameJa": "ラカースフレッシュ",
+      "hex": "#9C8F7C"
+    },
+    {
+      "id": "citadel:screamer-pink",
+      "name": "Screamer Pink",
+      "nameJa": "スクリーマーピンク",
+      "hex": "#C13A8F"
+    },
+    {
+      "id": "citadel:naggaroth-night",
+      "name": "Naggaroth Night",
+      "nameJa": "ナガロスナイト",
+      "hex": "#3C2A5E"
+    },
+    {
+      "id": "citadel:xereus-purple",
+      "name": "Xereus Purple",
+      "nameJa": "ゼレウスパープル",
+      "hex": "#3A2049"
+    },
+    {
+      "id": "citadel:genestealer-purple",
+      "name": "Genestealer Purple",
+      "nameJa": "ジーンスティーラーパープル",
+      "hex": "#4E2A6E"
+    },
+    {
+      "id": "citadel:daemonette-hide",
+      "name": "Daemonette Hide",
+      "nameJa": "デーモネットハイド",
+      "hex": "#7A2E5C"
+    },
+    {
+      "id": "citadel:khorne-berserkers-red",
+      "name": "Khorne Berserkers Red",
+      "nameJa": "コーンバーサーカーズレッド",
+      "hex": "#7D1616"
+    },
+    {
+      "id": "citadel:wraithbone",
+      "name": "Wraithbone",
+      "nameJa": "レイスボーン",
+      "hex": "#E4D9B8"
+    },
+    {
+      "id": "citadel:white-scar",
+      "name": "White Scar",
+      "nameJa": "ホワイトスカー",
+      "hex": "#F0F0F0"
+    },
+    {
+      "id": "citadel:corax-white",
+      "name": "Corax White",
+      "nameJa": "コラックスホワイト",
+      "hex": "#E8E8E8"
+    },
+    {
+      "id": "citadel:celestra-grey",
+      "name": "Celestra Grey",
+      "nameJa": "セレストラグレイ",
+      "hex": "#A8A9AC"
+    },
+    {
+      "id": "citadel:dawnstone",
+      "name": "Dawnstone",
+      "nameJa": "ドーンストーン",
+      "hex": "#7E8285"
+    },
+    {
+      "id": "citadel:mechanicus-standard-grey",
+      "name": "Mechanicus Standard Grey",
+      "nameJa": "メカニカムスタンダードグレイ",
+      "hex": "#42474D"
+    },
+    {
+      "id": "citadel:eshin-grey",
+      "name": "Eshin Grey",
+      "nameJa": "エシングレイ",
+      "hex": "#5B5F63"
+    },
+    {
+      "id": "citadel:administratum-grey",
+      "name": "Administratum Grey",
+      "nameJa": "アドミニストラタムグレイ",
+      "hex": "#8D9192"
+    },
+    {
+      "id": "citadel:leadbelcher",
+      "name": "Leadbelcher",
+      "nameJa": "リードベルチャー",
+      "hex": "#8B8E90"
+    },
+    {
+      "id": "citadel:ironbreaker",
+      "name": "Ironbreaker",
+      "nameJa": "アイアンブレイカー",
+      "hex": "#A5A9AC"
+    },
+    {
+      "id": "citadel:runefang-steel",
+      "name": "Runefang Steel",
+      "nameJa": "ルーンファングスチール",
+      "hex": "#C6C9CB"
+    },
+    {
+      "id": "citadel:retributor-armour",
+      "name": "Retributor Armour",
+      "nameJa": "レトリビューターアーマー",
+      "hex": "#B9852F"
+    },
+    {
+      "id": "citadel:auric-armour-gold",
+      "name": "Auric Armour Gold",
+      "nameJa": "オーリックアーマーゴールド",
+      "hex": "#C8952E"
+    },
+    {
+      "id": "citadel:balthasar-gold",
+      "name": "Balthasar Gold",
+      "nameJa": "バルタザールゴールド",
+      "hex": "#8C6C1F"
+    },
+    {
+      "id": "citadel:warplock-bronze",
+      "name": "Warplock Bronze",
+      "nameJa": "ウォーロックブロンズ",
+      "hex": "#5C4A28"
+    },
+    {
+      "id": "citadel:screaming-skull",
+      "name": "Screaming Skull",
+      "nameJa": "スクリーミングスカル",
+      "hex": "#DCCE8C"
+    },
+    {
+      "id": "citadel:ushabti-bone",
+      "name": "Ushabti Bone",
+      "nameJa": "ウシャブティボーン",
+      "hex": "#C4A66B"
+    },
+    {
+      "id": "citadel:tallarn-sand",
+      "name": "Tallarn Sand",
+      "nameJa": "タラーンサンド",
+      "hex": "#C89050"
+    },
+    {
+      "id": "citadel:wild-rider-red",
+      "name": "Wild Rider Red",
+      "nameJa": "ワイルドライダーレッド",
+      "hex": "#B31E24"
+    },
+    {
+      "id": "citadel:fulgrim-pink",
+      "name": "Fulgrim Pink",
+      "nameJa": "フルグリムピンク",
+      "hex": "#E799A3"
+    },
+    {
+      "id": "citadel:baharroth-blue",
+      "name": "Baharroth Blue",
+      "nameJa": "バハロスブルー",
+      "hex": "#5FC7E8"
+    },
+    {
+      "id": "citadel:sotek-green",
+      "name": "Sotek Green",
+      "nameJa": "ソテックグリーン",
+      "hex": "#1E8F7A"
+    },
+    {
+      "id": "citadel:sybarite-green",
+      "name": "Sybarite Green",
+      "nameJa": "シバライトグリーン",
+      "hex": "#5CA13E"
+    },
+    {
+      "id": "citadel:nurgling-green",
+      "name": "Nurgling Green",
+      "nameJa": "ナーグリングリーン",
+      "hex": "#8FAE5C"
+    },
+    {
+      "id": "citadel:ogryn-camo",
+      "name": "Ogryn Camo",
+      "nameJa": "オグリンカモ",
+      "hex": "#7C8A4E"
+    },
+    {
+      "id": "citadel:elysian-green",
+      "name": "Elysian Green",
+      "nameJa": "エリシアングリーン",
+      "hex": "#5E8F3E"
+    },
+    {
+      "id": "citadel:flayed-one-flesh",
+      "name": "Flayed One Flesh",
+      "nameJa": "フレイドワンフレッシュ",
+      "hex": "#C9AD82"
+    },
+    {
+      "id": "citadel:cadian-fleshtone",
+      "name": "Cadian Fleshtone",
+      "nameJa": "カディアンフレッシュトーン",
+      "hex": "#C48A6A"
+    },
+    {
+      "id": "citadel:kislev-flesh",
+      "name": "Kislev Flesh",
+      "nameJa": "キスレフフレッシュ",
+      "hex": "#D9A57C"
+    },
+    {
+      "id": "citadel:bugman-s-glow",
+      "name": "Bugman's Glow",
+      "nameJa": "バグマンズグロウ",
+      "hex": "#966352"
+    },
+    {
+      "id": "citadel:ratskin-flesh",
+      "name": "Ratskin Flesh",
+      "nameJa": "ラットスキンフレッシュ",
+      "hex": "#8A5A3C"
+    },
+    {
+      "id": "citadel:ungor-flesh",
+      "name": "Ungor Flesh",
+      "nameJa": "アンゴアフレッシュ",
+      "hex": "#C79A7B"
+    },
+    {
+      "id": "citadel:pallid-wych-flesh",
+      "name": "Pallid Wych Flesh",
+      "nameJa": "パリッドウィッチフレッシュ",
+      "hex": "#E8DFC6"
+    },
+    {
+      "id": "citadel:lothern-blue-layer",
+      "name": "Lothern Blue Layer",
+      "nameJa": "ロサーンブルー(レイヤー)",
+      "hex": "#3AA6D9"
+    },
+    {
+      "id": "citadel:hoeth-blue",
+      "name": "Hoeth Blue",
+      "nameJa": "ホースブルー",
+      "hex": "#3E9FD1"
+    },
+    {
+      "id": "citadel:sigmarite-white",
+      "name": "Sigmarite White",
+      "nameJa": "シグマライトホワイト",
+      "hex": "#EDEDED"
+    },
+    {
+      "id": "citadel:ceramite-white",
+      "name": "Ceramite White",
+      "nameJa": "セラマイトホワイト",
+      "hex": "#FBFBFB"
+    },
+    {
+      "id": "citadel:nuln-oil",
+      "name": "Nuln Oil",
+      "nameJa": "ナルンオイル",
+      "hex": "#0C0C0C"
+    },
+    {
+      "id": "citadel:agrax-earthshade",
+      "name": "Agrax Earthshade",
+      "nameJa": "アグラックスアースシェイド",
+      "hex": "#3A2A1C"
+    },
+    {
+      "id": "citadel:reikland-fleshshade",
+      "name": "Reikland Fleshshade",
+      "nameJa": "ライクランドフレッシュシェイド",
+      "hex": "#8A4A2C"
+    },
+    {
+      "id": "citadel:seraphim-sepia",
+      "name": "Seraphim Sepia",
+      "nameJa": "セラフィムセピア",
+      "hex": "#6E4318"
+    },
+    {
+      "id": "citadel:druchii-violet",
+      "name": "Druchii Violet",
+      "nameJa": "ドルチィヴァイオレット",
+      "hex": "#2A1140"
+    },
+    {
+      "id": "citadel:carroburg-crimson",
+      "name": "Carroburg Crimson",
+      "nameJa": "カロバーグクリムゾン",
+      "hex": "#5C0E14"
+    },
+    {
+      "id": "citadel:biel-tan-green",
+      "name": "Biel-Tan Green",
+      "nameJa": "ビエルタングリーン",
+      "hex": "#0E3B22"
+    },
+    {
+      "id": "citadel:athonian-camoshade",
+      "name": "Athonian Camoshade",
+      "nameJa": "アソニアンカモシェイド",
+      "hex": "#4A4E22"
+    },
+    {
+      "id": "citadel:coelia-greenshade",
+      "name": "Coelia Greenshade",
+      "nameJa": "セリアグリーンシェイド",
+      "hex": "#0E3A38"
+    },
+    {
+      "id": "citadel:drakenhof-nightshade",
+      "name": "Drakenhof Nightshade",
+      "nameJa": "ドラケンホフナイトシェイド",
+      "hex": "#152840"
+    }
+  ]
+}

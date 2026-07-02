@@ -1,0 +1,72 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-gold);
+  letter-spacing: 0.04em;
+}
+
+.ratioInput {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-raised);
+  color: inherit;
+}
+
+.ratioInputDisabled {
+  background: var(--color-bg-sunken);
+  color: var(--color-ink-faint);
+  cursor: not-allowed;
+}
+
+.ratioInputError {
+  background: var(--color-danger-bg);
+  border: 1.5px solid var(--color-danger);
+}
+
+.total {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.dotSuccess {
+  background: var(--color-success);
+}
+
+.dotDanger {
+  background: var(--color-danger);
+}
+
+.warning {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+}

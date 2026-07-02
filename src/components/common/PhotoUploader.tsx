@@ -1,0 +1,246 @@
+// components/common/PhotoUploader.tsx — 複数枚写真アップローダ
+// （デザイン仕様書§4「PhotoUploader / 写真」§8-A: 112pxタイル、先頭COVERタグ、
+// 各タイル✕、末尾「＋ 追加」破線タイル。並び替え=代表変更。
+// dnd-kit不使用（V-5）— 上下移動ボタン＋「先頭へ（代表にする）」ボタンのみ）
+//
+// <input type="file" accept="image/*" multiple> → T14 savePhoto（内部でT13正規化）→
+// photoId配列をprops value/onChangeで親と同期。アップロード中はSkeleton(photo)＋photo.uploading。
+// 削除は各タイル✕→ConfirmDialog確認→onChange（photosテーブルからの削除も実施）。
+// StorageQuotaError/UnsupportedImageFormatErrorはuseToastのerrorでmessageKeyを表示。
+
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  savePhoto,
+  resolvePhotoUrl,
+  revokePhotoUrl,
+} from "../../db/photoStore";
+import { db } from "../../db/db";
+import { useToast } from "./toastContext";
+import ConfirmDialog from "./ConfirmDialog";
+import Skeleton from "./Skeleton";
+import styles from "./PhotoUploader.module.css";
+
+interface PhotoUploaderProps {
+  recipeId: string;
+  value: string[];
+  onChange: (photoIds: string[]) => void;
+}
+
+interface HasMessageKey {
+  messageKey: string;
+}
+
+function hasMessageKey(err: unknown): err is HasMessageKey {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "messageKey" in err &&
+    typeof (err as { messageKey?: unknown }).messageKey === "string"
+  );
+}
+
+function PhotoTile({
+  photoId,
+  isCover,
+}: {
+  photoId: string;
+  isCover: boolean;
+}) {
+  const { t } = useTranslation();
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void resolvePhotoUrl(photoId).then((resolved) => {
+      if (!cancelled) {
+        setUrl(resolved);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [photoId]);
+
+  return (
+    <div className={styles.thumb}>
+      {isCover && <span className={styles.coverTag}>{t("photo.cover")}</span>}
+      {url ? (
+        <img className={styles.thumbImg} src={url} alt="" />
+      ) : (
+        <span className={styles.thumbPlaceholder} aria-hidden="true" />
+      )}
+    </div>
+  );
+}
+
+function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  function handleAddClick() {
+    inputRef.current?.click();
+  }
+
+  async function handleFilesSelected(files: FileList | null) {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const newIds: string[] = [];
+      for (const file of Array.from(files)) {
+        try {
+          const id = await savePhoto(file, recipeId);
+          newIds.push(id);
+        } catch (err) {
+          if (hasMessageKey(err)) {
+            toast.error(t(err.messageKey));
+          } else {
+            throw err;
+          }
+        }
+      }
+      if (newIds.length > 0) {
+        onChange([...value, ...newIds]);
+      }
+    } finally {
+      setUploading(false);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+    }
+  }
+
+  function moveUp(index: number) {
+    if (index <= 0) {
+      return;
+    }
+    const next = [...value];
+    [next[index - 1], next[index]] = [next[index], next[index - 1]];
+    onChange(next);
+  }
+
+  function moveDown(index: number) {
+    if (index >= value.length - 1) {
+      return;
+    }
+    const next = [...value];
+    [next[index], next[index + 1]] = [next[index + 1], next[index]];
+    onChange(next);
+  }
+
+  function makeCover(index: number) {
+    if (index <= 0) {
+      return;
+    }
+    const next = [...value];
+    const [item] = next.splice(index, 1);
+    next.unshift(item);
+    onChange(next);
+  }
+
+  function requestDelete(photoId: string) {
+    setPendingDeleteId(photoId);
+  }
+
+  async function confirmDelete() {
+    const photoId = pendingDeleteId;
+    setPendingDeleteId(null);
+    if (!photoId) {
+      return;
+    }
+    await db.photos.delete(photoId);
+    revokePhotoUrl(photoId);
+    onChange(value.filter((id) => id !== photoId));
+  }
+
+  function cancelDelete() {
+    setPendingDeleteId(null);
+  }
+
+  return (
+    <div className={styles.root}>
+      <div className={styles.grid}>
+        {value.map((photoId, index) => (
+          <div key={photoId} className={styles.tileWrapper}>
+            <PhotoTile photoId={photoId} isCover={index === 0} />
+            <button
+              type="button"
+              className={styles.removeButton}
+              aria-label={t("photo.delete")}
+              onClick={() => requestDelete(photoId)}
+            >
+              ✕
+            </button>
+            <div className={styles.tileControls}>
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-label={t("photo.moveUp")}
+                disabled={index === 0}
+                onClick={() => moveUp(index)}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-label={t("photo.moveDown")}
+                disabled={index === value.length - 1}
+                onClick={() => moveDown(index)}
+              >
+                ↓
+              </button>
+              {index !== 0 && (
+                <button
+                  type="button"
+                  className={styles.controlButtonWide}
+                  onClick={() => makeCover(index)}
+                >
+                  {t("photo.makeCover")}
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {uploading && (
+          <div className={styles.tileWrapper}>
+            <Skeleton variant="photo" aria-label={t("photo.uploading")} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          className={styles.addTile}
+          onClick={handleAddClick}
+        >
+          {t("photo.add")}
+        </button>
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className={styles.hiddenInput}
+        onChange={(event) => void handleFilesSelected(event.target.files)}
+      />
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title={t("photo.delete")}
+        onConfirm={() => void confirmDelete()}
+        onCancel={cancelDelete}
+      />
+    </div>
+  );
+}
+
+export default PhotoUploader;

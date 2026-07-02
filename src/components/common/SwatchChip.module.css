@@ -1,0 +1,92 @@
+/* SwatchChip — 中立領域（テーマ変更の影響禁止）。
+   白台紙 --color-swatch-frame ＋ 1px rgba(0,0,0,.12) ＋ --radius-xs、
+   内側チップに 1px --color-swatch-border。empty=市松 --color-swatch-checker */
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  vertical-align: middle;
+}
+
+.frame {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-swatch-frame);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-xs);
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.chip {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--color-swatch-border);
+  border-radius: 2px;
+  background-color: #ffffff;
+}
+
+.chipPhoto {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--color-swatch-border);
+  border-radius: 2px;
+  object-fit: cover;
+  display: block;
+}
+
+.sizeSm {
+  width: var(--size-swatch-sm);
+  height: var(--size-swatch-sm);
+}
+
+.sizeMd {
+  width: var(--size-swatch-md);
+  height: var(--size-swatch-md);
+}
+
+.sizeLg {
+  width: var(--size-swatch-lg);
+  height: var(--size-swatch-lg);
+}
+
+.sizeXl {
+  width: var(--size-swatch-xl);
+  height: var(--size-swatch-xl);
+}
+
+[data-variant="empty"] .chip {
+  background-image:
+    linear-gradient(45deg, var(--color-swatch-checker) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-swatch-checker) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-swatch-checker) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-swatch-checker) 75%);
+  background-size: 6px 6px;
+  background-position:
+    0 0,
+    0 3px,
+    3px -3px,
+    -3px 0;
+  background-color: #ffffff;
+}
+
+.label {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.name {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+}
+
+.meta {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
