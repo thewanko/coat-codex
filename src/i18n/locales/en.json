@@ -20,7 +20,8 @@
   },
   "errors": {
     "unsupportedImageFormat": "Unsupported image format",
-    "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up."
+    "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up.",
+    "saveFailed": "Failed to save"
   },
   "paint": {
     "brandLabel": "Brand",
@@ -42,7 +43,8 @@
     "addPaint": "+ Add paint",
     "maxPaints": "Up to 5 paints",
     "remaining": "({{count}} left)",
-    "duplicateColor": "This color is already used in another slot"
+    "duplicateColor": "This color is already used in another slot",
+    "badgeWarning": "⚠ Total {{value}}%"
   },
   "photo": {
     "add": "+ Add",
@@ -51,11 +53,98 @@
     "moveDown": "Move down",
     "makeCover": "Make cover",
     "cover": "COVER",
-    "delete": "Delete"
+    "delete": "Delete",
+    "stepAdd": "+ Add 1 photo",
+    "stepTag": "STEP {{n}}"
   },
   "confirm": {
     "cancel": "Cancel",
     "delete": "Delete",
     "irreversible": "This cannot be undone."
+  },
+  "recipe": {
+    "untitledTitle": "Untitled Recipe"
+  },
+  "home": {
+    "newRecipe": "New Recipe",
+    "open": "Open",
+    "delete": "Delete",
+    "deleteTitle": "Delete recipe",
+    "deleteMessage": "\"{{title}}\" will be deleted, including all of its photos.",
+    "cardMenu": "Menu",
+    "stepsCount": "{{count}} steps",
+    "updatedAt": "Updated {{date}}",
+    "emptyTitle": "No codex yet",
+    "emptyDescription": "Your data is stored only in this device's browser",
+    "emptyCta": "Create your first codex",
+    "emptyImport": "Import JSON"
+  },
+  "setup": {
+    "titleLabel": "Title",
+    "titlePlaceholder": "Enter a recipe name",
+    "photosLabel": "Overview photos",
+    "paletteLabel": "Colors",
+    "toolsLabel": "Tools",
+    "addColor": "+ Add color",
+    "addTool": "+ Add tool",
+    "toolPlaceholder": "Tool name",
+    "usedInSteps": "Used in {{count}} steps",
+    "unused": "Unused",
+    "loadError": "Failed to load the recipe",
+    "notFound": "Recipe not found",
+    "inUseNote": "↳ In use by steps — remove it from the steps to delete",
+    "makeCodex": "make codex!",
+    "importTitle": "Import from JSON",
+    "importNote": "Restore from an exported JSON file"
+  },
+  "editor": {
+    "techniqueLabel": "Technique",
+    "techniquePreset": "Preset",
+    "techniqueCustom": "Custom",
+    "techniquePlaceholder": "Enter a technique name",
+    "toolLabel": "Tools",
+    "toolEmpty": "Register tools on the Setup screen to select them",
+    "memoLabel": "Memo",
+    "memoPlaceholder": "Memo (optional)",
+    "stepLabel": "STEP {{n}}",
+    "deleteStep": "Delete step",
+    "deleteStepTitle": "Delete this step?",
+    "dragHandle": "Drag to reorder",
+    "moveStepUp": "Move step up",
+    "moveStepDown": "Move step down",
+    "addStep": "Add step",
+    "emptyStepsTitle": "No steps yet",
+    "emptyStepsDescription": "Add a step to record the technique, paints, and mix ratio.",
+    "partNameLabel": "Part name",
+    "partNamePlaceholder": "Enter a part name",
+    "baseModeTitle": "Base steps (whole model)",
+    "editOverviewPhotosLink": "Edit overview photos in Setup ›",
+    "closePanel": "Close",
+    "partNotFound": "Part not found",
+    "stepPhotoStripLabel": "Steps with photos",
+    "stepPhotoStripItemLabel": "Jump to STEP {{n}} photo"
+  },
+  "overview": {
+    "baseOverline": "BASE",
+    "editBaseSteps": "Edit ›",
+    "addBaseStep": "+ Add base steps",
+    "partsHeading": "PARTS",
+    "partsHeadingJp": "Parts",
+    "partStepsCount": "{{count}} steps",
+    "addPart": "+ Add part",
+    "newPartName": "New part",
+    "movePartUp": "Move part up",
+    "movePartDown": "Move part down",
+    "dragHandle": "Drag to reorder",
+    "emptyPartsTitle": "No parts yet",
+    "emptyPartsDescription": "Add a part to record its steps, paints, and mix ratios.",
+    "photoStripAllCount": "{{count}} total",
+    "exportPrint": "Print",
+    "exportPdf": "PDF",
+    "exportX": "X",
+    "exportBluesky": "Bluesky",
+    "exportNoteMd": "note MD",
+    "exportJson": "JSON",
+    "exportPlainMd": "Plain MD"
   }
 }

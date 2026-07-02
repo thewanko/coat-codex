@@ -1,0 +1,140 @@
+// components/home/RecipeCard.tsx — 折丁カード（デザイン仕様書§4「recipe（Home）」）
+//
+// 二重枠inset＋padding 9px、代表写真（overviewPhotoIds[0]）をresolvePhotoUrlで解決、
+// タイトル中央・明朝、メタ=mono「更新・工程n」。未バックアップドットは表示スロットのみ
+// 確保し、判定結線はT34（backedUpの実値供給）で行う（本タスクでは常にfalse/undefined）。
+// メニュー（⋮）は「開く」「削除」のみ（複製・JSONエクスポートの結線はT33）。
+
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { resolvePhotoUrl } from "../../db/photoStore";
+import type { RecipeDoc } from "../../models/recipe";
+import styles from "./RecipeCard.module.css";
+
+interface RecipeCardProps {
+  recipe: RecipeDoc;
+  /** 未バックアップドットの表示要否。結線はT34（D-6）。本タスクでは渡されない想定 */
+  backedUp?: boolean;
+  onOpen: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+function countSteps(recipe: RecipeDoc): number {
+  const partSteps = recipe.parts.reduce(
+    (sum, part) => sum + part.steps.length,
+    0,
+  );
+  return recipe.baseSteps.length + partSteps;
+}
+
+function RecipeCard({ recipe, backedUp, onOpen, onDelete }: RecipeCardProps) {
+  const { t, i18n } = useTranslation();
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const coverPhotoId = recipe.overviewPhotoIds[0];
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    function handlePointerDown(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!coverPhotoId) {
+      setPhotoUrl(null);
+      return;
+    }
+    let cancelled = false;
+    void resolvePhotoUrl(coverPhotoId).then((url) => {
+      if (!cancelled) {
+        setPhotoUrl(url);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [coverPhotoId]);
+
+  const updatedAtLabel = t("home.updatedAt", {
+    date: new Date(recipe.updatedAt).toLocaleDateString(i18n.language),
+  });
+  const stepsLabel = t("home.stepsCount", { count: countSteps(recipe) });
+
+  function handleOpen() {
+    setMenuOpen(false);
+    onOpen(recipe.id);
+  }
+
+  function handleDelete() {
+    setMenuOpen(false);
+    onDelete(recipe.id);
+  }
+
+  return (
+    <div className={styles.card} data-testid="recipe-card">
+      <div className={styles.menuWrapper} ref={menuRef}>
+        <button
+          type="button"
+          className={styles.menuButton}
+          aria-label={t("home.cardMenu")}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          ⋮
+        </button>
+        {menuOpen && (
+          <div className={styles.menu} role="menu">
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={handleOpen}
+            >
+              {t("home.open")}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={`${styles.menuItem} ${styles.menuItemDanger}`}
+              onClick={handleDelete}
+            >
+              {t("home.delete")}
+            </button>
+          </div>
+        )}
+      </div>
+
+      <button type="button" className={styles.thumbButton} onClick={handleOpen}>
+        {photoUrl ? (
+          <img className={styles.thumb} src={photoUrl} alt="" />
+        ) : (
+          <span className={styles.thumbPlaceholder} aria-hidden="true" />
+        )}
+      </button>
+
+      <div className={styles.body}>
+        <span
+          className={styles.backupDot}
+          data-visible={backedUp === false}
+          aria-hidden="true"
+        />
+        <h3 className={styles.title}>{recipe.title}</h3>
+      </div>
+      <p className={styles.meta}>
+        {updatedAtLabel} ・ {stepsLabel}
+      </p>
+    </div>
+  );
+}
+
+export default RecipeCard;

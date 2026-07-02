@@ -1,0 +1,105 @@
+/* ExportActionBar — デザイン仕様書§4「ActionBar」
+   export(PC): [印刷][PDF] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]（結合ピル・隣接固定）
+   export(mobile): 下部固定、CSSメディアクエリで切替（コンポーネント側は1ツリーのみ描画） */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--color-gold-soft);
+  background: var(--color-bg-raised);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  cursor: pointer;
+}
+
+.pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pill:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.divider {
+  width: 4px;
+  height: 4px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  margin: 0 3px;
+  flex: none;
+}
+
+.combinedPill {
+  display: inline-flex;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.combinedButton {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  background: var(--color-warning-bg);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  cursor: pointer;
+}
+
+.combinedButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.combinedButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.combinedSeparator {
+  width: 1px;
+  background: var(--color-accent);
+  flex: none;
+}
+
+@media (max-width: 767px) {
+  .root {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--actionbar-height);
+    background: var(--color-bg-raised);
+    border-top: 2px solid var(--color-gold-soft);
+    /* 上向き影はtheme.cssに該当トークンなし（--shadow-1は下向き固定）。
+       色成分rgba(43,36,28,.1)は--color-ink(#2B241C)10%と同値（theme.css --shadow-1参照）。
+       値はここで直接維持する（theme.css改変禁止・M4 Opusレビュー Round1 Medium対応） */
+    box-shadow: 0 -2px 8px rgba(43, 36, 28, 0.1);
+    padding: 0 var(--space-3);
+    z-index: var(--z-panel, 40);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .combinedPill {
+    margin-left: auto;
+  }
+}

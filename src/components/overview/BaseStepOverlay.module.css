@@ -1,0 +1,93 @@
+/* BaseStepOverlay — 代表写真下辺の墨帯（デザイン仕様書§4「BaseStepOverlay」）
+   写真なしでも帯は表示。empty=破線ピル「＋ ベース工程を追加」 */
+
+.root {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  background: var(--color-overlay-ink);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.overline {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.24em;
+  color: var(--color-gold-soft);
+  flex: none;
+}
+
+.chips {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.chip {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--color-on-overlay);
+  border: 1px solid var(--color-on-overlay-line);
+  border-radius: var(--radius-full);
+  padding: 4px 11px;
+}
+
+.edit {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-gold-soft);
+  margin-left: auto;
+  flex: none;
+}
+
+.emptyRoot {
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: flex;
+}
+
+.emptyPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  border: 1px dashed var(--color-gold-soft);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-raised);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.emptyPill:hover {
+  background: var(--color-warning-bg);
+}
+
+.emptyPill:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
