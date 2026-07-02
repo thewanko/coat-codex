@@ -1,0 +1,142 @@
+/* PartCard — パーツカード（デザイン仕様書§4 Card・§8-A step-photo） */
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 0 0 3px var(--color-bg-raised),
+    inset 0 0 0 4px var(--color-frame-inset-soft),
+    var(--shadow-1);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.card:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.order {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--color-accent);
+  width: 22px;
+  text-align: center;
+  flex: none;
+}
+
+.thumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-line);
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-placeholder-a) 0 9px,
+    var(--color-placeholder-b) 9px 18px
+  );
+}
+
+.stepTag {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-bold);
+  font-size: 7px;
+  background: var(--color-overlay-ink);
+  color: var(--color-on-overlay);
+  border-radius: var(--radius-xs);
+  padding: 1px 4px;
+  z-index: 1;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.name {
+  font-family: var(--font-family-display), var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepsCount {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.badgeRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.mixBadge {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-medium);
+  font-size: 10.5px;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.mixErrorBadge {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-medium);
+  font-size: 10.5px;
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.chevron {
+  color: var(--color-ink-faint);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  flex: none;
+}

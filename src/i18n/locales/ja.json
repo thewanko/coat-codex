@@ -43,7 +43,8 @@
     "addPaint": "＋塗料を追加",
     "maxPaints": "最大5種まで",
     "remaining": "（あと{{count}}）",
-    "duplicateColor": "この色は既に別のスロットで使用されています"
+    "duplicateColor": "この色は既に別のスロットで使用されています",
+    "badgeWarning": "⚠ 計 {{value}}%"
   },
   "photo": {
     "add": "＋ 追加",
@@ -122,5 +123,28 @@
     "partNotFound": "パーツが見つかりません",
     "stepPhotoStripLabel": "写真つき工程一覧",
     "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動"
+  },
+  "overview": {
+    "baseOverline": "BASE",
+    "editBaseSteps": "編集 ›",
+    "addBaseStep": "＋ ベース工程を追加",
+    "partsHeading": "PARTS",
+    "partsHeadingJp": "パーツ",
+    "partStepsCount": "工程 {{count}}",
+    "addPart": "＋ パーツを追加",
+    "newPartName": "新しいパーツ",
+    "movePartUp": "パーツを上へ移動",
+    "movePartDown": "パーツを下へ移動",
+    "dragHandle": "ドラッグで並び替え",
+    "emptyPartsTitle": "パーツがまだありません",
+    "emptyPartsDescription": "パーツを追加して、工程・塗料・混合比を記録しましょう。",
+    "photoStripAllCount": "全{{count}}枚",
+    "exportPrint": "印刷",
+    "exportPdf": "PDF",
+    "exportX": "X",
+    "exportBluesky": "Bluesky",
+    "exportNoteMd": "note MD",
+    "exportJson": "JSON",
+    "exportPlainMd": "素MD"
   }
 }

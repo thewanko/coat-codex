@@ -1,0 +1,43 @@
+/* RecipeOverviewPage — 10-2 ペイント構成全体表示（技術計画v2.2 §3.3・§4.2 T28） */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-8);
+}
+
+.title {
+  font-family: var(--font-family-display), var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-2xl);
+  margin: 0;
+}
+
+.partsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.partsHeading {
+  text-align: center;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xl);
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--font-size-md);
+}
+
+@media (max-width: 767px) {
+  .root {
+    padding-bottom: calc(var(--actionbar-height) + var(--space-5));
+  }
+}

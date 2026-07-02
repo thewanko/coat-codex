@@ -1,0 +1,26 @@
+/* AddPartButton — 破線CTA（デザイン仕様書 決定稿#overview「＋ パーツを追加」） */
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-5);
+  border: 1px dashed var(--color-gold-soft);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-warning-bg);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
