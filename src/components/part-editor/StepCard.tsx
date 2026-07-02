@@ -73,7 +73,11 @@ function StepCard({
   }
 
   return (
-    <div className={styles.root} data-testid={`step-card-${index}`}>
+    <div
+      id={`step-card-${index}`}
+      className={styles.root}
+      data-testid={`step-card-${index}`}
+    >
       <div className={styles.header}>
         <span className={styles.stepTag}>
           {t("editor.stepLabel", { n: index + 1 })}

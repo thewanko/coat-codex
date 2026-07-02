@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useRecipeStore } from "../../stores/useRecipeStore";
 import LanguageSwitcher from "./LanguageSwitcher";
 import AppFooter from "./AppFooter";
 import ToastHost from "./ToastHost";
@@ -8,6 +9,19 @@ import styles from "./AppShell.module.css";
 
 function AppShell({ children }: { children?: ReactNode }) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    // タブクローズ/リロード直前にpending中のautosave（500ms debounce）をbest-effortでflushする
+    // （M4 Opusレビュー Round1 Medium対応）。pagehideは非同期処理の完了を待たないため、
+    // flushAutosave内部のDexie書き込みが完了する保証はない（あくまで発火させるのみ）。
+    function handlePageHide() {
+      void useRecipeStore.getState().flushAutosave();
+    }
+    window.addEventListener("pagehide", handlePageHide);
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, []);
 
   return (
     <ToastHost>

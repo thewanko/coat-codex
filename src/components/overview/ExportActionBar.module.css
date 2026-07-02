@@ -89,6 +89,9 @@
     height: var(--actionbar-height);
     background: var(--color-bg-raised);
     border-top: 2px solid var(--color-gold-soft);
+    /* 上向き影はtheme.cssに該当トークンなし（--shadow-1は下向き固定）。
+       色成分rgba(43,36,28,.1)は--color-ink(#2B241C)10%と同値（theme.css --shadow-1参照）。
+       値はここで直接維持する（theme.css改変禁止・M4 Opusレビュー Round1 Medium対応） */
     box-shadow: 0 -2px 8px rgba(43, 36, 28, 0.1);
     padding: 0 var(--space-3);
     z-index: var(--z-panel, 40);
