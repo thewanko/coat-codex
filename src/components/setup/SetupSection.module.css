@@ -1,0 +1,20 @@
+/* SetupSection — RecipeSetupPage内の各エディタセクション共通の見出し・余白 */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-md);
+  color: var(--color-ink);
+}

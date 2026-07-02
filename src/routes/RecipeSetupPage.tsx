@@ -1,12 +1,86 @@
+// routes/RecipeSetupPage.tsx — 10-1 初期入力（技術計画v2.2 §3.3・§4.2 T23）
+//
+// 編集中レシピの供給はuseRecipeStore（T16）を使う。load(:id)をURLパラメータで呼び、
+// 更新はupdateRecipe(updater)経由（autosave debounce 500msはストアの責務）。
+// ロード失敗（UnsupportedSchemaError/CorruptRecipeError。setup.loadError）・
+// レシピ不存在（loadRecipeがnullを返す場合。setup.notFound）の表示も用意する。
+
+import { useEffect } from "react";
 import { useParams } from "react-router";
+import { useTranslation } from "react-i18next";
+import { useRecipeStore } from "../stores/useRecipeStore";
+import Skeleton from "../components/common/Skeleton";
+import TitleInput from "../components/setup/TitleInput";
+import OverviewPhotoUploader from "../components/setup/OverviewPhotoUploader";
+import PaletteEditor from "../components/setup/PaletteEditor";
+import ToolListEditor from "../components/setup/ToolListEditor";
+import MakeCodexButton from "../components/setup/MakeCodexButton";
+import ImportJsonSection from "../components/setup/ImportJsonSection";
+import styles from "./RecipeSetupPage.module.css";
 
 function RecipeSetupPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
+  const doc = useRecipeStore((state) => state.doc);
+  const isLoading = useRecipeStore((state) => state.isLoading);
+  const loadError = useRecipeStore((state) => state.loadError);
+  const load = useRecipeStore((state) => state.load);
+  const updateRecipe = useRecipeStore((state) => state.updateRecipe);
+
+  useEffect(() => {
+    if (id) {
+      void load(id);
+    }
+  }, [id, load]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.root}>
+        <Skeleton variant="card" />
+      </div>
+    );
+  }
+
+  if (loadError !== null) {
+    return (
+      <div className={styles.root}>
+        <p className={styles.error}>{t("setup.loadError")}</p>
+      </div>
+    );
+  }
+
+  if (doc === null) {
+    return (
+      <div className={styles.root}>
+        <p className={styles.error}>{t("setup.notFound")}</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>RecipeSetupPage</h1>
-      <p>id: {id}</p>
+    <div className={styles.root}>
+      <TitleInput
+        value={doc.title}
+        onCommit={(title) => updateRecipe((current) => ({ ...current, title }))}
+      />
+
+      <OverviewPhotoUploader
+        recipeId={doc.id}
+        value={doc.overviewPhotoIds}
+        onChange={(overviewPhotoIds) =>
+          updateRecipe((current) => ({ ...current, overviewPhotoIds }))
+        }
+      />
+
+      <PaletteEditor recipeId={doc.id} doc={doc} onUpdate={updateRecipe} />
+
+      <ToolListEditor doc={doc} onUpdate={updateRecipe} />
+
+      <ImportJsonSection />
+
+      <div className={styles.footer}>
+        <MakeCodexButton recipeId={doc.id} />
+      </div>
     </div>
   );
 }

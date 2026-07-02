@@ -1,0 +1,20 @@
+/* RecipeCardGrid — Home一覧グリッド（画面状態規約§5: 768px/1200pxブレークポイント。
+   Homeグリッドは1200px以上で3→4列） */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

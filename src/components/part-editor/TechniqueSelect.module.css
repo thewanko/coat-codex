@@ -1,0 +1,57 @@
+/* TechniqueSelect — Input select + text（デザイン仕様書§4「Input」:
+   面 --color-bg-sunken、枠 1px --color-line-strong、radius-sm） */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-gold);
+  letter-spacing: 0.04em;
+}
+
+.select {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+}
+
+.select:focus-visible {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: var(--focus-ring);
+}
+
+.textInput {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+}
+
+.textInput:focus-visible {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: var(--focus-ring);
+}
+
+@media (min-width: 768px) {
+  .select,
+  .textInput {
+    min-height: 36px;
+  }
+}
