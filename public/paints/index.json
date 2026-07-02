@@ -4,13 +4,13 @@
       "id": "citadel",
       "label": "Citadel",
       "file": "citadel.json",
-      "count": 89
+      "count": 334
     },
     {
       "id": "vallejo",
       "label": "Vallejo",
       "file": "vallejo.json",
-      "count": 79
+      "count": 255
     },
     {
       "id": "ak",

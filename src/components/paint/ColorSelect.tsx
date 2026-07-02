@@ -1,7 +1,8 @@
 // components/paint/ColorSelect.tsx — 検索可能コンボボックス（技術計画v2.2 §4.2 T19）
 //
 // テキスト入力で部分一致絞り込み（lib/paintPresets.searchColors）＋候補リスト表示。
-// 候補行はSwatchChip(sm)＋名前（nameJaがあれば併記）。選択で確定しonSelectへ渡す。
+// 候補行はSwatchChip(sm)＋名前（nameJaがあれば併記）＋range（同名色のレンジ区別、
+// 例: Citadel="base"/Vallejo="Model Color"）を控えめに後置。選択で確定しonSelectへ渡す。
 // デザイン仕様書§4「Input」: 検索可能コンボは入力と同皮（--color-bg-sunken）。
 
 import { useEffect, useRef, useState } from "react";
@@ -21,15 +22,24 @@ function displayName(color: PaintPresetColor): string {
   return color.nameJa ? `${color.name}（${color.nameJa}）` : color.name;
 }
 
+/** 入力欄に確定表示する文字列。rangeがあれば末尾に「— range」で付記する
+ *  （例: "Mephiston Red — base" / "Khaki — Model Color"） */
+function displayNameWithRange(color: PaintPresetColor): string {
+  const base = displayName(color);
+  return color.range ? `${base} — ${color.range}` : base;
+}
+
 function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
   const { t } = useTranslation();
-  const [query, setQuery] = useState(() => (value ? displayName(value) : ""));
+  const [query, setQuery] = useState(() =>
+    value ? displayNameWithRange(value) : "",
+  );
   const [results, setResults] = useState<PaintPresetColor[]>([]);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setQuery(value ? displayName(value) : "");
+    setQuery(value ? displayNameWithRange(value) : "");
   }, [value]);
 
   useEffect(() => {
@@ -56,7 +66,7 @@ function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
 
   function handleSelect(color: PaintPresetColor) {
     onSelect(color);
-    setQuery(displayName(color));
+    setQuery(displayNameWithRange(color));
     setOpen(false);
   }
 
@@ -97,6 +107,9 @@ function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
                   hex={color.hex ?? undefined}
                 />
                 <span className={styles.optionName}>{displayName(color)}</span>
+                {color.range && (
+                  <span className={styles.optionRange}>{color.range}</span>
+                )}
               </button>
             </li>
           ))}

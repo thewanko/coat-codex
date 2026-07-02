@@ -22,6 +22,9 @@ export interface PaintPresetColor {
   id: string;
   name: string;
   nameJa?: string;
+  /** 同名色のレンジ区別用（例: Citadelは"base"等、Vallejoは"Game Color"/"Model Color"）。
+   *  未指定ブランド（ak/coatdarms）は後方互換のため省略可 */
+  range?: string;
   hex: string | null;
 }
 

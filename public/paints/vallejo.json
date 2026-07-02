@@ -1,483 +1,1540 @@
 {
   "_meta": {
-    "hexNote": "hexは近似値。公式チャートでの校正はQA時"
+    "source": "redgrimm.github.io/paint-conversion (Vallejo Game & Model Color conversion charts)",
+    "note": "Vallejo is a trademark of Acrylicos Vallejo, S.L. hexは実物塗料の近似デジタル値（コミュニティ編纂の参考資料に基づく。公式スペクトロフォトメータ実測値ではない）。"
   },
   "brandId": "vallejo",
   "label": "Vallejo",
   "colors": [
     {
-      "id": "vallejo:white",
-      "name": "White",
-      "nameJa": "ホワイト",
-      "hex": "#F5F5F0"
+      "id": "vallejo:game-beasty-brown",
+      "name": "Beasty Brown",
+      "range": "Game Color",
+      "hex": "#55432D"
     },
     {
-      "id": "vallejo:black",
+      "id": "vallejo:game-black",
       "name": "Black",
-      "nameJa": "ブラック",
-      "hex": "#0A0A0A"
+      "range": "Game Color",
+      "hex": "#000000"
     },
     {
-      "id": "vallejo:off-white",
-      "name": "Off-White",
-      "nameJa": "オフホワイト",
-      "hex": "#EDE6D3"
-    },
-    {
-      "id": "vallejo:german-grey",
-      "name": "German Grey",
-      "nameJa": "ジャーマングレイ",
-      "hex": "#3B3E40"
-    },
-    {
-      "id": "vallejo:neutral-grey",
-      "name": "Neutral Grey",
-      "nameJa": "ニュートラルグレイ",
-      "hex": "#7A7C7D"
-    },
-    {
-      "id": "vallejo:london-grey",
-      "name": "London Grey",
-      "nameJa": "ロンドングレイ",
-      "hex": "#8E8E82"
-    },
-    {
-      "id": "vallejo:basalt-grey",
-      "name": "Basalt Grey",
-      "nameJa": "バサルトグレイ",
-      "hex": "#5D6362"
-    },
-    {
-      "id": "vallejo:dark-sea-grey",
-      "name": "Dark Sea Grey",
-      "nameJa": "ダークシーグレイ",
-      "hex": "#4A5450"
-    },
-    {
-      "id": "vallejo:flat-red",
-      "name": "Flat Red",
-      "nameJa": "フラットレッド",
-      "hex": "#9E2A2B"
-    },
-    {
-      "id": "vallejo:scarlet-red",
-      "name": "Scarlet Red",
-      "nameJa": "スカーレットレッド",
-      "hex": "#C21E1E"
-    },
-    {
-      "id": "vallejo:vermillion",
-      "name": "Vermillion",
-      "nameJa": "バーミリオン",
-      "hex": "#E34234"
-    },
-    {
-      "id": "vallejo:carmine-red",
-      "name": "Carmine Red",
-      "nameJa": "カーマインレッド",
-      "hex": "#960018"
-    },
-    {
-      "id": "vallejo:flat-yellow",
-      "name": "Flat Yellow",
-      "nameJa": "フラットイエロー",
-      "hex": "#D8B240"
-    },
-    {
-      "id": "vallejo:golden-yellow",
-      "name": "Golden Yellow",
-      "nameJa": "ゴールデンイエロー",
-      "hex": "#F4C430"
-    },
-    {
-      "id": "vallejo:orange-fire",
-      "name": "Orange Fire",
-      "nameJa": "オレンジファイア",
-      "hex": "#E85D1F"
-    },
-    {
-      "id": "vallejo:flat-orange",
-      "name": "Flat Orange",
-      "nameJa": "フラットオレンジ",
-      "hex": "#D9812C"
-    },
-    {
-      "id": "vallejo:ivory",
-      "name": "Ivory",
-      "nameJa": "アイボリー",
-      "hex": "#EDE6C8"
-    },
-    {
-      "id": "vallejo:buff",
-      "name": "Buff",
-      "nameJa": "バフ",
-      "hex": "#C7A868"
-    },
-    {
-      "id": "vallejo:iraqi-sand",
-      "name": "Iraqi Sand",
-      "nameJa": "イラキサンド",
-      "hex": "#C3A66B"
-    },
-    {
-      "id": "vallejo:german-camo-beige-wwii",
-      "name": "German Camo Beige WWII",
-      "nameJa": "ジャーマンカモベージュWWII",
-      "hex": "#A8916A"
-    },
-    {
-      "id": "vallejo:khaki-grey",
-      "name": "Khaki Grey",
-      "nameJa": "カーキグレイ",
-      "hex": "#8C8264"
-    },
-    {
-      "id": "vallejo:khaki",
-      "name": "Khaki",
-      "nameJa": "カーキ",
-      "hex": "#8A7B4E"
-    },
-    {
-      "id": "vallejo:us-field-drab",
-      "name": "US Field Drab",
-      "nameJa": "USフィールドドラブ",
-      "hex": "#6B6543"
-    },
-    {
-      "id": "vallejo:russian-uniform",
-      "name": "Russian Uniform",
-      "nameJa": "ロシアンユニフォーム",
-      "hex": "#6D7052"
-    },
-    {
-      "id": "vallejo:german-camo-bright-green",
-      "name": "German Camo Bright Green",
-      "nameJa": "ジャーマンカモブライトグリーン",
-      "hex": "#5C6B34"
-    },
-    {
-      "id": "vallejo:reflective-green",
-      "name": "Reflective Green",
-      "nameJa": "リフレクティブグリーン",
-      "hex": "#2E4D2E"
-    },
-    {
-      "id": "vallejo:dark-green",
-      "name": "Dark Green",
-      "nameJa": "ダークグリーン",
-      "hex": "#25382A"
-    },
-    {
-      "id": "vallejo:english-uniform",
-      "name": "English Uniform",
-      "nameJa": "イングリッシュユニフォーム",
-      "hex": "#5C5A3E"
-    },
-    {
-      "id": "vallejo:green-grey",
-      "name": "Green Grey",
-      "nameJa": "グリーングレイ",
-      "hex": "#7C8570"
-    },
-    {
-      "id": "vallejo:deep-sky-blue",
-      "name": "Deep Sky Blue",
-      "nameJa": "ディープスカイブルー",
-      "hex": "#1C5FA8"
-    },
-    {
-      "id": "vallejo:prussian-blue",
-      "name": "Prussian Blue",
-      "nameJa": "プルシアンブルー",
-      "hex": "#1B3159"
-    },
-    {
-      "id": "vallejo:dark-prussian-blue",
-      "name": "Dark Prussian Blue",
-      "nameJa": "ダークプルシアンブルー",
-      "hex": "#122238"
-    },
-    {
-      "id": "vallejo:blue-grey-pale",
-      "name": "Blue Grey Pale",
-      "nameJa": "ブルーグレイペール",
-      "hex": "#A9B7BE"
-    },
-    {
-      "id": "vallejo:medium-blue",
-      "name": "Medium Blue",
-      "nameJa": "ミディアムブルー",
-      "hex": "#3B5A8C"
-    },
-    {
-      "id": "vallejo:sky-blue",
-      "name": "Sky Blue",
-      "nameJa": "スカイブルー",
-      "hex": "#7EB6D9"
-    },
-    {
-      "id": "vallejo:violet",
-      "name": "Violet",
-      "nameJa": "バイオレット",
-      "hex": "#5B3E75"
-    },
-    {
-      "id": "vallejo:magenta",
-      "name": "Magenta",
-      "nameJa": "マゼンタ",
-      "hex": "#B4308A"
-    },
-    {
-      "id": "vallejo:beige-red",
-      "name": "Beige Red",
-      "nameJa": "ベージュレッド",
-      "hex": "#B5876B"
-    },
-    {
-      "id": "vallejo:flat-flesh",
-      "name": "Flat Flesh",
-      "nameJa": "フラットフレッシュ",
-      "hex": "#D6A57C"
-    },
-    {
-      "id": "vallejo:basic-skin-tone",
-      "name": "Basic Skin Tone",
-      "nameJa": "ベーシックスキントーン",
-      "hex": "#E0AC85"
-    },
-    {
-      "id": "vallejo:salmon-rose",
-      "name": "Salmon Rose",
-      "nameJa": "サーモンローズ",
-      "hex": "#E3A192"
-    },
-    {
-      "id": "vallejo:sunny-skin-tone",
-      "name": "Sunny Skin Tone",
-      "nameJa": "サニースキントーン",
-      "hex": "#E7B48C"
-    },
-    {
-      "id": "vallejo:silver",
-      "name": "Silver",
-      "nameJa": "シルバー",
-      "hex": "#ACACAC"
-    },
-    {
-      "id": "vallejo:gold",
-      "name": "Gold",
-      "nameJa": "ゴールド",
-      "hex": "#B8942F"
-    },
-    {
-      "id": "vallejo:brass",
-      "name": "Brass",
-      "nameJa": "ブラス",
-      "hex": "#A6832E"
-    },
-    {
-      "id": "vallejo:bronze",
-      "name": "Bronze",
-      "nameJa": "ブロンズ",
-      "hex": "#7C5A32"
-    },
-    {
-      "id": "vallejo:gunmetal-grey",
-      "name": "Gunmetal Grey",
-      "nameJa": "ガンメタルグレイ",
-      "hex": "#3E4245"
-    },
-    {
-      "id": "vallejo:chocolate-brown",
-      "name": "Chocolate Brown",
-      "nameJa": "チョコレートブラウン",
-      "hex": "#4A2E1E"
-    },
-    {
-      "id": "vallejo:flat-brown",
-      "name": "Flat Brown",
-      "nameJa": "フラットブラウン",
-      "hex": "#7A5230"
-    },
-    {
-      "id": "vallejo:beige-brown",
-      "name": "Beige Brown",
-      "nameJa": "ベージュブラウン",
-      "hex": "#8A6B47"
-    },
-    {
-      "id": "vallejo:leather-brown",
-      "name": "Leather Brown",
-      "nameJa": "レザーブラウン",
-      "hex": "#5E4327"
-    },
-    {
-      "id": "vallejo:red-leather",
-      "name": "Red Leather",
-      "nameJa": "レッドレザー",
-      "hex": "#7A3B26"
-    },
-    {
-      "id": "vallejo:german-camo-black-brown",
-      "name": "German Camo Black Brown",
-      "nameJa": "ジャーマンカモブラックブラウン",
-      "hex": "#2A231C"
-    },
-    {
-      "id": "vallejo:bloody-red",
+      "id": "vallejo:game-bloody-red",
       "name": "Bloody Red",
-      "nameJa": "ブラッディレッド",
-      "hex": "#960C0C"
+      "range": "Game Color",
+      "hex": "#BF282E"
     },
     {
-      "id": "vallejo:hot-orange",
-      "name": "Hot Orange",
-      "nameJa": "ホットオレンジ",
-      "hex": "#E8590C"
+      "id": "vallejo:game-bone-white",
+      "name": "Bone White",
+      "range": "Game Color",
+      "hex": "#E8BE86"
     },
     {
-      "id": "vallejo:gory-red",
-      "name": "Gory Red",
-      "nameJa": "ゴアリーレッド",
-      "hex": "#7A0C0C"
+      "id": "vallejo:game-bronze-fleshtone",
+      "name": "Bronze Fleshtone",
+      "range": "Game Color",
+      "hex": "#DB945C"
     },
     {
-      "id": "vallejo:sunblast-yellow",
-      "name": "Sunblast Yellow",
-      "nameJa": "サンブラストイエロー",
-      "hex": "#F5DE1E"
+      "id": "vallejo:game-cadmium-skin",
+      "name": "Cadmium Skin",
+      "range": "Game Color",
+      "hex": "#FAB78A"
     },
     {
-      "id": "vallejo:electric-blue",
-      "name": "Electric Blue",
-      "nameJa": "エレクトリックブルー",
-      "hex": "#1E5CC4"
+      "id": "vallejo:game-camoflage-green",
+      "name": "Camoflage Green",
+      "range": "Game Color",
+      "hex": "#71753A"
     },
     {
-      "id": "vallejo:magic-blue",
-      "name": "Magic Blue",
-      "nameJa": "マジックブルー",
-      "hex": "#2A3E7A"
+      "id": "vallejo:game-cayman-green",
+      "name": "Cayman Green",
+      "range": "Game Color",
+      "hex": "#285648"
     },
     {
-      "id": "vallejo:turquoise",
-      "name": "Turquoise",
-      "nameJa": "ターコイズ",
-      "hex": "#1E9E8C"
-    },
-    {
-      "id": "vallejo:jade-green",
-      "name": "Jade Green",
-      "nameJa": "ジェイドグリーン",
-      "hex": "#1E7A4E"
-    },
-    {
-      "id": "vallejo:goblin-green",
-      "name": "Goblin Green",
-      "nameJa": "ゴブリングリーン",
-      "hex": "#3E7A1E"
-    },
-    {
-      "id": "vallejo:angel-green",
-      "name": "Angel Green",
-      "nameJa": "エンジェルグリーン",
-      "hex": "#5CA83C"
-    },
-    {
-      "id": "vallejo:violet-red",
-      "name": "Violet Red",
-      "nameJa": "バイオレットレッド",
-      "hex": "#8C2E5C"
-    },
-    {
-      "id": "vallejo:warlord-purple",
-      "name": "Warlord Purple",
-      "nameJa": "ウォーロードパープル",
-      "hex": "#4A2E6E"
-    },
-    {
-      "id": "vallejo:cold-grey",
-      "name": "Cold Grey",
-      "nameJa": "コールドグレイ",
-      "hex": "#5C6265"
-    },
-    {
-      "id": "vallejo:dead-flesh",
-      "name": "Dead Flesh",
-      "nameJa": "デッドフレッシュ",
-      "hex": "#B8A870"
-    },
-    {
-      "id": "vallejo:barbarian-flesh",
-      "name": "Barbarian Flesh",
-      "nameJa": "バーバリアンフレッシュ",
-      "hex": "#B8734A"
-    },
-    {
-      "id": "vallejo:charred-brown",
+      "id": "vallejo:game-charred-brown",
       "name": "Charred Brown",
-      "nameJa": "チャードブラウン",
-      "hex": "#3E2A1E"
+      "range": "Game Color",
+      "hex": "#39343B"
     },
     {
-      "id": "vallejo:parasite-brown",
+      "id": "vallejo:game-cold-grey",
+      "name": "Cold Grey",
+      "range": "Game Color",
+      "hex": "#54646D"
+    },
+    {
+      "id": "vallejo:game-dark-blue",
+      "name": "Dark Blue",
+      "range": "Game Color",
+      "hex": "#2B265D"
+    },
+    {
+      "id": "vallejo:game-dark-fleshtone",
+      "name": "Dark Fleshtone",
+      "range": "Game Color",
+      "hex": "#4F2B26"
+    },
+    {
+      "id": "vallejo:game-dark-green",
+      "name": "Dark Green",
+      "range": "Game Color",
+      "hex": "#083C2A"
+    },
+    {
+      "id": "vallejo:game-dead-flesh",
+      "name": "Dead Flesh",
+      "range": "Game Color",
+      "hex": "#BCB686"
+    },
+    {
+      "id": "vallejo:game-dead-white",
+      "name": "Dead White",
+      "range": "Game Color",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "vallejo:game-desert-yellow",
+      "name": "Desert Yellow",
+      "range": "Game Color",
+      "hex": "#8E7845"
+    },
+    {
+      "id": "vallejo:game-dwarf-skin",
+      "name": "Dwarf Skin",
+      "range": "Game Color",
+      "hex": "#CC7C67"
+    },
+    {
+      "id": "vallejo:game-earth",
+      "name": "Earth",
+      "range": "Game Color",
+      "hex": "#6F563D"
+    },
+    {
+      "id": "vallejo:game-electric-blue",
+      "name": "Electric Blue",
+      "range": "Game Color",
+      "hex": "#008CBF"
+    },
+    {
+      "id": "vallejo:game-elf-skintone",
+      "name": "Elf Skintone",
+      "range": "Game Color",
+      "hex": "#F8A070"
+    },
+    {
+      "id": "vallejo:game-elfic-flesh",
+      "name": "Elfic Flesh",
+      "range": "Game Color",
+      "hex": "#CDC29C"
+    },
+    {
+      "id": "vallejo:game-filthy-brown",
+      "name": "Filthy Brown",
+      "range": "Game Color",
+      "hex": "#F58D2B"
+    },
+    {
+      "id": "vallejo:game-fluo-green",
+      "name": "Fluo Green",
+      "range": "Game Color",
+      "hex": "#9DCD64"
+    },
+    {
+      "id": "vallejo:game-fluo-yellow",
+      "name": "Fluo Yellow",
+      "range": "Game Color",
+      "hex": "#EEEA50"
+    },
+    {
+      "id": "vallejo:game-foul-green",
+      "name": "Foul Green",
+      "range": "Game Color",
+      "hex": "#239378"
+    },
+    {
+      "id": "vallejo:game-ghost-grey",
+      "name": "Ghost Grey",
+      "range": "Game Color",
+      "hex": "#A7C5DB"
+    },
+    {
+      "id": "vallejo:game-glacier-blue",
+      "name": "Glacier Blue",
+      "range": "Game Color",
+      "hex": "#ACD0EE"
+    },
+    {
+      "id": "vallejo:game-goblin-green",
+      "name": "Goblin Green",
+      "range": "Game Color",
+      "hex": "#23743C"
+    },
+    {
+      "id": "vallejo:game-gold-yellow",
+      "name": "Gold Yellow",
+      "range": "Game Color",
+      "hex": "#FDB318"
+    },
+    {
+      "id": "vallejo:game-gory-red",
+      "name": "Gory Red",
+      "range": "Game Color",
+      "hex": "#810504"
+    },
+    {
+      "id": "vallejo:game-heavy-black-green",
+      "name": "Heavy Black Green",
+      "range": "Game Color",
+      "hex": "#18433D"
+    },
+    {
+      "id": "vallejo:game-heavy-blue",
+      "name": "Heavy Blue",
+      "range": "Game Color",
+      "hex": "#29556D"
+    },
+    {
+      "id": "vallejo:game-heavy-blue-grey",
+      "name": "Heavy Blue Grey",
+      "range": "Game Color",
+      "hex": "#9CA7A7"
+    },
+    {
+      "id": "vallejo:game-heavy-brown",
+      "name": "Heavy Brown",
+      "range": "Game Color",
+      "hex": "#705D41"
+    },
+    {
+      "id": "vallejo:game-heavy-charcoal",
+      "name": "Heavy Charcoal",
+      "range": "Game Color",
+      "hex": "#1C2E2E"
+    },
+    {
+      "id": "vallejo:game-heavy-gold-brown",
+      "name": "Heavy Gold Brown",
+      "range": "Game Color",
+      "hex": "#BA8636"
+    },
+    {
+      "id": "vallejo:game-heavy-green",
+      "name": "Heavy Green",
+      "range": "Game Color",
+      "hex": "#566840"
+    },
+    {
+      "id": "vallejo:game-heavy-grey",
+      "name": "Heavy Grey",
+      "range": "Game Color",
+      "hex": "#626D54"
+    },
+    {
+      "id": "vallejo:game-heavy-khaki",
+      "name": "Heavy Khaki",
+      "range": "Game Color",
+      "hex": "#9D965D"
+    },
+    {
+      "id": "vallejo:game-heavy-ochre",
+      "name": "Heavy Ochre",
+      "range": "Game Color",
+      "hex": "#A87536"
+    },
+    {
+      "id": "vallejo:game-heavy-orange",
+      "name": "Heavy Orange",
+      "range": "Game Color",
+      "hex": "#EE5527"
+    },
+    {
+      "id": "vallejo:game-heavy-red",
+      "name": "Heavy Red",
+      "range": "Game Color",
+      "hex": "#943238"
+    },
+    {
+      "id": "vallejo:game-heavy-sienna",
+      "name": "Heavy Sienna",
+      "range": "Game Color",
+      "hex": "#744642"
+    },
+    {
+      "id": "vallejo:game-heavy-skintone",
+      "name": "Heavy Skintone",
+      "range": "Game Color",
+      "hex": "#AA7B62"
+    },
+    {
+      "id": "vallejo:game-heavy-violet",
+      "name": "Heavy Violet",
+      "range": "Game Color",
+      "hex": "#4C2E65"
+    },
+    {
+      "id": "vallejo:game-heavy-warm-grey",
+      "name": "Heavy Warm Grey",
+      "range": "Game Color",
+      "hex": "#939066"
+    },
+    {
+      "id": "vallejo:game-hexed-lichen",
+      "name": "Hexed Lichen",
+      "range": "Game Color",
+      "hex": "#34274D"
+    },
+    {
+      "id": "vallejo:game-hot-orange",
+      "name": "Hot Orange",
+      "range": "Game Color",
+      "hex": "#E43027"
+    },
+    {
+      "id": "vallejo:game-imperial-purple",
+      "name": "Imperial Purple",
+      "range": "Game Color",
+      "hex": "#211A4B"
+    },
+    {
+      "id": "vallejo:game-jade-green",
+      "name": "Jade Green",
+      "range": "Game Color",
+      "hex": "#128379"
+    },
+    {
+      "id": "vallejo:game-khaki",
+      "name": "Khaki",
+      "range": "Game Color",
+      "hex": "#8C806D"
+    },
+    {
+      "id": "vallejo:game-leather-brown",
+      "name": "Leather Brown",
+      "range": "Game Color",
+      "hex": "#7B5D2A"
+    },
+    {
+      "id": "vallejo:game-livery-green",
+      "name": "Livery Green",
+      "range": "Game Color",
+      "hex": "#9ECE65"
+    },
+    {
+      "id": "vallejo:game-magic-blue",
+      "name": "Magic Blue",
+      "range": "Game Color",
+      "hex": "#024381"
+    },
+    {
+      "id": "vallejo:game-moon-yellow",
+      "name": "Moon Yellow",
+      "range": "Game Color",
+      "hex": "#FFF103"
+    },
+    {
+      "id": "vallejo:game-mutation-green",
+      "name": "Mutation Green",
+      "range": "Game Color",
+      "hex": "#296934"
+    },
+    {
+      "id": "vallejo:game-night-blue",
+      "name": "Night Blue",
+      "range": "Game Color",
+      "hex": "#19183F"
+    },
+    {
+      "id": "vallejo:game-offwhite",
+      "name": "Offwhite",
+      "range": "Game Color",
+      "hex": "#F5F4DA"
+    },
+    {
+      "id": "vallejo:game-orange-fire",
+      "name": "Orange Fire",
+      "range": "Game Color",
+      "hex": "#F1652E"
+    },
+    {
+      "id": "vallejo:game-pale-flesh",
+      "name": "Pale Flesh",
+      "range": "Game Color",
+      "hex": "#F6BDB3"
+    },
+    {
+      "id": "vallejo:game-pale-yellow",
+      "name": "Pale Yellow",
+      "range": "Game Color",
+      "hex": "#D5C179"
+    },
+    {
+      "id": "vallejo:game-parasite-brown",
       "name": "Parasite Brown",
-      "nameJa": "パラサイトブラウン",
-      "hex": "#6E5230"
+      "range": "Game Color",
+      "hex": "#B1481F"
     },
     {
-      "id": "vallejo:scurvy-green",
-      "name": "Scurvy Green",
-      "nameJa": "スカービーグリーン",
-      "hex": "#7A8C3E"
-    },
-    {
-      "id": "vallejo:necrotic-flesh",
-      "name": "Necrotic Flesh",
-      "nameJa": "ネクロティックフレッシュ",
-      "hex": "#8FA05C"
-    },
-    {
-      "id": "vallejo:plague-brown",
+      "id": "vallejo:game-plague-brown",
       "name": "Plague Brown",
-      "nameJa": "プレイグブラウン",
-      "hex": "#7A6A3E"
+      "range": "Game Color",
+      "hex": "#CC9B34"
     },
     {
-      "id": "vallejo:bright-gold",
-      "name": "Bright Gold",
-      "nameJa": "ブライトゴールド",
-      "hex": "#C9A227"
+      "id": "vallejo:game-rosy-flesh",
+      "name": "Rosy Flesh",
+      "range": "Game Color",
+      "hex": "#F89E84"
     },
     {
-      "id": "vallejo:glorious-gold",
-      "name": "Glorious Gold",
-      "nameJa": "グロリアスゴールド",
-      "hex": "#B8860B"
+      "id": "vallejo:game-royal-purple",
+      "name": "Royal Purple",
+      "range": "Game Color",
+      "hex": "#23264F"
     },
     {
-      "id": "vallejo:polished-gold",
-      "name": "Polished Gold",
-      "nameJa": "ポリッシュドゴールド",
-      "hex": "#D4AF37"
+      "id": "vallejo:game-scarlet-blood-red",
+      "name": "Scarlet \"Blood\" Red",
+      "range": "Game Color",
+      "hex": "#B72A38"
     },
     {
-      "id": "vallejo:hammered-copper",
-      "name": "Hammered Copper",
-      "nameJa": "ハンマードカッパー",
-      "hex": "#8A5A3C"
+      "id": "vallejo:game-scarlet-red",
+      "name": "Scarlet Red",
+      "range": "Game Color",
+      "hex": "#741330"
     },
     {
-      "id": "vallejo:gunmetal",
-      "name": "Gunmetal",
-      "nameJa": "ガンメタル",
-      "hex": "#41474B"
+      "id": "vallejo:game-scorpion-green",
+      "name": "Scorpion Green",
+      "range": "Game Color",
+      "hex": "#48B851"
     },
     {
-      "id": "vallejo:chainmail-silver",
-      "name": "Chainmail Silver",
-      "nameJa": "チェインメイルシルバー",
-      "hex": "#A8ABAE"
+      "id": "vallejo:game-scrofulous-brown",
+      "name": "Scrofulous Brown",
+      "range": "Game Color",
+      "hex": "#D68030"
+    },
+    {
+      "id": "vallejo:game-scurvy-green",
+      "name": "Scurvy Green",
+      "range": "Game Color",
+      "hex": "#09474E"
+    },
+    {
+      "id": "vallejo:game-sick-green",
+      "name": "Sick Green",
+      "range": "Game Color",
+      "hex": "#096638"
+    },
+    {
+      "id": "vallejo:game-smokey-ink",
+      "name": "Smokey Ink",
+      "range": "Game Color",
+      "hex": "#2B2325"
+    },
+    {
+      "id": "vallejo:game-sombre-grey",
+      "name": "Sombre Grey",
+      "range": "Game Color",
+      "hex": "#4C5C7D"
+    },
+    {
+      "id": "vallejo:game-squid-pink",
+      "name": "Squid Pink",
+      "range": "Game Color",
+      "hex": "#DA7FB5"
+    },
+    {
+      "id": "vallejo:game-steel-grey",
+      "name": "Steel Grey",
+      "range": "Game Color",
+      "hex": "#64889D"
+    },
+    {
+      "id": "vallejo:game-stonewall-grey",
+      "name": "Stonewall Grey",
+      "range": "Game Color",
+      "hex": "#828E95"
+    },
+    {
+      "id": "vallejo:game-stormy-night",
+      "name": "Stormy Night",
+      "range": "Game Color",
+      "hex": "#1F1A4F"
+    },
+    {
+      "id": "vallejo:game-sun-yellow",
+      "name": "Sun Yellow",
+      "range": "Game Color",
+      "hex": "#FFCF07"
+    },
+    {
+      "id": "vallejo:game-tan",
+      "name": "Tan",
+      "range": "Game Color",
+      "hex": "#9F4746"
+    },
+    {
+      "id": "vallejo:game-terracota",
+      "name": "Terracota",
+      "range": "Game Color",
+      "hex": "#6B1306"
+    },
+    {
+      "id": "vallejo:game-turquoise",
+      "name": "Turquoise",
+      "range": "Game Color",
+      "hex": "#03676F"
+    },
+    {
+      "id": "vallejo:game-ultramarine-blue",
+      "name": "Ultramarine Blue",
+      "range": "Game Color",
+      "hex": "#373592"
+    },
+    {
+      "id": "vallejo:game-verdigris",
+      "name": "Verdigris",
+      "range": "Game Color",
+      "hex": "#B3CECA"
+    },
+    {
+      "id": "vallejo:game-warlord-purple",
+      "name": "Warlord Purple",
+      "range": "Game Color",
+      "hex": "#7D1A44"
+    },
+    {
+      "id": "vallejo:game-wolf-grey",
+      "name": "Wolf Grey",
+      "range": "Game Color",
+      "hex": "#90A2BC"
+    },
+    {
+      "id": "vallejo:game-yellow-olive",
+      "name": "Yellow Olive",
+      "range": "Game Color",
+      "hex": "#063B2F"
+    },
+    {
+      "id": "vallejo:model-amaranth-red",
+      "name": "Amaranth Red",
+      "range": "Model Color",
+      "hex": "#CC4338"
+    },
+    {
+      "id": "vallejo:model-andrea-blue",
+      "name": "Andrea Blue",
+      "range": "Model Color",
+      "hex": "#008DC9"
+    },
+    {
+      "id": "vallejo:model-azure",
+      "name": "Azure",
+      "range": "Model Color",
+      "hex": "#717CAD"
+    },
+    {
+      "id": "vallejo:model-basalt-grey",
+      "name": "Basalt Grey",
+      "range": "Model Color",
+      "hex": "#576860"
+    },
+    {
+      "id": "vallejo:model-basic-skintone",
+      "name": "Basic Skintone",
+      "range": "Model Color",
+      "hex": "#FBBC8C"
+    },
+    {
+      "id": "vallejo:model-beige",
+      "name": "Beige",
+      "range": "Model Color",
+      "hex": "#DBC58E"
+    },
+    {
+      "id": "vallejo:model-beige-brown",
+      "name": "Beige Brown",
+      "range": "Model Color",
+      "hex": "#78584A"
+    },
+    {
+      "id": "vallejo:model-beige-red",
+      "name": "Beige Red",
+      "range": "Model Color",
+      "hex": "#C79166"
+    },
+    {
+      "id": "vallejo:model-black",
+      "name": "Black",
+      "range": "Model Color",
+      "hex": "#252B31"
+    },
+    {
+      "id": "vallejo:model-black-green",
+      "name": "Black Green",
+      "range": "Model Color",
+      "hex": "#19423E"
+    },
+    {
+      "id": "vallejo:model-black-grey",
+      "name": "Black Grey",
+      "range": "Model Color",
+      "hex": "#2D373A"
+    },
+    {
+      "id": "vallejo:model-black-red-cadmium-brown",
+      "name": "Black Red [Cadmium Brown]",
+      "range": "Model Color",
+      "hex": "#5F2E39"
+    },
+    {
+      "id": "vallejo:model-blue",
+      "name": "Blue",
+      "range": "Model Color",
+      "hex": "#043667"
+    },
+    {
+      "id": "vallejo:model-blue-green",
+      "name": "Blue Green",
+      "range": "Model Color",
+      "hex": "#1A9496"
+    },
+    {
+      "id": "vallejo:model-blue-grey-pale",
+      "name": "Blue Grey Pale",
+      "range": "Model Color",
+      "hex": "#9EA7A5"
+    },
+    {
+      "id": "vallejo:model-blue-violet",
+      "name": "Blue Violet",
+      "range": "Model Color",
+      "hex": "#795C9A"
+    },
+    {
+      "id": "vallejo:model-bright-orange",
+      "name": "Bright Orange",
+      "range": "Model Color",
+      "hex": "#F26833"
+    },
+    {
+      "id": "vallejo:model-bronce-green",
+      "name": "Bronce Green",
+      "range": "Model Color",
+      "hex": "#2A534F"
+    },
+    {
+      "id": "vallejo:model-brown-rose",
+      "name": "Brown Rose",
+      "range": "Model Color",
+      "hex": "#CF8774"
+    },
+    {
+      "id": "vallejo:model-brown-sand",
+      "name": "Brown Sand",
+      "range": "Model Color",
+      "hex": "#B08064"
+    },
+    {
+      "id": "vallejo:model-brown-violet",
+      "name": "Brown Violet",
+      "range": "Model Color",
+      "hex": "#4E5D4D"
+    },
+    {
+      "id": "vallejo:model-buff",
+      "name": "Buff",
+      "range": "Model Color",
+      "hex": "#D2CA9F"
+    },
+    {
+      "id": "vallejo:model-burnt-cadmium-red",
+      "name": "Burnt Cadmium Red",
+      "range": "Model Color",
+      "hex": "#623535"
+    },
+    {
+      "id": "vallejo:model-burnt-umber",
+      "name": "Burnt Umber",
+      "range": "Model Color",
+      "hex": "#665148"
+    },
+    {
+      "id": "vallejo:model-cam-olive-green",
+      "name": "Cam. Olive Green",
+      "range": "Model Color",
+      "hex": "#3C5549"
+    },
+    {
+      "id": "vallejo:model-carmine-red",
+      "name": "Carmine Red",
+      "range": "Model Color",
+      "hex": "#B73035"
+    },
+    {
+      "id": "vallejo:model-cavalry-brown",
+      "name": "Cavalry Brown",
+      "range": "Model Color",
+      "hex": "#853F3D"
+    },
+    {
+      "id": "vallejo:model-chocolate-brown",
+      "name": "Chocolate Brown",
+      "range": "Model Color",
+      "hex": "#5F5047"
+    },
+    {
+      "id": "vallejo:model-clear-orange",
+      "name": "Clear Orange",
+      "range": "Model Color",
+      "hex": "#F1552C"
+    },
+    {
+      "id": "vallejo:model-cork-brown",
+      "name": "Cork Brown",
+      "range": "Model Color",
+      "hex": "#A57B63"
+    },
+    {
+      "id": "vallejo:model-dark-blue",
+      "name": "Dark Blue",
+      "range": "Model Color",
+      "hex": "#0D5A86"
+    },
+    {
+      "id": "vallejo:model-dark-blue-grey",
+      "name": "Dark Blue Grey",
+      "range": "Model Color",
+      "hex": "#4B5751"
+    },
+    {
+      "id": "vallejo:model-dark-blue-grey-2",
+      "name": "Dark Blue Grey",
+      "range": "Model Color",
+      "hex": "#5C7476"
+    },
+    {
+      "id": "vallejo:model-dark-flesh",
+      "name": "Dark Flesh",
+      "range": "Model Color",
+      "hex": "#D9A262"
+    },
+    {
+      "id": "vallejo:model-dark-grey",
+      "name": "Dark Grey",
+      "range": "Model Color",
+      "hex": "#233E3D"
+    },
+    {
+      "id": "vallejo:model-dark-prussian-blue",
+      "name": "Dark Prussian Blue",
+      "range": "Model Color",
+      "hex": "#192C43"
+    },
+    {
+      "id": "vallejo:model-dark-red",
+      "name": "Dark Red",
+      "range": "Model Color",
+      "hex": "#A24A46"
+    },
+    {
+      "id": "vallejo:model-dark-sand",
+      "name": "Dark Sand",
+      "range": "Model Color",
+      "hex": "#D6B779"
+    },
+    {
+      "id": "vallejo:model-dark-sand-2",
+      "name": "Dark Sand",
+      "range": "Model Color",
+      "hex": "#D1B47E"
+    },
+    {
+      "id": "vallejo:model-dark-sea-blue",
+      "name": "Dark Sea Blue",
+      "range": "Model Color",
+      "hex": "#2A4048"
+    },
+    {
+      "id": "vallejo:model-dark-sea-green",
+      "name": "Dark Sea Green",
+      "range": "Model Color",
+      "hex": "#2F4844"
+    },
+    {
+      "id": "vallejo:model-dark-sea-grey",
+      "name": "Dark Sea Grey",
+      "range": "Model Color",
+      "hex": "#787D7A"
+    },
+    {
+      "id": "vallejo:model-dark-yellow",
+      "name": "Dark Yellow",
+      "range": "Model Color",
+      "hex": "#9D9059"
+    },
+    {
+      "id": "vallejo:model-deck-tan",
+      "name": "Deck Tan",
+      "range": "Model Color",
+      "hex": "#BEC5B3"
+    },
+    {
+      "id": "vallejo:model-deep-green",
+      "name": "Deep Green",
+      "range": "Model Color",
+      "hex": "#0A6B48"
+    },
+    {
+      "id": "vallejo:model-deep-sky-blue",
+      "name": "Deep Sky Blue",
+      "range": "Model Color",
+      "hex": "#00A6DA"
+    },
+    {
+      "id": "vallejo:model-deep-yellow",
+      "name": "Deep Yellow",
+      "range": "Model Color",
+      "hex": "#FFE30C"
+    },
+    {
+      "id": "vallejo:model-desert-yellow",
+      "name": "Desert Yellow",
+      "range": "Model Color",
+      "hex": "#B19151"
+    },
+    {
+      "id": "vallejo:model-emerald",
+      "name": "Emerald",
+      "range": "Model Color",
+      "hex": "#00906A"
+    },
+    {
+      "id": "vallejo:model-english-uniform",
+      "name": "English Uniform",
+      "range": "Model Color",
+      "hex": "#715833"
+    },
+    {
+      "id": "vallejo:model-field-blue",
+      "name": "Field Blue",
+      "range": "Model Color",
+      "hex": "#436872"
+    },
+    {
+      "id": "vallejo:model-flat-blue",
+      "name": "Flat Blue",
+      "range": "Model Color",
+      "hex": "#336991"
+    },
+    {
+      "id": "vallejo:model-flat-brown",
+      "name": "Flat Brown",
+      "range": "Model Color",
+      "hex": "#764841"
+    },
+    {
+      "id": "vallejo:model-flat-earth",
+      "name": "Flat Earth",
+      "range": "Model Color",
+      "hex": "#87643C"
+    },
+    {
+      "id": "vallejo:model-flat-flesh",
+      "name": "Flat Flesh",
+      "range": "Model Color",
+      "hex": "#D8A977"
+    },
+    {
+      "id": "vallejo:model-flat-green",
+      "name": "Flat Green",
+      "range": "Model Color",
+      "hex": "#2A6531"
+    },
+    {
+      "id": "vallejo:model-flat-red",
+      "name": "Flat Red",
+      "range": "Model Color",
+      "hex": "#AA3037"
+    },
+    {
+      "id": "vallejo:model-flat-yellow",
+      "name": "Flat Yellow",
+      "range": "Model Color",
+      "hex": "#FFCD25"
+    },
+    {
+      "id": "vallejo:model-french-mirage-blue",
+      "name": "French Mirage Blue",
+      "range": "Model Color",
+      "hex": "#557880"
+    },
+    {
+      "id": "vallejo:model-german-cam-beige-ww2",
+      "name": "German Cam. Beige WW2",
+      "range": "Model Color",
+      "hex": "#9C8D70"
+    },
+    {
+      "id": "vallejo:model-german-cam-black-brown",
+      "name": "German Cam. Black Brown",
+      "range": "Model Color",
+      "hex": "#5B3528"
+    },
+    {
+      "id": "vallejo:model-german-cam-black-brown-2",
+      "name": "German Cam. Black Brown",
+      "range": "Model Color",
+      "hex": "#553528"
+    },
+    {
+      "id": "vallejo:model-german-cam-bright-green",
+      "name": "German Cam. Bright Green",
+      "range": "Model Color",
+      "hex": "#528944"
+    },
+    {
+      "id": "vallejo:model-german-cam-dark-green",
+      "name": "German Cam. Dark Green",
+      "range": "Model Color",
+      "hex": "#2F4845"
+    },
+    {
+      "id": "vallejo:model-german-cam-extra-dark-green",
+      "name": "German Cam. Extra Dark Green",
+      "range": "Model Color",
+      "hex": "#30504A"
+    },
+    {
+      "id": "vallejo:model-german-cam-medium-brown",
+      "name": "German Cam. Medium Brown",
+      "range": "Model Color",
+      "hex": "#722B2F"
+    },
+    {
+      "id": "vallejo:model-german-cam-orange-ochre",
+      "name": "German Cam. Orange Ochre",
+      "range": "Model Color",
+      "hex": "#9D7E55"
+    },
+    {
+      "id": "vallejo:model-german-cam-pale-brown",
+      "name": "German Cam. Pale Brown",
+      "range": "Model Color",
+      "hex": "#82685E"
+    },
+    {
+      "id": "vallejo:model-german-field-grey-ww2",
+      "name": "German Field Grey WW2",
+      "range": "Model Color",
+      "hex": "#595748"
+    },
+    {
+      "id": "vallejo:model-german-grey",
+      "name": "German Grey",
+      "range": "Model Color",
+      "hex": "#192F30"
+    },
+    {
+      "id": "vallejo:model-german-orange",
+      "name": "German Orange",
+      "range": "Model Color",
+      "hex": "#F05426"
+    },
+    {
+      "id": "vallejo:model-german-uniform",
+      "name": "German Uniform",
+      "range": "Model Color",
+      "hex": "#286254"
+    },
+    {
+      "id": "vallejo:model-german-yellow",
+      "name": "German Yellow",
+      "range": "Model Color",
+      "hex": "#E8E589"
+    },
+    {
+      "id": "vallejo:model-glossy-black",
+      "name": "Glossy Black",
+      "range": "Model Color",
+      "hex": "#010101"
+    },
+    {
+      "id": "vallejo:model-gold-brown",
+      "name": "Gold Brown",
+      "range": "Model Color",
+      "hex": "#BA8636"
+    },
+    {
+      "id": "vallejo:model-golden-olive",
+      "name": "Golden Olive",
+      "range": "Model Color",
+      "hex": "#78923B"
+    },
+    {
+      "id": "vallejo:model-golden-yellow",
+      "name": "Golden Yellow",
+      "range": "Model Color",
+      "hex": "#F7C65E"
+    },
+    {
+      "id": "vallejo:model-green-brown",
+      "name": "Green Brown",
+      "range": "Model Color",
+      "hex": "#8D7B55"
+    },
+    {
+      "id": "vallejo:model-green-grey",
+      "name": "Green Grey",
+      "range": "Model Color",
+      "hex": "#827E61"
+    },
+    {
+      "id": "vallejo:model-green-ochre",
+      "name": "Green Ochre",
+      "range": "Model Color",
+      "hex": "#A98969"
+    },
+    {
+      "id": "vallejo:model-green-sky",
+      "name": "Green Sky",
+      "range": "Model Color",
+      "hex": "#59AD84"
+    },
+    {
+      "id": "vallejo:model-grey-blue",
+      "name": "Grey Blue",
+      "range": "Model Color",
+      "hex": "#45708D"
+    },
+    {
+      "id": "vallejo:model-grey-green",
+      "name": "Grey Green",
+      "range": "Model Color",
+      "hex": "#565A60"
+    },
+    {
+      "id": "vallejo:model-grey-grey",
+      "name": "Grey Grey",
+      "range": "Model Color",
+      "hex": "#AECBBB"
+    },
+    {
+      "id": "vallejo:model-gunship-green",
+      "name": "Gunship Green",
+      "range": "Model Color",
+      "hex": "#3D685E"
+    },
+    {
+      "id": "vallejo:model-hull-red",
+      "name": "Hull Red",
+      "range": "Model Color",
+      "hex": "#522724"
+    },
+    {
+      "id": "vallejo:model-ice-yellow",
+      "name": "Ice Yellow",
+      "range": "Model Color",
+      "hex": "#FEEF87"
+    },
+    {
+      "id": "vallejo:model-intermediate-blue",
+      "name": "Intermediate Blue",
+      "range": "Model Color",
+      "hex": "#607A80"
+    },
+    {
+      "id": "vallejo:model-intermediate-green",
+      "name": "Intermediate Green",
+      "range": "Model Color",
+      "hex": "#49944F"
+    },
+    {
+      "id": "vallejo:model-iraqi-sand",
+      "name": "Iraqi Sand",
+      "range": "Model Color",
+      "hex": "#B89972"
+    },
+    {
+      "id": "vallejo:model-ivory",
+      "name": "Ivory",
+      "range": "Model Color",
+      "hex": "#EFF1D9"
+    },
+    {
+      "id": "vallejo:model-japan-uniform-ww2",
+      "name": "Japan Uniform WW2",
+      "range": "Model Color",
+      "hex": "#998546"
+    },
+    {
+      "id": "vallejo:model-khaki",
+      "name": "Khaki",
+      "range": "Model Color",
+      "hex": "#969163"
+    },
+    {
+      "id": "vallejo:model-khaki-grey",
+      "name": "Khaki Grey",
+      "range": "Model Color",
+      "hex": "#8B7F5D"
+    },
+    {
+      "id": "vallejo:model-leather-brown",
+      "name": "Leather Brown",
+      "range": "Model Color",
+      "hex": "#4A4639"
+    },
+    {
+      "id": "vallejo:model-lemon-yellow",
+      "name": "Lemon Yellow",
+      "range": "Model Color",
+      "hex": "#FEF10E"
+    },
+    {
+      "id": "vallejo:model-light-brown",
+      "name": "Light Brown",
+      "range": "Model Color",
+      "hex": "#BF764E"
+    },
+    {
+      "id": "vallejo:model-light-flesh",
+      "name": "Light Flesh",
+      "range": "Model Color",
+      "hex": "#FEEDD0"
+    },
+    {
+      "id": "vallejo:model-light-green",
+      "name": "Light Green",
+      "range": "Model Color",
+      "hex": "#00A850"
+    },
+    {
+      "id": "vallejo:model-light-green-blue",
+      "name": "Light Green Blue",
+      "range": "Model Color",
+      "hex": "#6D9A95"
+    },
+    {
+      "id": "vallejo:model-light-grey",
+      "name": "Light Grey",
+      "range": "Model Color",
+      "hex": "#949C9A"
+    },
+    {
+      "id": "vallejo:model-light-orange",
+      "name": "Light Orange",
+      "range": "Model Color",
+      "hex": "#F68627"
+    },
+    {
+      "id": "vallejo:model-light-sea-grey",
+      "name": "Light Sea Grey",
+      "range": "Model Color",
+      "hex": "#97B4B5"
+    },
+    {
+      "id": "vallejo:model-light-turquoise",
+      "name": "Light Turquoise",
+      "range": "Model Color",
+      "hex": "#0094A5"
+    },
+    {
+      "id": "vallejo:model-light-yellow",
+      "name": "Light Yellow",
+      "range": "Model Color",
+      "hex": "#F7EA62"
+    },
+    {
+      "id": "vallejo:model-lime-green",
+      "name": "Lime Green",
+      "range": "Model Color",
+      "hex": "#6FAE4E"
+    },
+    {
+      "id": "vallejo:model-london-grey",
+      "name": "London Grey",
+      "range": "Model Color",
+      "hex": "#4A555E"
+    },
+    {
+      "id": "vallejo:model-luftwaffe-cam-green",
+      "name": "Luftwaffe Cam. Green",
+      "range": "Model Color",
+      "hex": "#596B3F"
+    },
+    {
+      "id": "vallejo:model-luftwaffe-uniform-ww2",
+      "name": "Luftwaffe Uniform WW2",
+      "range": "Model Color",
+      "hex": "#3D474F"
+    },
+    {
+      "id": "vallejo:model-magenta",
+      "name": "Magenta",
+      "range": "Model Color",
+      "hex": "#A92A56"
+    },
+    {
+      "id": "vallejo:model-mahogany-brown",
+      "name": "Mahogany Brown",
+      "range": "Model Color",
+      "hex": "#804B47"
+    },
+    {
+      "id": "vallejo:model-medium-blue",
+      "name": "Medium Blue",
+      "range": "Model Color",
+      "hex": "#066588"
+    },
+    {
+      "id": "vallejo:model-medium-fleshtone",
+      "name": "Medium Fleshtone",
+      "range": "Model Color",
+      "hex": "#C08245"
+    },
+    {
+      "id": "vallejo:model-medium-grey",
+      "name": "Medium Grey",
+      "range": "Model Color",
+      "hex": "#909B85"
+    },
+    {
+      "id": "vallejo:model-medium-olive",
+      "name": "Medium Olive",
+      "range": "Model Color",
+      "hex": "#226B2E"
+    },
+    {
+      "id": "vallejo:model-medium-sea-grey",
+      "name": "Medium Sea Grey",
+      "range": "Model Color",
+      "hex": "#869393"
+    },
+    {
+      "id": "vallejo:model-middlestone",
+      "name": "Middlestone",
+      "range": "Model Color",
+      "hex": "#9C9660"
+    },
+    {
+      "id": "vallejo:model-military-green",
+      "name": "Military Green",
+      "range": "Model Color",
+      "hex": "#3E5848"
+    },
+    {
+      "id": "vallejo:model-neutral-grey",
+      "name": "Neutral Grey",
+      "range": "Model Color",
+      "hex": "#64767A"
+    },
+    {
+      "id": "vallejo:model-ochre-brown",
+      "name": "Ochre Brown",
+      "range": "Model Color",
+      "hex": "#A77237"
+    },
+    {
+      "id": "vallejo:model-offwhite",
+      "name": "Offwhite",
+      "range": "Model Color",
+      "hex": "#EFEEE2"
+    },
+    {
+      "id": "vallejo:model-old-rose",
+      "name": "Old Rose",
+      "range": "Model Color",
+      "hex": "#D47B7D"
+    },
+    {
+      "id": "vallejo:model-olive-green",
+      "name": "Olive Green",
+      "range": "Model Color",
+      "hex": "#6A8B3A"
+    },
+    {
+      "id": "vallejo:model-olive-grey",
+      "name": "Olive Grey",
+      "range": "Model Color",
+      "hex": "#39584F"
+    },
+    {
+      "id": "vallejo:model-orange-brown",
+      "name": "Orange Brown",
+      "range": "Model Color",
+      "hex": "#B86F44"
+    },
+    {
+      "id": "vallejo:model-orange-red",
+      "name": "Orange Red",
+      "range": "Model Color",
+      "hex": "#E34C26"
+    },
+    {
+      "id": "vallejo:model-oxford-blue",
+      "name": "Oxford Blue",
+      "range": "Model Color",
+      "hex": "#3A465F"
+    },
+    {
+      "id": "vallejo:model-pale-blue",
+      "name": "Pale Blue",
+      "range": "Model Color",
+      "hex": "#83B5B2"
+    },
+    {
+      "id": "vallejo:model-pale-grey-blue",
+      "name": "Pale Grey Blue",
+      "range": "Model Color",
+      "hex": "#BACDD0"
+    },
+    {
+      "id": "vallejo:model-pale-sand",
+      "name": "Pale Sand",
+      "range": "Model Color",
+      "hex": "#D1C49C"
+    },
+    {
+      "id": "vallejo:model-park-green-flat",
+      "name": "Park Green Flat",
+      "range": "Model Color",
+      "hex": "#008C5D"
+    },
+    {
+      "id": "vallejo:model-pastel-blue",
+      "name": "Pastel Blue",
+      "range": "Model Color",
+      "hex": "#67859B"
+    },
+    {
+      "id": "vallejo:model-pastel-green",
+      "name": "Pastel Green",
+      "range": "Model Color",
+      "hex": "#A4BB99"
+    },
+    {
+      "id": "vallejo:model-pink",
+      "name": "Pink",
+      "range": "Model Color",
+      "hex": "#D37497"
+    },
+    {
+      "id": "vallejo:model-prussian-blue",
+      "name": "Prussian Blue",
+      "range": "Model Color",
+      "hex": "#2A546E"
+    },
+    {
+      "id": "vallejo:model-purple",
+      "name": "Purple",
+      "range": "Model Color",
+      "hex": "#834A6C"
+    },
+    {
+      "id": "vallejo:model-red",
+      "name": "Red",
+      "range": "Model Color",
+      "hex": "#91323A"
+    },
+    {
+      "id": "vallejo:model-red-leather",
+      "name": "Red Leather",
+      "range": "Model Color",
+      "hex": "#93453D"
+    },
+    {
+      "id": "vallejo:model-reflective-green",
+      "name": "Reflective Green",
+      "range": "Model Color",
+      "hex": "#496244"
+    },
+    {
+      "id": "vallejo:model-royal-blue",
+      "name": "Royal Blue",
+      "range": "Model Color",
+      "hex": "#41558D"
+    },
+    {
+      "id": "vallejo:model-royal-purple",
+      "name": "Royal Purple",
+      "range": "Model Color",
+      "hex": "#4B2967"
+    },
+    {
+      "id": "vallejo:model-russian-uniform-ww2",
+      "name": "Russian Uniform WW2",
+      "range": "Model Color",
+      "hex": "#606D53"
+    },
+    {
+      "id": "vallejo:model-saddle-brown",
+      "name": "Saddle Brown",
+      "range": "Model Color",
+      "hex": "#89584F"
+    },
+    {
+      "id": "vallejo:model-salmon-rose",
+      "name": "Salmon Rose",
+      "range": "Model Color",
+      "hex": "#F89D87"
+    },
+    {
+      "id": "vallejo:model-sand-yellow",
+      "name": "Sand Yellow",
+      "range": "Model Color",
+      "hex": "#D7BF75"
+    },
+    {
+      "id": "vallejo:model-scarlet",
+      "name": "Scarlet",
+      "range": "Model Color",
+      "hex": "#DA3630"
+    },
+    {
+      "id": "vallejo:model-silver-grey",
+      "name": "Silver Grey",
+      "range": "Model Color",
+      "hex": "#D8DFD5"
+    },
+    {
+      "id": "vallejo:model-sky-blue",
+      "name": "Sky Blue",
+      "range": "Model Color",
+      "hex": "#86D6F7"
+    },
+    {
+      "id": "vallejo:model-sky-grey",
+      "name": "Sky Grey",
+      "range": "Model Color",
+      "hex": "#B3B6B2"
+    },
+    {
+      "id": "vallejo:model-stone-grey",
+      "name": "Stone Grey",
+      "range": "Model Color",
+      "hex": "#959980"
+    },
+    {
+      "id": "vallejo:model-sunny-skintone",
+      "name": "Sunny Skintone",
+      "range": "Model Color",
+      "hex": "#F4B171"
+    },
+    {
+      "id": "vallejo:model-sunset-red",
+      "name": "Sunset Red",
+      "range": "Model Color",
+      "hex": "#C22C5F"
+    },
+    {
+      "id": "vallejo:model-tan-earth",
+      "name": "Tan Earth",
+      "range": "Model Color",
+      "hex": "#9C7962"
+    },
+    {
+      "id": "vallejo:model-tan-yellow",
+      "name": "Tan Yellow",
+      "range": "Model Color",
+      "hex": "#B5915D"
+    },
+    {
+      "id": "vallejo:model-turquoise",
+      "name": "Turquoise",
+      "range": "Model Color",
+      "hex": "#008E9C"
+    },
+    {
+      "id": "vallejo:model-us-dark-green",
+      "name": "US Dark Green",
+      "range": "Model Color",
+      "hex": "#5B6955"
+    },
+    {
+      "id": "vallejo:model-us-field-drab",
+      "name": "US Field Drab",
+      "range": "Model Color",
+      "hex": "#705D43"
+    },
+    {
+      "id": "vallejo:model-usa-olive-drab",
+      "name": "USA Olive Drab",
+      "range": "Model Color",
+      "hex": "#3B4947"
+    },
+    {
+      "id": "vallejo:model-ultramarine",
+      "name": "Ultramarine",
+      "range": "Model Color",
+      "hex": "#3B5DA7"
+    },
+    {
+      "id": "vallejo:model-uniform-green",
+      "name": "Uniform Green",
+      "range": "Model Color",
+      "hex": "#577A38"
+    },
+    {
+      "id": "vallejo:model-vermillion",
+      "name": "Vermillion",
+      "range": "Model Color",
+      "hex": "#D22B2D"
+    },
+    {
+      "id": "vallejo:model-violet",
+      "name": "Violet",
+      "range": "Model Color",
+      "hex": "#4B2F65"
+    },
+    {
+      "id": "vallejo:model-violet-red",
+      "name": "Violet Red",
+      "range": "Model Color",
+      "hex": "#6B2946"
+    },
+    {
+      "id": "vallejo:model-white",
+      "name": "White",
+      "range": "Model Color",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "vallejo:model-white-grey",
+      "name": "White Grey",
+      "range": "Model Color",
+      "hex": "#EEF1EC"
+    },
+    {
+      "id": "vallejo:model-yellow-green",
+      "name": "Yellow Green",
+      "range": "Model Color",
+      "hex": "#91864B"
+    },
+    {
+      "id": "vallejo:model-yellow-green-2",
+      "name": "Yellow Green",
+      "range": "Model Color",
+      "hex": "#D9E02A"
+    },
+    {
+      "id": "vallejo:model-yellow-ochre",
+      "name": "Yellow Ochre",
+      "range": "Model Color",
+      "hex": "#C19448"
+    },
+    {
+      "id": "vallejo:model-yellow-olive",
+      "name": "Yellow Olive",
+      "range": "Model Color",
+      "hex": "#26392E"
     }
   ]
 }

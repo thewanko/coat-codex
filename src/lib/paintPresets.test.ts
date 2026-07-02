@@ -10,6 +10,8 @@ import type {
   PaintBrandIndex,
   PaintPresetColor,
 } from "./paintPresets";
+import citadelData from "../../public/paints/citadel.json";
+import vallejoData from "../../public/paints/vallejo.json";
 
 const INDEX_FIXTURE: PaintBrandIndex = {
   brands: [
@@ -30,6 +32,18 @@ const CITADEL_COLORS: PaintPresetColor[] = [
     name: "Abaddon Black",
     nameJa: "アバドンブラック",
     hex: "#141414",
+  },
+  {
+    id: "citadel:base-khaki",
+    name: "Khaki",
+    range: "base",
+    hex: "#8C7D53",
+  },
+  {
+    id: "citadel:layer-khaki",
+    name: "Khaki",
+    range: "layer",
+    hex: "#A69466",
   },
 ];
 
@@ -257,5 +271,43 @@ describe("searchColors", () => {
     const result = await searchColors("citadel", "red");
 
     expect(result).toEqual([]);
+  });
+
+  test("rangeを持つ色はloadBrandColors/searchColorsを通じてそのまま透過する", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(CITADEL_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { searchColors } = await importFresh();
+    const result = await searchColors("citadel", "khaki");
+
+    expect(result).toHaveLength(2);
+    expect(result.map((c) => c.range)).toEqual(
+      expect.arrayContaining(["base", "layer"]),
+    );
+    expect(result.every((c) => c.name === "Khaki")).toBe(true);
+  });
+});
+
+describe("生成データの整合性（実ファイル検証）", () => {
+  const HEX_RE = /^#[0-9A-F]{6}$/;
+
+  test.each([
+    ["citadel", citadelData],
+    ["vallejo", vallejoData],
+  ])("%s.json: id一意・hex形式・range非空", (_brand, data) => {
+    const colors = data.colors;
+    expect(colors.length).toBeGreaterThan(0);
+
+    const ids = colors.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    for (const c of colors) {
+      expect(c.hex).toMatch(HEX_RE);
+      expect(c.range).toBeTruthy();
+    }
   });
 });

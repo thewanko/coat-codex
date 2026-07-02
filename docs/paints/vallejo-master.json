@@ -1,0 +1,1538 @@
+{
+  "manufacturer": "Vallejo",
+  "source": "Compiled from redgrimm.github.io/paint-conversion (Vallejo Game & Vallejo Model conversion charts)",
+  "count": 255,
+  "note": "Vallejo is a trademark of Acrylicos Vallejo, S.L. Hex values are approximations of physical paint colours compiled from a community reference source, not official spectrophotometer readings.",
+  "colors": [
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dead White",
+      "range": "Game Color",
+      "hex": "#ffffff"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pale Flesh",
+      "range": "Game Color",
+      "hex": "#f6bdb3"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Elf Skintone",
+      "range": "Game Color",
+      "hex": "#f8a070"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Moon Yellow",
+      "range": "Game Color",
+      "hex": "#fff103"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sun Yellow",
+      "range": "Game Color",
+      "hex": "#ffcf07"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Gold Yellow",
+      "range": "Game Color",
+      "hex": "#fdb318"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Orange Fire",
+      "range": "Game Color",
+      "hex": "#f1652e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Hot Orange",
+      "range": "Game Color",
+      "hex": "#e43027"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Bloody Red",
+      "range": "Game Color",
+      "hex": "#bf282e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Gory Red",
+      "range": "Game Color",
+      "hex": "#810504"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scarlet Red",
+      "range": "Game Color",
+      "hex": "#741330"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Squid Pink",
+      "range": "Game Color",
+      "hex": "#da7fb5"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Warlord Purple",
+      "range": "Game Color",
+      "hex": "#7d1a44"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Hexed Lichen",
+      "range": "Game Color",
+      "hex": "#34274d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Royal Purple",
+      "range": "Game Color",
+      "hex": "#23264f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Blue",
+      "range": "Game Color",
+      "hex": "#2b265d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Stormy Night",
+      "range": "Game Color",
+      "hex": "#1f1a4f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Night Blue",
+      "range": "Game Color",
+      "hex": "#19183f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Imperial Purple",
+      "range": "Game Color",
+      "hex": "#211a4b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Magic Blue",
+      "range": "Game Color",
+      "hex": "#024381"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ultramarine Blue",
+      "range": "Game Color",
+      "hex": "#373592"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Electric Blue",
+      "range": "Game Color",
+      "hex": "#008cbf"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Turquoise",
+      "range": "Game Color",
+      "hex": "#03676f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Foul Green",
+      "range": "Game Color",
+      "hex": "#239378"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Jade Green",
+      "range": "Game Color",
+      "hex": "#128379"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scurvy Green",
+      "range": "Game Color",
+      "hex": "#09474e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Green",
+      "range": "Game Color",
+      "hex": "#083c2a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sick Green",
+      "range": "Game Color",
+      "hex": "#096638"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Goblin Green",
+      "range": "Game Color",
+      "hex": "#23743c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Camoflage Green",
+      "range": "Game Color",
+      "hex": "#71753a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scorpion Green",
+      "range": "Game Color",
+      "hex": "#48b851"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Livery Green",
+      "range": "Game Color",
+      "hex": "#9ece65"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Bone White",
+      "range": "Game Color",
+      "hex": "#e8be86"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dead Flesh",
+      "range": "Game Color",
+      "hex": "#bcb686"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Bronze Fleshtone",
+      "range": "Game Color",
+      "hex": "#db945c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Filthy Brown",
+      "range": "Game Color",
+      "hex": "#f58d2b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scrofulous Brown",
+      "range": "Game Color",
+      "hex": "#d68030"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Plague Brown",
+      "range": "Game Color",
+      "hex": "#cc9b34"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Leather Brown",
+      "range": "Game Color",
+      "hex": "#7b5d2a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dwarf Skin",
+      "range": "Game Color",
+      "hex": "#cc7c67"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Parasite Brown",
+      "range": "Game Color",
+      "hex": "#b1481f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Beasty Brown",
+      "range": "Game Color",
+      "hex": "#55432d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Fleshtone",
+      "range": "Game Color",
+      "hex": "#4f2b26"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Charred Brown",
+      "range": "Game Color",
+      "hex": "#39343b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ghost Grey",
+      "range": "Game Color",
+      "hex": "#a7c5db"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Wolf Grey",
+      "range": "Game Color",
+      "hex": "#90a2bc"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sombre Grey",
+      "range": "Game Color",
+      "hex": "#4c5c7d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Stonewall Grey",
+      "range": "Game Color",
+      "hex": "#828e95"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cold Grey",
+      "range": "Game Color",
+      "hex": "#54646d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Black",
+      "range": "Game Color",
+      "hex": "#000000"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Khaki",
+      "range": "Game Color",
+      "hex": "#8c806d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Earth",
+      "range": "Game Color",
+      "hex": "#6f563d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Desert Yellow",
+      "range": "Game Color",
+      "hex": "#8e7845"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Yellow Olive",
+      "range": "Game Color",
+      "hex": "#063b2f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Terracota",
+      "range": "Game Color",
+      "hex": "#6b1306"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Tan",
+      "range": "Game Color",
+      "hex": "#9f4746"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cayman Green",
+      "range": "Game Color",
+      "hex": "#285648"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Smokey Ink",
+      "range": "Game Color",
+      "hex": "#2b2325"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Glacier Blue",
+      "range": "Game Color",
+      "hex": "#acd0ee"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Verdigris",
+      "range": "Game Color",
+      "hex": "#b3ceca"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pale Yellow",
+      "range": "Game Color",
+      "hex": "#d5c179"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Elfic Flesh",
+      "range": "Game Color",
+      "hex": "#cdc29c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cadmium Skin",
+      "range": "Game Color",
+      "hex": "#fab78a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Rosy Flesh",
+      "range": "Game Color",
+      "hex": "#f89e84"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Offwhite",
+      "range": "Game Color",
+      "hex": "#f5f4da"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Steel Grey",
+      "range": "Game Color",
+      "hex": "#64889d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Fluo Yellow",
+      "range": "Game Color",
+      "hex": "#eeea50"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Fluo Green",
+      "range": "Game Color",
+      "hex": "#9dcd64"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Mutation Green",
+      "range": "Game Color",
+      "hex": "#296934"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scarlet \"Blood\" Red",
+      "range": "Game Color",
+      "hex": "#b72a38"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Skintone",
+      "range": "Game Color",
+      "hex": "#aa7b62"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Red",
+      "range": "Game Color",
+      "hex": "#943238"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Violet",
+      "range": "Game Color",
+      "hex": "#4c2e65"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Blue",
+      "range": "Game Color",
+      "hex": "#29556d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Blue Grey",
+      "range": "Game Color",
+      "hex": "#9ca7a7"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Grey",
+      "range": "Game Color",
+      "hex": "#626d54"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Green",
+      "range": "Game Color",
+      "hex": "#566840"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Black Green",
+      "range": "Game Color",
+      "hex": "#18433d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Warm Grey",
+      "range": "Game Color",
+      "hex": "#939066"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Khaki",
+      "range": "Game Color",
+      "hex": "#9d965d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Ochre",
+      "range": "Game Color",
+      "hex": "#a87536"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Gold Brown",
+      "range": "Game Color",
+      "hex": "#ba8636"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Orange",
+      "range": "Game Color",
+      "hex": "#ee5527"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Brown",
+      "range": "Game Color",
+      "hex": "#705d41"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Sienna",
+      "range": "Game Color",
+      "hex": "#744642"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Heavy Charcoal",
+      "range": "Game Color",
+      "hex": "#1c2e2e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sunset Red",
+      "range": "Model Color",
+      "hex": "#c22c5f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Brown Rose",
+      "range": "Model Color",
+      "hex": "#cf8774"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Beige Red",
+      "range": "Model Color",
+      "hex": "#c79166"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Orange",
+      "range": "Model Color",
+      "hex": "#f05426"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Yellow",
+      "range": "Model Color",
+      "hex": "#e8e589"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Oxford Blue",
+      "range": "Model Color",
+      "hex": "#3a465f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Blue Green",
+      "range": "Model Color",
+      "hex": "#1a9496"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Royal Blue",
+      "range": "Model Color",
+      "hex": "#41558d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Royal Purple",
+      "range": "Model Color",
+      "hex": "#4b2967"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Blue Violet",
+      "range": "Model Color",
+      "hex": "#795c9a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Violet Red",
+      "range": "Model Color",
+      "hex": "#6b2946"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Burnt Cadmium Red",
+      "range": "Model Color",
+      "hex": "#623535"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Basic Skintone",
+      "range": "Model Color",
+      "hex": "#fbbc8c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Luftwaffe Uniform WW2",
+      "range": "Model Color",
+      "hex": "#3d474f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Scarlet",
+      "range": "Model Color",
+      "hex": "#da3630"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Red Leather",
+      "range": "Model Color",
+      "hex": "#93453d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Iraqi Sand",
+      "range": "Model Color",
+      "hex": "#b89972"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Offwhite",
+      "range": "Model Color",
+      "hex": "#efeee2"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Beige WW2",
+      "range": "Model Color",
+      "hex": "#9c8d70"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Black Brown",
+      "range": "Model Color",
+      "hex": "#5b3528"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Luftwaffe Cam. Green",
+      "range": "Model Color",
+      "hex": "#596b3f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Black Brown",
+      "range": "Model Color",
+      "hex": "#553528"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Orange Ochre",
+      "range": "Model Color",
+      "hex": "#9d7e55"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Pale Brown",
+      "range": "Model Color",
+      "hex": "#82685e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Medium Brown",
+      "range": "Model Color",
+      "hex": "#722b2f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Lime Green",
+      "range": "Model Color",
+      "hex": "#6fae4e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Amaranth Red",
+      "range": "Model Color",
+      "hex": "#cc4338"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Field Grey WW2",
+      "range": "Model Color",
+      "hex": "#595748"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Bright Green",
+      "range": "Model Color",
+      "hex": "#528944"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Salmon Rose",
+      "range": "Model Color",
+      "hex": "#f89d87"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "London Grey",
+      "range": "Model Color",
+      "hex": "#4a555e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pale Sand",
+      "range": "Model Color",
+      "hex": "#d1c49c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Emerald",
+      "range": "Model Color",
+      "hex": "#00906a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ultramarine",
+      "range": "Model Color",
+      "hex": "#3b5da7"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Turquoise",
+      "range": "Model Color",
+      "hex": "#0094a5"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Andrea Blue",
+      "range": "Model Color",
+      "hex": "#008dc9"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cork Brown",
+      "range": "Model Color",
+      "hex": "#a57b63"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Deep Sky Blue",
+      "range": "Model Color",
+      "hex": "#00a6da"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sunny Skintone",
+      "range": "Model Color",
+      "hex": "#f4b171"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Mahogany Brown",
+      "range": "Model Color",
+      "hex": "#804b47"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Sand",
+      "range": "Model Color",
+      "hex": "#d6b779"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Medium Olive",
+      "range": "Model Color",
+      "hex": "#226b2e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Bright Orange",
+      "range": "Model Color",
+      "hex": "#f26833"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ochre Brown",
+      "range": "Model Color",
+      "hex": "#a77237"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Golden Olive",
+      "range": "Model Color",
+      "hex": "#78923b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ice Yellow",
+      "range": "Model Color",
+      "hex": "#feef87"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Black Red [Cadmium Brown]",
+      "range": "Model Color",
+      "hex": "#5f2e39"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Medium Fleshtone",
+      "range": "Model Color",
+      "hex": "#c08245"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Glossy Black",
+      "range": "Model Color",
+      "hex": "#010101"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Black Grey",
+      "range": "Model Color",
+      "hex": "#2d373a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Grey Green",
+      "range": "Model Color",
+      "hex": "#565a60"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Blue Grey",
+      "range": "Model Color",
+      "hex": "#4b5751"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Sea Green",
+      "range": "Model Color",
+      "hex": "#2f4844"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Basalt Grey",
+      "range": "Model Color",
+      "hex": "#576860"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Medium Sea Grey",
+      "range": "Model Color",
+      "hex": "#869393"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Leather Brown",
+      "range": "Model Color",
+      "hex": "#4a4639"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Chocolate Brown",
+      "range": "Model Color",
+      "hex": "#5f5047"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "US Field Drab",
+      "range": "Model Color",
+      "hex": "#705d43"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Tan Earth",
+      "range": "Model Color",
+      "hex": "#9c7962"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Beige Brown",
+      "range": "Model Color",
+      "hex": "#78584a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Brown Sand",
+      "range": "Model Color",
+      "hex": "#b08064"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Gold Brown",
+      "range": "Model Color",
+      "hex": "#ba8636"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Green Brown",
+      "range": "Model Color",
+      "hex": "#8d7b55"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Khaki Grey",
+      "range": "Model Color",
+      "hex": "#8b7f5d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Yellow Green",
+      "range": "Model Color",
+      "hex": "#91864b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Middlestone",
+      "range": "Model Color",
+      "hex": "#9c9660"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Silver Grey",
+      "range": "Model Color",
+      "hex": "#d8dfd5"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Stone Grey",
+      "range": "Model Color",
+      "hex": "#959980"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pastel Green",
+      "range": "Model Color",
+      "hex": "#a4bb99"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Green Grey",
+      "range": "Model Color",
+      "hex": "#827e61"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Brown Violet",
+      "range": "Model Color",
+      "hex": "#4e5d4d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Olive Grey",
+      "range": "Model Color",
+      "hex": "#39584f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "USA Olive Drab",
+      "range": "Model Color",
+      "hex": "#3b4947"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Reflective Green",
+      "range": "Model Color",
+      "hex": "#496244"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Intermediate Green",
+      "range": "Model Color",
+      "hex": "#49944f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Yellow Olive",
+      "range": "Model Color",
+      "hex": "#26392e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "US Dark Green",
+      "range": "Model Color",
+      "hex": "#5b6955"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cam. Olive Green",
+      "range": "Model Color",
+      "hex": "#3c5549"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Gunship Green",
+      "range": "Model Color",
+      "hex": "#3d685e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Extra Dark Green",
+      "range": "Model Color",
+      "hex": "#30504a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Bronce Green",
+      "range": "Model Color",
+      "hex": "#2a534f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Sea Blue",
+      "range": "Model Color",
+      "hex": "#2a4048"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Prussian Blue",
+      "range": "Model Color",
+      "hex": "#192c43"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "French Mirage Blue",
+      "range": "Model Color",
+      "hex": "#557880"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pastel Blue",
+      "range": "Model Color",
+      "hex": "#67859b"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Azure",
+      "range": "Model Color",
+      "hex": "#717cad"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Intermediate Blue",
+      "range": "Model Color",
+      "hex": "#607a80"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Blue Grey",
+      "range": "Model Color",
+      "hex": "#5c7476"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Blue Grey Pale",
+      "range": "Model Color",
+      "hex": "#9ea7a5"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pale Blue",
+      "range": "Model Color",
+      "hex": "#83b5b2"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pale Grey Blue",
+      "range": "Model Color",
+      "hex": "#bacdd0"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Carmine Red",
+      "range": "Model Color",
+      "hex": "#b73035"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Vermillion",
+      "range": "Model Color",
+      "hex": "#d22b2d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Orange Red",
+      "range": "Model Color",
+      "hex": "#e34c26"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Orange",
+      "range": "Model Color",
+      "hex": "#f68627"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Tan Yellow",
+      "range": "Model Color",
+      "hex": "#b5915d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Yellow Ochre",
+      "range": "Model Color",
+      "hex": "#c19448"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Green Ochre",
+      "range": "Model Color",
+      "hex": "#a98969"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Deep Yellow",
+      "range": "Model Color",
+      "hex": "#ffe30c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sand Yellow",
+      "range": "Model Color",
+      "hex": "#d7bf75"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Beige",
+      "range": "Model Color",
+      "hex": "#dbc58e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Ivory",
+      "range": "Model Color",
+      "hex": "#eff1d9"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Uniform",
+      "range": "Model Color",
+      "hex": "#286254"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "English Uniform",
+      "range": "Model Color",
+      "hex": "#715833"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Uniform Green",
+      "range": "Model Color",
+      "hex": "#577a38"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Japan Uniform WW2",
+      "range": "Model Color",
+      "hex": "#998546"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Russian Uniform WW2",
+      "range": "Model Color",
+      "hex": "#606d53"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Blue",
+      "range": "Model Color",
+      "hex": "#043667"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Red",
+      "range": "Model Color",
+      "hex": "#91323a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Flesh",
+      "range": "Model Color",
+      "hex": "#d9a262"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Flesh",
+      "range": "Model Color",
+      "hex": "#feedd0"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Brown",
+      "range": "Model Color",
+      "hex": "#bf764e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Blue",
+      "range": "Model Color",
+      "hex": "#0d5a86"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Saddle Brown",
+      "range": "Model Color",
+      "hex": "#89584f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Burnt Umber",
+      "range": "Model Color",
+      "hex": "#665148"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Green",
+      "range": "Model Color",
+      "hex": "#00a850"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Grey Blue",
+      "range": "Model Color",
+      "hex": "#45708d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Old Rose",
+      "range": "Model Color",
+      "hex": "#d47b7d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Magenta",
+      "range": "Model Color",
+      "hex": "#a92a56"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Red",
+      "range": "Model Color",
+      "hex": "#a24a46"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Sand",
+      "range": "Model Color",
+      "hex": "#d1b47e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Golden Yellow",
+      "range": "Model Color",
+      "hex": "#f7c65e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Yellow",
+      "range": "Model Color",
+      "hex": "#f7ea62"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Black",
+      "range": "Model Color",
+      "hex": "#252b31"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "White",
+      "range": "Model Color",
+      "hex": "#ffffff"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Lemon Yellow",
+      "range": "Model Color",
+      "hex": "#fef10e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Yellow",
+      "range": "Model Color",
+      "hex": "#ffcd25"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Yellow Green",
+      "range": "Model Color",
+      "hex": "#d9e02a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Flesh",
+      "range": "Model Color",
+      "hex": "#d8a977"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Clear Orange",
+      "range": "Model Color",
+      "hex": "#f1552c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Red",
+      "range": "Model Color",
+      "hex": "#aa3037"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Pink",
+      "range": "Model Color",
+      "hex": "#d37497"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Purple",
+      "range": "Model Color",
+      "hex": "#834a6c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Violet",
+      "range": "Model Color",
+      "hex": "#4b2f65"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sky Blue",
+      "range": "Model Color",
+      "hex": "#86d6f7"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Blue",
+      "range": "Model Color",
+      "hex": "#336991"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Medium Blue",
+      "range": "Model Color",
+      "hex": "#066588"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Field Blue",
+      "range": "Model Color",
+      "hex": "#436872"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Prussian Blue",
+      "range": "Model Color",
+      "hex": "#2a546e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Turquoise",
+      "range": "Model Color",
+      "hex": "#008e9c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Olive Green",
+      "range": "Model Color",
+      "hex": "#6a8b3a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Green",
+      "range": "Model Color",
+      "hex": "#2a6531"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Park Green Flat",
+      "range": "Model Color",
+      "hex": "#008c5d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Deep Green",
+      "range": "Model Color",
+      "hex": "#0a6b48"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Grey Grey",
+      "range": "Model Color",
+      "hex": "#aecbbb"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Green Blue",
+      "range": "Model Color",
+      "hex": "#6d9a95"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Sea Grey",
+      "range": "Model Color",
+      "hex": "#97b4b5"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Green Sky",
+      "range": "Model Color",
+      "hex": "#59ad84"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Military Green",
+      "range": "Model Color",
+      "hex": "#3e5848"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Buff",
+      "range": "Model Color",
+      "hex": "#d2ca9f"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Desert Yellow",
+      "range": "Model Color",
+      "hex": "#b19151"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Yellow",
+      "range": "Model Color",
+      "hex": "#9d9059"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Cam. Dark Green",
+      "range": "Model Color",
+      "hex": "#2f4845"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Black Green",
+      "range": "Model Color",
+      "hex": "#19423e"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Orange Brown",
+      "range": "Model Color",
+      "hex": "#b86f44"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Cavalry Brown",
+      "range": "Model Color",
+      "hex": "#853f3d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Earth",
+      "range": "Model Color",
+      "hex": "#87643c"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Flat Brown",
+      "range": "Model Color",
+      "hex": "#764841"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Hull Red",
+      "range": "Model Color",
+      "hex": "#522724"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Deck Tan",
+      "range": "Model Color",
+      "hex": "#bec5b3"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Medium Grey",
+      "range": "Model Color",
+      "hex": "#909b85"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Khaki",
+      "range": "Model Color",
+      "hex": "#969163"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Sky Grey",
+      "range": "Model Color",
+      "hex": "#b3b6b2"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Light Grey",
+      "range": "Model Color",
+      "hex": "#949c9a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Sea Grey",
+      "range": "Model Color",
+      "hex": "#787d7a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Neutral Grey",
+      "range": "Model Color",
+      "hex": "#64767a"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "White Grey",
+      "range": "Model Color",
+      "hex": "#eef1ec"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "Dark Grey",
+      "range": "Model Color",
+      "hex": "#233e3d"
+    },
+    {
+      "manufacturer": "Vallejo",
+      "name": "German Grey",
+      "range": "Model Color",
+      "hex": "#192f30"
+    }
+  ]
+}

@@ -1,0 +1,2681 @@
+{
+  "manufacturer": "Citadel",
+  "source": "Hex values from citadelcolour.com (official), compiled via github.com/SimoGecko/CitadelColours",
+  "compiled_as_of": "2024-11",
+  "count": 334,
+  "note": "Citadel Colour paint names are trademarks of Games Workshop Ltd. Hex values are digital approximations of physical paint colours, not exact spectrophotometer readings.",
+  "colors": [
+    {
+      "manufacturer": "Citadel",
+      "name": "Chaos Black",
+      "range": "spray",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Death Guard Green",
+      "range": "spray",
+      "finish": null,
+      "hex": "#556229",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Grey Seer",
+      "range": "spray",
+      "finish": null,
+      "hex": "#A2A5A7",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Macragge Blue",
+      "range": "spray",
+      "finish": null,
+      "hex": "#0F3D7C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mechanicus Standard Grey",
+      "range": "spray",
+      "finish": null,
+      "hex": "#39484A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mephiston Red",
+      "range": "spray",
+      "finish": null,
+      "hex": "#960C09",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "White Scar",
+      "range": "spray",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wraithbone",
+      "range": "spray",
+      "finish": null,
+      "hex": "#DBD1B2",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Zandri Dust",
+      "range": "spray",
+      "finish": null,
+      "hex": "#988E56",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Munitorum Varnish",
+      "range": "spray",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Leadbelcher",
+      "range": "spray",
+      "finish": "metal",
+      "hex": "#151E24",
+      "hex_gradient_end": "#F0F0F0"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Retributor Armour",
+      "range": "spray",
+      "finish": "metal",
+      "hex": "#89571D",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Abaddon Black",
+      "range": "base",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Averland Sunset",
+      "range": "base",
+      "finish": null,
+      "hex": "#FBB81C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Barak-Nar Burgundy",
+      "range": "base",
+      "finish": null,
+      "hex": "#451636",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bugman's Glow",
+      "range": "base",
+      "finish": null,
+      "hex": "#804C43",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Caledor Sky",
+      "range": "base",
+      "finish": null,
+      "hex": "#366699",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Caliban Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#003D15",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Castellan Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#264715",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Catachan Flesh",
+      "range": "base",
+      "finish": null,
+      "hex": "#442B25",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestra Grey",
+      "range": "base",
+      "finish": null,
+      "hex": "#8BA3A3",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Corax White",
+      "range": "base",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Corvus Black",
+      "range": "base",
+      "finish": null,
+      "hex": "#171314",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Daemonette Hide",
+      "range": "base",
+      "finish": null,
+      "hex": "#655F81",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Death Guard Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#6D774D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Death Korps Drab",
+      "range": "base",
+      "finish": null,
+      "hex": "#3D4539",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Deathworld Forest",
+      "range": "base",
+      "finish": null,
+      "hex": "#556229",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dryad Bark",
+      "range": "base",
+      "finish": null,
+      "hex": "#2B2A24",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gal Vorbak Red",
+      "range": "base",
+      "finish": null,
+      "hex": "#4B213C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Grey Seer",
+      "range": "base",
+      "finish": null,
+      "hex": "#A2A5A7",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hobgrot Hide",
+      "range": "base",
+      "finish": null,
+      "hex": "#A1812A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Incubi Darkness",
+      "range": "base",
+      "finish": null,
+      "hex": "#082E32",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ionrach Skin",
+      "range": "base",
+      "finish": null,
+      "hex": "#97A384",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Jokaero Orange",
+      "range": "base",
+      "finish": null,
+      "hex": "#ED3814",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kantor Blue",
+      "range": "base",
+      "finish": null,
+      "hex": "#02134E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khorne Red",
+      "range": "base",
+      "finish": null,
+      "hex": "#650001",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lupercal Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#002C2B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Macragge Blue",
+      "range": "base",
+      "finish": null,
+      "hex": "#0F3D7C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mechanicus Standard Grey",
+      "range": "base",
+      "finish": null,
+      "hex": "#39484A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mephiston Red",
+      "range": "base",
+      "finish": null,
+      "hex": "#960C09",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Morghast Bone",
+      "range": "base",
+      "finish": null,
+      "hex": "#C0A973",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mournfang Brown",
+      "range": "base",
+      "finish": null,
+      "hex": "#490F06",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Naggaroth Night",
+      "range": "base",
+      "finish": null,
+      "hex": "#3B2B50",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Night Lords Blue",
+      "range": "base",
+      "finish": null,
+      "hex": "#002B5C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nocturne Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#162A29",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Orruk Flesh",
+      "range": "base",
+      "finish": null,
+      "hex": "#8CC276",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Phoenician Purple",
+      "range": "base",
+      "finish": null,
+      "hex": "#440052",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Rakarth Flesh",
+      "range": "base",
+      "finish": null,
+      "hex": "#9C998D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ratskin Flesh",
+      "range": "base",
+      "finish": null,
+      "hex": "#A86648",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Rhinox Hide",
+      "range": "base",
+      "finish": null,
+      "hex": "#462F30",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Screamer Pink",
+      "range": "base",
+      "finish": null,
+      "hex": "#7A0E44",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Steel Legion Drab",
+      "range": "base",
+      "finish": null,
+      "hex": "#584E2D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stegadon Scale Green",
+      "range": "base",
+      "finish": null,
+      "hex": "#06455D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "The Fang",
+      "range": "base",
+      "finish": null,
+      "hex": "#405B71",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Thondia Brown",
+      "range": "base",
+      "finish": null,
+      "hex": "#54302A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Thousand Sons Blue",
+      "range": "base",
+      "finish": null,
+      "hex": "#00506F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Waaagh! Flesh",
+      "range": "base",
+      "finish": null,
+      "hex": "#0B3B36",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wraithbone",
+      "range": "base",
+      "finish": null,
+      "hex": "#DBD1B2",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "XV-88",
+      "range": "base",
+      "finish": null,
+      "hex": "#6C4811",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Zandri Dust",
+      "range": "base",
+      "finish": null,
+      "hex": "#988E56",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Balthasar Gold",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#1D0F07",
+      "hex_gradient_end": "#FFC28A"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Grey Knights Steel",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#465863",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Iron Hands Steel",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#44423F",
+      "hex_gradient_end": "#EFEDE9"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Iron Warriors",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#292725",
+      "hex_gradient_end": "#D2D2D2"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Leadbelcher",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#151E24",
+      "hex_gradient_end": "#F0F0F0"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Retributor Armour",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#89571D",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Runelord Brass",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#190E07",
+      "hex_gradient_end": "#F5EDE3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Screaming Bell",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#642F1F",
+      "hex_gradient_end": "#F8E6BA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Warplock Bronze",
+      "range": "base",
+      "finish": "metal",
+      "hex": "#440808",
+      "hex_gradient_end": "#F2C2A8"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Administratum Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#989C94",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ahriman Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#00708A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Alaitoc Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#2F4F85",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Altdorf Guard Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#2D4696",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Baharroth Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#54BDCA",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Balor Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#875408",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Baneblade Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#8F7C68",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bestigor Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#D08951",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodreaver Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#6A4848",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Horror",
+      "range": "layer",
+      "finish": null,
+      "hex": "#9EB5CE",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Cadian Fleshtone",
+      "range": "layer",
+      "finish": null,
+      "hex": "#C47652",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Calgar Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#2A497F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dark Reaper",
+      "range": "layer",
+      "finish": null,
+      "hex": "#354D4C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dawnstone",
+      "range": "layer",
+      "finish": null,
+      "hex": "#697068",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Deathclaw Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#AF634F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dechala Lilac",
+      "range": "layer",
+      "finish": null,
+      "hex": "#B598C9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Deepkin Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#A9B79F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Doombull Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#570003",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dorn Yellow",
+      "range": "layer",
+      "finish": null,
+      "hex": "#FFF55A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Elysian Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#6B8C37",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Emperor's Children",
+      "range": "layer",
+      "finish": null,
+      "hex": "#B74073",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eshin Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#484B4E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Evil Sunz Scarlet",
+      "range": "layer",
+      "finish": null,
+      "hex": "#C01411",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fenrisian Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#6D94B3",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fire Dragon Bright",
+      "range": "layer",
+      "finish": null,
+      "hex": "#F4874E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Flash Gitz Yellow",
+      "range": "layer",
+      "finish": null,
+      "hex": "#FFF300",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Flayed One Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#EEC483",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fulgrim Pink",
+      "range": "layer",
+      "finish": null,
+      "hex": "#F3ABCA",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gauss Blaster Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#7FC1A5",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Genestealer Purple",
+      "range": "layer",
+      "finish": null,
+      "hex": "#7658A5",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gorthor Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#5F463F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hoeth Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#4C78AF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kabalite Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#008962",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kakophoni Purple",
+      "range": "layer",
+      "finish": null,
+      "hex": "#8869AE",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Karak Stone",
+      "range": "layer",
+      "finish": null,
+      "hex": "#B7945C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kislev Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#D1A570",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Knight-Questor Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#996563",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Krieg Khaki",
+      "range": "layer",
+      "finish": null,
+      "hex": "#BCBB7E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Loren Forest",
+      "range": "layer",
+      "finish": null,
+      "hex": "#486C25",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lothern Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#2C9BCC",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lugganath Orange",
+      "range": "layer",
+      "finish": null,
+      "hex": "#F69B82",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Moot Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#3DAF44",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nurgling Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#7E975E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ogryn Camo",
+      "range": "layer",
+      "finish": null,
+      "hex": "#96A648",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Pallid Wych Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#CACCBB",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Phalanx Yellow",
+      "range": "layer",
+      "finish": null,
+      "hex": "#FFE200",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Pink Horror",
+      "range": "layer",
+      "finish": null,
+      "hex": "#8E2757",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Russ Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#507085",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Screaming Skull",
+      "range": "layer",
+      "finish": null,
+      "hex": "#B9C099",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skarsnik Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#588F6B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skavenblight Dinge",
+      "range": "layer",
+      "finish": null,
+      "hex": "#45413B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skrag Brown",
+      "range": "layer",
+      "finish": null,
+      "hex": "#8B4806",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Slaanesh Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#8B8893",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sons of Horus Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#00545E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sotek Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#0B6371",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Squig Orange",
+      "range": "layer",
+      "finish": null,
+      "hex": "#A74D42",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormvermin Fur",
+      "range": "layer",
+      "finish": null,
+      "hex": "#6D655F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Straken Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#597F1C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sybarite Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#17A166",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tallarn Sand",
+      "range": "layer",
+      "finish": null,
+      "hex": "#A07409",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tau Light Ochre",
+      "range": "layer",
+      "finish": null,
+      "hex": "#BC6B10",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Teclis Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#3877BF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Temple Guard Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#239489",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Thunderhawk Blue",
+      "range": "layer",
+      "finish": null,
+      "hex": "#396A70",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Troll Slayer Orange",
+      "range": "layer",
+      "finish": null,
+      "hex": "#F16C23",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tuskgor Fur",
+      "range": "layer",
+      "finish": null,
+      "hex": "#863231",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ulthuan Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#C4DDD5",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ungor Flesh",
+      "range": "layer",
+      "finish": null,
+      "hex": "#D1A560",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ushabti Bone",
+      "range": "layer",
+      "finish": null,
+      "hex": "#ABA173",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Vulkan Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#223C2E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Warboss Green",
+      "range": "layer",
+      "finish": null,
+      "hex": "#317E57",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Warpfiend Grey",
+      "range": "layer",
+      "finish": null,
+      "hex": "#66656E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Warpstone Glow",
+      "range": "layer",
+      "finish": null,
+      "hex": "#0F702A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wazdakka Red",
+      "range": "layer",
+      "finish": null,
+      "hex": "#880804",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "White Scar",
+      "range": "layer",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wild Rider Red",
+      "range": "layer",
+      "finish": null,
+      "hex": "#E82E1B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Word Bearers Red",
+      "range": "layer",
+      "finish": null,
+      "hex": "#620104",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Xereus Purple",
+      "range": "layer",
+      "finish": null,
+      "hex": "#47125A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Yriel Yellow",
+      "range": "layer",
+      "finish": null,
+      "hex": "#FFD900",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Zamesi Desert",
+      "range": "layer",
+      "finish": null,
+      "hex": "#D89D1B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Auric Armour Gold",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#B05A25",
+      "hex_gradient_end": "#FFF3C7"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Brass Scorpion",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#3D0700",
+      "hex_gradient_end": "#FFC266"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Canoptek Alloy",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#967F7A",
+      "hex_gradient_end": "#FFFEFE"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Castellax Bronze",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#3D0700",
+      "hex_gradient_end": "#FCEBD3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fulgurite Copper",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#6D2711",
+      "hex_gradient_end": "#E7D9CD"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gehenna's Gold",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#722A0B",
+      "hex_gradient_end": "#FFD233"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hashut Copper",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#492109",
+      "hex_gradient_end": "#FFD08A"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ironbreaker",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#414141",
+      "hex_gradient_end": "#F4F4F4"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Liberator Gold",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#886625",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Runefang Steel",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#797F82",
+      "hex_gradient_end": "#F3F3F3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skullcrusher Brass",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#C38841",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormhost Silver",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#9DA3A7",
+      "hex_gradient_end": "#FAFAFA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sycorax Bronze",
+      "range": "layer",
+      "finish": "metal",
+      "hex": "#59322D",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Agrax Earthshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#2D190C",
+      "hex_gradient_end": "#E2DAC8"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Athonian Camoshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#1C1C10",
+      "hex_gradient_end": "#FDFEBF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Berserker Bloodshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#B8083E",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Biel-Tan Green",
+      "range": "shade",
+      "finish": null,
+      "hex": "#132E21",
+      "hex_gradient_end": "#AEDCA2"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carroburg Crimson",
+      "range": "shade",
+      "finish": null,
+      "hex": "#310808",
+      "hex_gradient_end": "#FFB7EB"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Casandora Yellow",
+      "range": "shade",
+      "finish": null,
+      "hex": "#E78035",
+      "hex_gradient_end": "#FCEFBC"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Coelia Greenshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#113431",
+      "hex_gradient_end": "#20B8AC"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Drakenhof Nightshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#0A131B",
+      "hex_gradient_end": "#E6E8F3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Druchii Violet",
+      "range": "shade",
+      "finish": null,
+      "hex": "#250B27",
+      "hex_gradient_end": "#BF8EC3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fuegan Orange",
+      "range": "shade",
+      "finish": null,
+      "hex": "#6C1C03",
+      "hex_gradient_end": "#DF9F68"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kroak Green",
+      "range": "shade",
+      "finish": null,
+      "hex": "#7DBF92",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mortarion Grime",
+      "range": "shade",
+      "finish": null,
+      "hex": "#AFA400",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nuln Oil",
+      "range": "shade",
+      "finish": null,
+      "hex": "#101010",
+      "hex_gradient_end": "#DFD9D6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Poxwalker",
+      "range": "shade",
+      "finish": null,
+      "hex": "#54989C",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Reikland Fleshshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#311908",
+      "hex_gradient_end": "#FFD5B7"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphim Sepia",
+      "range": "shade",
+      "finish": null,
+      "hex": "#2E1F08",
+      "hex_gradient_end": "#E9AE7D"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Soulblight Grey",
+      "range": "shade",
+      "finish": null,
+      "hex": "#A6A1A5",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Targor Rageshade",
+      "range": "shade",
+      "finish": null,
+      "hex": "#614E66",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tyran Blue",
+      "range": "shade",
+      "finish": null,
+      "hex": "#0083CA",
+      "hex_gradient_end": "#DFDAD6"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nihilakh Oxide",
+      "range": "technical",
+      "finish": null,
+      "hex": "#66B39A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nurgles Rot",
+      "range": "technical",
+      "finish": null,
+      "hex": "#9D8B16",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tesseract Glow",
+      "range": "technical",
+      "finish": null,
+      "hex": "#49AD33",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Typhus Corrosion",
+      "range": "technical",
+      "finish": null,
+      "hex": "#373A22",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blood For The Blood God",
+      "range": "technical",
+      "finish": "gloss",
+      "hex": "#600005",
+      "hex_gradient_end": "#925053"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Soulstone Blue",
+      "range": "technical",
+      "finish": "gloss",
+      "hex": "#01154B",
+      "hex_gradient_end": "#566387"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Spiritstone Red",
+      "range": "technical",
+      "finish": "gloss",
+      "hex": "#7C1100",
+      "hex_gradient_end": "#a86055"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Waystone Green",
+      "range": "technical",
+      "finish": "gloss",
+      "hex": "#00381F",
+      "hex_gradient_end": "#547a69"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ardcoat",
+      "range": "technical",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Contrast Medium",
+      "range": "technical",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lahmian Medium",
+      "range": "technical",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormshield",
+      "range": "technical",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Agrellan Badland",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#948165",
+      "hex_gradient_end": "#b39e80"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Agrellan Earth",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#948165",
+      "hex_gradient_end": "#b39e80"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Armageddon Dust",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#d2ad00",
+      "hex_gradient_end": "#e8d36f"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Astrogranite",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#767675",
+      "hex_gradient_end": "#9d9d9d"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Martian Ironcrust",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#9b5041",
+      "hex_gradient_end": "#cf705d"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Martian Ironearth",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#9b5041",
+      "hex_gradient_end": "#cf705d"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mordant Earth",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#171314",
+      "hex_gradient_end": "#4b4849"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stirland Mud",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#482b00",
+      "hex_gradient_end": "#70490d"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Valhallan Blizzard",
+      "range": "technical",
+      "finish": "texture",
+      "hex": "#e1e1e1",
+      "hex_gradient_end": "#ffffff"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Aeldari Emerald",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#005959",
+      "hex_gradient_end": "#008973"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Aethermatic Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#006D83",
+      "hex_gradient_end": "#82BCC8"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Aggaros Dunes",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#554C36",
+      "hex_gradient_end": "#D0BF6D"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Akhelian Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004354",
+      "hex_gradient_end": "#007B9B"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Apothecary White",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#8FADC8",
+      "hex_gradient_end": "#F6FBFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Asurmen Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#00325F",
+      "hex_gradient_end": "#0083CA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Baal Red",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#C01823",
+      "hex_gradient_end": "#D51C29"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bad Moon Yellow",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#FBAD18",
+      "hex_gradient_end": "#FFE100"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Basilicanum Grey",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": "#989897"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Black Legion",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": "#434345"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Black Templar",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": "#6A6A69"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blood Angels Red",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#76080B",
+      "hex_gradient_end": "#C11519"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Briar Queen Chill",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#4394A8",
+      "hex_gradient_end": "#91BDCA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestium Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#003C77",
+      "hex_gradient_end": "#275996"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Creed Camo",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004E1B",
+      "hex_gradient_end": "#5D9272"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Cygor Brown",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#2F0D0A",
+      "hex_gradient_end": "#754A47"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dark Angels Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": "#004E45"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Darkoath Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#87524F",
+      "hex_gradient_end": "#D89987"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Doomfire Magenta",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#A70063",
+      "hex_gradient_end": "#EC008C"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dreadful Visage",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#896F8E",
+      "hex_gradient_end": "#E4D3DF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Flesh Tearers Red",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#3A0100",
+      "hex_gradient_end": "#880E0B"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Frostheart",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#003B54",
+      "hex_gradient_end": "#006EA0"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fyreslayer Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#5D4231",
+      "hex_gradient_end": "#BD7866"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Garaghak's Sewer",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#4F4135",
+      "hex_gradient_end": "#8D6019"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gore-Grunta Fur",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#543927",
+      "hex_gradient_end": "#8F4001"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gryph-Charger Grey",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004E74",
+      "hex_gradient_end": "#AAC9DA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gryph-Hound Orange",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#7C2303",
+      "hex_gradient_end": "#E96134"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Guilliman Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#912D20",
+      "hex_gradient_end": "#D1A194"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gutrippa Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#145F1F",
+      "hex_gradient_end": "#94B18E"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hexwraith Flame",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#00A237",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Imperial Fist",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#F9A01B",
+      "hex_gradient_end": "#FDBA12"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ironjawz Yellow",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#AB7709",
+      "hex_gradient_end": "#FFCF62"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Iyanden Yellow",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#D26B04",
+      "hex_gradient_end": "#FBC827"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Karandras Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004B20",
+      "hex_gradient_end": "#00A850"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kroxigor Scales",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#005A70",
+      "hex_gradient_end": "#0099AA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Leviadon Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": "#002D59"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Leviathan Purple",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#07074E",
+      "hex_gradient_end": "#27004B"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Luxion Purple",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#27004B",
+      "hex_gradient_end": "#431E75"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magmadroth Flame",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#D64A28",
+      "hex_gradient_end": "#F26524"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magos Purple",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#662357",
+      "hex_gradient_end": "#C2A7C3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mantis Warriors Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#2B621D",
+      "hex_gradient_end": "#8FB15D"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Militarum Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#5F6D00",
+      "hex_gradient_end": "#989C4D"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nazdreg Yellow",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#4E3700",
+      "hex_gradient_end": "#D99A00"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nighthaunt Gloom",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#4C838A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ork Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004E1B",
+      "hex_gradient_end": "#00832B"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plaguebearer Flesh",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#596B02",
+      "hex_gradient_end": "#C8CEA3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Pylar Glacier",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#009EDE",
+      "hex_gradient_end": "#74C0EB"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ratling Grime",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#3E3B39",
+      "hex_gradient_end": "#8E8684"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shyish Purple",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#1F0137",
+      "hex_gradient_end": "#573F6A"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sigvald Burgundy",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#590048",
+      "hex_gradient_end": "#810054"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skeleton Horde",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#918158",
+      "hex_gradient_end": "#EBE2C2"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Snakebite Leather",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#554431",
+      "hex_gradient_end": "#B26B0C"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Space Wolves Grey",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#002C51",
+      "hex_gradient_end": "#8FADC8"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormfiend",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#00416B",
+      "hex_gradient_end": "#00628F"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Striking Scorpion Green",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004E1E",
+      "hex_gradient_end": "#12B259"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Talassar Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#002C59",
+      "hex_gradient_end": "#0073C2"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Terradon Turquoise",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#00494F",
+      "hex_gradient_end": "#008DA5"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramarines Blue",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#000A37",
+      "hex_gradient_end": "#294F86"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Volupus Pink",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#530011",
+      "hex_gradient_end": "#8F0243"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Warp Lightning",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#004E1B",
+      "hex_gradient_end": "#00964E"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wyldwood",
+      "range": "contrast",
+      "finish": null,
+      "hex": "#381D17",
+      "hex_gradient_end": "#6A504B"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Abaddon Black",
+      "range": "air",
+      "finish": null,
+      "hex": "#000000",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Administratum Grey",
+      "range": "air",
+      "finish": null,
+      "hex": "#8F9690",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Angron Red Clear",
+      "range": "air",
+      "finish": null,
+      "hex": "#E21823",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Averland Sunset",
+      "range": "air",
+      "finish": null,
+      "hex": "#FBB81C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Baneblade Brown",
+      "range": "air",
+      "finish": null,
+      "hex": "#8F7C68",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Caliban Green",
+      "range": "air",
+      "finish": null,
+      "hex": "#003D15",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Calth Blue Clear",
+      "range": "air",
+      "finish": null,
+      "hex": "#0087D1",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Castellan Green",
+      "range": "air",
+      "finish": null,
+      "hex": "#264715",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Corvus Black",
+      "range": "air",
+      "finish": null,
+      "hex": "#171314",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dawnstone",
+      "range": "air",
+      "finish": null,
+      "hex": "#697068",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Deathworld Forest",
+      "range": "air",
+      "finish": null,
+      "hex": "#556229",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eidolon Purple Clear",
+      "range": "air",
+      "finish": null,
+      "hex": "#7D4D99",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Elysian Green",
+      "range": "air",
+      "finish": null,
+      "hex": "#6B8C37",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Evil Sunz Scarlet",
+      "range": "air",
+      "finish": null,
+      "hex": "#C01411",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Fenrisian Grey",
+      "range": "air",
+      "finish": null,
+      "hex": "#6D94B3",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Flash Gitz Yellow",
+      "range": "air",
+      "finish": null,
+      "hex": "#FFF300",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kantor Blue",
+      "range": "air",
+      "finish": null,
+      "hex": "#02134E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khorne Red",
+      "range": "air",
+      "finish": null,
+      "hex": "#650001",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kislev Flesh",
+      "range": "air",
+      "finish": null,
+      "hex": "#D1A570",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lothern Blue",
+      "range": "air",
+      "finish": null,
+      "hex": "#2C9BCC",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Macragge Blue",
+      "range": "air",
+      "finish": null,
+      "hex": "#0F3D7C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mechanicus Standard Grey",
+      "range": "air",
+      "finish": null,
+      "hex": "#39484A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mephiston Red",
+      "range": "air",
+      "finish": null,
+      "hex": "#960C09",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Moot Green",
+      "range": "air",
+      "finish": null,
+      "hex": "#3DAF44",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mortarion Green Clear",
+      "range": "air",
+      "finish": null,
+      "hex": "#00832B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Mournfang Brown",
+      "range": "air",
+      "finish": null,
+      "hex": "#490F06",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Night Lords Blue",
+      "range": "air",
+      "finish": null,
+      "hex": "#002B5C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ogryn Camo",
+      "range": "air",
+      "finish": null,
+      "hex": "#96A648",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Phalanx Yellow",
+      "range": "air",
+      "finish": null,
+      "hex": "#FFE200",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Phoenician Purple",
+      "range": "air",
+      "finish": null,
+      "hex": "#440052",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Russ Grey",
+      "range": "air",
+      "finish": null,
+      "hex": "#507085",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tallarn Sand",
+      "range": "air",
+      "finish": null,
+      "hex": "#A07409",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Temple Guard Blue",
+      "range": "air",
+      "finish": null,
+      "hex": "#239489",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "The Fang",
+      "range": "air",
+      "finish": null,
+      "hex": "#405B71",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Troll Slayer Orange",
+      "range": "air",
+      "finish": null,
+      "hex": "#F16C23",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Typhon Ash",
+      "range": "air",
+      "finish": null,
+      "hex": "#E4D8C1",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ulthuan Grey",
+      "range": "air",
+      "finish": null,
+      "hex": "#C4DDD5",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ushabti Bone",
+      "range": "air",
+      "finish": null,
+      "hex": "#ABA173",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "White Scar",
+      "range": "air",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Zandri Dust",
+      "range": "air",
+      "finish": null,
+      "hex": "#988E56",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Air Caste Thinner",
+      "range": "air",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Balthasar Gold",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#1D0F07",
+      "hex_gradient_end": "#FFC28A"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Grey Knights Steel",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#465863",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Leadbelcher",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#151E24",
+      "hex_gradient_end": "#F0F0F0"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Runefang Steel",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#797F82",
+      "hex_gradient_end": "#F3F3F3"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Thallax Gold",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#722A0B",
+      "hex_gradient_end": "#FFE898"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Valdor Gold",
+      "range": "air",
+      "finish": "metal",
+      "hex": "#6D2711",
+      "hex_gradient_end": "#E7D9CD"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Astorath Red",
+      "range": "dry",
+      "finish": null,
+      "hex": "#A9311E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dawnstone",
+      "range": "dry",
+      "finish": null,
+      "hex": "#697068",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eldar Flesh",
+      "range": "dry",
+      "finish": null,
+      "hex": "#E8C07F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Etherium Blue",
+      "range": "dry",
+      "finish": null,
+      "hex": "#9EB5CE",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Golgfag Brown",
+      "range": "dry",
+      "finish": null,
+      "hex": "#8F502A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hexos Palesun",
+      "range": "dry",
+      "finish": null,
+      "hex": "#FFF55A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hoeth Blue",
+      "range": "dry",
+      "finish": null,
+      "hex": "#4C78AF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Imrik Blue",
+      "range": "dry",
+      "finish": null,
+      "hex": "#208ABF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Longbeard Grey",
+      "range": "dry",
+      "finish": null,
+      "hex": "#DBDCC6",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lucius Lilac",
+      "range": "dry",
+      "finish": null,
+      "hex": "#B598C9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Niblet Green",
+      "range": "dry",
+      "finish": null,
+      "hex": "#378C35",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Nurgling Green",
+      "range": "dry",
+      "finish": null,
+      "hex": "#7E975E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Praxeti White",
+      "range": "dry",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ryza Rust",
+      "range": "dry",
+      "finish": null,
+      "hex": "#F16C23",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Skink Blue",
+      "range": "dry",
+      "finish": null,
+      "hex": "#54BDCA",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormfang",
+      "range": "dry",
+      "finish": null,
+      "hex": "#5A7FA3",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sylvaneth Bark",
+      "range": "dry",
+      "finish": null,
+      "hex": "#4E483B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Terminatus Stone",
+      "range": "dry",
+      "finish": null,
+      "hex": "#C8B79D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Tyrant Skull",
+      "range": "dry",
+      "finish": null,
+      "hex": "#C8C483",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Underhive Ash",
+      "range": "dry",
+      "finish": null,
+      "hex": "#BCBB7E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Wrack White",
+      "range": "dry",
+      "finish": null,
+      "hex": "#D3D0CF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Golden Griffon",
+      "range": "dry",
+      "finish": "metal",
+      "hex": "#886625",
+      "hex_gradient_end": "#FFFFFF"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necron Compound",
+      "range": "dry",
+      "finish": "metal",
+      "hex": "#9DA3A7",
+      "hex_gradient_end": "#FAFAFA"
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Sigmarite",
+      "range": "dry",
+      "finish": "metal",
+      "hex": "#C6863A",
+      "hex_gradient_end": "#F5C971"
+    }
+  ]
+}
