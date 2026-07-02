@@ -91,6 +91,11 @@ export async function deleteRecipe(id: string): Promise<void> {
  * 3. schemaVersion === CURRENT → parseして返す
  * 4. parse失敗（破損） → CorruptRecipeError（自動削除しない）
  * 5. 存在しない → null
+ *
+ * migration不要経路はトランザクションなしの単純read（パフォーマンス優先）。
+ * migration書き戻しが必要な場合のみ`db.transaction("rw", ...)`で読み直し→書き戻しを囲み、
+ * 同一idへの並行saveとのlost updateを防ぐ（tx内で版数を再確認し、その時点で既にmigration不要
+ * になっていれば書き戻しをスキップする）。
  */
 export async function loadRecipe(id: string): Promise<RecipeDoc | null> {
   const raw = await db.recipes.get(id);
@@ -106,21 +111,49 @@ export async function loadRecipe(id: string): Promise<RecipeDoc | null> {
     throw new UnsupportedSchemaError(id, schemaVersion);
   }
 
-  let candidate: unknown = raw;
   const needsMigration =
     typeof schemaVersion === "number" && schemaVersion < CURRENT_SCHEMA_VERSION;
-  if (needsMigration) {
-    candidate = migrateRecipeDoc(raw, schemaVersion);
+
+  if (!needsMigration) {
+    const result = recipeDocSchema.safeParse(raw);
+    if (!result.success) {
+      throw new CorruptRecipeError(id);
+    }
+    return result.data;
   }
 
-  const result = recipeDocSchema.safeParse(candidate);
-  if (!result.success) {
-    throw new CorruptRecipeError(id);
-  }
+  return db.transaction("rw", db.recipes, async () => {
+    const current = await db.recipes.get(id);
+    if (current === undefined) {
+      return null;
+    }
 
-  if (needsMigration) {
-    await db.recipes.put(result.data as RecipeRecord);
-  }
+    const currentSchemaVersion = (current as { schemaVersion?: unknown })
+      .schemaVersion;
+    if (
+      typeof currentSchemaVersion === "number" &&
+      currentSchemaVersion > CURRENT_SCHEMA_VERSION
+    ) {
+      throw new UnsupportedSchemaError(id, currentSchemaVersion);
+    }
 
-  return result.data;
+    const stillNeedsMigration =
+      typeof currentSchemaVersion === "number" &&
+      currentSchemaVersion < CURRENT_SCHEMA_VERSION;
+
+    const candidate: unknown = stillNeedsMigration
+      ? migrateRecipeDoc(current, currentSchemaVersion)
+      : current;
+
+    const result = recipeDocSchema.safeParse(candidate);
+    if (!result.success) {
+      throw new CorruptRecipeError(id);
+    }
+
+    if (stillNeedsMigration) {
+      await db.recipes.put(result.data as RecipeRecord);
+    }
+
+    return result.data;
+  });
 }

@@ -109,17 +109,24 @@ export function revokeAllPhotoUrls(): void {
 /**
  * レシピ削除時のGC。recipeIdインデックスで該当写真を検索し、DBから削除しつつ
  * objectURLキャッシュも解放する。削除件数を返す。
+ * toArray()→delete()の2クエリをトランザクションで囲み、間に別経路でのphotos書き込みが
+ * 割り込むレースを排除する（revokePhotoUrlはIndexedDB操作ではない同期処理なのでtx内で問題ない）。
  */
 export async function deletePhotosForRecipe(recipeId: string): Promise<number> {
-  const records = await db.photos.where("recipeId").equals(recipeId).toArray();
+  return db.transaction("rw", db.photos, async () => {
+    const records = await db.photos
+      .where("recipeId")
+      .equals(recipeId)
+      .toArray();
 
-  for (const record of records) {
-    revokePhotoUrl(record.id);
-  }
+    for (const record of records) {
+      revokePhotoUrl(record.id);
+    }
 
-  await db.photos.where("recipeId").equals(recipeId).delete();
+    await db.photos.where("recipeId").equals(recipeId).delete();
 
-  return records.length;
+    return records.length;
+  });
 }
 
 /** エクスポート用: 指定レシピに紐づく写真レコード一覧を収集する（§2.2） */

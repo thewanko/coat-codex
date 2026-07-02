@@ -130,6 +130,8 @@ export async function readReminderSnooze(): Promise<string | undefined> {
 /**
  * 当該レシピがバックアップ済みかどうかを判定する（§3.5「未バックアップレシピ」の否定）。
  * exportedAtが存在し、かつ updatedAt 以上であればバックアップ済み。
+ * 文字列辞書順比較ではなくDate.getTime()比較を用いる（daysBetweenと同方式）。オフセット付き
+ * ISO（例: +09:00）が混入しても辞書順比較のように誤判定しない。
  */
 export function isRecipeBackedUp(
   updatedAt: string,
@@ -138,7 +140,7 @@ export function isRecipeBackedUp(
   if (exportedAt === undefined) {
     return false;
   }
-  return exportedAt >= updatedAt;
+  return new Date(exportedAt).getTime() >= new Date(updatedAt).getTime();
 }
 
 /**
