@@ -1,0 +1,25 @@
+.footer {
+  border-top: 1px solid var(--color-gold-soft);
+  padding: var(--space-4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-muted);
+}
+
+.diamond {
+  width: 4px;
+  height: 4px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.link {
+  color: var(--color-link);
+  text-decoration: underline dotted;
+  text-decoration-color: rgba(90, 58, 36, 0.5);
+}

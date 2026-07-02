@@ -1,0 +1,161 @@
+/* ============================================================
+   coat-codex — src/styles/theme.css
+   決定稿 v1.0（2026-07-02）
+   方向: 「装飾写本 × 英語ディスプレイ」
+   （Claude Design 検討キャンバス t2〜t5 を反映）
+
+   規約:
+   - 既存変数名（DesignSystem案 B-1）の改名・削除なし
+   - 値の変更点は各行の「変更:」コメントに明記
+   - 新設トークンは末尾「ADDITIONS v1.0」節に集約
+   - ダーク対応は将来 [data-theme="dark"] で再定義
+     （その際も --color-swatch-* は白基調を維持すること）
+   ============================================================ */
+
+:root {
+  /* ---- 基調: 羊皮紙 × 墨（初期値を維持） ---- */
+  --color-bg: #F6F0E2;              /* 画面地（羊皮紙） */
+  --color-bg-raised: #FCF8EE;       /* カード・パネル・ヘッダー面 */
+  --color-bg-sunken: #EDE3CD;       /* 入力欄・くぼみ・帯 */
+  --color-bg-backdrop: rgba(43, 36, 28, 0.55); /* モーダル/パネル背景 */
+  --color-ink: #2B241C;             /* 主要テキスト（墨） */
+  --color-ink-muted: #6B5F4D;       /* 補助テキスト */
+  --color-ink-faint: #9A8D75;       /* プレースホルダ・無効・注記 */
+  --color-line: #D5C8AB;            /* 罫線・カード枠 */
+  --color-line-strong: #A69576;     /* 入力枠・強調罫 */
+
+  /* ---- アクション ---- */
+  --color-accent: #7A2E1F;          /* 封蝋レッド: primary・章番号・挿入線 */
+  --color-accent-hover: #632418;
+  --color-accent-contrast: #FDF9F0;
+  --color-gold: #8F6B2E;            /* オーバーライン・使用中バッジ文字 */
+  --color-gold-soft: #C9A85C;       /* 飾り罫・secondary枠・区切り */
+  --color-link: #5A3A24;            /* テキストリンク（下線はdotted） */
+
+  /* ---- 状態 ---- */
+  --color-success: #3E6B4F;
+  --color-success-bg: #E3EDE3;
+  --color-warning: #8F5A14;
+  --color-warning-bg: #F5E8CE;
+  --color-danger: #A73121;
+  --color-danger-bg: #F5DDD5;
+  --color-info: #3B4A6B;
+  --color-info-bg: #E3E7F0;
+
+  /* ---- 色見本まわり（テーマ非依存・中立領域。改変禁止） ---- */
+  --color-swatch-frame: #FFFFFF;
+  --color-swatch-border: rgba(0, 0, 0, 0.18);
+  --color-swatch-checker: #E0E0E0;
+
+  /* ---- フォーカス ---- */
+  --color-focus-ring: #3B4A6B;
+  --focus-ring: 0 0 0 3px rgba(59, 74, 107, 0.45);
+
+  /* ---- タイポグラフィ ---- */
+  --font-family-display: "EB Garamond", "Shippori Mincho", "Hiragino Mincho ProN",
+                         "Yu Mincho", serif;
+  --font-family-body: "Inter", "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+                      "Yu Gothic", sans-serif;
+  --font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;             /* 入力は16px未満禁止（iOSズーム） */
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.125rem;
+
+  --line-height-tight: 1.3;
+  --line-height-body: 1.7;          /* 英文は1.5に落としてよい */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* ---- spacing（4pxベース・初期値維持） ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* ---- 角丸 ---- */
+  --radius-xs: 3px;    /* 変更: 2→3（COVERタグ・スタンプ類） */
+  --radius-sm: 6px;    /* 変更: 4→6（入力・小ボタン。写本の丸み） */
+  --radius-md: 8px;    /* カード・ダイアログ・折丁フレーム */
+  --radius-lg: 14px;   /* 写真・大パネル */
+  --radius-full: 999px;/* チップ・バッジ・言語切替・出力ピル */
+
+  /* ---- 影（墨影・初期値維持） ---- */
+  --shadow-1: 0 1px 2px rgba(43, 36, 28, 0.10);
+  --shadow-2: 0 2px 8px rgba(43, 36, 28, 0.14);
+  --shadow-3: 0 8px 24px rgba(43, 36, 28, 0.20);
+
+  /* ---- サイズ・レイアウト定数（初期値維持） ---- */
+  --size-touch-target: 44px;
+  --size-swatch-sm: 16px;
+  --size-swatch-md: 24px;
+  --size-swatch-lg: 40px;
+  --container-max: 960px;
+  --panel-width: 480px;
+  --actionbar-height: 64px;
+
+  /* ============================================================
+     ADDITIONS v1.0 — 決定稿で新設したトークン
+     ============================================================ */
+
+  /* 見出しシステム（EN display ＋ JP gloss） */
+  --font-size-4xl: 3rem;            /* 48px: Homeヒーロー "YOUR CODEX"（PCのみ。mobileは30px相当に縮退） */
+  --tracking-display: 0.06em;       /* EN display（Garamond大見出し） */
+  --tracking-overline: 0.42em;      /* 金のオーバーライン（LIBRARY等）。text-indentに同値を併用 */
+  --tracking-jp-gloss: 0.4em;       /* 和文gloss（しっぽり明朝・小） */
+
+  /* 装飾（写本語彙） */
+  --color-frame-inset: rgba(166, 149, 118, 0.45);      /* 二重枠の内側線（カード大） */
+  --color-frame-inset-soft: rgba(166, 149, 118, 0.35); /* 同・小型カード用 */
+  --color-gold-ring: rgba(201, 168, 92, 0.5);          /* primaryボタン内側の金環 */
+  --color-warning-border: #E0C185;                     /* warning-bg面の枠線 */
+  --color-overlay-ink: rgba(43, 36, 28, 0.82);         /* BaseStepOverlay等、写真上の墨帯 */
+  --color-on-overlay: #FDF9F0;                         /* 墨帯上の文字 */
+  --color-on-overlay-line: rgba(253, 249, 240, 0.55);  /* 墨帯上のチップ枠・封蝋内環 */
+  --color-placeholder-a: #EAE1CC;                      /* 写真プレースホルダ縞A */
+  --color-placeholder-b: #F1E9D6;                      /* 同・縞B */
+
+  /* 影・サイズ */
+  --shadow-panel: -8px 0 24px rgba(43, 36, 28, 0.25);  /* SlideInPanel */
+  --size-swatch-xl: 44px;                              /* 印刷プレート・共有画像用 */
+  --size-step-photo: 84px;                             /* 工程写真タイル（mobileは76px） */
+}
+
+/* ------------------------------------------------------------
+   実装メモ（トークンの組み合わせレシピ / コンポーネント側で使用）
+
+   二重枠（折丁カード）:
+     border: 1px solid var(--color-line);
+     border-radius: var(--radius-md);
+     box-shadow: inset 0 0 0 3px var(--color-bg-raised),
+                 inset 0 0 0 4px var(--color-frame-inset),
+                 var(--shadow-1);
+
+   primaryボタン（封蝋）:
+     background: var(--color-accent);
+     border: 1px solid var(--color-accent-hover);
+     border-radius: var(--radius-sm);
+     box-shadow: inset 0 0 0 1.5px var(--color-gold-ring);
+
+   金の飾り罫（章題下）:
+     flex中央: 1px線(--color-gold-soft) ＋ 中心に4〜5pxの菱(--color-gold, rotate45)
+
+   写真プレースホルダ:
+     repeating-linear-gradient(45deg,
+       var(--color-placeholder-a) 0 12px,
+       var(--color-placeholder-b) 12px 24px);
+
+   ドラッグ中:
+     box-shadow: var(--shadow-3); transform: rotate(-1deg);
+     挿入位置 = 2px solid var(--color-accent) ＋ 左端6px円ドット
+   ------------------------------------------------------------ */
