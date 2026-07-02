@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-function Harness() {
+export function Harness() {
   const [state, setState] = useState<MixState>({ paints: [], mix: null });
   const [palette, setPalette] = useState<PaletteColor[]>([]);
   window.__m3spike = { state, palette };
