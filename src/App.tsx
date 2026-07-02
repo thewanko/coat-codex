@@ -1,12 +1,7 @@
-import DndSpike from "./dev/DndSpike.tsx";
+import AppRouter from "./router.tsx";
 
 function App() {
-  return (
-    <>
-      coat-codex
-      <DndSpike />
-    </>
-  );
+  return <AppRouter />;
 }
 
 export default App;
