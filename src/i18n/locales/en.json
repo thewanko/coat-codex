@@ -57,5 +57,47 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "irreversible": "This cannot be undone."
+  },
+  "recipe": {
+    "untitledTitle": "Untitled Recipe"
+  },
+  "home": {
+    "newRecipe": "New Recipe",
+    "open": "Open",
+    "delete": "Delete",
+    "deleteTitle": "Delete recipe",
+    "deleteMessage": "\"{{title}}\" will be deleted, including all of its photos.",
+    "cardMenu": "Menu",
+    "stepsCount": "{{count}} steps",
+    "updatedAt": "Updated {{date}}",
+    "emptyTitle": "No codex yet",
+    "emptyDescription": "Your data is stored only in this device's browser",
+    "emptyCta": "Create your first codex",
+    "emptyImport": "Import JSON"
+  },
+  "setup": {
+    "titleLabel": "Title",
+    "titlePlaceholder": "Enter a recipe name",
+    "photosLabel": "Overview photos",
+    "paletteLabel": "Colors",
+    "toolsLabel": "Tools",
+    "addColor": "+ Add color",
+    "addTool": "+ Add tool",
+    "toolPlaceholder": "Tool name",
+    "usedInSteps": "Used in {{count}} steps",
+    "inUseNote": "↳ In use by steps — remove it from the steps to delete",
+    "makeCodex": "make codex!",
+    "importTitle": "Import from JSON",
+    "importNote": "Restore from an exported JSON file"
+  },
+  "editor": {
+    "techniqueLabel": "Technique",
+    "techniquePreset": "Preset",
+    "techniqueCustom": "Custom",
+    "techniquePlaceholder": "Enter a technique name",
+    "toolLabel": "Tools",
+    "toolEmpty": "Register tools on the Setup screen to select them",
+    "memoLabel": "Memo",
+    "memoPlaceholder": "Memo (optional)"
   }
 }

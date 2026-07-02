@@ -57,5 +57,47 @@
     "cancel": "キャンセル",
     "delete": "削除する",
     "irreversible": "この操作は取り消しできません"
+  },
+  "recipe": {
+    "untitledTitle": "無題のレシピ"
+  },
+  "home": {
+    "newRecipe": "新規作成",
+    "open": "開く",
+    "delete": "削除",
+    "deleteTitle": "レシピを削除",
+    "deleteMessage": "「{{title}}」を削除します。写真もすべて削除されます。",
+    "cardMenu": "メニュー",
+    "stepsCount": "工程{{count}}",
+    "updatedAt": "更新 {{date}}",
+    "emptyTitle": "まだ秘伝書がありません",
+    "emptyDescription": "データはこの端末のブラウザにのみ保存されます",
+    "emptyCta": "最初の秘伝書を作る",
+    "emptyImport": "JSONをインポート"
+  },
+  "setup": {
+    "titleLabel": "タイトル",
+    "titlePlaceholder": "レシピ名を入力",
+    "photosLabel": "全体写真",
+    "paletteLabel": "使用カラー",
+    "toolsLabel": "使用ツール",
+    "addColor": "＋ カラーを追加",
+    "addTool": "＋ ツールを追加",
+    "toolPlaceholder": "ツール名",
+    "usedInSteps": "{{count}}工程で使用中",
+    "inUseNote": "↳ 工程で使用中のため削除できません（工程側で外すと削除可）",
+    "makeCodex": "make codex!",
+    "importTitle": "JSONからインポート",
+    "importNote": "エクスポートしたJSONファイルから復元できます"
+  },
+  "editor": {
+    "techniqueLabel": "技法",
+    "techniquePreset": "プリセット",
+    "techniqueCustom": "自由入力",
+    "techniquePlaceholder": "技法名を入力",
+    "toolLabel": "ツール",
+    "toolEmpty": "Setup画面でツールを登録すると選択できます",
+    "memoLabel": "メモ",
+    "memoPlaceholder": "メモ（任意）"
   }
 }
