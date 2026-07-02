@@ -106,6 +106,12 @@
     "memoPlaceholder": "Memo (optional)",
     "stepLabel": "STEP {{n}}",
     "deleteStep": "Delete step",
-    "deleteStepTitle": "Delete this step?"
+    "deleteStepTitle": "Delete this step?",
+    "dragHandle": "Drag to reorder",
+    "moveStepUp": "Move step up",
+    "moveStepDown": "Move step down",
+    "addStep": "Add step",
+    "emptyStepsTitle": "No steps yet",
+    "emptyStepsDescription": "Add a step to record the technique, paints, and mix ratio."
   }
 }

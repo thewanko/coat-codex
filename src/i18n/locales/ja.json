@@ -106,6 +106,12 @@
     "memoPlaceholder": "メモ（任意）",
     "stepLabel": "STEP {{n}}",
     "deleteStep": "工程を削除",
-    "deleteStepTitle": "工程を削除しますか？"
+    "deleteStepTitle": "工程を削除しますか？",
+    "dragHandle": "ドラッグで並び替え",
+    "moveStepUp": "工程を上へ移動",
+    "moveStepDown": "工程を下へ移動",
+    "addStep": "工程を追加",
+    "emptyStepsTitle": "工程がまだありません",
+    "emptyStepsDescription": "工程を追加して、技法・塗料・混合比を記録しましょう。"
   }
 }
