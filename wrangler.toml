@@ -1,0 +1,4 @@
+# wrangler.toml — Cloudflare Pages用設定（この3行のみ。Functions等は使用しない）
+name = "coat-codex"
+compatibility_date = "2026-07-01"
+pages_build_output_dir = "dist"

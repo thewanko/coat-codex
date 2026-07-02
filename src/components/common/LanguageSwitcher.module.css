@@ -1,0 +1,39 @@
+.switcher {
+  display: inline-flex;
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--color-bg-raised);
+}
+
+.segment {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-muted);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-4);
+  height: 36px;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .segment {
+    height: var(--size-touch-target);
+  }
+}
+
+.segment:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  position: relative;
+  z-index: 1;
+}
+
+.segmentActive {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-weight: var(--font-weight-bold);
+}

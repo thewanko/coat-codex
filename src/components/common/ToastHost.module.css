@@ -1,0 +1,80 @@
+.viewport {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  right: var(--space-5);
+  bottom: var(--space-5);
+}
+
+@media (max-width: 768px) {
+  .viewport {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+    align-items: stretch;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  padding: var(--space-3) var(--space-4);
+  min-width: 240px;
+  max-width: 360px;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+}
+
+@media (max-width: 768px) {
+  .toast {
+    max-width: none;
+  }
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  margin-top: 6px;
+}
+
+.dotSuccess {
+  background: var(--color-success);
+}
+
+.dotError {
+  background: var(--color-danger);
+}
+
+.dotInfo {
+  background: var(--color-info);
+}
+
+.message {
+  flex: 1;
+}
+
+.close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  line-height: 1;
+  padding: 0;
+}
+
+.close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

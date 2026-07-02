@@ -41,9 +41,11 @@
 - impl が同一報告を 3 ターン以上繰り返したら context loss とみなし停止・報告。1 タスク内で 2 回発動したら当該タスクのみセッション直実装に切替え、BAD entry として記録する
 - `.claude/loop/lessons.md` で同一根本原因が 2 回目になったら、本ファイル (CLAUDE.md) の該当セクションへルールとして昇格する
 
-## プロジェクト固有 (ここから下を自プロジェクトに合わせて編集)
+## プロジェクト固有 (coat-codex: Vite + React 19 + TypeScript SPA)
 
-- テスト: `python3 -m pytest -q`
-- lint: `ruff check . && ruff format --check .`
-- 触ってはいけないもの: `.env`、本番接続情報、(追記してください)
-- 禁止パターン (selfcheck が Grep する): ハードコードされた API key / password、`print(` デバッグ残骸、(追記してください)
+- 仕様の正: `docs/coat-codex_技術計画_v2.md`（v2.2）。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
+- テスト: `npm test`（vitest run）
+- lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check src`
+- ビルド: `npm run build`（tsc -b && vite build）
+- 触ってはいけないもの: `docs/coat-codex_要件定義.md`（原典・編集禁止）、`package-lock.json`の手編集、`public/_redirects`と`404.html`は**作成禁止**（§5.2 SPAフォールバック仕様）
+- 禁止パターン (selfcheck が Grep する): ハードコードされた API key / password、`console.log(` デバッグ残骸（`console.error`/`console.warn`は可）、`react-router-dom`からのimport（v7は`react-router`単体）、`@ts-ignore`・`eslint-disable`の新規追加

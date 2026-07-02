@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Shippori+Mincho:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDE9DF;font-family:'Inter','Noto Sans JP',system-ui,sans-serif}
+.fx-sec{padding:46px 48px 40px;border-bottom:1px solid rgba(0,0,0,.07);scroll-margin-top:16px}
+.fx-hd{display:flex;align-items:baseline;gap:14px;margin:0 0 22px}
+.fx-no{font:600 13px 'EB Garamond',serif;color:#7A2E1F;letter-spacing:.1em}
+.fx-en{font:500 21px 'EB Garamond',serif;color:#2B241C;letter-spacing:.07em}
+.fx-jp{font:500 11px 'Shippori Mincho',serif;color:#6B5F4D;letter-spacing:.34em}
+.fx-note{font:10.5px 'JetBrains Mono',monospace;color:#8a8378;margin-left:auto}
+.fx-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.fx-col{display:flex;flex-direction:column;gap:7px}
+.fx-cap{font:10px 'JetBrains Mono',monospace;color:#8a8378}
+.fx-card{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;max-width:100%}
+</style>
+</helmet>
+
+<!-- ═════════════ COVER ═════════════ -->
+<section class="fx-sec" id="cover" data-screen-label="表紙" style="background:#F6F0E2;border-bottom:2px solid #C9A85C">
+<div style="max-width:1080px;margin:0 auto;text-align:center;padding:26px 0 10px">
+<div style="display:flex;justify-content:center;margin-bottom:14px">
+<span style="width:56px;height:56px;border-radius:999px;background:#7A2E1F;box-shadow:0 1px 2px rgba(43,36,28,.2);display:flex;align-items:center;justify-content:center"><span style="width:45px;height:45px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 20px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+</div>
+<div style="font:500 46px/1.1 'EB Garamond',serif;letter-spacing:.05em;color:#2B241C"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex — Final Design</div>
+<div style="font:500 12px 'Shippori Mincho',serif;letter-spacing:.42em;text-indent:.42em;color:#6B5F4D;margin-top:10px">決定デザイン 一式</div>
+<div style="display:flex;align-items:center;gap:10px;max-width:420px;margin:16px auto 0"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:5px;height:5px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+<div style="font:11px/1.9 'JetBrains Mono',monospace;color:#9A8D75;margin-top:14px">装飾写本 × 英語ディスプレイ ・ v1.0 (2026-07-02)<br>工程写真1枚紐づけ＋スロット別MIX%（合計100検証）反映済み ・ tokens: theme.css ・ spec: coat-codex_デザイン仕様書.md</div>
+</div>
+</section>
+
+<!-- ═════════════ 01 HOME ═════════════ -->
+<section class="fx-sec" id="home" data-screen-label="01 Home">
+<div class="fx-hd"><span class="fx-no">01</span><span class="fx-en">HOME</span><span class="fx-jp">書庫</span><span class="fx-note">/ ・ StorageStatusBar健全 ・ グリッド3列(≥1200:4列)</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">PC 1280</span>
+<div class="fx-card"><div data-screen-label="Home PC" style="width:1280px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:34px;height:34px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:27px;height:27px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 13px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 20px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE">
+<span style="padding:9px 15px;background:#7A2E1F;color:#FDF9F0;font:600 12px 'Inter',sans-serif">JA</span>
+<span style="padding:9px 15px;color:#6B5F4D;font:500 12px 'Inter',sans-serif">EN</span>
+</span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="max-width:960px;margin:0 auto;padding:26px 0 48px">
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:9px 16px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:8px;height:8px;border-radius:999px;background:#3E6B4F"></span>
+<span style="font-weight:600">データ保護: 有効</span>
+<span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">12.3 MB ・ 最終エクスポート: 3日前</span>
+<span style="margin-left:auto;font:500 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">今すぐエクスポート</span>
+</div>
+<div style="text-align:center;margin:38px 0 24px">
+<div style="font:600 11px 'EB Garamond',serif;letter-spacing:.42em;color:#8F6B2E;text-indent:.42em">LIBRARY</div>
+<div style="font:500 48px/1.1 'EB Garamond',serif;letter-spacing:.06em;margin:12px 0 9px">YOUR CODEX</div>
+<div style="font:500 12px 'Shippori Mincho',serif;letter-spacing:.42em;color:#6B5F4D;text-indent:.42em">あなたの秘伝書</div>
+<div style="display:flex;align-items:center;gap:10px;max-width:420px;margin:16px auto 0"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:5px;height:5px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#9A8D75;margin-top:10px">6 VOLUMES ・ 12.3 MB</div>
+</div>
+<div style="display:flex;justify-content:center;gap:10px;margin-bottom:28px">
+<span style="display:inline-flex;align-items:center;height:44px;padding:0 24px;background:#7A2E1F;color:#FDF9F0;border:1px solid #632418;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5);font:600 14px 'Inter','Noto Sans JP',sans-serif">＋ 新規作成</span>
+<span style="display:inline-flex;align-items:center;height:44px;padding:0 18px;background:#FCF8EE;color:#5A3A24;border:1px solid #C9A85C;border-radius:6px;font:600 14px 'Inter','Noto Sans JP',sans-serif">↑ JSONインポート</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px">
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45),0 1px 2px rgba(43,36,28,.10);padding:9px;position:relative">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真 4:3</span></div>
+<div style="text-align:center;padding:11px 4px 6px">
+<div style="display:flex;align-items:center;justify-content:center;gap:7px"><span style="width:8px;height:8px;border-radius:999px;background:#A73121"></span><span style="font:600 15px 'Shippori Mincho',serif">宵闇の騎士 — 胸像</span></div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:5px">VOL.012 ・ 更新: 3日前 ・ 工程12</div>
+</div>
+<span style="position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 14px sans-serif">⋮</span>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45),0 1px 2px rgba(43,36,28,.10);padding:9px;position:relative">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真 4:3</span></div>
+<div style="text-align:center;padding:11px 4px 6px">
+<div style="font:600 15px 'Shippori Mincho',serif">古の航海士 75mm</div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:5px">VOL.011 ・ 更新: 8日前 ・ 工程9</div>
+</div>
+<span style="position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 14px sans-serif">⋮</span>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45),0 1px 2px rgba(43,36,28,.10);padding:9px;position:relative">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真 4:3</span></div>
+<div style="text-align:center;padding:11px 4px 6px">
+<div style="display:flex;align-items:center;justify-content:center;gap:7px"><span style="width:8px;height:8px;border-radius:999px;background:#A73121"></span><span style="font:600 15px 'Shippori Mincho',serif">月影の射手 32mm</span></div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:5px">VOL.010 ・ 更新: 12日前 ・ 工程7</div>
+</div>
+<span style="position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 14px sans-serif">⋮</span>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45),0 1px 2px rgba(43,36,28,.10);padding:9px;position:relative">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真 4:3</span></div>
+<div style="text-align:center;padding:11px 4px 6px">
+<div style="font:600 15px 'Shippori Mincho',serif">VX-07 ヴァルクロス 1/144</div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:5px">VOL.009 ・ 更新: 24日前 ・ 工程15</div>
+</div>
+<span style="position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 14px sans-serif">⋮</span>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45),0 1px 2px rgba(43,36,28,.10);padding:9px;position:relative">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真 4:3</span></div>
+<div style="text-align:center;padding:11px 4px 6px">
+<div style="font:600 15px 'Shippori Mincho',serif">森の番人 54mm</div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:5px">VOL.008 ・ 更新: 1ヶ月前 ・ 工程6</div>
+</div>
+<span style="position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 14px sans-serif">⋮</span>
+</div>
+<div style="border:1px dashed #A69576;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:240px">
+<span style="width:36px;height:36px;border-radius:999px;border:1px solid #A69576;display:flex;align-items:center;justify-content:center;font:400 20px 'EB Garamond',serif;color:#8F6B2E">＋</span>
+<span style="font:600 12px 'EB Garamond',serif;letter-spacing:.2em;color:#8F6B2E">NEW VOLUME</span>
+<span style="font:500 12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">新しい秘伝書</span>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid #C9A85C;padding:16px;display:flex;justify-content:center;align-items:center;gap:14px;font:12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">
+<span>© coat-codex</span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">利用規約・免責</span>
+</div>
+</div></div>
+</div>
+<div class="fx-col"><span class="fx-cap">Mobile 390</span>
+<div class="fx-card"><div data-screen-label="Home Mobile" style="width:390px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:56px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:9px">
+<span style="width:28px;height:28px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:22px;height:22px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 11px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 16px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE">
+<span style="padding:7px 12px;background:#7A2E1F;color:#FDF9F0;font:600 11px 'Inter',sans-serif">JA</span>
+<span style="padding:7px 12px;color:#6B5F4D;font:500 11px 'Inter',sans-serif">EN</span>
+</span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="padding:16px 16px 36px">
+<div style="display:flex;align-items:center;gap:8px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:8px 12px;font:11px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:7px;height:7px;border-radius:999px;background:#3E6B4F"></span>
+<span style="font-weight:600">保護: 有効</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">12.3 MB ・ Exp: 3日前</span>
+</div>
+<div style="text-align:center;margin:26px 0 18px">
+<div style="font:600 10px 'EB Garamond',serif;letter-spacing:.42em;color:#8F6B2E;text-indent:.42em">LIBRARY</div>
+<div style="font:500 30px/1.1 'EB Garamond',serif;letter-spacing:.05em;margin:8px 0 7px">YOUR CODEX</div>
+<div style="font:500 11px 'Shippori Mincho',serif;letter-spacing:.38em;color:#6B5F4D;text-indent:.38em">あなたの秘伝書</div>
+<div style="display:flex;align-items:center;gap:8px;max-width:220px;margin:12px auto 0"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+<span style="display:flex;align-items:center;justify-content:center;height:50px;background:#7A2E1F;color:#FDF9F0;border:1px solid #632418;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5);font:600 15px 'Inter','Noto Sans JP',sans-serif">＋ 新規作成</span>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;background:#FCF8EE;color:#5A3A24;border:1px solid #C9A85C;border-radius:6px;font:600 14px 'Inter','Noto Sans JP',sans-serif">↑ JSONインポート</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.4),0 1px 2px rgba(43,36,28,.10);padding:6px">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">写真</span></div>
+<div style="text-align:center;padding:8px 2px 5px">
+<div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="width:7px;height:7px;border-radius:999px;background:#A73121;flex:none"></span><span style="font:600 12px 'Shippori Mincho',serif;line-height:1.4">宵闇の騎士 — 胸像</span></div>
+<div style="font:9px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:4px">VOL.012 ・ 3日前</div>
+</div>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.4),0 1px 2px rgba(43,36,28,.10);padding:6px">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">写真</span></div>
+<div style="text-align:center;padding:8px 2px 5px">
+<div style="font:600 12px 'Shippori Mincho',serif;line-height:1.4">古の航海士 75mm</div>
+<div style="font:9px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:4px">VOL.011 ・ 8日前</div>
+</div>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.4),0 1px 2px rgba(43,36,28,.10);padding:6px">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:4px;display:flex;align-items:center;justify-content:center"><span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">写真</span></div>
+<div style="text-align:center;padding:8px 2px 5px">
+<div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="width:7px;height:7px;border-radius:999px;background:#A73121;flex:none"></span><span style="font:600 12px 'Shippori Mincho',serif;line-height:1.4">月影の射手 32mm</span></div>
+<div style="font:9px 'JetBrains Mono',monospace;color:#6B5F4D;margin-top:4px">VOL.010 ・ 12日前</div>
+</div>
+</div>
+<div style="border:1px dashed #A69576;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:150px">
+<span style="width:30px;height:30px;border-radius:999px;border:1px solid #A69576;display:flex;align-items:center;justify-content:center;font:400 16px 'EB Garamond',serif;color:#8F6B2E">＋</span>
+<span style="font:600 10px 'EB Garamond',serif;letter-spacing:.2em;color:#8F6B2E">NEW VOLUME</span>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid #C9A85C;padding:14px;display:flex;justify-content:center;align-items:center;gap:12px;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">
+<span>© coat-codex</span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">利用規約・免責</span>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 02 SETUP ═════════════ -->
+<section class="fx-sec" id="setup" data-screen-label="02 Setup">
+<div class="fx-hd"><span class="fx-no">02</span><span class="fx-en">SETUP</span><span class="fx-jp">秘伝書の準備</span><span class="fx-note">/recipe/:id/setup ・ 使用中バッジ＝削除不可 ・ JSONインポート並置</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">PC 1280（720中央）</span>
+<div class="fx-card"><div data-screen-label="Setup PC" style="width:1280px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:34px;height:34px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:27px;height:27px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 13px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 20px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE"><span style="padding:9px 15px;background:#7A2E1F;color:#FDF9F0;font:600 12px 'Inter',sans-serif">JA</span><span style="padding:9px 15px;color:#6B5F4D;font:500 12px 'Inter',sans-serif">EN</span></span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="width:720px;margin:0 auto;padding:26px 0 56px">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">← Home</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75;margin-left:auto">autosave: 500ms — 保存ボタンはありません</span>
+</div>
+<div style="text-align:center;margin:26px 0 30px">
+<div style="font:600 11px 'EB Garamond',serif;letter-spacing:.42em;color:#8F6B2E;text-indent:.42em">NEW VOLUME</div>
+<div style="font:500 38px/1.1 'EB Garamond',serif;letter-spacing:.05em;margin:10px 0 8px">SETUP</div>
+<div style="font:500 11px 'Shippori Mincho',serif;letter-spacing:.4em;color:#6B5F4D;text-indent:.4em">秘伝書の準備</div>
+<div style="display:flex;align-items:center;gap:10px;max-width:320px;margin:14px auto 0"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:5px;height:5px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px">
+<span style="font:500 18px 'EB Garamond',serif;letter-spacing:.08em">TITLE</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">タイトル</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:13px 14px;font:16px 'Inter','Noto Sans JP',sans-serif;color:#2B241C">宵闇の騎士 — 胸像</span>
+<div style="display:flex;align-items:baseline;gap:9px;margin:26px 0 10px">
+<span style="font:500 18px 'EB Garamond',serif;letter-spacing:.08em">PHOTOS</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">全体写真</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">先頭＝代表。並び替えで変更</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;gap:12px">
+<div style="width:112px;height:112px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #C9A85C;border-radius:6px;position:relative">
+<span style="position:absolute;top:6px;left:6px;font:600 9px 'EB Garamond',serif;letter-spacing:.14em;background:#8F6B2E;color:#FDF9F0;border-radius:3px;padding:2px 6px">COVER</span>
+<span style="position:absolute;bottom:6px;right:6px;font:600 12px sans-serif;color:#6B5F4D;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center">✕</span>
+</div>
+<div style="width:112px;height:112px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:6px;position:relative">
+<span style="position:absolute;bottom:6px;right:6px;font:600 12px sans-serif;color:#6B5F4D;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center">✕</span>
+</div>
+<div style="width:112px;height:112px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:6px;position:relative">
+<span style="position:absolute;bottom:6px;right:6px;font:600 12px sans-serif;color:#6B5F4D;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;width:24px;height:24px;display:flex;align-items:center;justify-content:center">✕</span>
+</div>
+<div style="width:112px;height:112px;border:1px dashed #A69576;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+<span style="font:400 22px 'EB Garamond',serif;color:#8F6B2E">＋</span>
+<span style="font:10px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">追加 / D&amp;D</span>
+</div>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:26px 0 10px">
+<span style="font:500 18px 'EB Garamond',serif;letter-spacing:.08em">PALETTE</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">使用カラー</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">後から追加可</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:9px 12px">
+<span style="display:inline-flex;align-items:center;gap:7px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 9px 3px 3px"><span style="width:22px;height:22px;border-radius:2px;background:#960F0F;border:1px solid rgba(0,0,0,.18)"></span><span style="font:500 12px 'Inter','Noto Sans JP',sans-serif">メフィストンレッド</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#960F0F</span></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Citadel</span>
+<span style="margin-left:auto;font:500 10px 'JetBrains Mono',monospace;color:#8F6B2E;background:#F6F0E2;border:1px solid #C9A85C;border-radius:999px;padding:2px 8px">3工程で使用中</span>
+<span style="width:28px;height:28px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 12px sans-serif;opacity:.45">✕</span>
+</div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#9A8D75;margin:-4px 0 0 12px">↳ 工程で使用中のため削除できません（工程側で外すと削除可）</div>
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:9px 12px">
+<span style="display:inline-flex;align-items:center;gap:7px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 9px 3px 3px"><span style="width:22px;height:22px;border-radius:2px;background:#1F3A4D;border:1px solid rgba(0,0,0,.18)"></span><span style="font:500 12px 'Inter','Noto Sans JP',sans-serif">ダークシーブルー</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#1F3A4D</span></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Vallejo 70.898</span>
+<span style="margin-left:auto;font:500 10px 'JetBrains Mono',monospace;color:#8F6B2E;background:#F6F0E2;border:1px solid #C9A85C;border-radius:999px;padding:2px 8px">2工程で使用中</span>
+<span style="width:28px;height:28px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 12px sans-serif;opacity:.45">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:9px 12px">
+<span style="display:inline-flex;align-items:center;gap:7px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 9px 3px 3px"><span style="width:22px;height:22px;border-radius:2px;background:repeating-conic-gradient(#E0E0E0 0 25%,#FFFFFF 0 50%) 0 0/8px 8px;border:1px solid rgba(0,0,0,.18)"></span><span style="font:500 12px 'Inter','Noto Sans JP',sans-serif">自家調色グレーグリーン</span><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">hex未指定</span></span>
+<span style="margin-left:auto;font:500 10px 'JetBrains Mono',monospace;color:#9A8D75;border:1px solid #D5C8AB;border-radius:999px;padding:2px 8px">未使用</span>
+<span style="width:28px;height:28px;border:1px solid #A69576;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#2B241C;font:600 12px sans-serif">✕</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">＋ カラーを追加</span>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:26px 0 10px">
+<span style="font:500 18px 'EB Garamond',serif;letter-spacing:.08em">TOOLS</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">使用ツール</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:11px 12px">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif">エアブラシ (0.3mm)</span>
+<span style="margin-left:auto;font:500 10px 'JetBrains Mono',monospace;color:#8F6B2E;background:#F6F0E2;border:1px solid #C9A85C;border-radius:999px;padding:2px 8px">4工程で使用中</span>
+<span style="width:28px;height:28px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 12px sans-serif;opacity:.45">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:11px 12px">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif">面相筆</span>
+<span style="margin-left:auto;font:500 10px 'JetBrains Mono',monospace;color:#9A8D75;border:1px solid #D5C8AB;border-radius:999px;padding:2px 8px">未使用</span>
+<span style="width:28px;height:28px;border:1px solid #A69576;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#2B241C;font:600 12px sans-serif">✕</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">＋ ツールを追加</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;margin:30px 0">
+<span style="flex:1;height:1px;background:#C9A85C"></span>
+<span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<span style="font:500 11px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">または</span>
+<span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<span style="flex:1;height:1px;background:#C9A85C"></span>
+</div>
+<div style="border:1px dashed #A69576;border-radius:8px;padding:18px;display:flex;align-items:center;gap:14px">
+<span style="width:36px;height:36px;border-radius:999px;border:1px solid #A69576;display:flex;align-items:center;justify-content:center;font:600 15px 'Inter',sans-serif;color:#8F6B2E">↑</span>
+<span style="flex:1">
+<span style="display:block;font:600 13px 'Inter','Noto Sans JP',sans-serif">JSONインポートで再開</span>
+<span style="display:block;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D;margin-top:2px">以前エクスポートした .json からこの秘伝書を復元します</span>
+</span>
+<span style="display:inline-flex;align-items:center;height:40px;padding:0 16px;background:#FCF8EE;color:#5A3A24;border:1px solid #C9A85C;border-radius:6px;font:600 13px 'Inter','Noto Sans JP',sans-serif">ファイルを選択</span>
+</div>
+<div style="text-align:center;margin-top:34px">
+<span style="display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 46px;background:#7A2E1F;color:#FDF9F0;border:1px solid #632418;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5),0 2px 8px rgba(43,36,28,.14);font:600 17px 'Inter','Noto Sans JP',sans-serif">make codex!</span>
+<div style="font:10px 'JetBrains Mono',monospace;color:#9A8D75;margin-top:8px">作成後もすべて編集できます</div>
+</div>
+</div>
+<div style="border-top:1px solid #C9A85C;padding:14px;display:flex;justify-content:center;align-items:center;gap:14px;font:12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D"><span>© coat-codex</span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">利用規約・免責</span></div>
+</div></div>
+</div>
+<div class="fx-col"><span class="fx-cap">Mobile 390</span>
+<div class="fx-card"><div data-screen-label="Setup Mobile" style="width:390px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;background:#FCF8EE">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">←</span>
+<span style="display:flex;flex-direction:column;flex:1">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.3em;color:#8F6B2E">NEW VOLUME</span>
+<span style="font:600 15px 'Shippori Mincho',serif">秘伝書の準備</span>
+</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">autosave</span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="padding:18px 16px 40px">
+<div style="display:flex;align-items:baseline;gap:8px;margin:0 0 8px">
+<span style="font:500 15px 'EB Garamond',serif;letter-spacing:.08em">TITLE</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:12px;font:16px 'Inter','Noto Sans JP',sans-serif;color:#9A8D75">例: 宵闇の騎士 胸像</span>
+<div style="display:flex;align-items:baseline;gap:8px;margin:20px 0 8px">
+<span style="font:500 15px 'EB Garamond',serif;letter-spacing:.08em">PHOTOS</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">先頭＝代表</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;gap:9px;flex-wrap:wrap">
+<div style="width:104px;height:104px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #C9A85C;border-radius:6px;position:relative">
+<span style="position:absolute;top:5px;left:5px;font:600 8px 'EB Garamond',serif;letter-spacing:.14em;background:#8F6B2E;color:#FDF9F0;border-radius:3px;padding:2px 5px">COVER</span>
+</div>
+<div style="width:104px;height:104px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:6px"></div>
+<div style="width:104px;height:104px;border:1px dashed #A69576;border-radius:6px;display:flex;align-items:center;justify-content:center"><span style="font:400 20px 'EB Garamond',serif;color:#8F6B2E">＋</span></div>
+</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin:20px 0 8px">
+<span style="font:500 15px 'EB Garamond',serif;letter-spacing:.08em">PALETTE</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:8px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;padding:8px 10px">
+<span style="display:inline-flex;align-items:center;gap:6px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 8px 3px 3px;min-width:0"><span style="width:20px;height:20px;border-radius:2px;background:#960F0F;border:1px solid rgba(0,0,0,.18);flex:none"></span><span style="font:500 11px 'Inter','Noto Sans JP',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">メフィストンレッド</span></span>
+<span style="margin-left:auto;font:500 9px 'JetBrains Mono',monospace;color:#8F6B2E;background:#F6F0E2;border:1px solid #C9A85C;border-radius:999px;padding:2px 7px;white-space:nowrap">3工程</span>
+<span style="width:28px;height:28px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 11px sans-serif;opacity:.45;flex:none">✕</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">＋ カラーを追加</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin:22px 0">
+<span style="flex:1;height:1px;background:#C9A85C"></span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">または</span>
+<span style="flex:1;height:1px;background:#C9A85C"></span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #A69576;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">↑ JSONインポートで再開</span>
+<span style="display:flex;align-items:center;justify-content:center;height:54px;background:#7A2E1F;color:#FDF9F0;border:1px solid #632418;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5);font:600 16px 'Inter','Noto Sans JP',sans-serif;margin-top:24px">make codex!</span>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 03 OVERVIEW ═════════════ -->
+<section class="fx-sec" id="overview" data-screen-label="03 Overview">
+<div class="fx-hd"><span class="fx-no">03</span><span class="fx-en">OVERVIEW</span><span class="fx-jp">全体表示</span><span class="fx-note">/recipe/:id ・ パーツサムネ＝写真がある最新工程 ・ JSON+素MD隣接固定</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">PC 1280</span>
+<div class="fx-card"><div data-screen-label="Overview PC" style="width:1280px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:34px;height:34px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:27px;height:27px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 13px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 20px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE"><span style="padding:9px 15px;background:#7A2E1F;color:#FDF9F0;font:600 12px 'Inter',sans-serif">JA</span><span style="padding:9px 15px;color:#6B5F4D;font:500 12px 'Inter',sans-serif">EN</span></span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="max-width:1216px;margin:0 auto;padding:22px 32px 44px">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">← Home</span>
+<span style="display:flex;flex-direction:column;gap:2px">
+<span style="font:600 10px 'EB Garamond',serif;letter-spacing:.34em;color:#8F6B2E">CODEX VOL.012</span>
+<span style="font:600 24px 'Shippori Mincho',serif">宵闇の騎士 — 胸像</span>
+</span>
+<span style="font:11px 'JetBrains Mono',monospace;color:#9A8D75;align-self:flex-end;padding-bottom:3px">更新: 3日前</span>
+<span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #C9A85C;background:#FCF8EE;border-radius:999px;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">印刷</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #C9A85C;background:#FCF8EE;border-radius:999px;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">PDF</span>
+<span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg);margin:0 3px"></span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #C9A85C;background:#FCF8EE;border-radius:999px;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">X</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #C9A85C;background:#FCF8EE;border-radius:999px;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">Bluesky</span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #C9A85C;background:#FCF8EE;border-radius:999px;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">note MD</span>
+<span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg);margin:0 3px"></span>
+<span style="display:inline-flex;border:1px solid #7A2E1F;border-radius:999px;overflow:hidden">
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;font:600 12px 'Inter','Noto Sans JP',sans-serif;background:#F5E8CE;color:#5A3A24">JSON</span>
+<span style="width:1px;background:#7A2E1F"></span>
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 14px;font:600 12px 'Inter','Noto Sans JP',sans-serif;background:#F5E8CE;color:#5A3A24">素MD</span>
+</span>
+</span>
+</div>
+<div style="display:flex;gap:30px;margin-top:18px">
+<div style="width:600px;flex:none">
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45);padding:10px;position:relative">
+<span style="position:absolute;top:-4px;left:-4px;width:8px;height:8px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<span style="position:absolute;bottom:-4px;left:-4px;width:8px;height:8px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<span style="position:absolute;bottom:-4px;right:-4px;width:8px;height:8px;background:#8F6B2E;transform:rotate(45deg)"></span>
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 14px,#F1E9D6 14px 28px);border:1px solid #D5C8AB;border-radius:5px;position:relative;overflow:hidden">
+<span style="position:absolute;top:12px;left:12px;font:10px 'JetBrains Mono',monospace;color:#9A8D75;background:rgba(252,248,238,.85);padding:2px 6px;border-radius:3px">代表写真（非加工）</span>
+<div style="position:absolute;left:0;right:0;bottom:0;background:rgba(43,36,28,.82);padding:11px 14px;display:flex;align-items:center;gap:8px">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.24em;color:#C9A85C">BASE</span>
+<span style="font:500 12px 'Inter','Noto Sans JP',sans-serif;color:#FDF9F0;border:1px solid rgba(253,249,240,.55);border-radius:999px;padding:4px 11px">黒サフ</span>
+<span style="font:500 12px 'Inter','Noto Sans JP',sans-serif;color:#FDF9F0;border:1px solid rgba(253,249,240,.55);border-radius:999px;padding:4px 11px">ジャーマングレー下吹き</span>
+<span style="margin-left:auto;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#C9A85C">編集 ›</span>
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:10px;align-items:center;padding:0 2px 2px">
+<span style="width:72px;height:72px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></span>
+<span style="width:72px;height:72px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></span>
+<span style="width:72px;height:72px;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">全4枚</span>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:#F5E8CE;border:1px solid #E0C185;border-radius:999px;padding:8px 16px;margin-top:14px">
+<span style="width:7px;height:7px;border-radius:999px;background:#8F5A14"></span>
+<span style="font:12px 'Inter','Noto Sans JP',sans-serif">未バックアップの変更が3件あります</span>
+<span style="margin-left:auto;font:600 12px 'Inter','Noto Sans JP',sans-serif;color:#8F5A14;text-decoration:underline dotted rgba(143,90,20,.5)">今すぐエクスポート</span>
+</div>
+</div>
+<div style="flex:1">
+<div style="text-align:center;margin-bottom:14px">
+<div style="font:500 22px 'EB Garamond',serif;letter-spacing:.08em">PARTS</div>
+<div style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.4em;color:#6B5F4D;text-indent:.4em;margin-top:3px">パーツ</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:5px;height:5px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;gap:12px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px 14px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">I</span>
+<span style="width:52px;height:52px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;flex:none;position:relative"><span style="position:absolute;bottom:2px;left:2px;font:600 7px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 4px">STEP 3</span></span>
+<span style="flex:1;min-width:0">
+<span style="display:flex;align-items:baseline;gap:8px"><span style="font:600 15px 'Shippori Mincho',serif">兜</span><span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">工程 3 ・ 写真 2/3</span></span>
+<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+<span style="font:500 10.5px 'JetBrains Mono',monospace;background:#FCF8EE;border:1px solid #C9A85C;border-radius:999px;padding:2px 8px">60% + 40% (3:2)</span>
+<span style="font:500 10.5px 'Inter','Noto Sans JP',sans-serif;border:1px solid #A69576;border-radius:999px;padding:2px 8px">ウォッシュ</span>
+</span>
+</span>
+<span style="color:#9A8D75;font:600 14px sans-serif">›</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px 14px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">II</span>
+<span style="width:52px;height:52px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;flex:none;position:relative"><span style="position:absolute;bottom:2px;left:2px;font:600 7px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 4px">STEP 5</span></span>
+<span style="flex:1;min-width:0">
+<span style="display:flex;align-items:baseline;gap:8px"><span style="font:600 15px 'Shippori Mincho',serif">胴体・鎧</span><span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">工程 5 ・ 写真 4/5</span></span>
+<span style="display:flex;gap:6px;margin-top:6px"><span style="font:500 10.5px 'JetBrains Mono',monospace;background:#FCF8EE;border:1px solid #C9A85C;border-radius:999px;padding:2px 8px">70% + 30% (7:3)</span></span>
+</span>
+<span style="color:#9A8D75;font:600 14px sans-serif">›</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px 14px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">III</span>
+<span style="width:52px;height:52px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;flex:none"></span>
+<span style="flex:1"><span style="display:flex;align-items:baseline;gap:8px"><span style="font:600 15px 'Shippori Mincho',serif">マント</span><span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">工程 2 ・ 写真 0/2</span></span></span>
+<span style="color:#9A8D75;font:600 14px sans-serif">›</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px 14px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">IV</span>
+<span style="width:52px;height:52px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;flex:none;position:relative"><span style="position:absolute;bottom:2px;left:2px;font:600 7px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 4px">STEP 2</span></span>
+<span style="flex:1"><span style="display:flex;align-items:baseline;gap:8px"><span style="font:600 15px 'Shippori Mincho',serif">台座</span><span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">工程 2 ・ 写真 1/2</span></span></span>
+<span style="color:#9A8D75;font:600 14px sans-serif">›</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">＋ パーツを追加</span>
+</div>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid #C9A85C;padding:14px;display:flex;justify-content:center;align-items:center;gap:14px;font:12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D"><span>© coat-codex</span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">利用規約・免責</span></div>
+</div></div>
+</div>
+<div class="fx-col"><span class="fx-cap">Mobile 390 — 下部固定ExportActionBar</span>
+<div class="fx-card"><div data-screen-label="Overview Mobile" style="width:390px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif;position:relative">
+<div style="display:flex;align-items:center;gap:10px;padding:0 16px;height:56px;background:#FCF8EE">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">←</span>
+<span style="display:flex;flex-direction:column;flex:1;min-width:0">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.3em;color:#8F6B2E">VOL.012</span>
+<span style="font:600 15px 'Shippori Mincho',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">宵闇の騎士 — 胸像</span>
+</span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="padding:14px 16px 92px">
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 3px #FCF8EE,inset 0 0 0 4px rgba(166,149,118,.45);padding:8px">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 12px,#F1E9D6 12px 24px);border:1px solid #D5C8AB;border-radius:5px;position:relative;overflow:hidden">
+<div style="position:absolute;left:0;right:0;bottom:0;background:rgba(43,36,28,.82);padding:9px 11px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<span style="font:600 8px 'EB Garamond',serif;letter-spacing:.24em;color:#C9A85C">BASE</span>
+<span style="font:500 11px 'Inter','Noto Sans JP',sans-serif;color:#FDF9F0;border:1px solid rgba(253,249,240,.55);border-radius:999px;padding:3px 9px">黒サフ</span>
+<span style="font:500 11px 'Inter','Noto Sans JP',sans-serif;color:#FDF9F0;border:1px solid rgba(253,249,240,.55);border-radius:999px;padding:3px 9px">下吹き</span>
+<span style="margin-left:auto;font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#C9A85C">編集 ›</span>
+</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:8px;align-items:center;padding:0 1px 1px">
+<span style="width:56px;height:56px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px"></span>
+<span style="width:56px;height:56px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px"></span>
+<span style="width:56px;height:56px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px"></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">全4枚</span>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;background:#F5E8CE;border:1px solid #E0C185;border-radius:999px;padding:8px 13px;margin-top:12px">
+<span style="width:7px;height:7px;border-radius:999px;background:#8F5A14;flex:none"></span>
+<span style="font:11px 'Inter','Noto Sans JP',sans-serif;flex:1">未バックアップの変更が3件</span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#8F5A14;text-decoration:underline dotted rgba(143,90,20,.5);white-space:nowrap">エクスポート</span>
+</div>
+<div style="text-align:center;margin:20px 0 12px">
+<div style="font:500 18px 'EB Garamond',serif;letter-spacing:.08em">PARTS</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:10px 12px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 14px 'EB Garamond',serif;color:#7A2E1F;width:18px;text-align:center">I</span>
+<span style="width:46px;height:46px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px;flex:none;position:relative"><span style="position:absolute;bottom:2px;left:2px;font:600 6.5px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 3px">S3</span></span>
+<span style="flex:1;min-width:0">
+<span style="display:flex;align-items:baseline;gap:7px"><span style="font:600 14px 'Shippori Mincho',serif">兜</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">工程 3 ・ 写真 2/3</span></span>
+<span style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap"><span style="font:500 10px 'JetBrains Mono',monospace;background:#FCF8EE;border:1px solid #C9A85C;border-radius:999px;padding:2px 7px">60% + 40% (3:2)</span><span style="font:500 10px 'Inter','Noto Sans JP',sans-serif;border:1px solid #A69576;border-radius:999px;padding:2px 7px">ウォッシュ</span></span>
+</span>
+<span style="color:#9A8D75;font:600 13px sans-serif">›</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:10px 12px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 14px 'EB Garamond',serif;color:#7A2E1F;width:18px;text-align:center">II</span>
+<span style="width:46px;height:46px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px;flex:none;position:relative"><span style="position:absolute;bottom:2px;left:2px;font:600 6.5px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 3px">S5</span></span>
+<span style="flex:1"><span style="display:flex;align-items:baseline;gap:7px"><span style="font:600 14px 'Shippori Mincho',serif">胴体・鎧</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">工程 5 ・ 写真 4/5</span></span>
+<span style="display:flex;gap:5px;margin-top:5px"><span style="font:500 10px 'JetBrains Mono',monospace;background:#FCF8EE;border:1px solid #C9A85C;border-radius:999px;padding:2px 7px">70% + 30% (7:3)</span></span></span>
+<span style="color:#9A8D75;font:600 13px sans-serif">›</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:10px 12px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 14px 'EB Garamond',serif;color:#7A2E1F;width:18px;text-align:center">III</span>
+<span style="width:46px;height:46px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:4px;flex:none"></span>
+<span style="flex:1"><span style="display:flex;align-items:baseline;gap:7px"><span style="font:600 14px 'Shippori Mincho',serif">マント</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">工程 2</span></span></span>
+<span style="color:#9A8D75;font:600 13px sans-serif">›</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">＋ パーツを追加</span>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:64px;background:#FCF8EE;border-top:2px solid #C9A85C;box-shadow:0 -2px 8px rgba(43,36,28,.10);display:flex;align-items:center;gap:5px;padding:0 10px">
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;border:1px solid #C9A85C;border-radius:999px;padding:9px 10px">印刷</span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;border:1px solid #C9A85C;border-radius:999px;padding:9px 10px">PDF</span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;border:1px solid #C9A85C;border-radius:999px;padding:9px 10px">X</span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;border:1px solid #C9A85C;border-radius:999px;padding:9px 10px">Bsky</span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;border:1px solid #C9A85C;border-radius:999px;padding:9px 10px">note</span>
+<span style="display:inline-flex;border:1px solid #7A2E1F;border-radius:999px;overflow:hidden;margin-left:auto">
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;background:#F5E8CE;padding:9px 9px">JSON</span>
+<span style="width:1px;background:#7A2E1F"></span>
+<span style="font:600 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;background:#F5E8CE;padding:9px 9px">素MD</span>
+</span>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 04 PART EDITOR ═════════════ -->
+<section class="fx-sec" id="editor" data-screen-label="04 PartEditor">
+<div class="fx-hd"><span class="fx-no">04</span><span class="fx-en">PART EDITOR</span><span class="fx-jp">工程編集</span><span class="fx-note">/recipe/:id/part/:partId ・ 工程写真1枚＋スロット別%（合計100検証） ・ PC=SlideInPanel</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">PC 1280 — スライドインパネル480</span>
+<div class="fx-card"><div data-screen-label="PartEditor PC" style="width:1280px;height:1120px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif;position:relative;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:34px;height:34px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:27px;height:27px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 13px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 20px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE"><span style="padding:9px 15px;background:#7A2E1F;color:#FDF9F0;font:600 12px 'Inter',sans-serif">JA</span><span style="padding:9px 15px;color:#6B5F4D;font:500 12px 'Inter',sans-serif">EN</span></span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="padding:22px 32px">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">← Home</span>
+<span style="display:flex;flex-direction:column;gap:2px"><span style="font:600 10px 'EB Garamond',serif;letter-spacing:.34em;color:#8F6B2E">CODEX VOL.012</span><span style="font:600 24px 'Shippori Mincho',serif">宵闇の騎士 — 胸像</span></span>
+</div>
+<div style="display:flex;gap:30px;margin-top:18px">
+<div style="width:520px;flex:none"><div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 14px,#F1E9D6 14px 28px);border:1px solid #D5C8AB;border-radius:8px"></div></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px">
+<div style="height:64px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px"></div>
+<div style="height:64px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px"></div>
+<div style="height:64px;background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px"></div>
+</div>
+</div>
+</div>
+<div style="position:absolute;inset:0;background:rgba(43,36,28,.55)"></div>
+<div style="position:absolute;top:0;right:0;bottom:0;width:480px;background:#F6F0E2;box-shadow:-8px 0 24px rgba(43,36,28,.25);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#FCF8EE;border-bottom:2px solid #C9A85C">
+<span style="display:flex;flex-direction:column;flex:1">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.3em;color:#8F6B2E">PART I — EDIT</span>
+<span style="font:600 17px 'Shippori Mincho',serif">兜</span>
+</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">autosave</span>
+<span style="width:32px;height:32px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 13px sans-serif">✕</span>
+</div>
+<div style="padding:16px 18px 24px;overflow:hidden">
+<div style="display:flex;align-items:baseline;gap:8px;margin:0 0 8px"><span style="font:500 13px 'EB Garamond',serif;letter-spacing:.1em">NAME</span><span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span></div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:11px 12px;font:16px 'Inter','Noto Sans JP',sans-serif">兜</span>
+<div style="display:flex;align-items:baseline;gap:8px;margin:16px 0 10px"><span style="font:500 13px 'EB Garamond',serif;letter-spacing:.1em">STEPS</span><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">写真は各工程に1枚 ・ D&amp;D＋↑↓</span><span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span></div>
+
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 16px 'EB Garamond',serif;color:#7A2E1F">2</span>
+<span style="flex:1;display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:8px 10px;font:600 13px 'Inter','Noto Sans JP',sans-serif">レイヤー<span style="color:#6B5F4D;font-size:11px">▼</span></span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 12px sans-serif;color:#5A3A24">↑</span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 12px sans-serif;color:#5A3A24">↓</span>
+<span style="width:30px;height:30px;border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#A73121">✕</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font:600 11px 'EB Garamond',serif;color:#8F6B2E;width:12px">A</span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:12px 'Inter','Noto Sans JP',sans-serif;width:84px">Citadel<span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:12px 'Inter','Noto Sans JP',sans-serif;flex:1;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">メフィストンレッド</span><span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="display:inline-flex;align-items:center;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:2px"><span style="width:20px;height:20px;border-radius:2px;background:#960F0F;border:1px solid rgba(0,0,0,.18)"></span></span>
+<span style="display:inline-flex;align-items:center;gap:3px;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 7px"><span style="font:600 13px 'JetBrains Mono',monospace">60</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">%</span></span>
+<span style="width:24px;height:24px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 10px sans-serif">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font:600 11px 'EB Garamond',serif;color:#8F6B2E;width:12px">B</span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:12px 'Inter','Noto Sans JP',sans-serif;width:84px">Citadel<span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:12px 'Inter','Noto Sans JP',sans-serif;flex:1;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">イービルサンズスカーレット</span><span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="display:inline-flex;align-items:center;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:2px"><span style="width:20px;height:20px;border-radius:2px;background:#BE452B;border:1px solid rgba(0,0,0,.18)"></span></span>
+<span style="display:inline-flex;align-items:center;gap:3px;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 7px"><span style="font:600 13px 'JetBrains Mono',monospace">40</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">%</span></span>
+<span style="width:24px;height:24px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 10px sans-serif">✕</span>
+</div>
+<span style="font:500 11px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5);margin-left:18px">＋ 塗料を追加（あと3）</span>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:10px;background:#F6F0E2;border:1px solid #D5C8AB;border-radius:6px;padding:8px 10px">
+<span style="font:600 10px 'EB Garamond',serif;letter-spacing:.14em;color:#8F6B2E">MIX</span>
+<span style="font:10px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">比率</span>
+<span style="display:inline-flex;align-items:center;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 8px"><span style="font:600 13px 'JetBrains Mono',monospace">3:2</span></span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">⇄ 入力で各%へ展開</span>
+<span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:999px;background:#3E6B4F"></span><span style="font:600 12px 'JetBrains Mono',monospace;color:#3E6B4F">計 100%</span></span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:10px">
+<span style="font:600 10px 'EB Garamond',serif;letter-spacing:.14em;color:#8F6B2E">TOOLS</span>
+<span style="font:500 11px 'Inter','Noto Sans JP',sans-serif;border:1px solid #A69576;border-radius:999px;padding:3px 9px">エアブラシ ✕</span>
+<span style="width:24px;height:24px;border:1px dashed #A69576;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#8F6B2E;font:400 12px serif">＋</span>
+</div>
+<div style="display:flex;gap:10px;margin-top:10px;align-items:stretch">
+<div style="width:84px;flex:none;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #C9A85C;border-radius:6px;position:relative;min-height:84px">
+<span style="position:absolute;top:5px;left:5px;font:600 8px 'EB Garamond',serif;letter-spacing:.12em;background:#8F6B2E;color:#FDF9F0;border-radius:3px;padding:2px 5px">STEP 2</span>
+<span style="position:absolute;bottom:5px;right:5px;font:600 11px sans-serif;color:#6B5F4D;background:rgba(252,248,238,.92);border:1px solid #D5C8AB;border-radius:999px;width:22px;height:22px;display:flex;align-items:center;justify-content:center">✕</span>
+</div>
+<span style="flex:1;display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:9px 10px;font:13px/1.6 'Inter','Noto Sans JP',sans-serif;color:#2B241C">エッジ中心に薄く重ねる。二度目はハイライトのみ。</span>
+</div>
+</div>
+
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:12px;margin-top:10px">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font:600 12px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 16px 'EB Garamond',serif;color:#7A2E1F">3</span>
+<span style="flex:1;display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:8px 10px;font:600 13px 'Inter','Noto Sans JP',sans-serif">ウォッシュ<span style="color:#6B5F4D;font-size:11px">▼</span></span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 12px sans-serif;color:#5A3A24">↑</span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 12px sans-serif;color:#9A8D75;opacity:.45">↓</span>
+<span style="width:30px;height:30px;border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#A73121">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:10px">
+<span style="font:600 11px 'EB Garamond',serif;color:#8F6B2E;width:12px">A</span>
+<span style="display:inline-flex;align-items:center;gap:7px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 9px 3px 3px"><span style="width:20px;height:20px;border-radius:2px;background:#201A16;border:1px solid rgba(0,0,0,.18)"></span><span style="font:500 12px 'Inter','Noto Sans JP',sans-serif">ナルンオイル</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">100%</span></span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75;margin-left:auto">単色 — MIX行なし</span>
+</div>
+<div style="display:flex;gap:10px;margin-top:10px;align-items:stretch">
+<div style="width:84px;flex:none;border:1px dashed #A69576;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:84px">
+<span style="font:400 18px 'EB Garamond',serif;color:#8F6B2E">＋</span>
+<span style="font:9px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">写真 1枚</span>
+</div>
+<span style="flex:1;display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:9px 10px;font:13px/1.6 'Inter','Noto Sans JP',sans-serif;color:#9A8D75">メモ（任意）</span>
+</div>
+</div>
+
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;margin-top:10px">＋ 工程を追加</span>
+</div>
+</div>
+</div></div>
+</div>
+
+<div class="fx-col"><span class="fx-cap">Mobile 390 — フルページ＋工程写真ストリップ</span>
+<div class="fx-card"><div data-screen-label="PartEditor Mobile" style="width:390px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;background:#FCF8EE">
+<span style="font:500 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24">← 全体表示</span>
+<span style="margin-left:auto;width:30px;height:30px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 12px sans-serif">✕</span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="padding:16px 16px 36px">
+<div style="display:flex;align-items:baseline;gap:8px;margin:0 0 8px"><span style="font:500 13px 'EB Garamond',serif;letter-spacing:.1em">NAME</span><span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span></div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:11px 12px;font:16px 'Inter','Noto Sans JP',sans-serif">兜</span>
+<div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px">
+<span style="font:500 13px 'EB Garamond',serif;letter-spacing:.1em">STEPS</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">3工程 ・ 写真は工程ごと</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:12px">
+<span style="width:58px;height:58px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;position:relative;flex:none"><span style="position:absolute;bottom:3px;left:3px;font:600 8px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 4px">1</span></span>
+<span style="width:58px;height:58px;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #D5C8AB;border-radius:5px;position:relative;flex:none"><span style="position:absolute;bottom:3px;left:3px;font:600 8px 'JetBrains Mono',monospace;background:rgba(43,36,28,.75);color:#FDF9F0;border-radius:2px;padding:1px 4px">2</span></span>
+<span style="width:58px;height:58px;border:1px dashed #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font:9px 'JetBrains Mono',monospace;color:#9A8D75;flex:none">3 なし</span>
+<span style="align-self:center;font:9px/1.6 'JetBrains Mono',monospace;color:#9A8D75;margin-left:4px">工程写真ストリップ<br>タップで該当工程へ</span>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:11px">
+<div style="display:flex;align-items:center;gap:7px">
+<span style="font:600 11px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">2</span>
+<span style="flex:1;display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:8px 9px;font:600 12px 'Inter','Noto Sans JP',sans-serif">レイヤー<span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#5A3A24">↑</span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#5A3A24">↓</span>
+<span style="width:30px;height:30px;border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 10px sans-serif;color:#A73121">✕</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:9px">
+<div style="display:flex;flex-direction:column;gap:5px;background:#F6F0E2;border:1px solid #E4D9BF;border-radius:6px;padding:7px 8px">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font:600 10px 'EB Garamond',serif;color:#8F6B2E;width:11px">A</span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:11px 'Inter','Noto Sans JP',sans-serif;width:76px">Citadel<span style="color:#6B5F4D;font-size:9px">▼</span></span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:11px 'Inter','Noto Sans JP',sans-serif;flex:1;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">メフィストンレッド</span><span style="color:#6B5F4D;font-size:9px">▼</span></span>
+<span style="width:24px;height:24px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 10px sans-serif;flex:none">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;padding-left:17px">
+<span style="display:inline-flex;align-items:center;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:2px"><span style="width:18px;height:18px;border-radius:2px;background:#960F0F;border:1px solid rgba(0,0,0,.18)"></span></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#960F0F</span>
+<span style="margin-left:auto;font:10px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">配合</span>
+<span style="display:inline-flex;align-items:center;gap:3px;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 8px"><span style="font:600 13px 'JetBrains Mono',monospace">60</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">%</span></span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:5px;background:#F6F0E2;border:1px solid #E4D9BF;border-radius:6px;padding:7px 8px">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font:600 10px 'EB Garamond',serif;color:#8F6B2E;width:11px">B</span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:11px 'Inter','Noto Sans JP',sans-serif;width:76px">Citadel<span style="color:#6B5F4D;font-size:9px">▼</span></span>
+<span style="display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:7px 8px;font:11px 'Inter','Noto Sans JP',sans-serif;flex:1;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">イービルサンズスカーレット</span><span style="color:#6B5F4D;font-size:9px">▼</span></span>
+<span style="width:24px;height:24px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9A8D75;font:600 10px sans-serif;flex:none">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;padding-left:17px">
+<span style="display:inline-flex;align-items:center;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:2px"><span style="width:18px;height:18px;border-radius:2px;background:#BE452B;border:1px solid rgba(0,0,0,.18)"></span></span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#BE452B</span>
+<span style="margin-left:auto;font:10px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">配合</span>
+<span style="display:inline-flex;align-items:center;gap:3px;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 8px"><span style="font:600 13px 'JetBrains Mono',monospace">40</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">%</span></span>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:9px;background:#F6F0E2;border:1px solid #D5C8AB;border-radius:6px;padding:8px 9px">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.14em;color:#8F6B2E">MIX</span>
+<span style="display:inline-flex;align-items:center;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:6px 8px"><span style="font:600 12px 'JetBrains Mono',monospace">3:2</span></span>
+<span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:999px;background:#3E6B4F"></span><span style="font:600 11px 'JetBrains Mono',monospace;color:#3E6B4F">計 100%</span></span>
+</div>
+<div style="display:flex;gap:9px;margin-top:9px;align-items:stretch">
+<div style="width:76px;flex:none;background:repeating-linear-gradient(45deg,#EAE1CC 0 9px,#F1E9D6 9px 18px);border:1px solid #C9A85C;border-radius:6px;position:relative;min-height:76px">
+<span style="position:absolute;top:4px;left:4px;font:600 7px 'EB Garamond',serif;letter-spacing:.1em;background:#8F6B2E;color:#FDF9F0;border-radius:2px;padding:2px 4px">STEP 2</span>
+</div>
+<span style="flex:1;display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:8px 9px;font:12px/1.6 'Inter','Noto Sans JP',sans-serif">エッジ中心に薄く重ねる。</span>
+</div>
+</div>
+<div style="background:#FCF8EE;border:1px solid #D5C8AB;border-radius:8px;box-shadow:inset 0 0 0 2px #FCF8EE,inset 0 0 0 3px rgba(166,149,118,.35),0 1px 2px rgba(43,36,28,.10);padding:11px;margin-top:9px">
+<div style="display:flex;align-items:center;gap:7px">
+<span style="font:600 11px monospace;color:#9A8D75;letter-spacing:1px">⋮⋮</span>
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">3</span>
+<span style="flex:1;display:flex;align-items:center;justify-content:space-between;background:#EDE3CD;border:1px solid #A69576;border-radius:5px;padding:8px 9px;font:600 12px 'Inter','Noto Sans JP',sans-serif">ウォッシュ<span style="color:#6B5F4D;font-size:10px">▼</span></span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#5A3A24">↑</span>
+<span style="width:30px;height:30px;border:1px solid #A69576;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 11px sans-serif;color:#9A8D75;opacity:.45">↓</span>
+<span style="width:30px;height:30px;border:1px solid #D5C8AB;border-radius:5px;display:flex;align-items:center;justify-content:center;font:600 10px sans-serif;color:#A73121">✕</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:9px">
+<span style="font:600 10px 'EB Garamond',serif;color:#8F6B2E;width:11px">A</span>
+<span style="display:inline-flex;align-items:center;gap:6px;background:#FFFFFF;border:1px solid rgba(0,0,0,.12);border-radius:3px;padding:3px 8px 3px 3px"><span style="width:18px;height:18px;border-radius:2px;background:#201A16;border:1px solid rgba(0,0,0,.18)"></span><span style="font:500 11px 'Inter','Noto Sans JP',sans-serif">ナルンオイル</span><span style="font:9px 'JetBrains Mono',monospace;color:#6B5F4D">100%</span></span>
+</div>
+<div style="display:flex;gap:9px;margin-top:9px;align-items:stretch">
+<div style="width:76px;flex:none;border:1px dashed #A69576;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:76px">
+<span style="font:400 16px 'EB Garamond',serif;color:#8F6B2E">＋</span>
+<span style="font:8px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">写真 1枚</span>
+</div>
+<span style="flex:1;display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:8px 9px;font:12px/1.6 'Inter','Noto Sans JP',sans-serif;color:#9A8D75">メモ（任意）</span>
+</div>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:44px;border:1px dashed #C9A85C;border-radius:8px;font:600 13px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;margin-top:10px">＋ 工程を追加</span>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 05 SHARE ═════════════ -->
+<section class="fx-sec" id="share" data-screen-label="05 ShareDialog">
+<div class="fx-hd"><span class="fx-no">05</span><span class="fx-en">SHARE</span><span class="fx-jp">共有</span><span class="fx-note">A系統=共有シート ／ B系統=DL＋Intent＋手動添付ガイド常時表示</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">A系統 — X・カウンタOK</span>
+<div class="fx-card"><div style="width:620px;background:rgba(43,36,28,.55);padding:36px;box-sizing:border-box">
+<div data-screen-label="ShareDialog A" style="background:#F6F0E2;border-radius:10px;box-shadow:0 8px 24px rgba(43,36,28,.3);overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#FCF8EE;border-bottom:2px solid #C9A85C">
+<span style="display:flex;flex-direction:column;flex:1">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.3em;color:#8F6B2E">SHARE</span>
+<span style="font:600 17px 'Shippori Mincho',serif">Xに共有</span>
+</span>
+<span style="width:32px;height:32px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 13px sans-serif">✕</span>
+</div>
+<div style="padding:18px">
+<div style="display:flex;gap:8px">
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #C9A85C;border-radius:5px;position:relative"><span style="position:absolute;top:5px;left:5px;font:600 8px 'EB Garamond',serif;letter-spacing:.12em;background:#8F6B2E;color:#FDF9F0;border-radius:3px;padding:2px 5px">1 COVER</span></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+</div>
+<div style="font:9px 'JetBrains Mono',monospace;color:#9A8D75;margin-top:5px">合成画像 最大4枚 ・ 1枚目＝代表写真ベース ・ 2枚目以降＝写真つき工程から時系列</div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A69576;border-radius:6px;padding:11px 12px;font:13px/1.7 'Inter','Noto Sans JP',sans-serif;margin-top:12px">宵闇の騎士 胸像を塗りました。レシピ（使用カラー・混合比・全12工程）はcoat-codexで記録。#ミニチュアペイント #coatcodex</span>
+<div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+<span style="font:600 11px 'JetBrains Mono',monospace;color:#3E6B4F">262 / 280</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">X重み付きカウント</span>
+</div>
+<span style="display:flex;align-items:center;justify-content:center;height:50px;background:#7A2E1F;color:#FDF9F0;border:1px solid #632418;border-radius:6px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5);font:600 15px 'Inter','Noto Sans JP',sans-serif;margin-top:14px">共有シートで投稿（画像付き）</span>
+<div style="text-align:center;margin-top:10px"><span style="font:500 12px 'Inter','Noto Sans JP',sans-serif;color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">うまく共有できない場合 ›</span></div>
+</div>
+</div>
+</div></div>
+</div>
+<div class="fx-col"><span class="fx-cap">B系統 — Bluesky・超過＋手順ガイド</span>
+<div class="fx-card"><div style="width:620px;background:rgba(43,36,28,.55);padding:36px;box-sizing:border-box">
+<div data-screen-label="ShareDialog B" style="background:#F6F0E2;border-radius:10px;box-shadow:0 8px 24px rgba(43,36,28,.3);overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#FCF8EE;border-bottom:2px solid #C9A85C">
+<span style="display:flex;flex-direction:column;flex:1">
+<span style="font:600 9px 'EB Garamond',serif;letter-spacing:.3em;color:#8F6B2E">SHARE</span>
+<span style="font:600 17px 'Shippori Mincho',serif">Blueskyに共有</span>
+</span>
+<span style="width:32px;height:32px;border:1px solid #D5C8AB;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#6B5F4D;font:600 13px sans-serif">✕</span>
+</div>
+<div style="padding:18px">
+<div style="display:flex;gap:8px">
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #C9A85C;border-radius:5px;position:relative"><span style="position:absolute;top:5px;left:5px;font:600 8px 'EB Garamond',serif;letter-spacing:.12em;background:#8F6B2E;color:#FDF9F0;border-radius:3px;padding:2px 5px">1 COVER</span></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+<div style="flex:1;aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#EAE1CC 0 10px,#F1E9D6 10px 20px);border:1px solid #D5C8AB;border-radius:5px"></div>
+</div>
+<span style="display:block;background:#EDE3CD;border:1px solid #A73121;border-radius:6px;padding:11px 12px;font:13px/1.7 'Inter','Noto Sans JP',sans-serif;margin-top:12px">宵闇の騎士 胸像、ついに完成…！ レシピ（使用カラー6色・混合比・全12工程とメモ）はcoat-codexに全部記録してあります。同じ配色で塗りたい方はレシピ画像2枚目以降をどうぞ。#ミニチュアペイント #coatcodex</span>
+<div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+<span style="font:600 11px 'JetBrains Mono',monospace;color:#A73121">307 / 300</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">grapheme単位</span>
+<span style="display:inline-flex;align-items:center;height:28px;padding:0 10px;background:#8F5A14;color:#FDF9F0;border-radius:5px;font:600 11px 'Inter','Noto Sans JP',sans-serif">自動トリム</span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#A73121">⚠ 7文字超過</span>
+</div>
+<div style="border:1px solid #C9A85C;border-radius:8px;padding:14px;margin-top:14px;background:#FCF8EE">
+<div style="font:600 10px 'EB Garamond',serif;letter-spacing:.24em;color:#8F6B2E;margin-bottom:10px">MANUAL STEPS — 手動投稿の手順</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:22px;height:22px;border-radius:999px;background:#7A2E1F;color:#FDF9F0;display:flex;align-items:center;justify-content:center;font:600 11px 'EB Garamond',serif;flex:none">1</span>
+<span style="display:inline-flex;align-items:center;height:38px;padding:0 14px;background:#FCF8EE;color:#5A3A24;border:1px solid #C9A85C;border-radius:6px;font:600 12px 'Inter','Noto Sans JP',sans-serif">↓ 合成画像をダウンロード（連番PNG）</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:22px;height:22px;border-radius:999px;background:#7A2E1F;color:#FDF9F0;display:flex;align-items:center;justify-content:center;font:600 11px 'EB Garamond',serif;flex:none">2</span>
+<span style="display:inline-flex;align-items:center;height:38px;padding:0 14px;background:#FCF8EE;color:#5A3A24;border:1px solid #C9A85C;border-radius:6px;font:600 12px 'Inter','Noto Sans JP',sans-serif">Blueskyの投稿画面を開く（本文入り）</span>
+</div>
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="width:22px;height:22px;border-radius:999px;background:#7A2E1F;color:#FDF9F0;display:flex;align-items:center;justify-content:center;font:600 11px 'EB Garamond',serif;flex:none">3</span>
+<span style="font:12px/1.7 'Inter','Noto Sans JP',sans-serif;background:#F5E8CE;border:1px solid #E0C185;border-radius:6px;padding:8px 11px;flex:1"><strong>画像は自動添付されません。</strong>開いた投稿画面に、①でダウンロードした画像を手動で添付してください。</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 06 PRINT ═════════════ -->
+<section class="fx-sec" id="print" data-screen-label="06 PrintView">
+<div class="fx-hd"><span class="fx-no">06</span><span class="fx-en">PRINT</span><span class="fx-jp">印刷紙面</span><span class="fx-note">A4/余白15mm ・ 色見本主役（hex・配合併記） ・ 工程写真列 ・ 朱金はテキスト＋細罫のみ</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">A4 プレビュー（PrintToolbarは印刷時非表示）</span>
+<div class="fx-card"><div style="background:#E4DECE;padding:0 0 28px">
+<div style="display:flex;align-items:center;gap:14px;background:#EDE3CD;border-bottom:1px solid #A69576;padding:10px 20px;width:842px;box-sizing:border-box">
+<span style="display:inline-flex;align-items:center;height:36px;padding:0 18px;background:#7A2E1F;color:#FDF9F0;border-radius:999px;box-shadow:inset 0 0 0 1.5px rgba(201,168,92,.5);font:600 13px 'Inter','Noto Sans JP',sans-serif">印刷する</span>
+<span style="font:12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">PDF保存: 印刷ダイアログで「PDFに保存」を選択</span>
+<span style="margin-left:auto;font:10px 'JetBrains Mono',monospace;color:#9A8D75;border:1px dashed #A69576;padding:2px 6px;border-radius:2px">@media print で非表示</span>
+</div>
+<div data-screen-label="Print A4" style="width:794px;min-height:1123px;background:#FFFFFF;margin:24px auto 0;box-shadow:0 2px 8px rgba(43,36,28,.18);padding:52px 56px;box-sizing:border-box;position:relative;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="height:5px;border-top:1px solid #2B241C;border-bottom:1px solid #2B241C"></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0">
+<span style="display:flex;align-items:center;gap:9px">
+<span style="width:26px;height:26px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center;flex:none"><span style="width:20px;height:20px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 10px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 13px 'EB Garamond',serif;font-variant:small-caps;letter-spacing:.24em">coat codex — paint recipe</span>
+</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">VOL.012 ・ 2026-07-02</span>
+</div>
+<div style="height:1px;background:#2B241C"></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 6px">
+<span style="font:600 26px 'Shippori Mincho',serif">宵闇の騎士 — 胸像</span>
+<span style="font:11px 'JetBrains Mono',monospace;color:#6B5F4D">1/10 bust ・ 全12工程 ・ 4パーツ</span>
+</div>
+<div style="display:flex;gap:22px;margin:16px 0 20px">
+<div style="width:250px;flex:none">
+<div style="aspect-ratio:4/3;background:repeating-linear-gradient(45deg,#F0EBDD 0 12px,#F7F3E9 12px 24px);border:1px solid #A69576;display:flex;align-items:center;justify-content:center"><span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">代表写真</span></div>
+<div style="font:9px 'JetBrains Mono',monospace;color:#9A8D75;margin-top:5px;text-align:center">fig. 1 — 完成状態</div>
+</div>
+<div style="flex:1">
+<div style="display:flex;align-items:baseline;gap:9px;margin-bottom:8px">
+<span style="font:500 17px 'EB Garamond',serif;letter-spacing:.08em">PALETTE</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">使用カラー</span>
+<span style="flex:1;height:1px;background:#2B241C;align-self:center"></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#2D2A2B;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">アバドンブラック</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Citadel</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#2D2A2B</span>
+</div>
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#960F0F;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">メフィストンレッド</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Citadel</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#960F0F</span>
+</div>
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#BE452B;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">イービルサンズスカーレット</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Citadel</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#BE452B</span>
+</div>
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#201A16;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">ナルンオイル（ウォッシュ）</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Citadel</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#201A16</span>
+</div>
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#1F3A4D;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">ダークシーブルー</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">Vallejo 70.898</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#1F3A4D</span>
+</div>
+<div style="display:flex;align-items:center;gap:9px;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="width:30px;height:30px;background:#B49B57;border:1px solid rgba(0,0,0,.25);flex:none"></span>
+<span style="font-weight:600">Ex-ゴールド</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">ガイアノーツ</span>
+<span style="flex:1;border-bottom:1px dotted #A69576;margin:0 2px;min-width:20px"></span>
+<span style="font:11px 'JetBrains Mono',monospace">#B49B57</span>
+</div>
+</div>
+<div style="margin-top:12px;font:11px 'Inter','Noto Sans JP',sans-serif;color:#2B241C"><span style="font:500 12px 'EB Garamond',serif;letter-spacing:.14em;color:#8F6B2E;margin-right:8px">TOOLS</span>面相筆 ・ 平筆 ・ エアブラシ (0.3mm) ・ ドライブラシ用平筆</div>
+</div>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:18px 0 10px">
+<span style="font:500 17px 'EB Garamond',serif;letter-spacing:.08em">BASE</span>
+<span style="font:500 10px 'Shippori Mincho',serif;letter-spacing:.3em;color:#6B5F4D">ベース工程（全体）</span>
+<span style="flex:1;height:1px;background:#2B241C;align-self:center"></span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dotted #D5C8AB;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="font:600 13px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">1</span>
+<span style="font-weight:600;width:110px">黒サフ</span>
+<span style="width:16px;height:16px;background:#2D2A2B;border:1px solid rgba(0,0,0,.25)"></span>
+<span>アバドンブラック</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#2D2A2B ・ 100%</span>
+<span style="margin-left:auto;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">エアブラシ</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:7px 0;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="font:600 13px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center">2</span>
+<span style="font-weight:600;width:110px">下吹き</span>
+<span style="width:16px;height:16px;background:#4A4A52;border:1px solid rgba(0,0,0,.25)"></span>
+<span>ジャーマングレー</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#4A4A52 ・ 100%</span>
+<span style="margin-left:auto;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D">エアブラシ</span>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:18px 0 10px">
+<span style="font:500 17px 'EB Garamond',serif;letter-spacing:.08em">PART I</span>
+<span style="font:600 14px 'Shippori Mincho',serif">兜</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">工程 3 ・ 写真 2/3</span>
+<span style="flex:1;height:1px;background:#2B241C;align-self:center"></span>
+</div>
+<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px dotted #D5C8AB;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="font:600 13px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center;flex:none">1</span>
+<span style="flex:1;align-self:center">
+<span style="display:flex;align-items:center;gap:9px"><span style="font-weight:600;width:98px">ベースコート</span>
+<span style="width:16px;height:16px;background:#2D2A2B;border:1px solid rgba(0,0,0,.25)"></span>
+<span>アバドンブラック</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#2D2A2B ・ 100%</span>
+<span style="margin-left:auto;font:11px;color:#6B5F4D">エアブラシ</span></span>
+</span>
+<span style="width:64px;height:48px;border:1px dashed #D5C8AB;flex:none;align-self:center;display:flex;align-items:center;justify-content:center;font:8px 'JetBrains Mono',monospace;color:#9A8D75">写真なし</span>
+</div>
+<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px dotted #D5C8AB;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="font:600 13px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center;flex:none">2</span>
+<span style="flex:1">
+<span style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><span style="font-weight:600;width:98px">レイヤー</span>
+<span style="font:600 9px 'JetBrains Mono',monospace;color:#8F6B2E">A</span>
+<span style="width:16px;height:16px;background:#960F0F;border:1px solid rgba(0,0,0,.25)"></span>
+<span>メフィストンレッド</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#960F0F ・ 60%</span>
+<span style="font:600 9px 'JetBrains Mono',monospace;color:#8F6B2E;margin-left:4px">B</span>
+<span style="width:16px;height:16px;background:#BE452B;border:1px solid rgba(0,0,0,.25)"></span>
+<span>イービルサンズ</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#BE452B ・ 40%</span>
+<span style="font:600 11px 'JetBrains Mono',monospace;background:#F0EBDD;border:1px solid #D5C8AB;padding:1px 7px;margin-left:6px">(3:2)</span>
+<span style="margin-left:auto;font:11px;color:#6B5F4D">エアブラシ</span></span>
+<span style="display:block;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D;margin:4px 0 0 0">メモ: エッジ中心に薄く重ねる。二度目はハイライトのみ。</span>
+</span>
+<span style="width:64px;height:48px;background:repeating-linear-gradient(45deg,#F0EBDD 0 8px,#F7F3E9 8px 16px);border:1px solid #A69576;flex:none;align-self:center"></span>
+</div>
+<div style="display:flex;gap:12px;padding:7px 0;font:12px 'Inter','Noto Sans JP',sans-serif">
+<span style="font:600 13px 'EB Garamond',serif;color:#7A2E1F;width:22px;text-align:center;flex:none">3</span>
+<span style="flex:1">
+<span style="display:flex;align-items:center;gap:9px"><span style="font-weight:600;width:98px">ウォッシュ</span>
+<span style="width:16px;height:16px;background:#201A16;border:1px solid rgba(0,0,0,.25)"></span>
+<span>ナルンオイル</span><span style="font:10px 'JetBrains Mono',monospace;color:#6B5F4D">#201A16 ・ 100%</span>
+<span style="margin-left:auto;font:11px;color:#6B5F4D">面相筆</span></span>
+<span style="display:block;font:11px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D;margin:4px 0 0 0">メモ: 凹部のみ。はみ出しは乾く前に拭き取る。</span>
+</span>
+<span style="width:64px;height:48px;background:repeating-linear-gradient(45deg,#F0EBDD 0 8px,#F7F3E9 8px 16px);border:1px solid #A69576;flex:none;align-self:center"></span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+<span style="flex:1;border-top:1px dashed #A69576"></span>
+<span style="font:9px 'JetBrains Mono',monospace;color:#9A8D75">改ページ — パーツ単位 (page-break)</span>
+<span style="flex:1;border-top:1px dashed #A69576"></span>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px;opacity:.45">
+<span style="font:500 17px 'EB Garamond',serif;letter-spacing:.08em">PART II</span>
+<span style="font:600 14px 'Shippori Mincho',serif">胴体・鎧</span>
+<span style="font:10px 'JetBrains Mono',monospace;color:#9A8D75">工程 5 — 次頁</span>
+<span style="flex:1;height:1px;background:#2B241C;align-self:center"></span>
+</div>
+<div style="position:absolute;left:56px;right:56px;bottom:34px">
+<div style="height:1px;background:#2B241C"></div>
+<div style="display:flex;justify-content:space-between;padding-top:7px;font:10px 'JetBrains Mono',monospace;color:#6B5F4D">
+<span>coat-codex ・ VOL.012 宵闇の騎士</span><span>PAGE 1 / 2</span>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+</div>
+</section>
+
+<!-- ═════════════ 07 TERMS ═════════════ -->
+<section class="fx-sec" id="terms" data-screen-label="07 Terms" style="border-bottom:none">
+<div class="fx-hd"><span class="fx-no">07</span><span class="fx-en">TERMS</span><span class="fx-jp">利用規約・免責</span><span class="fx-note">/terms ・ i18n静的コンテンツ</span></div>
+<div class="fx-row">
+<div class="fx-col"><span class="fx-cap">PC 1280（680本文）</span>
+<div class="fx-card"><div data-screen-label="Terms PC" style="width:1280px;background:#F6F0E2;color:#2B241C;font-family:'Inter','Noto Sans JP',sans-serif">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#FCF8EE">
+<div style="display:flex;align-items:center;gap:12px">
+<span style="width:34px;height:34px;border-radius:999px;background:#7A2E1F;display:flex;align-items:center;justify-content:center"><span style="width:27px;height:27px;border-radius:999px;border:1px solid rgba(253,249,240,.55);display:flex;align-items:center;justify-content:center;font:italic 500 13px 'EB Garamond',serif;color:#FDF9F0">cc</span></span>
+<span style="font:500 20px 'EB Garamond',serif"><span style="color:#7A2E1F">C</span>oat <span style="color:#7A2E1F">C</span>odex</span>
+</div>
+<span style="display:inline-flex;border:1px solid #C9A85C;border-radius:999px;overflow:hidden;background:#FCF8EE"><span style="padding:9px 15px;background:#7A2E1F;color:#FDF9F0;font:600 12px 'Inter',sans-serif">JA</span><span style="padding:9px 15px;color:#6B5F4D;font:500 12px 'Inter',sans-serif">EN</span></span>
+</div>
+<div style="height:2px;background:#C9A85C"></div>
+<div style="height:1px;background:#7A2E1F;opacity:.35"></div>
+<div style="width:680px;margin:0 auto;padding:34px 0 56px">
+<div style="text-align:center;margin-bottom:30px">
+<div style="font:500 38px/1.1 'EB Garamond',serif;letter-spacing:.06em">TERMS</div>
+<div style="font:500 11px 'Shippori Mincho',serif;letter-spacing:.4em;color:#6B5F4D;text-indent:.4em;margin-top:8px">利用規約・免責事項</div>
+<div style="display:flex;align-items:center;gap:10px;max-width:300px;margin:14px auto 0"><span style="flex:1;height:1px;background:#C9A85C"></span><span style="width:5px;height:5px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="flex:1;height:1px;background:#C9A85C"></span></div>
+<div style="font:10px 'JetBrains Mono',monospace;color:#9A8D75;margin-top:10px">最終改定: 2026-07-02</div>
+</div>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px">
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">1</span>
+<span style="font:600 16px 'Shippori Mincho',serif">データの保存場所</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<p style="margin:0 0 24px;font:14px/1.8 'Inter','Noto Sans JP',sans-serif">coat-codexはサーバーを持たないツールです。レシピ・写真を含むすべてのデータは、お使いのブラウザ内（IndexedDB）にのみ保存されます。当方がお客様のデータを受信・閲覧・保管することはありません。</p>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px">
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">2</span>
+<span style="font:600 16px 'Shippori Mincho',serif">データ消失について（免責）</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<div style="background:#F5E8CE;border:1px solid #E0C185;border-radius:8px;padding:14px 16px;margin-bottom:12px">
+<p style="margin:0;font:600 14px/1.8 'Inter','Noto Sans JP',sans-serif">ブラウザデータの削除・端末の故障・ブラウザの仕様変更等によるデータ消失について、当方は一切の責任を負いません。データの保全はJSONエクスポートによる自己管理でお願いします。</p>
+</div>
+<p style="margin:0 0 24px;font:14px/1.8 'Inter','Noto Sans JP',sans-serif">履歴の消去・シークレットモード・ストレージ容量の逼迫でもデータは失われます。大切なレシピは定期的に「JSONエクスポート」でファイルとして保存してください。</p>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px">
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">3</span>
+<span style="font:600 16px 'Shippori Mincho',serif">Safari等の自動削除</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<p style="margin:0 0 24px;font:14px/1.8 'Inter','Noto Sans JP',sans-serif">Safariでは7日間サイトを利用しないと、保存データが自動削除される場合があります。ホーム画面のバッジで保護状態を確認できますが、確実な保全はJSONエクスポートのみです。</p>
+<div style="display:flex;align-items:baseline;gap:9px;margin:0 0 10px">
+<span style="font:600 15px 'EB Garamond',serif;color:#7A2E1F">4</span>
+<span style="font:600 16px 'Shippori Mincho',serif">出力物と投稿</span>
+<span style="flex:1;height:1px;background:#C9A85C;align-self:center"></span>
+</div>
+<p style="margin:0;font:14px/1.8 'Inter','Noto Sans JP',sans-serif">印刷物・PDF・共有画像・Markdownはお客様のコンテンツです。SNS・note等への投稿は各サービスの規約に従ってください。塗料名・ブランド名は各社の商標です。</p>
+</div>
+<div style="border-top:1px solid #C9A85C;padding:14px;display:flex;justify-content:center;align-items:center;gap:14px;font:12px 'Inter','Noto Sans JP',sans-serif;color:#6B5F4D"><span>© coat-codex</span><span style="width:4px;height:4px;background:#8F6B2E;transform:rotate(45deg)"></span><span style="color:#5A3A24;text-decoration:underline dotted rgba(90,58,36,.5)">利用規約・免責</span></div>
+</div></div>
+</div>
+</div>
+</section>
+</x-dc>
+</body>
+</html>
