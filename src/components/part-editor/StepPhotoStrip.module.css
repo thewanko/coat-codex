@@ -1,0 +1,70 @@
+/* StepPhotoStrip — 写真つき工程のサムネストリップ（技術計画v2.2 §4.2 T27・v2.2 §8-A）
+   モバイルのみ表示。PC幅（768px以上）はスライドインパネル側で工程一覧が近接するため非表示。 */
+
+.root {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+  overflow-x: auto;
+}
+
+@media (min-width: 768px) {
+  .root {
+    display: none;
+  }
+}
+
+.list {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  flex-shrink: 0;
+}
+
+.thumbButton {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+  cursor: pointer;
+}
+
+.thumbButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-line);
+}
+
+.stepTag {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-family: var(--font-family-mono);
+  color: var(--color-on-overlay);
+  background: var(--color-overlay-ink);
+  border-radius: var(--radius-xs);
+  z-index: 1;
+}

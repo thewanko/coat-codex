@@ -1,0 +1,84 @@
+/* PartEditorPage — 10-3 パーツ/ベース工程編集（技術計画v2.2 §3.1・デザイン仕様書§164）
+   モバイル（<768px）＝フルページ／PC幅（≥768px）＝右からのスライドインパネル＋backdrop。
+   CSSメディアクエリのみでレイアウトを切り替える（コンポーネント側はモード非依存）。 */
+
+.root {
+  min-height: 100%;
+}
+
+.backdrop {
+  display: none;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.closeButton {
+  display: none;
+}
+
+.body {
+  padding: var(--space-4);
+}
+
+.error {
+  padding: var(--space-4);
+  color: var(--color-danger);
+  font-size: var(--font-size-md);
+}
+
+@media (min-width: 768px) {
+  .root {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-panel, 40);
+  }
+
+  .backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: var(--color-bg-backdrop);
+  }
+
+  .panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: var(--panel-width);
+    max-width: 100%;
+    margin: 0;
+    background: var(--color-bg);
+    box-shadow: var(--shadow-panel);
+    overflow-y: auto;
+  }
+
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-full);
+    background: var(--color-bg);
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .closeButton:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}

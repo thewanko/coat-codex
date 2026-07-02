@@ -20,7 +20,8 @@
   },
   "errors": {
     "unsupportedImageFormat": "Unsupported image format",
-    "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up."
+    "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up.",
+    "saveFailed": "Failed to save"
   },
   "paint": {
     "brandLabel": "Brand",
@@ -112,6 +113,14 @@
     "moveStepDown": "Move step down",
     "addStep": "Add step",
     "emptyStepsTitle": "No steps yet",
-    "emptyStepsDescription": "Add a step to record the technique, paints, and mix ratio."
+    "emptyStepsDescription": "Add a step to record the technique, paints, and mix ratio.",
+    "partNameLabel": "Part name",
+    "partNamePlaceholder": "Enter a part name",
+    "baseModeTitle": "Base steps (whole model)",
+    "editOverviewPhotosLink": "Edit overview photos in Setup ›",
+    "closePanel": "Close",
+    "partNotFound": "Part not found",
+    "stepPhotoStripLabel": "Steps with photos",
+    "stepPhotoStripItemLabel": "Jump to STEP {{n}} photo"
   }
 }

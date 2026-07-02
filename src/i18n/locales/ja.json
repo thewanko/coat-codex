@@ -20,7 +20,8 @@
   },
   "errors": {
     "unsupportedImageFormat": "対応していない画像形式です",
-    "storageQuota": "容量不足です。写真を減らすか、バックアップ後に不要なレシピを削除してください"
+    "storageQuota": "容量不足です。写真を減らすか、バックアップ後に不要なレシピを削除してください",
+    "saveFailed": "保存に失敗しました"
   },
   "paint": {
     "brandLabel": "メーカー",
@@ -112,6 +113,14 @@
     "moveStepDown": "工程を下へ移動",
     "addStep": "工程を追加",
     "emptyStepsTitle": "工程がまだありません",
-    "emptyStepsDescription": "工程を追加して、技法・塗料・混合比を記録しましょう。"
+    "emptyStepsDescription": "工程を追加して、技法・塗料・混合比を記録しましょう。",
+    "partNameLabel": "パーツ名",
+    "partNamePlaceholder": "パーツ名を入力",
+    "baseModeTitle": "ベース工程（全体）",
+    "editOverviewPhotosLink": "全体写真の編集はSetupで ›",
+    "closePanel": "閉じる",
+    "partNotFound": "パーツが見つかりません",
+    "stepPhotoStripLabel": "写真つき工程一覧",
+    "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動"
   }
 }
