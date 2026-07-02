@@ -51,7 +51,9 @@
     "moveDown": "Move down",
     "makeCover": "Make cover",
     "cover": "COVER",
-    "delete": "Delete"
+    "delete": "Delete",
+    "stepAdd": "+ Add 1 photo",
+    "stepTag": "STEP {{n}}"
   },
   "confirm": {
     "cancel": "Cancel",
@@ -101,6 +103,9 @@
     "toolLabel": "Tools",
     "toolEmpty": "Register tools on the Setup screen to select them",
     "memoLabel": "Memo",
-    "memoPlaceholder": "Memo (optional)"
+    "memoPlaceholder": "Memo (optional)",
+    "stepLabel": "STEP {{n}}",
+    "deleteStep": "Delete step",
+    "deleteStepTitle": "Delete this step?"
   }
 }

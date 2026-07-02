@@ -51,7 +51,9 @@
     "moveDown": "下へ",
     "makeCover": "先頭へ（代表にする）",
     "cover": "COVER",
-    "delete": "削除"
+    "delete": "削除",
+    "stepAdd": "＋ 写真 1枚",
+    "stepTag": "STEP {{n}}"
   },
   "confirm": {
     "cancel": "キャンセル",
@@ -101,6 +103,9 @@
     "toolLabel": "ツール",
     "toolEmpty": "Setup画面でツールを登録すると選択できます",
     "memoLabel": "メモ",
-    "memoPlaceholder": "メモ（任意）"
+    "memoPlaceholder": "メモ（任意）",
+    "stepLabel": "STEP {{n}}",
+    "deleteStep": "工程を削除",
+    "deleteStepTitle": "工程を削除しますか？"
   }
 }

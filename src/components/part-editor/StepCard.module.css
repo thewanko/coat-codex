@@ -1,0 +1,50 @@
+/* StepCard — TechniqueSelect＋PaintSlotList＋ToolSelect＋
+   下段StepPhotoTile＋MemoFieldペア＋工程削除（技術計画v2.2 §3.3/§4.2 T25） */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-raised);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepTag {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gold);
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+}
+
+.deleteButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.bottomRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.memoWrap {
+  flex: 1;
+  min-width: 0;
+}
