@@ -169,6 +169,8 @@ export function removePaintSlot(state: MixState, index: number): MixState {
     return { paints: nextPaints, mix: null };
   }
 
+  // INV-2（paints≥2 ⇒ mix非null）により、正常フローでは state.mix が
+  // ここでnullになることはない。以下は型上の防御パス（到達しない想定）。
   const currentMix = state.mix ?? state.paints.map(() => 0);
   const targetSum = currentMix.reduce((sum, value) => sum + value, 0);
   const remainingMix = currentMix.filter((_, i) => i !== index);

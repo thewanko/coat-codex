@@ -43,6 +43,10 @@ describe("parseRatioText", () => {
   test("非数値は拒否", () => {
     expect(parseRatioText("a:b")).toBeNull();
   });
+
+  test("先頭ゼロ'007:1'は正規化されて受理される", () => {
+    expect(parseRatioText("007:1")).toEqual([7, 1]);
+  });
 });
 
 describe("formatRatioText", () => {
@@ -114,6 +118,10 @@ describe("reducePercentsToRatio", () => {
 
   test("合計≠100の[60,50]はnull", () => {
     expect(reducePercentsToRatio([60, 50])).toBeNull();
+  });
+
+  test("0%要素を含む[100,0]は比率省略でnull", () => {
+    expect(reducePercentsToRatio([100, 0])).toBeNull();
   });
 });
 

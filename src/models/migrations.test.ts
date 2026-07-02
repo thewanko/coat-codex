@@ -3,6 +3,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   migrateRecipeDoc,
   migrateExportFile,
+  MissingMigrationError,
   UnsupportedSchemaVersionError,
   type DocMigrationRegistry,
   type PhotosMigrationRegistry,
@@ -51,6 +52,46 @@ describe("migrateRecipeDoc", () => {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).name).toBe("UnsupportedSchemaVersionError");
     }
+  });
+
+  test("目標バージョン注入による多段チェーン適用: registry{0:f, 1:g}をfromVersion=0・targetVersion=2でf→gの順に累積適用", () => {
+    const calls: string[] = [];
+    const dummyRegistry: DocMigrationRegistry = {
+      0: (doc) => {
+        calls.push("0→1");
+        const d = doc as { schemaVersion: number; value: number };
+        return { ...d, schemaVersion: 1, value: d.value + 1 };
+      },
+      1: (doc) => {
+        calls.push("1→2");
+        const d = doc as { schemaVersion: number; value: number };
+        return { ...d, schemaVersion: 2, value: d.value * 10 };
+      },
+    };
+
+    const raw = { schemaVersion: 0, value: 1 };
+    const result = migrateRecipeDoc(raw, 0, dummyRegistry, 2) as {
+      schemaVersion: number;
+      value: number;
+    };
+
+    // 適用順の検証（f→gの順で1回ずつ）
+    expect(calls).toEqual(["0→1", "1→2"]);
+    // 累積結果の検証（(1+1)*10 = 20 — fの結果にgが適用されている）
+    expect(result.schemaVersion).toBe(2);
+    expect(result.value).toBe(20);
+  });
+
+  test("中間バージョンの変換が欠落している場合（0→2でregistry[1]が無い）はMissingMigrationErrorをthrow", () => {
+    const dummyRegistry: DocMigrationRegistry = {
+      0: (doc) => ({ ...(doc as object), schemaVersion: 1 }),
+      // registry[1]が欠落
+    };
+
+    const raw = { schemaVersion: 0 };
+    expect(() => migrateRecipeDoc(raw, 0, dummyRegistry, 2)).toThrow(
+      MissingMigrationError,
+    );
   });
 });
 
