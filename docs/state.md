@@ -27,6 +27,7 @@
 
 - 仕様の正 = docs/coat-codex_技術計画_v2.md（v2.2）。ビジュアルの正 = デザイン仕様書＋決定デザインdc.html＋theme.css（**無改変**で src/styles/ へコピー済み。改変は決定稿の改訂を経ること）
 - @dnd-kit/core@6.3.1 + @dnd-kit/sortable@10.0.0 で確定（新@dnd-kit/reactは見送り）
+- プリセット塗料ブランドは**Citadel／Vallejo／AK／Coat d'arms**の4種（2026-07-02決定）。Coat d'armsマスタは docs/paints/coatdarms-master.json（全150色。hexは目視推定→M3で校正）。他3ブランドの収録数は未決（M3着手時に確認、既定は各50〜100色）
 - レビュー運用: コンフィグ中心のマイルストーンはタスク毎selfcheck省略・出口で一括opusレビュー（ロジック層M1からはタスク毎の規律に戻すか出口で判断）
 
 ## 申し送り (次セッションの自分へ)
