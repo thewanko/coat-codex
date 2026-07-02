@@ -1,0 +1,50 @@
+/* PaintSlotList — デザイン仕様書§4「PaintSlot（A〜E）＋ MixRatioInput」
+   5件到達: 「＋塗料を追加」disabled＋「最大5種まで」。未到達は残数併記「（あと2）」 */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: 1px dashed var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.addButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.addButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}

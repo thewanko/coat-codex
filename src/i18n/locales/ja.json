@@ -39,7 +39,8 @@
     "ratioHint": "比率で入力（例 5:3:2）",
     "addPaint": "＋塗料を追加",
     "maxPaints": "最大5種まで",
-    "remaining": "（あと{{count}}）"
+    "remaining": "（あと{{count}}）",
+    "duplicateColor": "この色は既に別のスロットで使用されています"
   },
   "photo": {
     "add": "＋ 追加",

@@ -39,7 +39,8 @@
     "ratioHint": "Enter as ratio (e.g. 5:3:2)",
     "addPaint": "+ Add paint",
     "maxPaints": "Up to 5 paints",
-    "remaining": "({{count}} left)"
+    "remaining": "({{count}} left)",
+    "duplicateColor": "This color is already used in another slot"
   },
   "photo": {
     "add": "+ Add",
