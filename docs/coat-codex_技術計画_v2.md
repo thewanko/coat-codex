@@ -1,0 +1,878 @@
+# coat-codex 技術計画 v2
+
+**位置づけ**: [要件定義書](coat-codex_要件定義.md)に基づく技術計画の第2版。v1に対する3観点レビュー（要件カバレッジ／技術的正確性／データスキーマ整合性。重大度「高」10件を含む約30件の指摘）を全面反映し、多段の敵対的検証・修復を経て確定した。実装フェーズ（Opus=レビュー／Sonnet=実装）は§4のタスクを上から順に実施する。
+
+**採用スタック（確定。バージョン固定の単一情報源は§4.1）**: Vite + React 19 + TypeScript / Zustand v5 / Dexie.js（IndexedDB）/ zod v4 / react-i18next / @dnd-kit/core@6.x + @dnd-kit/sortable / react-router v7（declarative mode）
+
+**関連ドキュメント**（ビジュアルデザイン検討フェーズ＝Claude Design向け）:
+- [design/coat-codex_ClaudeDesign_プロンプト.md](design/coat-codex_ClaudeDesign_プロンプト.md) — Claude Designへの依頼プロンプト
+- [design/coat-codex_DesignSystem.md](design/coat-codex_DesignSystem.md) — デザイントークン初期値（Claude Designが上書きしてよい）
+- [design/coat-codex_画面テンプレート.md](design/coat-codex_画面テンプレート.md) — 画面ごとの構造ラフ・状態一覧
+
+---
+
+## 1. ディレクトリ／ファイル構成
+
+```
+coat-codex/
+├── public/
+│   └── paints/                    # ブランド別プリセット塗料DB（遅延fetch、バンドル外）
+│       ├── index.json             # ブランド一覧メタ
+│       ├── citadel.json
+│       ├── vallejo.json
+│       └── ak.json
+│   # 注意: public/_redirects と 404.html は「置かない」こと自体が仕様（§5.2 SPAフォールバック）
+├── src/
+│   ├── main.tsx / App.tsx / router.tsx   # 7ルート定義（§3.1）
+│   ├── routes/
+│   │   ├── HomePage.tsx           # レシピ一覧・新規作成・インポート・データ保全ステータス
+│   │   ├── RecipeSetupPage.tsx    # 10-1 初期入力
+│   │   ├── RecipeOverviewPage.tsx # 10-2 ペイント構成全体表示
+│   │   ├── PartEditorPage.tsx     # 10-3 パーツ工程編集（/part/base でベース工程編集を共用）
+│   │   ├── PrintViewPage.tsx      # 印刷／PDF用レイアウト
+│   │   └── TermsPage.tsx          # 利用規約・免責（データ消失自己責任の明記場所）
+│   ├── components/
+│   │   ├── common/      # AppShell, LanguageSwitcher, AppFooter, ToastHost, SwatchChip,
+│   │   │                #   PhotoUploader, ConfirmDialog, EmptyState, Skeleton, ImportErrorDialog
+│   │   ├── home/        # RecipeCardGrid, RecipeCard, NewRecipeButton, ImportJsonButton,
+│   │   │                #   StorageStatusBar, ExportReminderBanner
+│   │   ├── setup/       # TitleInput, OverviewPhotoUploader, PaletteEditor, ToolListEditor,
+│   │   │                #   ImportJsonSection, MakeCodexButton
+│   │   ├── paint/       # PaintPicker, BrandSelect, ColorSelect, MixRatioInput
+│   │   ├── overview/    # OverviewHeader, BaseStepOverlay, OverviewPhotoStrip, PartCardList,
+│   │   │                #   PartCard, AddPartButton, ExportActionBar, ShareDialog,
+│   │   │                #   ShareImagePreview, ShareTextEditor
+│   │   ├── part-editor/ # PartEditorHeader, PartNameInput, PartPhotoGallery, StepList, StepCard,
+│   │   │                #   TechniqueSelect, PaintSlotList, PaintSlot, ToolSelect, MemoField, AddStepButton
+│   │   └── print/       # PrintRecipeSheet, PrintToolbar
+│   ├── hooks/
+│   │   └── useJsonImport.ts       # Home/Setup共通のJSONインポート処理フック（§3.3）
+│   ├── db/
+│   │   ├── db.ts                  # Dexie定義: recipes / photos / meta の3テーブル（§2.7）
+│   │   ├── recipeStore.ts         # レシピCRUD・ロード時lazy migration（§2.7）
+│   │   └── photoStore.ts          # Blob保存・URL解決・孤児GC・欠損時フォールバック（§2.6）
+│   ├── models/
+│   │   ├── recipe.ts              # RecipeDoc / RecipeExportFile 型＋zodスキーマ（§2）＋ recipe.test.ts
+│   │   └── migrations.ts          # schemaVersionマイグレーション（§2.7）
+│   ├── stores/
+│   │   └── useRecipeStore.ts      # 編集中レシピ＋autosave（debounce 500ms）
+│   ├── lib/
+│   │   ├── mixRatio.ts            # 混合比率の変換・表示文字列導出（§2.3/§2.4）＋ mixRatio.test.ts
+│   │   ├── techniques.ts          # 技法プリセットマスタ（§2.1）＋ techniques.test.ts
+│   │   ├── paintPresets.ts        # プリセット塗料DBのロード・ブランド絞り込み検索
+│   │   ├── recipeRefs.ts          # 参照整合性ユーティリティ（色/ツール使用数カウント等。§2.6）
+│   │   ├── storageHealth.ts       # storage.persist / persisted / estimate ラッパー（§3.5）
+│   │   ├── imageProcessing.ts     # アップロード時mime正規化・長辺2048pxリサイズ（§2.6）
+│   │   ├── importRecipe.ts        # インポート3段検証・全ID新規採番リマップ（§2.7）
+│   │   ├── exporters/             # json.ts / markdown.ts / noteMarkdown.ts
+│   │   └── sns/                   # types.ts（SnsTarget IF）/ x.ts / bluesky.ts / imageComposer.ts
+│   ├── i18n/                      # index.ts / locales/ja.json / locales/en.json
+│   ├── styles/                    # theme.css / print.css（print-color-adjust: exact 必須。§4）
+│   └── dev/
+│       └── DndSpike.tsx           # M0: React 19×dnd-kit peer依存の検証スパイク（T2。確認後削除可）
+├── tests/
+│   ├── roundtrip.test.ts          # export→import 往復同値性テスト
+│   ├── exporters.snapshot.test.ts # Markdown/note出力のスナップショットテスト
+│   └── fixtures/recipe.ts         # テスト用レシピフィクスチャ
+├── index.html
+├── vite.config.ts / tsconfig.json / package.json
+└── wrangler.toml                  # §5.3（3行のみ）
+```
+
+**設計上のポイント**: SNS投稿先は `SnsTarget` インターフェースの配列登録制（`x.ts` / `bluesky.ts` が実装）とし、Mastodon等の将来追加が1ファイル追加で済む構造にする。
+
+
+---
+
+## 2. レシピJSONデータスキーマ
+
+### 2.0 v1からの変更点（レビュー指摘対応の要約）
+
+| # | 指摘 | v2での対応 |
+|---|---|---|
+| 1 | percent/ratioValue/ratioTextの三重管理 | `ratioText`削除。モード別に`percent`または`ratioValue`の一方のみが正（他方はnull強制）。表示文字列は`lib/mixRatio.ts`で導出（§2.3） |
+| 2 | 3〜5塗料混合の仕様未定義 | n項比率（2〜5項）とバッジ表示規約を定義（§2.3） |
+| 3 | 色/ツール削除時のdangling参照 | 「使用中は削除不可」＋zodクロス参照検証（§2.5 / §2.6） |
+| 4 | DB内/エクスポートのスキーマ未分離 | `RecipeDoc`と`RecipeExportFile`を分離定義（§2.1 / §2.2） |
+| 5 | DB内旧文書のマイグレーション欠落 | ロード時lazy migration（§2.7） |
+| 6 | インポート検証順序 | ヘッダ検証→migrate→フル検証の3段構成（§2.7） |
+| 7 | インポートID衝突ポリシー | 常に全ID新規採番＋参照リマップ（§2.7） |
+| 8 | 丸めで合計100にならない | 丸め規則を確定。zodは合計を検証しない（§2.3 / §2.5） |
+| 9 | 単色・塗料0件の値規約 | 値規約表で確定（§2.3） |
+| 10 | 塗料追加/削除時の再計算 | 再計算規則を確定、mixRatio.tsの純関数に集約（§2.3 / §2.4） |
+| 11 | orderと配列順の二重管理 | `order`フィールド全廃。配列順が正 |
+| 12 | photoId dangling | インポート正規化で除去＋ランタイムはプレースホルダ表示（§2.6） |
+| 13 | photos同梱のmime/dataUrl冗長 | `mime`フィールド削除（dataUrlに内包、DB側は`Blob.type`） |
+| 14 | technique.presetKeyマスタ未定義 | `lib/techniques.ts`にマスタ定義＋i18nキー対応（§2.1末尾） |
+
+**v2.1追加改訂（第2次レビュー：新規問題・成果物間整合性指摘への対応）**:
+
+| # | 指摘 | v2.1での対応 |
+|---|---|---|
+| 15 | 丸め規則が目標100固定で、percent削除時の「削除前合計維持」と矛盾 | 丸め規則を**任意の目標合計値への残差配分**に一般化。`roundPercentsToTarget`を追加（§2.3 / §2.4） |
+| 16 | 塗料0件→1件目追加の規則が未定義 | 再計算規則表・関数コメント・テストケースに「0件→1件目=単色規約適用」を明記（§2.3 / §2.4） |
+| 17 | HEIC/GIF等アップロード時のエクスポートdataUrl不整合（ラウンドトリップ破綻） | **写真アップロード時のmime正規化**（png/jpeg/webp以外はJPEG再エンコード、不能時はエラー）を仕様化（§2.6） |
+| 18 | `kind`がヘッダ検証に含まれず種別判別が機能しない | インポート第1段ヘッダ検証に`kind: z.literal('recipe-export')`を追加（§2.7） |
+| 19 | 混合バッジ表記が成果物間で食い違い（「60% (3:2)」vs「60% + 40% (3:2)」） | **`formatMixBadge`の返す「60% + 40% (3:2)」形式が唯一の正**と確定し、他成果物の表記を読み替え対象と明記（§2.3） |
+| 20 | `meta`テーブルがDexie定義に存在しない | `meta`テーブルとレコード形状（キー一覧・値型）を§2.7に定義 |
+| 21 | partId予約語`"base"`拒否がzod不変条件リストにない | 不変条件17として追加（§2.5） |
+| 22 | title空文字不可とドラフト即時autosaveの矛盾（既定名補完仕様の欠落） | **ドラフト既定タイトル規約**（作成時初期化＋空確定時置換、i18nキー・タイミング）を定義（§2.5） |
+| 23 | 旧フィールド名`inputMode`への言及が他成果物に残存 | `mix.inputMode`は`mixMode`へ改名済みであることを明記。他成果物の`inputMode`表記は`mixMode`に読み替える（§2.3） |
+| 24 | 「使用中削除不可」UIがデザイン要件から欠落 | §2.6でPaletteEditor/ToolListEditorのUI要件（使用数バッジ・削除無効化）を**デザイン成果物必須要件**として規範化 |
+
+---
+
+### 2.1 RecipeDoc（IndexedDB内スキーマ）
+
+IndexedDB `recipes`テーブルに1レコード=1文書で保存する正規スキーマ。**写真バイナリは含まない**（`photos`テーブルをphotoIdで参照）。全IDは`<prefix>_<crypto.randomUUID()>`形式。
+
+```jsonc
+// RecipeDoc
+{
+  "schemaVersion": 1,               // 文書スキーマ版。lazy migrationの判定に使用（§2.7）
+  "id": "rcp_<uuid>",               // レシピID（アプリ内グローバル一意）
+  "title": "Space Marine Captain",  // レシピ名。必須・空文字不可（ドラフト作成時に既定名で初期化。§2.5「ドラフト既定タイトル規約」）
+  "createdAt": "2026-07-02T10:00:00.000Z", // ISO 8601 UTC。作成時刻（インポート時も保持）
+  "updatedAt": "2026-07-02T12:34:56.000Z", // autosaveごとに更新。一覧のソートキー
+  "overviewPhotoIds": ["ph_<uuid>"],// 全体写真（photosテーブル参照）。0件可。配列順=表示順
+
+  "palette": [                      // 使用カラー一覧。配列順=表示順（orderフィールドは持たない）
+    {
+      "id": "col_<uuid>",           // 文書内一意。StepPaint.colorIdから参照される
+      "source": "preset",           // "preset"=プリセット塗料DB由来 | "custom"=自由入力
+      "brand": "Citadel",           // メーカー名。custom時は任意（null可）
+      "name": "Mephiston Red",      // カラー名。必須・空文字不可
+      "presetId": "citadel:mephiston-red", // source="preset"時は必須 / "custom"時はnull
+      "hex": "#960F0F",             // 色見本HEX。^#[0-9A-Fa-f]{6}$。不明時null
+      "chipPhotoId": null           // hex代替のカラーチップ写真（photos参照）。null可
+    }
+  ],
+
+  "tools": [                        // 使用ツール一覧。配列順=表示順
+    {
+      "id": "tool_<uuid>",          // 文書内一意。Step.toolIdsから参照される
+      "name": "エアブラシ",          // 必須・空文字不可
+      "note": "0.3mm"               // 補足。null可
+    }
+  ],
+
+  "baseSteps": [ /* Step[]。全体工程（全体写真に紐づく）。配列順=工程順 */ ],
+
+  "parts": [                        // 配列順=表示順。dnd-kit並び替えは配列自体を並び替える
+    {
+      "id": "part_<uuid>",          // 文書内一意。予約語 "base" は不可（§2.5-17。ルート /recipe/:id/part/base がベース工程編集に使用）
+      "name": "兜",                 // パーツ名。必須・空文字不可
+      "photoIds": ["ph_<uuid>"],    // パーツ写真。0件可。配列順=表示順
+      "steps": [ /* Step[]。配列順=工程順 */ ]
+    }
+  ]
+}
+```
+
+```jsonc
+// Step — baseSteps / parts[].steps 共通形。配列順=工程順（orderフィールドなし）
+{
+  "id": "stp_<uuid>",               // 文書内一意（baseSteps・全parts横断で一意）
+  "technique": {
+    "presetKey": "basecoat",        // lib/techniques.tsのマスタキー。自由入力時はnull
+    "label": null                   // 自由入力時のみ非null。preset時はi18nで解決するためnull
+  },                                // 両方null=未設定は許容。両方非nullは不可
+  "paints": [                       // 使用塗料。0〜5要素。配列順=A,B,C,D,E。colorId重複不可
+    { "colorId": "col_<uuid>", "percent": null, "ratioValue": 3 },
+    { "colorId": "col_<uuid>", "percent": null, "ratioValue": 2 }
+  ],
+  "mixMode": "ratio",               // "percent" | "ratio" | null。値規約は§2.3の表を参照
+  "toolIds": ["tool_<uuid>"],       // tools[].idの部分集合。重複不可。0件可
+  "memo": ""                        // フリーメモ。空文字可
+}
+```
+
+**technique.presetKeyのマスタ（指摘14）** — `lib/techniques.ts`:
+
+```ts
+// lib/techniques.ts — 技法プリセットの単一情報源
+export const TECHNIQUE_PRESET_KEYS = [
+  'prime', 'basecoat', 'layer', 'wash', 'drybrush',
+  'edge-highlight', 'glaze', 'stipple', 'masking', 'varnish',
+] as const;
+export type TechniquePresetKey = (typeof TECHNIQUE_PRESET_KEYS)[number];
+
+// 表示名はi18nキー "techniques.<presetKey>"（ja.json / en.jsonに全キー定義）で解決する。
+// presetKeyがマスタ外の場合（将来プリセットを削除した後の旧データ等）は
+// presetKey文字列をそのまま表示するフォールバック。
+export function resolveTechniqueLabel(
+  technique: { presetKey: string | null; label: string | null },
+  t: (key: string) => string,
+): string;
+```
+
+zod上は`presetKey: z.string().nullable()`とし、マスタ所属の強制はしない（プリセット改廃で旧データのロードが壊れるのを防ぐ）。インポート正規化ではマスタ外presetKeyを`{ presetKey: null, label: <旧キー文字列> }`へ降格する（§2.7）。
+
+---
+
+### 2.2 RecipeExportFile（エクスポートファイル形式）
+
+JSONエクスポート/インポートの1ファイル=1レシピ形式。`RecipeDoc`に写真のbase64同梱を加えたもの。
+
+```jsonc
+// RecipeExportFile
+{
+  "app": "coat-codex",              // 固定リテラル。インポート第1段（ヘッダ検証）で使用
+  "kind": "recipe-export",          // ファイル種別リテラル（将来の別形式との区別用）。第1段ヘッダ検証で照合し、不一致はmigrate前に中断（§2.7）
+  "schemaVersion": 1,               // recipe.schemaVersionと常に一致（エクスポート生成時に保証）
+  "exportedAt": "2026-07-02T13:00:00.000Z", // エクスポート時刻（情報用）
+  "recipe": { /* RecipeDocをそのまま埋め込み（§2.1） */ },
+  "photos": [                       // 写真同梱配列。「写真なしエクスポート」時は []
+    {
+      "id": "ph_<uuid>",            // recipe内のphotoId参照と対応
+      "dataUrl": "data:image/jpeg;base64,..." // mimeはdataUrlのヘッダに内包（別フィールドは持たない）。
+                                    // mimeは常にpng/jpeg/webpのいずれか（アップロード時正規化で保証。§2.6）
+    }
+  ]
+}
+```
+
+- エクスポート時: `photos`テーブルから当該recipeIdの実体を収集し`Blob→dataUrl`変換。実体のないphotoId参照は出力文書から除去する
+- 写真なしエクスポート時: `photos: []`のまま、recipe内のphotoIds参照は残す（インポート正規化で自動除去されるため無害。§2.7）
+- DB側`photos`テーブルにも`mime`フィールドは持たず`Blob.type`を使う（指摘13）。DB内Blobのtypeはアップロード時正規化（§2.6）によりpng/jpeg/webpのいずれかであることが保証され、自アプリ生成のエクスポートファイルは§2.5-20のdataUrl検証を常に通過する（ラウンドトリップ保証。指摘17）
+
+---
+
+### 2.3 混合比率の正規データ設計
+
+**単一情報源の原則（指摘1）**: `mixMode`が「どのフィールドが正か」を決める。正でないフィールドは**null強制**（zodで検証）。表示用の派生値（%換算・比率テキスト・バッジ文字列）は一切保存せず、`lib/mixRatio.ts`で表示時に導出する。
+
+> **名称に関する注記（指摘23）**: v1スキーマの`mix.inputMode`・`mix.ratioText`はv2で廃止済み。モード判別フィールドの正式名は**`mixMode`**（Step直下）である。画面構成・デザインパッケージ等の他成果物に残る`inputMode`という表記は、すべて`mixMode`への言及として読み替え、当該成果物側を改訂する。
+
+#### モード別の値規約表（指摘1, 2, 9）
+
+| モード | `mixMode` | `paints.length` | `percent` | `ratioValue` | 10-2バッジ表示 |
+|---|---|---|---|---|---|
+| %入力 | `"percent"` | 2〜5 | 各要素 非null（0〜100・小数1桁） | 全要素 null | `"25% + 75%"`（配列順） |
+| 比率入力 | `"ratio"` | 2〜5 | 全要素 null | 各要素 非null（0.1〜999・小数1桁） | `"60% + 40% (3:2)"` / 3色以上例 `"33.4% + 33.3% + 33.3% (1:1:1)"` |
+| 単色 | `null` | 1 | `100` 固定 | null | バッジ非表示（スウォッチのみ） |
+| 塗料0件（マスキング等） | `null` | 0 | — | — | バッジ非表示（技法名のみ） |
+
+- **n項比率（指摘2）**: `ratioValue`は各paintが1項ずつ持つ。5塗料なら`[3, 2, 1, 1, 0.5]`のように保持し、比率テキスト`"3:2:1:1:0.5"`と%換算はすべて導出。バッジは常に「全要素の% を`+`区切りで列挙し、ratioモード時のみ末尾に`(比率テキスト)`を併記」。表示幅が足りない場合の省略はUI実装判断とするが、データとして提供する文字列は`formatMixBadge`が返すこの形式で統一する
+- **ratioValueの値域**: 正数・0.1〜999・小数1桁まで（`1.5:1`のような入力を許容。0は不可）
+
+**混合バッジ表記の正の確定（指摘19）**: 混合バッジ文字列の**唯一の情報源は`formatMixBadge`**（§2.4）であり、その返り値はratioモードで**「60% + 40% (3:2)」形式**（全要素の%を`+`区切りで列挙＋末尾に比率テキスト併記）である。要件定義10-2の「25% + 75%」（全要素列挙）と統一され、3色以上でも全成分が判読できるため、この形式を正とする。画面構成§3.3（PartCard）・デザインパッケージA-4/B-2（Badge mixバリアント）/C-3に記載の**「60% (3:2)」という省略表記は誤りであり、「60% + 40% (3:2)」に読み替えたうえで当該成果物側を改訂する**。UI・デザインはいずれも`formatMixBadge`の返り値をそのまま表示し、独自にバッジ文字列を組み立ててはならない。
+
+#### 丸め規則（指摘8, 15）— 任意の目標合計値への残差配分として一般化
+
+比率→%換算・按分・正規化のすべてで共通。**目標合計値`targetSum`をパラメータとする一般規則**として定義する:
+
+1. 生の%値（比例配分後の値）を**小数1桁に四捨五入**
+2. 丸め後合計と`targetSum`（小数1桁）の残差（0.1単位）を**最大要素に一括加算**（同値タイの場合は配列順で先の要素）
+
+`targetSum`は文脈で決まる:
+
+| 文脈 | targetSum |
+|---|---|
+| 比率→%換算（`ratiosToPercents`）・100%正規化（`normalizePercents`） | `100.0` |
+| percentモードの塗料削除按分（`removePaintSlot`） | **削除前の合計値**（100でない場合もその値。zodは合計100を検証しないため、手入力途中のautosave等で合計≠100の文書は正規に存在し得る） |
+
+例1（targetSum=100）: `1:1:1` → 生値33.33... → 丸め`[33.3, 33.3, 33.3]`（合計99.9）→ 残差+0.1を先頭へ → **`[33.4, 33.3, 33.3]`**
+
+例2（targetSum=90、合計≠100の文書からpercentモードで削除）: `[30, 30, 30]`から1件削除 → 残2件へ現在比（1:1）で按分 → 生値45.0/45.0 → 合計90.0=targetSumで残差0 → **`[45.0, 45.0]`**（削除前合計90を維持）
+
+**zodは合計100を検証しない**。percentモードの合計整合はUI（合計インジケータ＋警告表示＋「100%に正規化」操作）の責務とし、スキーマは各値の範囲・小数桁のみ検証する（手入力途中のautosave・移行データへの耐性のため）。
+
+#### 入力連動・塗料追加/削除時の再計算規則（指摘10, 16）
+
+| 操作 | 規則 |
+|---|---|
+| %を直接入力（確定時） | 対象slotの`percent`を設定（0〜100にclamp・小数1桁）。**全paintの`ratioValue`をnullにクリア**し`mixMode='percent'`。他slotの自動按分はしない（合計≠100はUI警告で提示） |
+| 比率を入力（確定時） | 全paintの`ratioValue`を設定。**全`percent`をnullにクリア**し`mixMode='ratio'`。%表示は導出 |
+| **塗料追加（0件→1件目）** | **単色規約を適用: `mixMode=null`・新slot`percent=100`・`ratioValue=null`**（マスキング等の塗料0件工程への最初の追加。C-4の工程0件→塗料追加フローで必ず通る経路） |
+| 塗料追加（ratioモード） | 新slotの`ratioValue = 1`で末尾追加 |
+| 塗料追加（percentモード） | 新slotの`percent = 0`で末尾追加（既存値は不変） |
+| 塗料追加（単色→2色目） | `mixMode='percent'`へ移行。既存slot`percent=100`のまま、新slot`percent=0` |
+| 塗料削除（ratioモード） | 該当項を除去、残りの`ratioValue`はそのまま（比は保たれる） |
+| 塗料削除（percentモード） | 削除slotの%を残slotへ**現在%比で按分**（丸め規則を`targetSum=削除前合計`で適用。残slot全0なら均等按分）。削除前の合計を維持（合計≠100の場合もその合計値を維持） |
+| 削除の結果1件になった | 単色規約へ変換: `mixMode=null`・`percent=100`・`ratioValue=null` |
+| 削除の結果0件になった | `mixMode=null`・`paints=[]` |
+
+---
+
+### 2.4 lib/mixRatio.ts 公開関数シグネチャ
+
+すべて純関数（引数を破壊しない）。UI・exporter・インポート正規化から共用する。
+
+```ts
+export type MixMode = 'percent' | 'ratio' | null;
+export interface StepPaint {
+  colorId: string;
+  percent: number | null;
+  ratioValue: number | null;
+}
+export interface MixState { paints: StepPaint[]; mixMode: MixMode; }
+
+/** 比率配列→%配列。丸め規則適用済み（合計100.0）を返す */
+export function ratiosToPercents(ratios: number[]): number[];
+
+/** 丸め規則の本体（一般形）: 各値を小数1桁四捨五入→targetSum（小数1桁）との残差を
+ *  最大要素（同値なら先頭側）へ一括加算。§2.3の丸め規則の実装。 */
+export function roundPercentsToTarget(rawPercents: number[], targetSum: number): number[];
+
+/** roundPercentsToTarget(rawPercents, 100) の別名（比率→%換算・正規化用の特殊形） */
+export function roundPercentsTo100(rawPercents: number[]): number[];
+
+/** 任意の非負数配列を合計100.0の%配列へ正規化（比例配分＋丸め規則）。全0は均等割、空は[] */
+export function normalizePercents(values: number[]): number[];
+
+/** 比率テキスト "3:2:1" へ整形（小数1桁、末尾の .0 は省略） */
+export function formatRatioText(ratios: number[]): string;
+
+/** 比率テキストをパース。2〜5項・各0.1〜999・小数1桁のみ受理。不正は null */
+export function parseRatioText(text: string): number[] | null;
+
+/** モードを問わず表示用%配列を導出（ratio→換算 / percent→保持値 / 単色→[100] / 0件→[]） */
+export function getDisplayPercents(paints: StepPaint[], mixMode: MixMode): number[];
+
+/** 10-2バッジ文字列。percent:"25% + 75%" / ratio:"60% + 40% (3:2)" / 単色・0件:""（非表示）
+ *  バッジ表記の唯一の情報源（§2.3の指摘19）。UIはこの返り値をそのまま表示する */
+export function formatMixBadge(paints: StepPaint[], mixMode: MixMode): string;
+
+/** %直接入力の確定。値をclamp・設定し、全ratioValueをクリアして mixMode='percent' へ */
+export function commitPercentInput(state: MixState, index: number, value: number): MixState;
+
+/** 比率入力の確定。全percentをクリアして mixMode='ratio' へ */
+export function commitRatioInput(state: MixState, ratios: number[]): MixState;
+
+/** 塗料スロット追加（§2.3の規則: 0件→1件目=単色規約(mixMode=null, percent=100) /
+ *  ratio→新項1 / percent→新項0 / 単色→percentモード移行(100/0)） */
+export function addPaintSlot(state: MixState, colorId: string): MixState;
+
+/** 塗料スロット削除（percent按分は削除前合計をtargetSumとして維持・残1件の単色化・0件化を含む） */
+export function removePaintSlot(state: MixState, index: number): MixState;
+```
+
+**単体テストケース名（vitest）**:
+
+- `ratiosToPercents`: 「3:2を[60,40]に変換」「1:1:1は[33.4,33.3,33.3]（残差は先頭タイへ）」「5項比率3:2:1:1:1の合計が100.0」「小数比率1.5:1を[60,40]に変換」「単項[5]は[100]」
+- `roundPercentsToTarget`: 「targetSum=100で残差+0.1を最大要素へ加算」「targetSum=90で丸め後合計が90.0になる」「targetSum=101.5など小数目標でも残差配分される」「最大値タイは配列先頭を選ぶ」
+- `roundPercentsTo100`: 「残差+0.1を最大要素へ加算」「残差-0.1を最大要素から減算」「最大値タイは配列先頭を選ぶ」「残差0.2以上も一括加算」
+- `normalizePercents`: 「合計90を比例配分で100.0へ」「全0は均等割」「空配列は空を返す」
+- `parseRatioText`: 「'3:2'→[3,2]」「空白混じり' 3 : 2 'を受理」「'1.5:1'を受理」「小数2桁は拒否」「'3:0'は拒否（0不可）」「1項は拒否」「6項は拒否」「非数値は拒否」
+- `formatRatioText`: 「[3,2]→'3:2'」「[1.5,1]→'1.5:1'」「[3.0,2.0]→'3:2'（.0省略）」
+- `formatMixBadge`: 「percent2色'25% + 75%'」「ratio2色'60% + 40% (3:2)'」「ratio3色'33.4% + 33.3% + 33.3% (1:1:1)'」「単色は空文字」「塗料0件は空文字」
+- `commitPercentInput`: 「ratioモード中の%入力で全ratioValueがクリアされmixMode='percent'」「101はclampされ100」「小数2桁入力は1桁に丸め」
+- `commitRatioInput`: 「percentモード中の比率入力で全percentがクリアされmixMode='ratio'」
+- `addPaintSlot`: 「**塗料0件への1件目追加で単色規約適用(mixMode=null, percent=100, ratioValue=null)**」「ratioモード追加で新項ratioValue=1」「percentモード追加で新項percent=0」「単色に2色目追加でpercentモード移行(100/0)」「5件超の追加は拒否（現状態を返す）」
+- `removePaintSlot`: 「percentモード削除で残slotへ現在比按分」「**合計90（≠100）のpercentモードから削除しても削除前合計90を維持して按分**」「按分先が全0なら均等按分」「残1件で単色化(mixMode=null, percent=100)」「全削除でmixMode=null・paints空」「ratioモード削除は残項不変」
+
+---
+
+### 2.5 不変条件リスト（zodで強制）
+
+`models/recipe.ts`のzodスキーマ（`superRefine`含む）で以下を強制する。
+
+**Stepレベル**:
+1. `paints.length ≤ 5`
+2. `mixMode='percent'` ⇒ `paints.length ∈ [2,5]` ∧ 全`percent`非null（0〜100・値×10が整数）∧ 全`ratioValue`=null
+3. `mixMode='ratio'` ⇒ `paints.length ∈ [2,5]` ∧ 全`ratioValue`非null（0.1〜999・値×10が整数）∧ 全`percent`=null
+4. `mixMode=null` ⇒ `paints.length ≤ 1`
+5. `paints.length = 1` ⇒ `mixMode=null` ∧ `percent=100` ∧ `ratioValue=null`
+6. `paints.length ≥ 2` ⇒ `mixMode ≠ null`（2〜6で `mixMode='ratio' ⇔ 全ratioValue非null` 等の双方向を構成）
+7. `paints`内の`colorId`に重複なし
+8. `technique.presetKey`と`technique.label`が同時に非nullでない（マスタ所属チェックはzodでは行わない。§2.1）
+9. `toolIds`内に重複なし
+10. **percent合計は検証しない**（指摘8。UI責務）
+
+**RecipeDoc（文書）レベル**:
+
+11. `palette[].id` / `tools[].id` / `parts[].id` / 全Step`id`（baseSteps・parts横断）はそれぞれ文書内一意
+12. **クロス参照（指摘3）**: 全StepPaintの`colorId ∈ palette[].id`
+13. **クロス参照（指摘3）**: 全Stepの`toolIds ⊆ tools[].id`
+14. `palette`: `source='preset' ⇔ presetId非null`、`hex`は`^#[0-9A-Fa-f]{6}$`またはnull
+15. `title`・`palette[].name`・`tools[].name`・`parts[].name`は空文字不可、日時はISO 8601
+16. 写真参照（`overviewPhotoIds`/`photoIds`/`chipPhotoId`）はzodでは実体存在を検証しない（写真なしエクスポート許容のため。整合は§2.6/§2.7の正規化とランタイムフォールバックで担保）
+17. **予約語（指摘21）**: `parts[].id ≠ "base"`（ルーティング`/recipe/:id/part/base`がベース工程編集に予約されているため。通常フローでは`part_<uuid>`形式のため発生しないが、手編集されたインポートファイルへの防御としてzodで拒否する）
+
+**ドラフト既定タイトル規約（指摘22）** — 不変条件15（title空文字不可）と「新規作成→ドラフトID発行→即時autosave（保存ボタンなし）」フローを両立させるための規約:
+
+- **作成時初期化**: 新規レシピのドラフト作成時（ID発行時点）に、`title`をi18nキー`recipe.untitledTitle`の値（ja: 「無題のレシピ」/ en: "Untitled Recipe"）で初期化する。既定名は作成時のUI言語で解決した**文字列値として文書に保存**する（特別なフラグや空値は持たない。後から言語を切り替えても保存済みtitleは変わらない）
+- **空確定時の置換**: タイトル入力欄の確定（blur/Enter）時にトリム結果が空文字ならば、`recipe.untitledTitle`の既定名へ置換してから保存する
+- この2点により、**autosaveがDexieへ書き込む文書は常に不変条件15を満たし**、`loadRecipe`のparse失敗（§2.7）で開けなくなるドラフトは発生しない。デザインパッケージC-2の「タイトル空なら既定名を補完」はこの規約を指すものとして読み替える
+
+**RecipeExportFileレベル**:
+
+18. `app='coat-codex'`・`kind='recipe-export'`のリテラル一致
+19. `schemaVersion === recipe.schemaVersion`（エクスポート生成時にも保証）
+20. `photos[].id`に重複なし、`dataUrl`は`^data:image\/(png|jpeg|webp);base64,`に一致（この3形式限定はアップロード時のmime正規化（§2.6）が保証するため、自アプリ生成ファイルのラウンドトリップは常に成立する）
+
+---
+
+### 2.6 参照整合性ポリシー
+
+**色・ツールの削除（指摘3, 24）** — 「使用中は削除不可」:
+
+- `lib/recipeRefs.ts`に`countColorUsage(doc, colorId): number` / `countToolUsage(doc, toolId): number`（参照しているStep数を返す純関数）を定義
+- UIはpalette/toolsの各エントリに使用数を表示し、使用数>0のエントリは削除ボタンを無効化＋「N工程で使用中」を提示。0件のときのみ削除可
+- 一括置換・連鎖削除は提供しない（シンプルさとデータ破壊防止を優先）
+- この運用により通常フローでdangling colorId/toolIdsは発生せず、zodクロス参照検証（§2.5-12,13）が最終防衛線となる
+- **デザイン成果物への必須要件（指摘24）**: 上記UI（`PaletteEditor`/`ToolListEditor`の各行における**使用数バッジ**（Badgeの使用数バリアント）と**使用中エントリの削除ボタン無効化＋「N工程で使用中」表示**）は、参照整合性ポリシーの一次防衛線であり**デザインパッケージのコンポーネントインベントリ・状態表に必ず含める**。「無条件削除可（✕ボタン常時活性）」の表現は本ポリシー違反であり採用しない
+
+**写真アップロード時のmime正規化・リサイズ（指摘17・指摘6）** — `photoStore.savePhoto(recipeId, file: Blob)`の保存前処理（実装はT13 `lib/imageProcessing.ts`。**本節が規則の正**）:
+
+1. `Blob.type`が`image/png`・`image/jpeg`・`image/webp`のいずれかで、かつ**長辺2048px以下**なら、そのまま保存する（無変換・無劣化）
+2. 上記3形式だが**長辺2048px超**の場合は、`createImageBitmap(blob, { imageOrientation: 'from-image' })`でデコード（失敗時は`<img>`+objectURLでのデコードにフォールバック）→ canvas縮小（長辺2048px）→ **同形式で再エンコード**（jpeg/webpは品質0.9、pngは無劣化）して保存する
+3. それ以外（HEIC（iPhoneカメラ既定）・GIF・TIFF・BMP等、および`type`空文字）は、同様にデコード →（長辺2048px超なら縮小）→ `canvas.toBlob('image/jpeg', 0.9)`で**JPEGへ再エンコード**して保存する（GIFアニメは先頭フレームの静止画になる）
+4. デコード不能な場合は保存を**中止**し、ユーザーへエラー表示（i18nキー`errors.unsupportedImageFormat`: 「対応していない画像形式です」）。部分保存・元Blobのまま保存はしない
+
+これにより`photos`テーブルの全Blobは常に3形式のいずれかとなり、エクスポート時の`dataUrl`は§2.5-20の検証を必ず通過する（HEIC写真を含むレシピをエクスポート→再インポートした際に第3段フル検証で自己拒否するラウンドトリップ破綻を発生源で排除）。正規化は**アップロード時に1回だけ**行い、エクスポート時の再エンコードはしない。
+
+**photoId欠損時フォールバック（指摘12）**:
+
+- 発生源を2層で潰す:
+  1. **インポート正規化**: `photos`同梱配列に実体がないphotoId参照（写真なしエクスポートのインポート等）は文書から除去する（§2.7）
+  2. **エクスポート時**: `photos`テーブルに実体のないphotoId参照は出力文書から除去する
+- それでも残る異常系（DB手動破損等）へのランタイム防御: `photoStore.resolvePhotoUrl(photoId)`は欠損時`null`を返し、UIは「写真なし」プレースホルダを表示する。自動削除・自動修復はしない
+
+---
+
+### 2.7 Dexieテーブル定義とマイグレーション設計
+
+**Dexieテーブル定義**:
+
+```ts
+// db/db.ts
+class CoatCodexDB extends Dexie {
+  recipes!: Table<RecipeDoc, string>;
+  photos!: Table<PhotoRecord, string>;
+  meta!: Table<MetaRecord, string>;
+  constructor() {
+    super('coat-codex');
+    this.version(1).stores({
+      recipes: 'id, updatedAt',  // 主キー: id / 一覧ソート用インデックス: updatedAt
+      photos:  'id, recipeId',   // 主キー: id / レシピ削除GC・エクスポート収集用: recipeId
+      meta:    'key',            // 主キー: key（アプリ状態のKVストア。指摘20）
+    });
+  }
+}
+// PhotoRecord: { id: string; recipeId: string; blob: Blob; createdAt: string }
+// mimeフィールドは持たない（Blob.typeで取得。指摘13。typeはアップロード時正規化で
+// png/jpeg/webpのいずれかに保証される。§2.6）
+// MetaRecord: { key: string; value: string | { requestedAt: string; granted: boolean } }
+```
+
+**metaテーブルのレコード形状（指摘20）** — レシピ文書に属さないアプリ状態のKVストア。**キー・値型は本表が単一情報源**（利用仕様は§3.5）:
+
+| key | value | 用途 |
+|---|---|---|
+| `persist` | `{ requestedAt: ISO 8601 UTC, granted: boolean }` | `navigator.storage.persist()`の要求履歴と結果（§3.5） |
+| `recipeExport:<recipeId>` | ISO 8601 UTC | 当該レシピの最終JSONエクスポート日時（**レシピ単位**。未バックアップ判定・リマインダー経過判定に使用。グローバルな`lastExportedAt`キーは持たず、全体表示は本キー群の集約で行う） |
+| `reminderSnoozedUntil` | ISO 8601 UTC | バックアップリマインダーの再表示抑止期限（「あとで」選択時に設定。Home/Overview共通） |
+
+- metaレコードは**エクスポートファイルに含めない**（端末ローカルの状態であり、レシピデータではない）
+- zodのRecipeDoc/RecipeExportFile検証の対象外。キー追加は上表の更新のみで行い、Dexieの`version()`変更は不要（KV形状は不変のため）
+
+- **Dexieの`version()`はインデックス構造の変更専用**。文書内容の形状変更はRecipeDocの`schemaVersion`＋lazy migrationで行う（全レコード一括書き換えの`upgrade()`は使わない）
+
+**ロード時lazy migration（指摘5）**:
+
+```
+loadRecipe(id):
+  raw = db.recipes.get(id)
+  if raw.schemaVersion > CURRENT_SCHEMA_VERSION:
+      → UnsupportedSchemaError（UI: 「新しいバージョンのアプリで作成されたデータです」）
+  if raw.schemaVersion < CURRENT_SCHEMA_VERSION:
+      migrated = migrateRecipeDoc(raw)      // v→v+1の純関数を順次適用
+      recipeDocSchema.parse(migrated)       // 検証
+      db.recipes.put(migrated)              // 書き戻し（次回以降はmigration不要）
+      return migrated
+  return recipeDocSchema.parse(raw)         // 破損検知。失敗時はエラー表示（自動削除しない）
+```
+
+```ts
+// models/migrations.ts
+export const CURRENT_SCHEMA_VERSION = 1;
+// key = 変換元バージョン。v2導入時に docMigrations[1] を追加する
+const docMigrations: Record<number, (doc: unknown) => unknown> = {};
+export function migrateRecipeDoc(raw: unknown): unknown;    // schemaVersionを読みCURRENTまで順次適用
+export function migrateExportFile(raw: unknown): unknown;   // recipe部にdocMigrationsを適用＋photos形状の版差分を吸収
+```
+
+**インポートの3段検証＋正規化（指摘6, 7, 12, 14, 18）**:
+
+1. `JSON.parse`（失敗→「JSONファイルとして不正」）
+2. **第1段: ヘッダ検証** — 最小スキーマ`z.looseObject({ app: z.literal('coat-codex'), kind: z.literal('recipe-export'), schemaVersion: z.int().min(1) })`のみでparse。判定順は (a) `app`不一致→「coat-codexのファイルではありません」 (b) `kind`不一致→「対応していない種類のcoat-codexファイルです」 (c) `schemaVersion > CURRENT`→「新しいバージョンで作成されたファイル」。いずれもこの時点で中断し、**別kindのファイルにrecipe前提の`migrateExportFile`が実行されることはない**（§2.2で宣言した種別判別をヘッダ段で実施。指摘18）
+3. **第2段: マイグレーション** — `migrateExportFile(raw)`でCURRENTまで引き上げ
+4. **第3段: フル検証** — `recipeExportFileSchema.parse`（§2.5の全不変条件を含む）
+5. **正規化（normalizeImport）**:
+   - a. **全ID新規採番（指摘7）**: `rcp_/col_/tool_/part_/stp_/ph_`の全IDを新規生成し、旧ID→新IDのMapを作成（既存DBとの衝突有無に関わらず常に実施。同一ファイルを2回インポートすると2レシピになる。上書きインポートはしない）
+   - b. **参照リマップ**: `colorId` / `toolIds` / `photoIds` / `overviewPhotoIds` / `chipPhotoId`をMapで一括置換
+   - c. **dangling photo除去（指摘12）**: `photos[].id`に実体がないphoto参照を文書から除去（写真なしエクスポート対応）
+   - d. **presetKey降格（指摘14）**: マスタ外の`presetKey`は`{ presetKey: null, label: <旧キー文字列> }`へ降格
+   - e. `schemaVersion = CURRENT`、`createdAt`は保持、`updatedAt = now`
+6. **書き込み**: Dexieのrwトランザクションで、`photos`（dataUrl→Blob変換、`recipeId`=新ID、`createdAt`=now）を`bulkAdd`→`recipes.add`。失敗時はトランザクションごとロールバック
+
+---
+
+## 3. 画面・コンポーネント分割
+
+### 3.1 ルート構成
+
+react-router v7（declarative mode、`BrowserRouter`。SPAフォールバックは§5.2の方針＝`_redirects`なし・`404.html`非配置）。全7ルートで要件の全画面を賄い、これ以上の画面追加はしない。
+
+| パス | 画面 | 役割 |
+|---|---|---|
+| `/` | HomePage | 保存済みレシピ一覧・新規作成・**JSONインポート**・データ保全ステータス（§3.5） |
+| `/recipe/:id/setup` | RecipeSetupPage | 10-1 初期入力（タイトル／全体写真／カラー／ツール登録）＋**JSONインポート導線**（要件10-1どおり新規作成と並置） |
+| `/recipe/:id` | RecipeOverviewPage | 10-2 ペイント構成全体表示。パーツカードD&D・ベース工程オーバーレイ・出力アクションバー |
+| `/recipe/:id/part/base` | PartEditorPage（baseモード） | **ベース工程の編集（予約ルート）**。`partId = "base"` を予約語とし、パーツIDには使用禁止（パーツIDは `part_` プレフィックス付きで生成される — これは生成規約でありzodでは強制しない。**予約語 `"base"` の拒否はスキーマ§2.5の不変条件17（`parts[].id ≠ "base"`）として定義され、zod（superRefine）で実装される**） |
+| `/recipe/:id/part/:partId` | PartEditorPage | 10-3 パーツ工程編集。モバイル＝フルページ、PC幅＝`/recipe/:id` 上のスライドインパネルとして描画 |
+| `/recipe/:id/print` | PrintViewPage | 印刷／PDF用レイアウト（`print.css`） |
+| `/terms` | TermsPage | **利用規約・免責**。データ消失自己責任（要件1章）の明記場所。全画面フッターからリンク |
+
+- ルート定義は `/recipe/:id/part/base` を `:partId` より先に記述する（react-routerは静的セグメントを優先マッチするため順序非依存だが、意図を明示するため）。
+- 新規作成フロー: Home「新規作成」押下（**このクリックハンドラ直下で `navigator.storage.persist()` を要求**。§3.5）→ ドラフトID発行・**既定タイトルを設定して初回Dexie書き込み** → `/setup` → 「make codex!」→ `/recipe/:id`。
+- **ドラフトの既定タイトル規約（正の定義はスキーマ§2.5およびD-8。本節は運用フローの要約）**: ドラフト作成時点でタイトルに既定名（i18nキー `recipe.untitledTitle`。ja「無題のレシピ」／en "Untitled Recipe"）を設定してから書き込む。これによりautosaveされる文書は常にスキーマ§2.5-15（title空文字不可）を満たし、`loadRecipe` のparse失敗は起こらない。以降 `TitleInput` を空にした状態でautosaveが走る場合も、保存時に既定名へ補完して書き込む（UIの入力欄は編集中は空のまま維持し、blur時に補完後の既定名を表示する＝D-8）。デザインパッケージC-2の「タイトル空なら既定名を補完」はこの規約を参照する。
+
+### 3.2 手書きラフ案（要件10章）からの変更提案
+
+要件10章の「より良いUI/UX構成があれば代案提案してよい」との申し送りに基づく変更点。**特に(2)は要件原文からの解釈変更であることを明記する。**
+
+1. **ホーム＝レシピ一覧画面を追加** — IndexedDBに複数レシピが貯まるため、保存済みレシピへの再アクセス導線が必須。
+2. **【解釈変更】10-2のD&Dカードの対象を「工程」から「パーツ」に変更する** — 要件10-2原文は「工程（1st paint, 2nd paint...）をカード形式で…D&D並び替え」だが、工程はパーツ数×工程数で数十件になり得て全体画面での直接並び替えは誤操作リスクが高く、全体画面はパーツ単位の俯瞰が主目的であるため。**その代わり工程自体の並び替え手段は10-3の `StepList` をdnd-kit Sortable化して必ず提供し、要件の「工程を並び替えられる」機能は失わない**（§3.3参照）。
+3. **ベース工程編集は予約ルート `/recipe/:id/part/base` でPartEditorPageを共用** — 工程・塗料・混合比のUIがパーツ工程と完全同一のため専用画面は不要。遷移経路は `BaseStepOverlay` から明示的に定義（§3.3）。
+4. **10-3はモバイル＝フルページ／PC幅＝スライドインパネル** — PCでは全体構成を見ながら編集でき、往復遷移が減る（同一コンポーネント＋レイアウト分岐のみ）。
+5. **JSONインポートはHomeと10-1（Setup）の両方に設置**（v1の「Homeに集約」案を撤回）— 要件4章・10-1に「初期入力画面からインポート」と明記されているため。
+6. **利用規約・免責ページ `/terms` を追加** — データ消失自己責任（要件1章）を明記する場所が画面構成に必要なため。
+7. **データ保全UI（永続化状態・使用量・エクスポート促し）をHome/全体表示に追加** — SafariのITPによる7日間未訪問時ストレージ消去への対策（§3.5）。
+8. **全体写真複数枚時は先頭（`overviewPhotoIds[0]`）を代表写真とする規約を明文化** — ベース工程オーバーレイの表示先・SNS合成画像の1枚目・レシピ一覧サムネイルはすべて代表写真を使用し、Setup画面の写真並び替えで代表を変更できる。
+
+### 3.3 画面別コンポーネント表
+
+| 画面 | 主要コンポーネント | 責務 |
+|---|---|---|
+| **AppShell**（全画面共通） | `LanguageSwitcher` / `AppFooter` / `ToastHost` | ja/en切替（localStorage永続化）／`/terms` へのリンク常設／保存・エラー通知 |
+| **HomePage** | `RecipeCardGrid` → `RecipeCard` | updatedAt降順一覧。カードに**未バックアップドット**（Badge dotバリアント。判定は§3.5のレシピ単位鮮度: `recipeExport:<id>` が無い、または `updatedAt` より古い）表示、メニューから「開く／複製／削除／JSONエクスポート」。**一覧ロード中は `Skeleton`（cardバリアント）、レシピ0件時は `EmptyState`（homeバリアント: 新規作成・インポートのCTA付き）を表示** |
+| | `NewRecipeButton` / `ImportJsonButton` | 新規作成（**クリックハンドラ直下で `storage.persist()` 要求 §3.5** → ドラフトID発行・既定タイトルで初回保存）→`/setup`。**JSONインポート**（**ファイル選択確定のユーザー操作直下で `storage.persist()` 要求 §3.5** → zod検証→migrations→保存→当該レシピのOverviewへ） |
+| | `ImportErrorDialog` | **Dialog error-detailバリアント（デザインB-2/C-1/C-2対応）**。JSONインポートのzod検証・migrations失敗時に、エラー詳細（スキーマパス・メッセージの一覧、schemaVersion不一致の説明）を表示。処理フックはHome/Setup共通（`useJsonImport`）で、本ダイアログも両画面から共用 |
+| | `StorageStatusBar` / `ExportReminderBanner` | §3.5参照。永続化状態・使用量・最終エクスポート表示／バックアップ促し |
+| **RecipeSetupPage** (10-1) | `TitleInput` / `OverviewPhotoUploader` | タイトル（**空のままautosave時は既定名へ補完して保存。§3.1の既定タイトル規約参照**）／全体写真（複数可・**先頭＝代表写真**・並び替えで代表変更） |
+| | `PaletteEditor`（PaintPicker再利用）/ `ToolListEditor` | 使用カラー・使用ツールの先行登録（後から追加可）。**各行に使用数バッジ（Badge使用数バリアント。「N工程で使用中」）を表示し、工程から参照されている色・ツールは削除ボタンを無効化＋「N工程で使用中」の理由表示**（スキーマ§2.6の参照整合性ポリシーの一次防衛線。タスクT23） |
+| | `ImportJsonSection` | **要件10-1どおり新規作成と並置のインポート導線**（処理・エラー表示はHomeと共通: `useJsonImport`＋`ImportErrorDialog`。**ファイル選択確定時に `storage.persist()` 要求 §3.5**） |
+| | `MakeCodexButton` | Overview（`/recipe/:id`）へ遷移する（純粋なナビゲーション。**永続化要求はここではなく§3.5のとおり最初のDexie書き込みを伴うユーザー操作直下で実施済み**。Setup編集自体が即時autosave対象のため、本ボタンは「保存確定」ではない） |
+| **RecipeOverviewPage** (10-2) | `OverviewHeader` ＋ `BaseStepOverlay` | 代表写真の上にベース工程サマリー（工程名チップ列）をオーバーレイ表示。**オーバーレイのタップ／「編集」ボタンで `/recipe/:id/part/base` へ遷移**（ベース工程未登録時は「＋ベース工程を追加」を表示）。代表写真ロード中は `Skeleton`（photoバリアント） |
+| | `OverviewPhotoStrip` | 2枚目以降の全体写真サムネイル（ロード中は `Skeleton` photo） |
+| | `PartCardList`（dnd-kit Sortable）→ `PartCard` | **パーツカードのD&D並び替え**（§3.2の(2)）。サムネ・工程数・混合バッジ表示、タップで10-3へ。**混合バッジの文字列は `formatMixBadge` の出力をそのまま表示する（単一情報源）**: ratioモード＝全要素の%を「+」区切りで列挙し比率を併記した **「60% + 40% (3:2)」** 形式（要件10-2の「25% + 75%」表示例とも整合）、percentモード＝「60% + 40%」。デザインパッケージのバッジ表記もこの形式に従う。**パーツ0件時は `EmptyState`（partsバリアント: パーツ追加CTA付き）** |
+| | `AddPartButton` | パーツ追加→10-3へ |
+| | `ExportActionBar` | 印刷／**PDFダウンロード（確定機能として明示ボタンを設置。実現方式のみ§6未決）**／X共有／Bluesky共有／note.com向けMD／**JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）**。SNSは `SnsTarget` 配列登録制でMastodon等を拡張可能。JSONエクスポート成功時は `meta` の `recipeExport:<recipeId>` を更新（§3.5） |
+| | `ShareDialog` | SNS共有の2系統UX（§3.4）。`ShareImagePreview`（**最大4枚**）／`ShareTextEditor`／共有・Intent・DLボタン群。**A系統の主ボタンは合成画像の生成完了までdisabled＋進行表示**（§3.4） |
+| | `ExportReminderBanner`（コンパクト帯） | §3.5参照。**当該レシピが未バックアップの場合のみ表示され、当該レシピのエクスポートで消える（Homeのグローバルバナーとは判定粒度が異なる）** |
+| **PartEditorPage** (10-3) | `PartEditorHeader` | 通常: `PartNameInput`＋`PartPhotoGallery`（+ボタン複数追加。サムネロード中は `Skeleton` photo）／**baseモード: 固定見出し「ベース工程（全体）」＋代表写真の読み取り専用サムネ**（全体写真の編集はSetupに誘導）。工程編集UI以下は両モード完全共通 |
+| | `StepList`（**dnd-kit Sortable**） | **工程カードのD&D並び替え**。各 `StepCard` にドラッグハンドル、モバイル・アクセシビリティ用に上下移動ボタンを併設。**工程0件時は `EmptyState`（stepsバリアント: 工程追加CTA付き）** |
+| | `StepCard` | `TechniqueSelect`（プリセット or 自由入力）／`PaintSlotList`（max5、A〜E）→ `PaintSlot`＝`BrandSelect`+`ColorSelect`+`SwatchChip`／`MixRatioInput`（%↔A:B連動）／`ToolSelect`／`MemoField`／工程削除 |
+| | `AddStepButton` | 工程追加 |
+| **PrintViewPage** | `PrintRecipeSheet` / `PrintToolbar` | 印刷最適化レイアウト。ツールバー（印刷実行・PDF保存案内）は `@media print` で非表示 |
+| **TermsPage** | 静的コンテンツ（i18n） | 利用規約・**データ消失自己責任の免責明記**・ブラウザストレージの性質説明 |
+
+- 編集はすべて即時autosave（debounce 500ms → Dexie書き込み）。「保存ボタン」は設けない（v1踏襲）。ドラフトは§3.1の既定タイトル規約により最初の書き込み時点からスキーマ適合。
+- **状態規約部品の割当まとめ（デザインB-2実装契約との対応）**: `EmptyState` は home（HomePage）／parts（Overview）／steps（PartEditor）の3バリアント、`Skeleton` は card（HomePage一覧）／photo（Overview代表写真・写真ストリップ・PartPhotoGallery）の2バリアント、`ImportErrorDialog` はDialog error-detailバリアントとして本表のとおり画面に割り当てる（実装タスク側はこの割当を完了条件に含めること）。
+
+### 3.4 SNS共有の2系統UXフロー
+
+分岐は**UA判定ではなく機能検出**（`navigator.canShare({ files })`）で行う。結果的にモバイルは主にA系統、デスクトップは主にB系統になる。
+
+**共通前処理（ShareDialogオープン時）**
+1. `ExportActionBar` の「X」「Bluesky」ボタン押下（`SnsTarget` 登録制）→ `ShareDialog` を開く。
+2. **ダイアログ表示と同時に** `imageComposer` が投稿用合成画像を**最大4枚**生成開始（要件3章）。1枚目＝代表写真ベース、以降はパーツ写真から自動選定。`File[]`（image/png）として保持完了させる — **後段の `navigator.share()` をユーザークリック直下（transient activation内）で同期的に呼ぶため、クリックハンドラ内で非同期生成しない**。**生成中はダイアログの `ShareImagePreview` にプレースホルダ＋進行表示（「画像を生成中…」）を出し、A系統の主ボタンとB系統の「合成画像をダウンロード」ボタンは生成完了までdisabledにする**（活性条件＝`File[]` 保持完了）。**生成失敗時**はエラートーストを表示し、A系統では「テキストのみで共有」に主ボタンを差し替え（`navigator.share({ text })`）、B系統ではDLボタンを非活性のままIntentボタンのみ有効とする。
+3. 投稿テキストを自動生成（タイトル＋概要＋ハッシュタグ、編集可）。ターゲット別カウンタを表示: X＝重み付き280字（CJK=2、URL=23固定）、**Bluesky＝`Intl.Segmenter` による300 grapheme上限**。超過時は警告＋自動トリムボタン。
+
+**A系統: Web Share API（`navigator.canShare?.({ files }) === true` の環境）**
+
+4. 主ボタン「共有シートで投稿（画像付き）」を表示。**共通前処理2の合成画像生成が完了するまでdisabled＋進行表示とし、完了後に活性化**。押下ハンドラ内では**awaitを挟まず**即 `navigator.share({ text, files })` を呼ぶ（事前生成済み・保持済みのFileを渡す。ハンドラ内でawaitするとtransient activationが失効し、未完成のFile[]を渡すと画像なし共有になるため、どちらも禁止）。
+5. OSの共有シートでユーザーがX/Blueskyアプリを選択 → 画像＋テキストが投稿画面に引き継がれる。
+6. `AbortError`（ユーザーキャンセル）は無視。`NotAllowedError` 等の失敗時はダイアログ内でB系統UIにフォールバック表示。副導線として「うまく共有できない場合」リンクでB系統を常時開ける。
+
+**B系統: Intent URL＋合成画像DL（canShare不成立の環境。主にデスクトップ）**
+
+4'. ダイアログに手順ガイドを表示: 「① 画像をダウンロード → ② 投稿画面を開く → ③ 画像を手動で添付」。
+5'. 「合成画像をダウンロード」ボタン: 最大4枚を連番PNGで一括DL（**共通前処理2の生成完了まではdisabled＋進行表示**）。
+6'. 「Xの投稿画面を開く」→ `https://x.com/intent/post?text=...`、「Blueskyの投稿画面を開く」→ `https://bsky.app/intent/compose?text=...`（**300 graphemeをURLエンコード前に強制**）。いずれも新規タブで起動。
+7'. **Intent URLは画像添付不可**のため、「開いた投稿画面にダウンロードした画像を手動添付してください」の案内をダイアログに常時表示。
+
+### 3.5 データ保全UX（Safari 7日消去対策）
+
+**metaテーブル（前提の明記）**
+- 本節が参照する `meta` はDexieの第3テーブル（primary key: `key` のkey-valueストア）で、**スキーマ§2.7の `db.ts` `version(1).stores()` 定義に `recipes` / `photos` と並んで含める**（レコード形状＝キー一覧・値型の単一情報源はスキーマ§2.7）。本節が必要とするキーは次の3種:
+  - `persist`: `{ requestedAt: ISO文字列, granted: boolean }` — persist()の要求履歴と結果
+  - `recipeExport:<recipeId>`: ISO文字列 — 当該レシピの最終JSONエクスポート日時（**レシピ単位**。エクスポートJSON文書自体には含めない＝エクスポートがupdatedAtを汚さない）
+  - `reminderSnoozedUntil`: ISO文字列 — リマインダーのスヌーズ期限
+
+**永続化要求（storage.persist）**
+- 発火条件は**「最初のDexie書き込みを伴うユーザー操作の直下」**と定義する（「make codex!押下時」ではない。Setup編集は即時autosave対象であり、make codex!は保存確定操作ではないため）。具体的な発火点は次の3つで、いずれも `meta.persist` が未記録の場合のみクリックハンドラ直下で `navigator.storage.persist()` を実行する:
+  1. HomePage `NewRecipeButton` 押下時（ドラフトID発行・初回書き込みの直前）
+  2. HomePage `ImportJsonButton` のファイル選択確定時（**JSONインポートのみで利用を開始するユーザーもここで確実に要求される**）
+  3. RecipeSetupPage `ImportJsonSection` のファイル選択確定時
+- 結果（granted/denied）とタイムスタンプを `meta.persist` に記録。以後アプリ起動ごとに `navigator.storage.persisted()` で再確認し、**未許可のままの場合は上記3操作のたびに再要求してよい**（許可済みなら何もしない）。
+
+**StorageStatusBar（HomePage上部に常設）**
+- **保護状態バッジ**: `persisted=true` →「データ保護: 有効」／`false` →「保護なし — ブラウザにより自動削除される可能性があります」／API非対応→バッジ非表示＋警告文。**Safariで未許可・非対応の場合は「7日間サイトを訪問しないとデータが削除される可能性があります。JSONバックアップを推奨します」を明示**。
+- **使用量表示**: `navigator.storage.estimate()` →「使用中: 12.3 MB / 目安: 1.0 GB」（概算値である旨を注記。非対応環境では非表示）。
+- **最終バックアップ表示**: **全レシピの `recipeExport:*` の最大値**→「最終エクスポート: 3日前」／1件もなければ「未実施」（グローバル表示はレシピ単位記録の集約とし、単独のグローバル `lastExportedAt` キーは持たない）。
+- 健全時（保護有効かつ未バックアップレシピ0件）は1行の控えめ表示に抑え、操作の邪魔をしない。
+
+**バックアップ鮮度の判定（レシピ単位・本節が単一情報源）**
+- **未バックアップレシピ** = `recipeExport:<id>` が存在しない、または `recipeExport:<id> < recipe.updatedAt` のレシピ。
+- **RecipeCardの未バックアップドット**: 上記判定を満たすレシピに即時表示（猶予なし。控えめなドットのため編集直後から出してよい）。
+- **リマインダー対象レシピ** = 未バックアップレシピのうち、(a) 一度もエクスポートされていないもの、または (b) `recipeExport:<id>` から**14日以上**経過しているもの（エクスポート直後の編集で即バナーが出る煩わしさを避けるための猶予）。
+
+**ExportReminderBanner（エクスポート促しリマインダー）**
+- **HomePage（全幅バナー）の表示条件**: リマインダー対象レシピが**1件以上**存在し、かつスヌーズ中でない。**判定はレシピ単位の集約であり、特定の1レシピをエクスポートしても、他に対象レシピが残っている限りバナーは消えない**。
+- **RecipeOverviewPage（コンパクト帯）の表示条件**: **当該レシピが**未バックアップであり、かつスヌーズ中でない。
+- アクション: Overviewでは**当該レシピのJSONエクスポートをワンタップ実行**（成功で `recipeExport:<recipeId>` 更新→**当該レシピのコンパクト帯とドットが消える**。Homeの全幅バナーは他のリマインダー対象レシピが残っていれば表示継続）。Homeでは未バックアップレシピにドット表示し、カードメニューからエクスポート可能（各エクスポート成功が該当レシピの `recipeExport:<id>` を更新し、全対象が解消された時点でバナー消滅）。
+- 「あとで」で7日間スヌーズ（`meta.reminderSnoozedUntil`。Home/Overview共通）。
+
+---
+
+## 4. 実装タスク分解（Sonnet着手順）
+
+### 4.0 v1からの変更点（レビュー指摘対応の要約）
+
+| # | 指摘 | v2での対応 |
+|---|---|---|
+| 1 | バージョン固定未明記 | §4.1に固定バージョン表を明記。React 19×dnd-kit peer依存はM0のスパイクタスク（T2）で実機確認 |
+| 2 | MixRatioInputがStepCardより後 | MixRatioInput（T20）をStepCard（T25）より前のM3に前倒し |
+| 3 | PaintSlot/PaintSlotList本体タスク欠落 | T21として明示タスク化（結線ではなく本体作成） |
+| 4 | techniques.tsタスク欠落 | T8として明示タスク化 |
+| 5 | storage.persist/persisted/estimate欠落 | データ層M2にT15（storageHealth）、UI反映はT22/T33（persist要求）・T34（ステータス表示） |
+| 6 | 写真リサイズ・Quota対策欠落 | T13（imageProcessing: 長辺2048px縮小・mime正規化。規則は§2.6）、T14（QuotaExceededErrorハンドリング） |
+| 7 | print.css必須プロパティ未明記 | T36の完了条件に`print-color-adjust: exact`（+`-webkit-`）・`break-inside: avoid`・`@page`マージンを明記 |
+| 8 | 往復テスト・スナップショットテスト欠落 | T31（export→import往復同値性）、T32（exportersスナップショット）を独立タスク化 |
+| 9 | base64化のメモリピーク | T29にBlobパーツ連結方式を実装方針として明記 |
+| 10 | _redirectsの誤り | §5で全面改訂（_redirects削除・404.html非配置による自動SPAフォールバック） |
+| 11 | 利用規約ページ欠落 | T35（TermsPage）をタスク化 |
+| 12 | Web Share 2系統欠落 | T39（ShareDialog: 機能検出分岐・A系統share({files})・B系統Intent+DL）をタスク化 |
+
+### 4.0.1 v2検証指摘への対応（依存検算・成果物間整合性の決定事項）
+
+本節の決定はスキーマ（§2）・画面構成（§3）・デザインパッケージと本タスクリストの間の食い違いを解消する**確定事項**であり、他成果物側の記載と矛盾する場合は本節の決定に従って当該成果物を追補・修正する。
+
+**依存検算の修正**:
+
+| # | 問題 | 対応 |
+|---|---|---|
+| V-1 | T2が「開発用ルート」を前提とするがルータはT3で導入（前方参照） | T2は**scaffold既定の`App.tsx`直下にDndSpikeを一時マウント**して確認する方式に確定（T3非依存のまま実行可能。T2本文に明記） |
+| V-2 | T36の依存列に写真表示に必要なT14（resolvePhotoUrl）が欠落 | T36の依存列に14を追加 |
+| V-3 | T24の依存列にT9（レシピデータモデル）・T16（編集中レシピの供給元）が欠落 | ToolSelectは編集中レシピの`tools`をT16 useRecipeStoreから取得する設計に確定し、依存列を8, 9, 16に修正 |
+| V-4 | §4.1でi18next系・ビルドツール系が「最新安定」のまま固定値未定 | §4.1に全パッケージのメジャー固定値を明記（i18next `^25`／react-i18next `^16`／vite `^7`／typescript `~5.9`／vitest `^4`）。再現ビルドの正は`package-lock.json`（T1でコミット） |
+| V-5 | T18 PhotoUploaderの並び替え手段が未指定（dnd-kitなら依存2が漏れる） | **上下移動ボタン（＋「先頭へ」ボタン）で実装し、dnd-kitは使わない**ことに確定（T2非依存）。D&D化はT26/T28安定後の任意改善とし、行う場合は依存に2を追加してから着手 |
+| V-6 | T2本文の「T24/T26/T28が依存」が依存表と矛盾（T24はD&D不使用） | T2本文を「T26/T28（Sortable使用箇所）が依存」に修正 |
+
+**成果物間整合性の決定事項**:
+
+| # | 決定 | 担当タスク | 他成果物への修正指示 |
+|---|---|---|---|
+| D-1 | **混合バッジ表記は`formatMixBadge`（スキーマ§2.3/§2.4）を唯一の正とする**。ratioモードの出力は「60% + 40% (3:2)」（全要素の%を`+`区切りで列挙＋比率併記。要件10-2の「25% + 75%」例とも整合） | T28 | 画面構成§3.3 PartCard・デザインパッケージA-4/B-2 Badge mixバリアント/C-3ラフの「60% (3:2)」表記を「60% + 40% (3:2)」形式へ修正 |
+| D-2 | **DB構造は`recipes`/`photos`/`meta`の3テーブルに確定**。metaのレコード形状は`{ key: string, value: string \| { requestedAt: string; granted: boolean } }`（主キー`key`）で、キーは次の3種のみ（**§2.7・§3.5と同一**）: `persist`（`{requestedAt, granted}`: storage.persist()の要求履歴と結果）／`recipeExport:<recipeId>`（ISO 8601文字列: **レシピ単位**の最終JSONエクスポート時刻）／`reminderSnoozedUntil`（ISO 8601文字列: リマインダースヌーズ期限） | T12, T15 | スキーマ§2.7の`db.ts`（Dexieテーブル定義）に`meta: 'key'`と上記レコード形状・キー一覧を追補 |
+| D-3 | **partIdの予約語`"base"`拒否を不変条件17として正式採番**（「`parts[].id`は文字列`"base"`であってはならない」） | T9 | スキーマ§2.5の不変条件リストに17として追加（画面構成§3.1の記述と一致） |
+| D-4 | **インポート検証エラー詳細ダイアログを`ImportErrorDialog`（Dialog error-detailバリアント）として実装**。zodのissue一覧（パス・メッセージ）を表示し、トーストは要約のみ | T33 | 画面構成§3.3のコンポーネント表にImportErrorDialogを追補 |
+| D-5 | **EmptyState（home/parts/stepsバリアント）・Skeleton（card/photoバリアント）を実装契約どおりタスク割当**。基底部品はT5、適用はT22（home＋card）・T26（steps）・T27（photo）・T28（parts＋photo） | T5, T22, T26, T27, T28 | 画面構成§3.3のコンポーネント表にEmptyState/Skeletonを追補 |
+| D-6 | **RecipeCardの未バックアップドット（Badge dotバリアント）の判定規則を確定**（§3.5「バックアップ鮮度」と同一）: `recipeExport:<recipeId>`が存在しない、または`recipeExport:<recipeId> < recipe.updatedAt`のレシピにドット表示（**レシピ単位**。当該レシピのエクスポート成功で`recipeExport:<recipeId>`が更新され、そのカードのドットのみ消える） | T34 | — |
+| D-7 | **PaletteEditor/ToolListEditorの使用数バッジ・使用中削除不可**（削除ボタン無効化＋「N工程で使用中」表示。スキーマ§2.6・画面構成§3.3・T23で確定済み）はデザイン要件にも必須として採用 | T23（実装は従来どおり） | デザインパッケージB-2にPaletteEditor/ToolListEditor相当部品・Badge countバリアント・削除ボタンdisabled状態を追加し、C-2のラフ・状態表（無条件削除可の表現）を差し替え |
+| D-8 | **ドラフト既定名規約を確定**（不変条件15「title空文字不可」との矛盾解消）: ①新規ドラフト発行時にtitle=既定名で作成（`createDraft(title)`は呼び出し側からi18n解決済み既定名を受け取る） ②autosaveのDexie書き込み直前にtrim後空文字なら既定名へ補完して保存（UIの入力欄は空のまま維持し、blur時に補完後の既定名を表示） ③既定名はi18nキー`recipe.untitledTitle`（ja「無題のレシピ」／en「Untitled Recipe」）。保存文書は常にrecipeDocSchemaを満たす | T12, T16, T22 | スキーマ§2.5-15の補記としてこの補完規約を追記。画面構成§3.1のドラフト作成フロー・デザインC-2の「既定名補完前提」をこの仕様（補完タイミング・既定名）で確定 |
+
+### 4.1 固定バージョン（package.jsonレンジ指定の単一情報源）
+
+| パッケージ | バージョン | 備考 |
+|---|---|---|
+| react / react-dom | `^19` | |
+| react-router | `^7` | **declarative mode（`BrowserRouter`）**。v7は`react-router`単体パッケージからimport（`react-router-dom`は使わない） |
+| zod | `^4` | v4 API（`z.looseObject`・`z.int`等）を前提 |
+| @dnd-kit/core | `^6` | **新アーキテクチャの`@dnd-kit/react`は見送り**（安定性優先） |
+| @dnd-kit/sortable + @dnd-kit/utilities | core 6系互換の最新 | React 19とのpeer依存はT2で実機確認 |
+| dexie | `^4` | |
+| zustand | `^5` | |
+| i18next | `^25` | |
+| react-i18next | `^16` | |
+| vite | `^7` | |
+| typescript | `~5.9` | TSはsemver非準拠のためチルダ固定 |
+| vitest | `^4` | devDependenciesに`fake-indexeddb`（`^6`、T12以降のDBテスト用）を含める |
+
+> 再現ビルドの正は`package-lock.json`（T1でインストール成功した解決バージョンをコミットして固定）。本表はレンジ指定の単一情報源であり、T1/T2でインストールまたはpeer依存が通らない場合のみ直近の安定メジャーへ調整し、**本表を更新してから**先へ進む。
+
+### 4.2 タスクリスト
+
+凡例: 「依存」列の番号は先行タスク番号（すべて自番号より小さいことを検算済み）。「テスト」列: ✅=vitestユニット/スナップショット必須、🖐=手動確認、—=なし。
+
+#### M0: 基盤（完了条件: 空の7ルートアプリがCloudflare Pagesにデプロイされ、深いURLの直接リロードが通る）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 1 | Vite+React 19+TS scaffold。§4.1の全バージョンをpackage.jsonに固定し`package-lock.json`をコミット。ESLint/Prettier/vitest/fake-indexeddb導入、`npm run test`が空テストで通ること | `package.json` / `package-lock.json` / `vite.config.ts` / `tsconfig.json` / ESLint・Prettier設定 | — | ✅（環境疎通のダミーテスト） |
+| 2 | **React 19×@dnd-kit peer依存スパイク（指摘1）**: `@dnd-kit/core@6`+`sortable`をインストールし、最小Sortableデモで動作確認。**ルータ導入（T3）前に実行するため、DndSpikeは開発用ルートではなくscaffold既定の`App.tsx`直下に一時マウントして確認する（T3非依存）**。①peer依存警告なしで`npm install`が通る ②StrictMode下でD&D並び替えが動く（Chrome/Safari/モバイルエミュレータ）。NGならバージョン組合せ変更または`@dnd-kit/react`再検討をユーザーへエスカレーション（**Sortableを使用するT26/T28が依存するためM0で必ず決着**） | `src/dev/DndSpike.tsx`（確認後削除可）＋確認結果をREADMEに記録 | 1 | 🖐 |
+| 3 | react-router v7 declarative mode導入。`BrowserRouter`＋§3.1の**全7ルート**の空ページと遷移（`/recipe/:id/part/base`は`:partId`より先に定義）。T2の一時マウントを撤去しルータ構成へ置換 | `src/main.tsx` / `src/App.tsx` / `src/router.tsx` / `src/routes/`配下7ページの空実装 | 1 | 🖐（全ルート表示） |
+| 4 | react-i18next導入。ja/en切替スケルトン＋localStorage永続化（キーは以降のタスクで随時追加） | `src/i18n/index.ts` / `src/i18n/locales/ja.json`・`en.json` | 1 | — |
+| 5 | AppShell共通枠: `LanguageSwitcher`／`AppFooter`（**/termsへのリンク常設**）／`ToastHost`（保存・エラー通知。T14のQuotaエラー等が使用）／**`EmptyState`（home/parts/stepsバリアント）・`Skeleton`（card/photoバリアント）の基底部品（D-5: デザインB-2実装契約）** | `src/components/common/AppShell.tsx`・`LanguageSwitcher.tsx`・`AppFooter.tsx`・`ToastHost.tsx`・`EmptyState.tsx`・`Skeleton.tsx` | 3, 4 | — |
+| 6 | デプロイ設定一式（§5）: `wrangler.toml`作成。**`public/_redirects`と`404.html`を作らない**ことを確認し、`npm run build`→`npx wrangler pages dev dist`で`/recipe/x/print`等の直接リロードがindex.htmlにフォールバックすることを検証。GitHub連携で初回デプロイ | `wrangler.toml` / `.nvmrc`（Node 20） | 1, 3 | 🖐（§5.6の検証手順） |
+
+#### M1: 純ロジック層（完了条件: UIなしで全ロジックがテストで検証済み）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 7 | `lib/mixRatio.ts`: §2.4の**全公開関数**（`ratiosToPercents`〜`removePaintSlot`）を純関数で実装。丸め規則（§2.3）・入力連動規則（§2.3の表）を厳守 | `src/lib/mixRatio.ts` / `src/lib/mixRatio.test.ts` | 1 | ✅（**§2.4記載の全テストケース名をそのまま実装**） |
+| 8 | **`lib/techniques.ts`（指摘4）**: `TECHNIQUE_PRESET_KEYS`マスタ10種＋`resolveTechniqueLabel`（preset→i18n解決／自由入力label／マスタ外キーはそのまま表示のフォールバック）。ja/enに`techniques.*`全キー追加 | `src/lib/techniques.ts` / `src/lib/techniques.test.ts` / ja.json・en.json更新 | 4 | ✅（3分岐の解決） |
+| 9 | `models/recipe.ts`: RecipeDoc/Step/RecipeExportFileの型＋zodスキーマ。**§2.5の不変条件1〜20を`superRefine`で全実装**（percent合計は検証しない。不変条件17=partIdの予約語`"base"`拒否はD-3でスキーマ§2.5に正式採番済み） | `src/models/recipe.ts` / `src/models/recipe.test.ts` | 1 | ✅（不変条件ごとの受理/拒否ペア） |
+| 10 | `lib/recipeRefs.ts`: `countColorUsage`／`countToolUsage`（baseSteps・全parts横断の参照Step数） | `src/lib/recipeRefs.ts` / テスト | 9 | ✅ |
+| 11 | `models/migrations.ts`: `CURRENT_SCHEMA_VERSION`／`migrateRecipeDoc`／`migrateExportFile`（§2.7）。現在はv1のみだが順次適用の骨組みをダミーマイグレーションで検証 | `src/models/migrations.ts` / テスト | 9 | ✅（v1恒等・ダミーv0→v1適用順） |
+
+#### M2: データ永続層（完了条件: fake-indexeddb上でCRUD・写真保存・保全APIが全テスト通過）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 12 | `db/db.ts`＋`db/recipeStore.ts`: Dexie `version(1)`で`recipes: 'id, updatedAt'`／`photos: 'id, recipeId'`（§2.7）に加え**`meta: 'key'`（D-2: レコード形状`{ key, value }`・キーは`persist`/`recipeExport:<recipeId>`/`reminderSnoozedUntil`の3種のみ。スキーマ§2.7へ追補済みの確定構造）**を定義。CRUD（updatedAt降順一覧・**新規ドラフト`createDraft(title)`＝呼び出し側からi18n解決済み既定名を受け取りtitle非空で作成（D-8）**・put・削除）と**ロード時lazy migration**（§2.7のloadRecipe: 上位版→UnsupportedSchemaError／下位版→migrate→parse→書き戻し／破損→エラー表示・自動削除しない） | `src/db/db.ts` / `src/db/recipeStore.ts` / テスト | 9, 11 | ✅（fake-indexeddb: 保存往復・migration書き戻し・上位版エラー） |
+| 13 | **`lib/imageProcessing.ts`（指摘6・17）**: 写真保存前の縮小・mime正規化（**規則の正は§2.6**: 3形式かつ長辺2048px以下は無変換／3形式で2048px超は縮小＋同形式再エンコード／HEIC等の他形式はJPEG 0.9へ再エンコード／デコード不能はエラー中止）。`createImageBitmap`（`imageOrientation: 'from-image'`でEXIF回転吸収、失敗時`<img>`+objectURLフォールバック）→canvas縮小（**長辺2048px上限**）。縮尺計算は純関数に分離 | `src/lib/imageProcessing.ts` / テスト | 1 | ✅（縮尺計算の純関数）＋🖐（canvas実機） |
+| 14 | `db/photoStore.ts`: `savePhoto(file, recipeId)`（T13のリサイズ経由でBlob保存。mimeフィールドは持たずBlob.type）／`resolvePhotoUrl`（**欠損時null→UIプレースホルダ**、objectURLのrevoke管理）／レシピ削除時GC（recipeIdインデックス）／エクスポート用収集。**`QuotaExceededError`を型付き`StorageQuotaError`に変換**し呼び出し側がToastで「容量不足。写真を減らすかバックアップ後に削除してください」を表示できるようにする | `src/db/photoStore.ts` / テスト | 12, 13 | ✅（保存/解決/GC/Quota例外モック） |
+| 15 | **`lib/storageHealth.ts`（指摘5）**: `navigator.storage.persist()`／`persisted()`／`estimate()`のラッパー（API非対応環境はundefined返却）。metaテーブル（D-2の3キー: `persist`・`recipeExport:<recipeId>`・`reminderSnoozedUntil`）への記録と、**リマインダー表示条件の純関数**`shouldShowExportReminder`（§3.5の条件a/b＋7日スヌーズ） | `src/lib/storageHealth.ts` / テスト | 12 | ✅（navigator.storageモック＋表示条件判定） |
+| 16 | `stores/useRecipeStore.ts`: Zustand v5。編集中レシピのload（lazy migration経由）・更新・**autosave（debounce 500ms→Dexie書き込み）**・**書き込み直前のtitle既定名補完（D-8: trim後空文字なら`recipe.untitledTitle`のi18n解決値へ置換して保存。保存文書が不変条件15に常時適合）**・保存失敗（StorageQuotaError含む）のToast通知連携 | `src/stores/useRecipeStore.ts` / テスト | 4, 9, 12, 14 | ✅（fakeタイマーでdebounce・空タイトル補完・保存失敗経路） |
+
+#### M3: 塗料プリセット＆入力部品（完了条件: 塗料選択と混合比入力が単体で動作。**StepCardより先に完成させる**）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 17 | `public/paints/*.json`（Citadel/Vallejo/AK 各主要50〜100色＋hex、`index.json`メタ）＋`lib/paintPresets.ts`（遅延fetch・ブランド絞り込み・名称検索） | `public/paints/index.json`・`citadel.json`・`vallejo.json`・`ak.json` / `src/lib/paintPresets.ts` / テスト | 1 | ✅（fetchモックで検索/絞り込み） |
+| 18 | 共通部品: `SwatchChip`（hex or チップ写真表示）／`PhotoUploader`（複数枚・T13リサイズ→T14保存・**並び替えは上下移動ボタン＋「先頭へ」ボタンで実装（先頭=代表写真規約。V-5: dnd-kit不使用のためT2非依存。D&D化する場合は依存に2を追加してから着手）**・削除・Quotaエラー表示・**アップロード中/読込中はSkeleton photoバリアント表示（D-5）**）／`ConfirmDialog` | `src/components/common/SwatchChip.tsx`・`PhotoUploader.tsx`・`ConfirmDialog.tsx` | 5, 13, 14 | 🖐 |
+| 19 | `PaintPicker`: `BrandSelect`（プリセット＋自由入力）→`ColorSelect`（ブランドで候補絞り込み）＋自由入力時のHEXカラーピッカー／カラーチップ写真添付。palette要素（§2.1）を返す | `src/components/paint/PaintPicker.tsx`・`BrandSelect.tsx`・`ColorSelect.tsx` | 17, 18 | 🖐 |
+| 20 | **`MixRatioInput`（指摘2: StepCardより前に実装）**: %入力／A:B比率入力の両対応UI。確定時に`commitPercentInput`／`commitRatioInput`（T7）を呼ぶだけの薄いコンポーネント。percentモードの合計インジケータ＋合計≠100警告＋「100%に正規化」ボタン（`normalizePercents`） | `src/components/paint/MixRatioInput.tsx` | 7 | 🖐（ロジックはT7のテストで担保） |
+| 21 | **`PaintSlot`／`PaintSlotList`本体（指摘3）**: PaintSlot＝PaintPicker＋SwatchChip＋スロット削除。PaintSlotList＝A〜Eラベル付きmax5スロット管理、追加/削除は`addPaintSlot`／`removePaintSlot`（T7）経由、colorId重複選択の防止 | `src/components/part-editor/PaintSlot.tsx`・`PaintSlotList.tsx` | 7, 19 | 🖐 |
+
+#### M4: 編集画面（完了条件: 新規作成→Setup→Overview→パーツ/ベース工程編集の全フローが手動で一巡できる）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 22 | `HomePage`: `RecipeCardGrid`→`RecipeCard`（updatedAt降順・代表写真サムネ・メニュー「開く/削除」— 複製とエクスポートはT33で結線。**未バックアップドットの表示スロットを確保し結線はT34=D-6**）＋`NewRecipeButton`（**クリックハンドラ直下で`storage.persist()`を要求（§3.5発火点①・T15）**→**`createDraft`にi18n解決済み既定名`recipe.untitledTitle`を渡してドラフト発行（D-8）**→`/setup`）＋**レシピ0件時EmptyState(home)・一覧読込中Skeleton(card)（D-5）** | `src/routes/HomePage.tsx` / `src/components/home/RecipeCardGrid.tsx`・`RecipeCard.tsx`・`NewRecipeButton.tsx` | 5, 12, 14, 15 | 🖐 |
+| 23 | `RecipeSetupPage`(10-1): `TitleInput`（**空のまま確定時はD-8の補完規約: 入力欄は空のまま・blur時に補完後の既定名を表示**）／`OverviewPhotoUploader`（T18再利用・先頭=代表）／`PaletteEditor`（PaintPicker＋**使用数バッジ・使用中削除不可**=T10、D-7）／`ToolListEditor`（同削除ガード）／`MakeCodexButton`（Overviewへ遷移する純粋なナビゲーション。**persist()要求はここでは行わない**＝§3.5の発火点は新規作成T22・インポート確定T33）。`ImportJsonSection`は枠のみ設置しT33で結線 | `src/routes/RecipeSetupPage.tsx` / `src/components/setup/`配下 | 10, 16, 18, 19 | 🖐 |
+| 24 | `TechniqueSelect`（プリセット=T8 or 自由入力。両非nullにならないUI制御）／`ToolSelect`（**編集中レシピの`tools`（T9データモデル）をT16 useRecipeStoreから取得して参照・複数選択・重複不可**=V-3）／`MemoField` | `src/components/part-editor/TechniqueSelect.tsx`・`ToolSelect.tsx`・`MemoField.tsx` | 8, 9, 16 | 🖐 |
+| 25 | `StepCard`組み立て: TechniqueSelect＋PaintSlotList＋MixRatioInput＋ToolSelect＋MemoField＋工程削除（すべて既存部品の合成のみ） | `src/components/part-editor/StepCard.tsx` | 20, 21, 24 | 🖐 |
+| 26 | `StepList`（**dnd-kit Sortableで工程並び替え**=§3.2(2)の代替保証）＋ドラッグハンドル＋モバイル/a11y用上下移動ボタン＋`AddStepButton`＋**工程0件時EmptyState(steps)（D-5）** | `src/components/part-editor/StepList.tsx`・`AddStepButton.tsx` | 2, 5, 25 | 🖐 |
+| 27 | `PartEditorPage`(10-3): `PartEditorHeader`（通常=パーツ名＋`PartPhotoGallery`／**baseモード=固定見出し＋代表写真読み取り専用**）、`/part/base`予約ルート対応、モバイル=フルページ／PC幅=スライドインパネルのレイアウト分岐、autosave結線。**写真読込中はSkeleton(photo)表示（D-5）** | `src/routes/PartEditorPage.tsx` / `src/components/part-editor/PartEditorHeader.tsx`・`PartPhotoGallery.tsx` | 5, 16, 18, 26 | 🖐 |
+| 28 | `RecipeOverviewPage`(10-2): `OverviewHeader`＋`BaseStepOverlay`（技法名チップ列、タップで`/part/base`、未登録時「＋ベース工程を追加」）／`OverviewPhotoStrip`／`PartCardList`（**dnd-kit Sortableでパーツ並び替え**・**パーツ0件時EmptyState(parts)、サムネ読込中Skeleton(photo)（D-5）**）→`PartCard`（サムネ・工程数・**混合バッジは`formatMixBadge`の出力をそのまま表示（D-1: ratioモード例「60% + 40% (3:2)」が唯一の正）**）／`AddPartButton`／`ExportActionBar`枠（ボタン配置のみ。結線はT33/T40） | `src/routes/RecipeOverviewPage.tsx` / `src/components/overview/`配下 | 2, 5, 7, 8, 14, 16, 27 | 🖐 |
+
+#### M5: データ保全＆エクスポート/インポート（完了条件: 往復テスト・スナップショットテスト通過、保全UIが動作）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 29 | JSONエクスポート `lib/exporters/json.ts`: RecipeExportFile生成（§2.2。schemaVersion一致保証・実体なきphotoId参照の除去・写真あり/なし2択）。**base64化のメモリピーク対策（指摘9）**: 写真ごとに`FileReader.readAsDataURL`でdataUrl化し、エクスポートJSON全体を単一巨大文字列にせず**`new Blob([jsonHeadStr, photo1Str, ..., jsonTailStr])`のパーツ配列連結**でファイルBlobを構築する方針を実装コメントにも明記 | `src/lib/exporters/json.ts` / テスト | 9, 12, 14 | ✅（小ダミーBlobで構造・参照除去） |
+| 30 | インポートパイプライン `lib/importRecipe.ts`: §2.7の**3段検証**（ヘッダ→migrate→フル検証）＋`normalizeImport`（**全ID新規採番・参照リマップ・dangling photo除去・マスタ外presetKey降格・updatedAt=now**）＋Dexie rwトランザクション書き込み（失敗時ロールバック）。ID再採番＋リマップは`reassignRecipeIds`ヘルパーとして分離エクスポート（T33の複製で再利用）。検証失敗時はzod issue一覧を構造化して返却（T33のImportErrorDialogが表示に使用） | `src/lib/importRecipe.ts` / テスト | 8, 9, 11, 12, 14 | ✅（ヘッダ不正・上位版拒否・正規化a〜e各規則） |
+| 31 | **往復ユニットテスト（指摘8）**: fake-indexeddb上で「export→import→ID正規化後のdeep equal同値性＋写真Blobバイト等価」「写真なしexport→importでphoto参照が除去される」「2回importで2レシピになる」 | `tests/roundtrip.test.ts` | 29, 30 | ✅ |
+| 32 | 素のMarkdown `exporters/markdown.ts`＋note.com向け `exporters/noteMarkdown.ts`＋**スナップショットテスト（指摘8）**: 代表フィクスチャ（ratio混色/percent混色/単色/塗料0件/ベース工程/複数パーツ/自由入力技法を網羅）で`toMatchSnapshot` | `src/lib/exporters/markdown.ts`・`noteMarkdown.ts` / `tests/exporters.snapshot.test.ts` / `tests/fixtures/recipe.ts` | 7, 8, 9 | ✅（スナップショット） |
+| 33 | インポート/エクスポートUI結線: `ImportJsonButton`(Home)＋`ImportJsonSection`(Setup=要件10-1どおり新規作成と並置)＋**`ImportErrorDialog`（Dialog error-detailバリアント=D-4: T30のzod issue一覧をパス・メッセージ付きで表示。トーストは要約のみ）**／`ExportActionBar`の**JSON・素MD隣接配置**＋note MD／RecipeCardメニュー「JSONエクスポート」「複製」（`reassignRecipeIds`＋photos複製で実装）／写真あり・なし選択ダイアログ／**エクスポート成功時に`meta`の`recipeExport:<recipeId>`を更新（§3.5）**。インポートは`ImportJsonButton`/`ImportJsonSection`とも**ファイル選択確定のユーザー操作直下で`storage.persist()`を要求（§3.5発火点②③・T15）** | 各画面コンポーネント更新 / `src/components/home/ImportJsonButton.tsx` / `src/components/setup/ImportJsonSection.tsx` / `src/components/common/ImportErrorDialog.tsx` | 15, 18, 22, 23, 28, 29, 30, 32 | 🖐 |
+| 34 | **データ保全UI（指摘5）**: `StorageStatusBar`（persisted状態バッジ／**Safari 7日消去の警告文言**／`estimate()`使用量「使用中: x MB / 目安: y GB」概算注記付き・非対応時非表示／最終エクスポート表示）＋`ExportReminderBanner`（Home全幅・Overviewコンパクト帯、ワンタップエクスポート、「あとで」7日スヌーズ）＋**RecipeCardの未バックアップドット結線（D-6: Badge dotバリアント。`recipeExport:<recipeId>`が無い、または`recipe.updatedAt`より古いレシピに表示）**。起動時`persisted()`再確認 | `src/components/home/StorageStatusBar.tsx`・`ExportReminderBanner.tsx` / `RecipeCard.tsx`更新 / App起動処理更新 | 15, 22, 28, 33 | 🖐（判定ロジックはT15で担保） |
+| 35 | **`TermsPage`（指摘11）**: `/terms`静的コンテンツ（i18n）— 利用規約・**データ消失自己責任の免責**・ブラウザストレージの性質と7日消去リスク・バックアップ推奨。フッターリンク（T5設置済み）の到達確認 | `src/routes/TermsPage.tsx` / ja.json・en.json更新 | 3, 4 | 🖐 |
+
+#### M6: 印刷・SNS（完了条件: 印刷プレビュー・共有2系統が実機確認済み）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 36 | `PrintViewPage`＋`print.css`: `PrintRecipeSheet`（全工程・スウォッチ・混合バッジ・**写真（T14の`resolvePhotoUrl`で解決=V-2）**）／`PrintToolbar`（`@media print`で非表示）。**print.css必須要件（指摘7）**: ①`print-color-adjust: exact`＋`-webkit-print-color-adjust: exact`（スウォッチ/バッジの背景色を印刷で維持）②工程カード・パーツブロックに`break-inside: avoid` ③`@page { margin: 12mm }`。PDFは当面ブラウザ印刷ダイアログ「PDFとして保存」（ExportActionBarの「PDFダウンロード」ボタンは/printへ誘導＋保存手順案内。専用生成は§6未決のまま） | `src/routes/PrintViewPage.tsx` / `src/components/print/PrintRecipeSheet.tsx`・`PrintToolbar.tsx` / `src/styles/print.css` | 3, 7, 8, 12, 14 | 🖐（Chrome/Safari印刷プレビューで背景色・改ページ確認） |
+| 37 | `sns/imageComposer.ts`: Canvasで投稿用合成画像**最大4枚**生成（1枚目=代表写真ベース、以降パーツ写真から自動選定）、`File[]`（image/png）返却。写真選定ロジックは純関数分離 | `src/lib/sns/imageComposer.ts` / テスト | 14 | ✅（選定純関数）＋🖐 |
+| 38 | `sns/types.ts`＋`x.ts`＋`bluesky.ts`: `SnsTarget`IF・**配列登録制**（Mastodon等を1ファイル追加で拡張可）。Intent URL生成（`x.com/intent/post`／`bsky.app/intent/compose`）、文字数カウンタ（**X=重み付き280字: CJK=2・URL=23固定／Bluesky=`Intl.Segmenter`で300 grapheme**）＋超過警告・自動トリム | `src/lib/sns/types.ts`・`x.ts`・`bluesky.ts` / テスト | 1 | ✅（カウンタ・トリム・URL生成） |
+| 39 | **`ShareDialog`＝Web Share 2系統（指摘12）**: 分岐は`navigator.canShare?.({ files })`の**機能検出**。ダイアログopen時に合成画像を事前生成しFile[]保持（**クリックハンドラ内で非同期生成しない**=transient activation維持）。**A系統**: 「共有シートで投稿」→ハンドラ内で同期的に`navigator.share({ text, files })`、`AbortError`無視・`NotAllowedError`等はB系統UIへフォールバック、副導線リンク常設。**B系統**: 手順ガイド（①DL②投稿画面③手動添付）＋連番PNG一括DL＋Intent新規タブ（**Intent URLは画像添付不可の案内を常時表示**）。`ShareImagePreview`（最大4枚）／`ShareTextEditor`（ターゲット別カウンタ） | `src/components/overview/ShareDialog.tsx`・`ShareImagePreview.tsx`・`ShareTextEditor.tsx` | 28, 37, 38 | ✅（canShareモックの分岐unit）＋🖐（iOS Safari/Android Chrome/デスクトップの3環境） |
+| 40 | `ExportActionBar`最終結線: 印刷／PDFダウンロード（→T36）／X・Bluesky（→T39、SnsTarget配列駆動）／note MD・JSON・素MD（T33済みの確認） | `src/components/overview/ExportActionBar.tsx`更新 | 33, 36, 39 | 🖐 |
+
+#### M7: 仕上げ（完了条件: 通しQAチェックリスト全項目パス）
+
+| # | タスク | 成果物ファイル | 依存 | テスト |
+|---|---|---|---|---|
+| 41 | i18n全キー棚卸し（ja/en欠落ゼロ、`techniques.*`・`recipe.untitledTitle`含む）、言語切替永続化の最終確認 | ja.json / en.json | 22〜40 | ✅（キー網羅の機械チェック） |
+| 42 | レスポンシブ最終調整（モバイル/PC均等・10-3のパネル/フルページ分岐）＋秘伝書テイストのテーマ変数受け口（実デザインはClaude Design待ち） | `src/styles/theme.css` | 22〜40 | 🖐 |
+| 43 | 通しQA: ①UI経由のエクスポート→インポート往復 ②Pages本番URLで全7ルート直接リロード ③印刷プレビュー（Chrome/Safari: 背景色・改ページ） ④共有A/B系統実機 ⑤persist拒否時の警告表示 ⑥Quota超過模擬（DevTools）でのエラー表示 ⑦色/ツール使用中削除不可の動作 ⑧マスタ外presetKeyインポートの降格表示 ⑨タイトル未入力のままautosave→リロードで既定名レシピが正常に開ける（D-8） ⑩未バックアップドットのエクスポート後消灯（D-6） | QAチェックリスト結果（README追記） | 全タスク | 🖐 |
+
+### 4.3 指摘→タスク対応表（網羅性検算）
+
+**v1レビュー指摘（1〜12）**:
+
+| 指摘 | 担当タスク | | 指摘 | 担当タスク |
+|---|---|---|---|---|
+| 1 バージョン固定/peer確認 | §4.1, T1, T2 | | 7 print.css必須要件 | T36 |
+| 2 MixRatioInput順序 | T20（<T25） | | 8 往復/スナップショット | T31, T32 |
+| 3 PaintSlot本体 | T21 | | 9 Blob連結base64 | T29 |
+| 4 techniques.ts | T8 | | 10 デプロイ | §5 |
+| 5 persist/estimate | T15, T22/T33(要求), T34(UI) | | 11 利用規約 | T35, T5(リンク) |
+| 6 リサイズ/Quota | T13, T14 | | 12 Web Share 2系統 | T39 |
+
+**v2検証指摘（V-1〜V-6／D-1〜D-8）**:
+
+| 指摘 | 担当箇所 | | 指摘 | 担当箇所 |
+|---|---|---|---|---|
+| V-1 T2前方参照 | T2（App直下マウント明記） | | D-2 metaテーブル定義 | T12, T15＋スキーマ§2.7追補 |
+| V-2 T36依存漏れ | T36（依存に14） | | D-3 不変条件17 | T9＋スキーマ§2.5追補 |
+| V-3 T24依存漏れ | T24（依存に9, 16） | | D-4 ImportErrorDialog | T33 |
+| V-4 バージョン固定 | §4.1 | | D-5 EmptyState/Skeleton | T5, T22, T26, T27, T28 |
+| V-5 T18並び替え手段 | T18（上下ボタン確定） | | D-6 未バックアップドット | T34 |
+| V-6 T2依存記述矛盾 | T2（T26/T28に修正） | | D-7 削除ガードのデザイン欠落 | デザインパッケージ追補要求（実装はT23） |
+| D-1 混合バッジ表記 | T28＋画面構成/デザイン修正 | | D-8 ドラフト既定名 | T12, T16, T22, T23, T43⑨ |
+
+---
+
+## 5. Cloudflare Pagesデプロイ設定
+
+### 5.1 確定事項
+
+- **デプロイ先はCloudflare Pagesで確定（ユーザー決定済み）**。Workers／Functions／D1／R2／KV／環境変数シークレットはすべて不使用。純粋な静的アセット配信のみ。
+- プリセット塗料JSONは`public/paints/`配下の静的アセットとして配信（CDNキャッシュに乗る）。
+
+### 5.2 SPAフォールバック方針（v1からの訂正）
+
+- **v1の`public/_redirects`（`/* /index.html 200`）は削除する。Cloudflare Pagesではこの書き方は誤り**（catch-allの200リライトはアセット配信と干渉し、Pagesの想定する設定ではない）。
+- 正しい方式: **Cloudflare Pagesは、ビルド出力ルートに`404.html`が存在しない場合、未知のパスへのリクエストに自動で`index.html`（HTTP 200）を返すSPAフォールバックを行う**。これを前提とし、
+  1. `public/_redirects`を**作成しない**
+  2. `404.html`を**配置しない**（配置するとSPAフォールバックが無効化され404.htmlが返るようになる）
+- 守るべき不変条件として、T6・T43で「`dist/`直下に`404.html`と`_redirects`が存在しないこと」「深いURL（例: `/recipe/xxx/print`）の直接アクセスがアプリを表示すること」を検証する。
+
+### 5.3 wrangler.toml（全文）
+
+```toml
+# wrangler.toml — Cloudflare Pages用設定（この3行のみ。Functions等は使用しない）
+name = "coat-codex"
+compatibility_date = "2026-07-01"
+pages_build_output_dir = "dist"
+```
+
+> **注意（指摘10）**: `pages_build_output_dir`をwrangler.tomlに記載すると、当該Pagesプロジェクトは「wrangler.toml管理」に切り替わり、**Cloudflareダッシュボード上のビルド出力ディレクトリ等の同項目がロックされ編集不可になる**。以後この設定を変更する場合はリポジトリのwrangler.tomlを修正してpushする（この一元管理は意図した挙動として採用する）。
+
+### 5.4 ビルド設定
+
+| 項目 | 値 |
+|---|---|
+| ビルドコマンド | `npm run build`（= `tsc -b && vite build`） |
+| 出力ディレクトリ | `dist`（wrangler.tomlの`pages_build_output_dir`と一致させる） |
+| Nodeバージョン | 20（リポジトリに`.nvmrc`=`20`を置き、Pages側環境変数`NODE_VERSION=20`も設定して二重化） |
+| フレームワークプリセット | Vite |
+| 環境変数・シークレット | なし |
+
+### 5.5 GitHub連携手順
+
+1. GitHubに`coat-codex`リポジトリを作成し、M0完了時点のコードをpush（デフォルトブランチ: `main`）。
+2. Cloudflareダッシュボード → **Workers & Pages → Create → Pages → Connect to Git** → リポジトリ`coat-codex`を選択。
+3. ビルド設定: Framework preset=Vite／Build command=`npm run build`／Build output directory=`dist`（wrangler.tomlがあるため出力先はtoml側が正となり、ダッシュボード側はロックされる。§5.3注意参照）。
+4. 環境変数に`NODE_VERSION=20`を設定（Production/Preview両方）。
+5. 以後、**`main`へのマージで本番自動デプロイ、Pull RequestごとにPreview環境**（`*.pages.dev`のプレビューURL）が自動発行される。
+6. 手動デプロイが必要な場合: `npm run build && npx wrangler pages deploy dist`（プロジェクト名はwrangler.tomlの`name`で解決）。
+7. カスタムドメインは取得可否確認後、Pagesの「Custom domains」から追加（コード変更不要）。
+
+### 5.6 デプロイ検証手順（T6・T43で実施）
+
+1. ローカル: `npm run build` → `dist/`直下に`404.html`・`_redirects`が**ない**ことを確認 → `npx wrangler pages dev dist`で`/`・`/terms`・`/recipe/dummy/part/base`等を直接開き、すべてアプリが表示されることを確認。
+2. 本番/Preview URL: 全7ルートパターンの直接リロードが200＋アプリ表示になることを確認。
+3. `public/paints/index.json`が正しく配信されること（Content-Type: application/json）を確認。
+
+### 5.7 注意点
+
+- **404.htmlを生成するプラグイン・コピー処理を将来も導入しない**こと（SPAフォールバック無効化の事故防止。§5.2の検証をQAチェックリストに恒久掲載）。
+- `_headers`ファイルは現時点で不要（Viteのハッシュ付きアセットはPagesのデフォルトキャッシュで十分）。必要になった場合のみ追加検討。
+- Pagesの静的アセット制限（1ファイル25MiB・プロジェクト2万ファイル）は本構成では実質無関係（ユーザー写真はブラウザのIndexedDBに保存されるためデプロイ資産に含まれない）が、プリセット塗料JSONを大幅拡充する際はファイル分割（ブランド別遅延fetch構成を維持）で自然に回避できる。
+- `compatibility_date`はFunctions不使用のため実挙動への影響はないが、wranglerの要求に従い設定しておく。
+- サーバー側に一切のデータを持たないため、デプロイのロールバック・削除がユーザーデータに影響しないことを利用規約（T35）の説明と整合させる。
+
+---
+
+## 6. 未決事項（実装フェーズでの判断待ち）
+
+- **PDFダウンロードの実現方式**: 機能としてのPDF導線は確定済み（§3.3 `ExportActionBar`）。まず印刷CSS＋ブラウザ「PDFとして保存」への誘導UI（`PrintToolbar`）で出荷し、専用生成ライブラリ（jsPDF等。日本語フォント同梱で+2〜3MBのバンドル増）まで踏み込むかはユーザー確認後に判断する
+- **プリセット塗料DBの収録範囲**: Citadel／Vallejo／AKの3ブランド×各主要50〜100色を初期整備の推奨とするが、データ作成コストと相談して実装フェーズで確定する
+- **JSONエクスポートの写真同梱デフォルト**: スキーマ・インポート処理は写真あり／なしの両形式に対応済み（§2.2／§2.7）。UI上のデフォルトをどちらにするかは、同梱時のファイルサイズ実測後に判断する
