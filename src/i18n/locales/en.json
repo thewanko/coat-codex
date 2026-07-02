@@ -17,5 +17,8 @@
     "stipple": "Stipple",
     "masking": "Masking",
     "varnish": "Varnish"
+  },
+  "errors": {
+    "unsupportedImageFormat": "Unsupported image format"
   }
 }

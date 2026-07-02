@@ -17,5 +17,8 @@
     "stipple": "スティップリング",
     "masking": "マスキング",
     "varnish": "バーニッシュ（ニス）"
+  },
+  "errors": {
+    "unsupportedImageFormat": "対応していない画像形式です"
   }
 }
