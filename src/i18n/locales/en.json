@@ -17,5 +17,9 @@
     "stipple": "Stipple",
     "masking": "Masking",
     "varnish": "Varnish"
+  },
+  "errors": {
+    "unsupportedImageFormat": "Unsupported image format",
+    "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up."
   }
 }
