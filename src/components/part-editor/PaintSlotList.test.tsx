@@ -90,6 +90,41 @@ vi.mock("../paint/PaintPicker", () => ({
       >
         pick-existing-preset
       </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCommit({
+            // 「カラー名確定（chip=null）→後からチップ写真添付」の2段階確定のうち、
+            // 1段目（chip無し）を模す。brand/name/hexはpick-green-nochip系と揃える。
+            id: `col_new_${crypto.randomUUID()}`,
+            source: "custom",
+            brand: null,
+            name: "Green",
+            presetId: null,
+            hex: "#00AA00",
+            chipPhotoId: null,
+          })
+        }
+      >
+        pick-green-nochip
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCommit({
+            // 2段階確定のうち2段目（同一brand/name/hexだがchip添付後）を模す。
+            id: `col_new_${crypto.randomUUID()}`,
+            source: "custom",
+            brand: null,
+            name: "Green",
+            presetId: null,
+            hex: "#00AA00",
+            chipPhotoId: "ph_chip1",
+          })
+        }
+      >
+        pick-green-withchip
+      </button>
     </div>
   ),
 }));
@@ -336,5 +371,65 @@ describe("PaintSlotList — 既存palette色の再利用", () => {
     expect(onAddColor).not.toHaveBeenCalled();
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole("status")).not.toBeEmptyDOMElement();
+  });
+
+  test("カラー名確定→チップ添付の2段階確定では、chip付きが新paletteエントリとして追加されスロットのcolorIdが切り替わる", () => {
+    const state = makeState([{ colorId: "col_pending_1" }], null);
+    let palette: PaletteColor[] = [];
+    const onAddColor = vi.fn((color: PaletteColor) => {
+      palette = [...palette, color];
+    });
+    let currentState = state;
+    const onChange = vi.fn((next: MixState) => {
+      currentState = next;
+    });
+
+    const { rerender } = render(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={palette}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={onAddColor}
+        />
+      </ToastHost>,
+    );
+
+    // 1段目: カラー名確定（chip=null）
+    fireEvent.click(screen.getByText("pick-green-nochip"));
+
+    expect(onAddColor).toHaveBeenCalledTimes(1);
+    expect(onAddColor.mock.calls[0][0]).toEqual(
+      expect.objectContaining({ chipPhotoId: null, name: "Green" }),
+    );
+    const firstColorId = (onChange.mock.calls[0][0] as MixState).paints[0]
+      .colorId;
+
+    rerender(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={palette}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={onAddColor}
+        />
+      </ToastHost>,
+    );
+
+    // 2段目: 同一brand/name/hexだがチップ写真添付後（chipPhotoId非null）
+    fireEvent.click(screen.getByText("pick-green-withchip"));
+
+    // chip付きは既存chip無しエントリに吸収されず、新規palette要素として追加される
+    expect(onAddColor).toHaveBeenCalledTimes(2);
+    expect(onAddColor.mock.calls[1][0]).toEqual(
+      expect.objectContaining({ chipPhotoId: "ph_chip1", name: "Green" }),
+    );
+
+    // スロットのcolorIdはchip付きの新idへ切り替わり、chip無しの旧idのままではない
+    const secondColorId = (onChange.mock.calls[1][0] as MixState).paints[0]
+      .colorId;
+    expect(secondColorId).not.toBe(firstColorId);
   });
 });

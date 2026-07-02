@@ -5,14 +5,19 @@
 // （§2.3 値規約表）。5件到達で追加disabled、未到達は残数を併記（デザイン仕様書§4）。
 // リスト末尾にMixRatioInput（T20）を配置する。
 //
-// colorId重複防止: PaintPicker自体は選択のたびに新規idを発行するため同一colorIdの
-// 衝突は現状発生し得ないが、INV-7（paints内colorId重複禁止）を守る防御的ガードとして、
+// colorId重複防止: PaintPicker自体は選択のたびに新規idを発行するが、下記の
+// palette再利用ロジックにより既存colorIdが再確定されるケースがあるため、
+// INV-7（paints内colorId重複禁止）を守る防御的ガードとして、
 // 「選択確定時に他スロットで使用中のcolorIdなら反映を拒否しトースト警告」を実装する
 // （候補除外ではなく選択後ガード — 実装の単純さを優先。挙動はタスク報告に明記）。
+// このガードは既存idの再利用パス経由で実際に到達しうる（防御的コードではない）。
 // 警告文言のi18nキーは`mix.duplicateColor`（locales定義済み）。
 //
-// 確定色と同一の既存palette色（preset: presetId一致／custom: brand+name+hex一致）が
-// あればその既存idを再利用し、onAddColorは新規追加時のみ呼ぶ（palette肥大化防止）。
+// 確定色と同一の既存palette色（preset: presetId一致／custom: brand+name+hex+
+// chipPhotoId一致）があればその既存idを再利用し、onAddColorは新規追加時のみ呼ぶ
+// （palette肥大化防止）。chipPhotoIdも一致条件に含めるのは、「カラー名確定→後から
+// チップ写真添付」の2段階確定でchip無しの既存エントリに吸収されるとchipPhotoIdが
+// 親stateに載らずBlobが孤児化するため（chip追加時は新paletteエントリとして扱う）。
 // 再利用したidが他スロットで使用中なら上記の重複ガード（toast）に掛かる。
 //
 // pendingスロット（未確定の一時プレースホルダcolorId）の判定はlib/pendingPaints.tsの
@@ -89,7 +94,8 @@ function PaintSlotList({
         existing.source === "custom" &&
         existing.brand === color.brand &&
         existing.name === color.name &&
-        existing.hex === color.hex,
+        existing.hex === color.hex &&
+        existing.chipPhotoId === color.chipPhotoId,
     );
   }
 

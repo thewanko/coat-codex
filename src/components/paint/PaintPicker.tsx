@@ -187,9 +187,15 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
   }
 
   function handleColorPickerChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const next = event.target.value;
-    setCustomHex(next);
-    commitCustom({ hex: next });
+    // <input type="color">はドラッグ中に連続発火するため、ここではプレビュー用の
+    // stateのみ更新する。確定（commitCustom）はonBlurで1回だけ行う
+    // （連続commitはcolorId変化によるkey={colorId}再マウントでピッカー操作自体を
+    // 破壊するため）。
+    setCustomHex(event.target.value);
+  }
+
+  function handleColorPickerBlur() {
+    commitCustom();
   }
 
   async function handleChipFileSelected(files: FileList | null) {
@@ -288,6 +294,7 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
                 className={styles.colorPicker}
                 value={HEX_PATTERN.test(hexTrimmed) ? hexTrimmed : "#000000"}
                 onChange={handleColorPickerChange}
+                onBlur={handleColorPickerBlur}
                 aria-label={t("paint.pickHex")}
               />
               <input

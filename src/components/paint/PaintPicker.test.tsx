@@ -212,6 +212,49 @@ describe("PaintPicker — custom flow", () => {
   });
 });
 
+describe("PaintPicker — カラーピッカーの連続コミット防止", () => {
+  test("color inputへの連続changeではonCommitが発火せず、blurで1回だけ発火する", async () => {
+    const { onCommit } = renderPicker();
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    fireEvent.change(brandSelect, { target: { value: "__custom__" } });
+
+    const colorNameInput = await screen.findByLabelText("カラー名");
+    fireEvent.change(colorNameInput, { target: { value: "ドラッグテスト" } });
+    fireEvent.blur(colorNameInput);
+    await waitFor(() => {
+      expect(onCommit).toHaveBeenCalledTimes(1);
+    });
+    onCommit.mockClear();
+
+    const colorPicker = screen.getByLabelText(
+      "色見本を指定",
+    ) as HTMLInputElement;
+
+    // ドラッグ中を模した連続change（onBlurが発生するまでcommitされない）
+    fireEvent.change(colorPicker, { target: { value: "#111111" } });
+    fireEvent.change(colorPicker, { target: { value: "#222222" } });
+    fireEvent.change(colorPicker, { target: { value: "#333333" } });
+
+    expect(onCommit).not.toHaveBeenCalled();
+
+    fireEvent.blur(colorPicker);
+
+    await waitFor(() => {
+      expect(onCommit).toHaveBeenCalledTimes(1);
+    });
+    expect(onCommit).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        source: "custom",
+        name: "ドラッグテスト",
+        hex: "#333333",
+      }),
+    );
+  });
+});
+
 describe("PaintPicker — valueプロパティの再同期", () => {
   test("rerenderでvalue（preset形状）を与えると選択状態表示（ブランド・色名）に復元される", async () => {
     const onCommit = vi.fn();

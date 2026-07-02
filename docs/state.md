@@ -33,6 +33,7 @@
 ## 申し送り (次セッションの自分へ)
 
 - **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。**受信転送の設定（Cloudflare Email Routing等）が公開前に必要=ユーザー作業**。商用要素追加前は専門家レビュー推奨の注記あり
+- **M4結線の必須事項3点**（M3レビュー申し送り。計画§4.2 M4冒頭に詳細）: ①autosave/エクスポート手前でstripPendingPaints必須（INV-12保護） ②palette要素の参照同一性維持（PaintPicker再同期が参照比較） ③palette孤児エントリの整理方針確認
 - ToastHost: successの自動消滅タイマーがclearTimeout管理されていない（レビューLow）。手動閉じUI追加時に対応（M4）
 - favicon: vite.svg参照は削除済み。正式には封蝋logo.svg（デザイン仕様書§7=唯一のSVG供給アセット）を作成してindex.htmlへ結線（M4/M7）
 - i18n永続化キーは独自の `coat-codex:lang`。LanguageDetector導入時は標準`i18nextLng`との整合に注意（レビューLow）
