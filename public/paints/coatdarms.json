@@ -1,0 +1,906 @@
+{
+  "brandId": "coatdarms",
+  "label": "Coat d'arms",
+  "colors": [
+    {
+      "id": "coatdarms:101-white",
+      "name": "White",
+      "nameJa": "ホワイト",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "coatdarms:102-black",
+      "name": "Black",
+      "nameJa": "ブラック",
+      "hex": "#0A0A0A"
+    },
+    {
+      "id": "coatdarms:103-sun-yellow",
+      "name": "Sun Yellow",
+      "nameJa": "サンイエロー",
+      "hex": "#FFDF00"
+    },
+    {
+      "id": "coatdarms:104-blood-red",
+      "name": "Blood Red",
+      "nameJa": "ブラッドレッド",
+      "hex": "#E03616"
+    },
+    {
+      "id": "coatdarms:105-flame-orange",
+      "name": "Flame Orange",
+      "nameJa": "フレイムオレンジ",
+      "hex": "#F47B20"
+    },
+    {
+      "id": "coatdarms:106-enchanted-silver",
+      "name": "Enchanted Silver",
+      "nameJa": "エンチャンテッドシルバー",
+      "hex": "#C9CACC"
+    },
+    {
+      "id": "coatdarms:107-bright-gold",
+      "name": "Bright Gold",
+      "nameJa": "ブライトゴールド",
+      "hex": "#C9A44A"
+    },
+    {
+      "id": "coatdarms:108-goblin-green",
+      "name": "Goblin Green",
+      "nameJa": "ゴブリングリーン",
+      "hex": "#6AA83E"
+    },
+    {
+      "id": "coatdarms:109-chainmail",
+      "name": "Chainmail",
+      "nameJa": "チェインメイル",
+      "hex": "#9A9DA1"
+    },
+    {
+      "id": "coatdarms:110-royal-blue",
+      "name": "Royal Blue",
+      "nameJa": "ロイヤルブルー",
+      "hex": "#1D3B8B"
+    },
+    {
+      "id": "coatdarms:111-dark-elf-green",
+      "name": "Dark Elf Green",
+      "nameJa": "ダークエルフグリーン",
+      "hex": "#1E4A2A"
+    },
+    {
+      "id": "coatdarms:112-bone",
+      "name": "Bone",
+      "nameJa": "ボーン",
+      "hex": "#EFE3B8"
+    },
+    {
+      "id": "coatdarms:113-magic-metal",
+      "name": "Magic Metal",
+      "nameJa": "マジックメタル",
+      "hex": "#6B4F3F"
+    },
+    {
+      "id": "coatdarms:114-wizard-blue",
+      "name": "Wizard Blue",
+      "nameJa": "ウィザードブルー",
+      "hex": "#1C4FA1"
+    },
+    {
+      "id": "coatdarms:115-tanned-flesh",
+      "name": "Tanned Flesh",
+      "nameJa": "タンドフレッシュ",
+      "hex": "#E8A57C"
+    },
+    {
+      "id": "coatdarms:116-barbarian-leather",
+      "name": "Barbarian Leather",
+      "nameJa": "バーバリアンレザー",
+      "hex": "#A87938"
+    },
+    {
+      "id": "coatdarms:117-high-elf-blue",
+      "name": "High Elf Blue",
+      "nameJa": "ハイエルフブルー",
+      "hex": "#2E86C8"
+    },
+    {
+      "id": "coatdarms:118-poison-purple",
+      "name": "Poison Purple",
+      "nameJa": "ポイズンパープル",
+      "hex": "#6B3FA0"
+    },
+    {
+      "id": "coatdarms:119-rat-brown",
+      "name": "Rat Brown",
+      "nameJa": "ラットブラウン",
+      "hex": "#A85425"
+    },
+    {
+      "id": "coatdarms:120-hairy-brown",
+      "name": "Hairy Brown",
+      "nameJa": "ヘアリーブラウン",
+      "hex": "#7B4B26"
+    },
+    {
+      "id": "coatdarms:121-bogey-green",
+      "name": "Bogey Green",
+      "nameJa": "ボギーグリーン",
+      "hex": "#3F9C3C"
+    },
+    {
+      "id": "coatdarms:122-elven-grey",
+      "name": "Elven Grey",
+      "nameJa": "エルフグレイ",
+      "hex": "#D9E8EF"
+    },
+    {
+      "id": "coatdarms:123-elven-flesh",
+      "name": "Elven Flesh",
+      "nameJa": "エルフフレッシュ",
+      "hex": "#EBAF8C"
+    },
+    {
+      "id": "coatdarms:124-dwarven-flesh",
+      "name": "Dwarven Flesh",
+      "nameJa": "ドワーフフレッシュ",
+      "hex": "#C97F5E"
+    },
+    {
+      "id": "coatdarms:125-putrid-green",
+      "name": "Putrid Green",
+      "nameJa": "ピュートリッドグリーン",
+      "hex": "#A8C060"
+    },
+    {
+      "id": "coatdarms:126-festering-brown",
+      "name": "Festering Brown",
+      "nameJa": "フェスタリングブラウン",
+      "hex": "#B98A3D"
+    },
+    {
+      "id": "coatdarms:127-enchanted-blue",
+      "name": "Enchanted Blue",
+      "nameJa": "エンチャンテッドブルー",
+      "hex": "#4A6BB5"
+    },
+    {
+      "id": "coatdarms:128-enchanted-green",
+      "name": "Enchanted Green",
+      "nameJa": "エンチャンテッドグリーン",
+      "hex": "#1E5C38"
+    },
+    {
+      "id": "coatdarms:129-vampire-red",
+      "name": "Vampire Red",
+      "nameJa": "ヴァンパイアレッド",
+      "hex": "#B01E28"
+    },
+    {
+      "id": "coatdarms:130-bilious-brown",
+      "name": "Bilious Brown",
+      "nameJa": "ビリオスブラウン",
+      "hex": "#D98A2B"
+    },
+    {
+      "id": "coatdarms:131-brass",
+      "name": "Brass",
+      "nameJa": "ブラス",
+      "hex": "#B08D4A"
+    },
+    {
+      "id": "coatdarms:132-aquamarine",
+      "name": "Aquamarine",
+      "nameJa": "アクアマリン",
+      "hex": "#1F8FA8"
+    },
+    {
+      "id": "coatdarms:133-ink-wash-flesh",
+      "name": "Ink Wash Flesh",
+      "nameJa": "インク：ディープフレッシュ",
+      "hex": "#8A5C3A"
+    },
+    {
+      "id": "coatdarms:134-ink-wash-green",
+      "name": "Ink Wash Green",
+      "nameJa": "インク：ディープグリーン",
+      "hex": "#2E6B3E"
+    },
+    {
+      "id": "coatdarms:135-ink-wash-blue",
+      "name": "Ink Wash Blue",
+      "nameJa": "インク：ディープブルー",
+      "hex": "#2B4FA0"
+    },
+    {
+      "id": "coatdarms:136-ink-wash-brown",
+      "name": "Ink Wash Brown",
+      "nameJa": "インク：ディープブラウン",
+      "hex": "#6B4326"
+    },
+    {
+      "id": "coatdarms:137-ink-wash-chestnut",
+      "name": "Ink Wash Chestnut",
+      "nameJa": "インク：チェスナット",
+      "hex": "#8A4A26"
+    },
+    {
+      "id": "coatdarms:138-ink-wash-red",
+      "name": "Ink Wash Red",
+      "nameJa": "インク：レッド",
+      "hex": "#C42B33"
+    },
+    {
+      "id": "coatdarms:139-matt-varnish",
+      "name": "Matt Varnish",
+      "nameJa": "マットバーニッシュ（ツヤ消し）",
+      "hex": null
+    },
+    {
+      "id": "coatdarms:140-gloss-varnish",
+      "name": "Gloss Varnish",
+      "nameJa": "グロスバーニッシュ（ツヤ出し）",
+      "hex": null
+    },
+    {
+      "id": "coatdarms:141-grey-primer",
+      "name": "Grey Primer",
+      "nameJa": "サーフェイサー：グレイ",
+      "hex": "#C5C5C1"
+    },
+    {
+      "id": "coatdarms:142-gun-metal",
+      "name": "Gun Metal",
+      "nameJa": "ガンメタル",
+      "hex": "#4A4E55"
+    },
+    {
+      "id": "coatdarms:143-dwarven-bronze",
+      "name": "Dwarven Bronze",
+      "nameJa": "ドワーフブロンズ",
+      "hex": "#C0A468"
+    },
+    {
+      "id": "coatdarms:144-shocking-pink",
+      "name": "Shocking Pink",
+      "nameJa": "ショッキングピンク",
+      "hex": "#E98BC0"
+    },
+    {
+      "id": "coatdarms:145-ruby-red",
+      "name": "Ruby Red",
+      "nameJa": "ルビーレッド",
+      "hex": "#DC1F26"
+    },
+    {
+      "id": "coatdarms:146-dusky-yellow",
+      "name": "Dusky Yellow",
+      "nameJa": "ダスキーイエロー",
+      "hex": "#F2DC3C"
+    },
+    {
+      "id": "coatdarms:147-burnt-orange",
+      "name": "Burnt Orange",
+      "nameJa": "バーントオレンジ",
+      "hex": "#E85C1F"
+    },
+    {
+      "id": "coatdarms:148-marine-blue",
+      "name": "Marine Blue",
+      "nameJa": "マリーンブルー",
+      "hex": "#2A4EA5"
+    },
+    {
+      "id": "coatdarms:149-angel-red",
+      "name": "Angel Red",
+      "nameJa": "エンジェルレッド",
+      "hex": "#F26A2A"
+    },
+    {
+      "id": "coatdarms:150-shadow-grey",
+      "name": "Shadow Grey",
+      "nameJa": "シャドウグレイ",
+      "hex": "#8FA6C0"
+    },
+    {
+      "id": "coatdarms:151-lupin-grey",
+      "name": "Lupin Grey",
+      "nameJa": "ルパングレイ",
+      "hex": "#C8D8E8"
+    },
+    {
+      "id": "coatdarms:152-scorpion-green",
+      "name": "Scorpion Green",
+      "nameJa": "スコーピオングリーン",
+      "hex": "#6BC03C"
+    },
+    {
+      "id": "coatdarms:153-ink-wash-armour",
+      "name": "Ink Wash Armour",
+      "nameJa": "インク：アーマー",
+      "hex": "#55585C"
+    },
+    {
+      "id": "coatdarms:154-ink-wash-black",
+      "name": "Ink Wash Black",
+      "nameJa": "インク：ブラック",
+      "hex": "#2B2B2B"
+    },
+    {
+      "id": "coatdarms:155-angel-green",
+      "name": "Angel Green",
+      "nameJa": "エンジェルグリーン",
+      "hex": "#1F4A2E"
+    },
+    {
+      "id": "coatdarms:156-leprous-brown",
+      "name": "Leprous Brown",
+      "nameJa": "レプラスブラウン",
+      "hex": "#96703A"
+    },
+    {
+      "id": "coatdarms:157-warlock-purple",
+      "name": "Warlock Purple",
+      "nameJa": "ウォーロックパープル",
+      "hex": "#C0308A"
+    },
+    {
+      "id": "coatdarms:158-jade-green",
+      "name": "Jade Green",
+      "nameJa": "ジェイドグリーン",
+      "hex": "#2AA876"
+    },
+    {
+      "id": "coatdarms:159-golden-yellow",
+      "name": "Golden Yellow",
+      "nameJa": "ゴールデンイエロー",
+      "hex": "#F5A623"
+    },
+    {
+      "id": "coatdarms:160-amethyst-purple",
+      "name": "Amethyst Purple",
+      "nameJa": "アメジストパープル",
+      "hex": "#8A6BAA"
+    },
+    {
+      "id": "coatdarms:161-deadly-nightshade",
+      "name": "Deadly Nightshade",
+      "nameJa": "デッドリーナイトシェイド",
+      "hex": "#2B2B4A"
+    },
+    {
+      "id": "coatdarms:162-nauseous-blue",
+      "name": "Nauseous Blue",
+      "nameJa": "ノーシャスブルー",
+      "hex": "#7089B8"
+    },
+    {
+      "id": "coatdarms:163-beaten-copper",
+      "name": "Beaten Copper",
+      "nameJa": "ビートゥンカッパー",
+      "hex": "#8A5C3A"
+    },
+    {
+      "id": "coatdarms:164-emerald-green",
+      "name": "Emerald Green",
+      "nameJa": "エメラルドグリーン",
+      "hex": "#1F8A4A"
+    },
+    {
+      "id": "coatdarms:165-hawk-turquoise",
+      "name": "Hawk Turquoise",
+      "nameJa": "ホークターコイズ",
+      "hex": "#2A8A9C"
+    },
+    {
+      "id": "coatdarms:166-fester-blue",
+      "name": "Fester Blue",
+      "nameJa": "フェスターブルー",
+      "hex": "#37787E"
+    },
+    {
+      "id": "coatdarms:167-hideous-blue",
+      "name": "Hideous Blue",
+      "nameJa": "ヒデアスブルー",
+      "hex": "#5C7BA8"
+    },
+    {
+      "id": "coatdarms:168-ink-wash-yellow",
+      "name": "Ink Wash Yellow",
+      "nameJa": "インク：イエロー",
+      "hex": "#F2E020"
+    },
+    {
+      "id": "coatdarms:169-black-shade",
+      "name": "Black Shade",
+      "nameJa": "シェイド：ブラック",
+      "hex": "#1F1F1F"
+    },
+    {
+      "id": "coatdarms:170-green-shade",
+      "name": "Green Shade",
+      "nameJa": "シェイド：ライトグリーン",
+      "hex": "#2E8A3E"
+    },
+    {
+      "id": "coatdarms:171-red-shade",
+      "name": "Red Shade",
+      "nameJa": "シェイド：レッド",
+      "hex": "#D02B2B"
+    },
+    {
+      "id": "coatdarms:172-blue-shade",
+      "name": "Blue Shade",
+      "nameJa": "シェイド：ライトブルー",
+      "hex": "#2B3E9C"
+    },
+    {
+      "id": "coatdarms:173-yellow-shade",
+      "name": "Yellow Shade",
+      "nameJa": "シェイド：イエロー",
+      "hex": "#EFEB1A"
+    },
+    {
+      "id": "coatdarms:174-purple-shade",
+      "name": "Purple Shade",
+      "nameJa": "シェイド：パープル",
+      "hex": "#7B2BAA"
+    },
+    {
+      "id": "coatdarms:175-light-brown-shade",
+      "name": "Light Brown Shade",
+      "nameJa": "シェイド：ライトブラウン",
+      "hex": "#C08A5C"
+    },
+    {
+      "id": "coatdarms:176-mid-brown-shade",
+      "name": "Mid Brown Shade",
+      "nameJa": "シェイド：ミドルブラウン",
+      "hex": "#A87B3E"
+    },
+    {
+      "id": "coatdarms:177-dark-brown-shade",
+      "name": "Dark Brown Shade",
+      "nameJa": "シェイド：ダークブラウン",
+      "hex": "#6E5B27"
+    },
+    {
+      "id": "coatdarms:206-light-blue",
+      "name": "Light Blue",
+      "nameJa": "ライトブルー",
+      "hex": "#4AA8E0"
+    },
+    {
+      "id": "coatdarms:207-dark-blue",
+      "name": "Dark Blue",
+      "nameJa": "ダークブルー",
+      "hex": "#1F4A8A"
+    },
+    {
+      "id": "coatdarms:208-grass-green",
+      "name": "Grass Green",
+      "nameJa": "グラスグリーン",
+      "hex": "#4AB03C"
+    },
+    {
+      "id": "coatdarms:209-dark-green",
+      "name": "Dark Green",
+      "nameJa": "ダークグリーン",
+      "hex": "#2E5C3E"
+    },
+    {
+      "id": "coatdarms:210-purple",
+      "name": "Purple",
+      "nameJa": "インペリアルパープル",
+      "hex": "#A83E7B"
+    },
+    {
+      "id": "coatdarms:211-light-grey",
+      "name": "Light Grey",
+      "nameJa": "ライトグレイ",
+      "hex": "#D8D8D8"
+    },
+    {
+      "id": "coatdarms:212-dark-grey",
+      "name": "Dark Grey",
+      "nameJa": "ダークグレイ",
+      "hex": "#5C5C5C"
+    },
+    {
+      "id": "coatdarms:213-flesh",
+      "name": "Flesh",
+      "nameJa": "ヨーロピアンフレッシュ",
+      "hex": "#F2D0A8"
+    },
+    {
+      "id": "coatdarms:214-suntanned-flesh",
+      "name": "Suntanned Flesh",
+      "nameJa": "サンタンドフレッシュ",
+      "hex": "#E8A88A"
+    },
+    {
+      "id": "coatdarms:215-oriental-flesh",
+      "name": "Oriental Flesh",
+      "nameJa": "オリエンタルフレッシュ",
+      "hex": "#E8C088"
+    },
+    {
+      "id": "coatdarms:216-dark-flesh",
+      "name": "Dark Flesh",
+      "nameJa": "アフリカンフレッシュ",
+      "hex": "#3E2B23"
+    },
+    {
+      "id": "coatdarms:217-leather-brown",
+      "name": "Leather Brown",
+      "nameJa": "レザーブラウン",
+      "hex": "#B0813E"
+    },
+    {
+      "id": "coatdarms:218-wood-brown",
+      "name": "Wood Brown",
+      "nameJa": "ウッドブラウン",
+      "hex": "#8A5C33"
+    },
+    {
+      "id": "coatdarms:219-chestnut-brown",
+      "name": "Chestnut Brown",
+      "nameJa": "チェスナットブラウン",
+      "hex": "#5C3323"
+    },
+    {
+      "id": "coatdarms:220-silver",
+      "name": "Silver",
+      "nameJa": "ポリッシュドシルバー",
+      "hex": "#D0D0D4"
+    },
+    {
+      "id": "coatdarms:221-horse-tone-dun",
+      "name": "Horse-Tone Dun",
+      "nameJa": "ホーストーン ダン",
+      "hex": "#C0A87B"
+    },
+    {
+      "id": "coatdarms:222-horse-tone-roan",
+      "name": "Horse-Tone Roan",
+      "nameJa": "ホーストーン ローン",
+      "hex": "#C0B0A0"
+    },
+    {
+      "id": "coatdarms:223-horse-tone-chestnut",
+      "name": "Horse-Tone Chestnut",
+      "nameJa": "ホーストーン チェスナット",
+      "hex": "#8A2E1F"
+    },
+    {
+      "id": "coatdarms:224-horse-tone-bay",
+      "name": "Horse-Tone Bay",
+      "nameJa": "ホーストーン ベイ",
+      "hex": "#C46A2E"
+    },
+    {
+      "id": "coatdarms:225-khaki",
+      "name": "Khaki",
+      "nameJa": "カーキ",
+      "hex": "#C0B080"
+    },
+    {
+      "id": "coatdarms:226-olive",
+      "name": "Olive",
+      "nameJa": "オリーブ",
+      "hex": "#4A5223"
+    },
+    {
+      "id": "coatdarms:227-field-grey",
+      "name": "Field Grey",
+      "nameJa": "フィールドグレイ",
+      "hex": "#5C6B55"
+    },
+    {
+      "id": "coatdarms:228-buff",
+      "name": "Buff",
+      "nameJa": "バフ",
+      "hex": "#E8D8A0"
+    },
+    {
+      "id": "coatdarms:229-dark-sand",
+      "name": "Dark Sand",
+      "nameJa": "ダークサンド",
+      "hex": "#D0B863"
+    },
+    {
+      "id": "coatdarms:230-camouflage-green",
+      "name": "Camouflage Green",
+      "nameJa": "カモフラージュグリーン",
+      "hex": "#7BB03C"
+    },
+    {
+      "id": "coatdarms:231-mid-grey",
+      "name": "Mid Grey",
+      "nameJa": "ミドルグレイ",
+      "hex": "#A8A8A8"
+    },
+    {
+      "id": "coatdarms:232-bronze",
+      "name": "Bronze",
+      "nameJa": "ブロンズ",
+      "hex": "#6B5C33"
+    },
+    {
+      "id": "coatdarms:233-linen",
+      "name": "Linen",
+      "nameJa": "リネン",
+      "hex": "#F2E8C8"
+    },
+    {
+      "id": "coatdarms:234-dark-earth",
+      "name": "Dark Earth",
+      "nameJa": "ダークアース",
+      "hex": "#3E3423"
+    },
+    {
+      "id": "coatdarms:235-horse-tone-brown",
+      "name": "Horse-Tone Brown",
+      "nameJa": "ホーストーン ブラウン",
+      "hex": "#4A2E1F"
+    },
+    {
+      "id": "coatdarms:236-horse-tone-grey",
+      "name": "Horse-Tone Grey",
+      "nameJa": "ホーストーン グレイ",
+      "hex": "#D8E8E0"
+    },
+    {
+      "id": "coatdarms:237-russet-red",
+      "name": "Russet Red",
+      "nameJa": "ラセットレッド",
+      "hex": "#DE3038"
+    },
+    {
+      "id": "coatdarms:238-british-scarlet",
+      "name": "British Scarlet",
+      "nameJa": "ブリティッシュスカーレット",
+      "hex": "#E01F2B"
+    },
+    {
+      "id": "coatdarms:239-bavarian-blue",
+      "name": "Bavarian Blue",
+      "nameJa": "バイエルンブルー",
+      "hex": "#4AA8E8"
+    },
+    {
+      "id": "coatdarms:240-unbleached-wool",
+      "name": "Unbleached Wool",
+      "nameJa": "アンブリーチドウール",
+      "hex": "#E8F2D0"
+    },
+    {
+      "id": "coatdarms:241-rust",
+      "name": "Rust",
+      "nameJa": "ラスト",
+      "hex": "#C0552B"
+    },
+    {
+      "id": "coatdarms:501-british-khaki",
+      "name": "British Khaki",
+      "nameJa": "ブリティッシュカーキ",
+      "hex": "#8A7B3E"
+    },
+    {
+      "id": "coatdarms:502-field-drab",
+      "name": "Field Drab",
+      "nameJa": "フィールドドラブ",
+      "hex": "#83836A"
+    },
+    {
+      "id": "coatdarms:503-military-green",
+      "name": "Military Green",
+      "nameJa": "ミリタリーグリーン",
+      "hex": "#2E6B4A"
+    },
+    {
+      "id": "coatdarms:504-panzer-grey",
+      "name": "Panzer Grey",
+      "nameJa": "パンツァーグレイ",
+      "hex": "#3E4A55"
+    },
+    {
+      "id": "coatdarms:505-green-grey",
+      "name": "Green Grey",
+      "nameJa": "グリーングレイ",
+      "hex": "#4A5C4A"
+    },
+    {
+      "id": "coatdarms:506-desert-sand",
+      "name": "Desert Sand",
+      "nameJa": "デザートサンド",
+      "hex": "#E9C63F"
+    },
+    {
+      "id": "coatdarms:507-sea-grey",
+      "name": "Sea Grey",
+      "nameJa": "シーグレイ",
+      "hex": "#C0E8D8"
+    },
+    {
+      "id": "coatdarms:508-olive-drab",
+      "name": "Olive Drab",
+      "nameJa": "オリーブドラブ",
+      "hex": "#4A5C2B"
+    },
+    {
+      "id": "coatdarms:509-brick-red",
+      "name": "Brick Red",
+      "nameJa": "ブリックレッド",
+      "hex": "#8A3E2E"
+    },
+    {
+      "id": "coatdarms:510-mid-stone",
+      "name": "Mid Stone",
+      "nameJa": "ミドルストーン",
+      "hex": "#D08A33"
+    },
+    {
+      "id": "coatdarms:511-tank-blue-grey",
+      "name": "Tank Blue Grey",
+      "nameJa": "タンクブルーグレイ",
+      "hex": "#6B7B7B"
+    },
+    {
+      "id": "coatdarms:512-tank-green",
+      "name": "Tank Green",
+      "nameJa": "タンクグリーン",
+      "hex": "#2E7B5C"
+    },
+    {
+      "id": "coatdarms:513-faded-olive",
+      "name": "Faded Olive",
+      "nameJa": "フェーデッドオリーブ",
+      "hex": "#7BC08A"
+    },
+    {
+      "id": "coatdarms:514-pale-green",
+      "name": "Pale Green",
+      "nameJa": "ペールグリーン",
+      "hex": "#C0E8C0"
+    },
+    {
+      "id": "coatdarms:515-black-green",
+      "name": "Black Green",
+      "nameJa": "ブラックグリーン",
+      "hex": "#1F2E1F"
+    },
+    {
+      "id": "coatdarms:516-iron-grey",
+      "name": "Iron Grey",
+      "nameJa": "アイアングレイ",
+      "hex": "#3E4A5C"
+    },
+    {
+      "id": "coatdarms:517-desert-yellow",
+      "name": "Desert Yellow",
+      "nameJa": "デザートイエロー",
+      "hex": "#DBC959"
+    },
+    {
+      "id": "coatdarms:518-field-blue",
+      "name": "Field Blue",
+      "nameJa": "フィールドブルー",
+      "hex": "#A8C8D8"
+    },
+    {
+      "id": "coatdarms:519-chocolate-brown",
+      "name": "Chocolate Brown",
+      "nameJa": "チョコレートブラウン",
+      "hex": "#5C3E2B"
+    },
+    {
+      "id": "coatdarms:520-red-brown",
+      "name": "Red Brown",
+      "nameJa": "レッドブラウン",
+      "hex": "#8A3E33"
+    },
+    {
+      "id": "coatdarms:521-army-green",
+      "name": "Army Green",
+      "nameJa": "アーミーグリーン",
+      "hex": "#4A5C33"
+    },
+    {
+      "id": "coatdarms:522-pale-sand",
+      "name": "Pale Sand",
+      "nameJa": "ペールサンド",
+      "hex": "#EFE8C0"
+    },
+    {
+      "id": "coatdarms:523-us-dark-green",
+      "name": "US Dark Green",
+      "nameJa": "アメリカンダークグリーン",
+      "hex": "#3E8A6B"
+    },
+    {
+      "id": "coatdarms:524-tan-earth",
+      "name": "Tan Earth",
+      "nameJa": "タンアース",
+      "hex": "#B08A4A"
+    },
+    {
+      "id": "coatdarms:525-uniform-grey",
+      "name": "Uniform Grey",
+      "nameJa": "ユニフォームグレイ",
+      "hex": "#8A9CA0"
+    },
+    {
+      "id": "coatdarms:526-tank-light-grey",
+      "name": "Tank Light Grey",
+      "nameJa": "タンクライトグレイ",
+      "hex": "#E0E8DC"
+    },
+    {
+      "id": "coatdarms:527-tank-drab",
+      "name": "Tank Drab",
+      "nameJa": "タンクドラブ",
+      "hex": "#77855F"
+    },
+    {
+      "id": "coatdarms:528-russian-brown",
+      "name": "Russian Brown",
+      "nameJa": "ロシアンブラウン",
+      "hex": "#86867B"
+    },
+    {
+      "id": "coatdarms:529-beige-brown",
+      "name": "Beige Brown",
+      "nameJa": "ベージュブラウン",
+      "hex": "#AF7434"
+    },
+    {
+      "id": "coatdarms:530-russian-green",
+      "name": "Russian Green",
+      "nameJa": "ロシアングリーン",
+      "hex": "#4A6B4A"
+    },
+    {
+      "id": "coatdarms:531-japanese-uniform",
+      "name": "Japanese Uniform",
+      "nameJa": "ジャパニーズユニフォーム",
+      "hex": "#C0C82B"
+    },
+    {
+      "id": "coatdarms:532-italian-red-earth",
+      "name": "Italian Red Earth",
+      "nameJa": "イタリアンレッドアース",
+      "hex": "#E0632B"
+    },
+    {
+      "id": "coatdarms:533-slate-grey",
+      "name": "Slate Grey",
+      "nameJa": "スレートグレイ",
+      "hex": "#5C6B6B"
+    },
+    {
+      "id": "coatdarms:534-dark-leather",
+      "name": "Dark Leather",
+      "nameJa": "ダークレザー",
+      "hex": "#7A5233"
+    },
+    {
+      "id": "coatdarms:535-jungle-green",
+      "name": "Jungle Green",
+      "nameJa": "ジャングルグリーン",
+      "hex": "#477147"
+    },
+    {
+      "id": "coatdarms:536-forest-green",
+      "name": "Forest Green",
+      "nameJa": "フォレストグリーン",
+      "hex": "#2BC02B"
+    },
+    {
+      "id": "coatdarms:537-faded-khaki",
+      "name": "Faded Khaki",
+      "nameJa": "フェーデッドカーキ",
+      "hex": "#A8A05C"
+    }
+  ]
+}

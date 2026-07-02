@@ -1,0 +1,28 @@
+{
+  "brands": [
+    {
+      "id": "citadel",
+      "label": "Citadel",
+      "file": "citadel.json",
+      "count": 89
+    },
+    {
+      "id": "vallejo",
+      "label": "Vallejo",
+      "file": "vallejo.json",
+      "count": 79
+    },
+    {
+      "id": "ak",
+      "label": "AK Interactive",
+      "file": "ak.json",
+      "count": 52
+    },
+    {
+      "id": "coatdarms",
+      "label": "Coat d'arms",
+      "file": "coatdarms.json",
+      "count": 150
+    }
+  ]
+}
