@@ -21,5 +21,38 @@
   "errors": {
     "unsupportedImageFormat": "対応していない画像形式です",
     "storageQuota": "容量不足です。写真を減らすか、バックアップ後に不要なレシピを削除してください"
+  },
+  "paint": {
+    "brandLabel": "メーカー",
+    "colorLabel": "カラー",
+    "customBrand": "その他（自由入力）",
+    "customColorName": "カラー名",
+    "pickHex": "色見本を指定",
+    "attachChip": "カラーチップ写真",
+    "hexUnset": "hex未指定",
+    "searchPlaceholder": "カラー名で検索"
+  },
+  "mix": {
+    "label": "MIX",
+    "total": "計 {{value}}%",
+    "totalWarning": "合計が100%になるよう調整してください",
+    "ratioHint": "比率で入力（例 5:3:2）",
+    "addPaint": "＋塗料を追加",
+    "maxPaints": "最大5種まで",
+    "remaining": "（あと{{count}}）"
+  },
+  "photo": {
+    "add": "＋ 追加",
+    "uploading": "アップロード中…",
+    "moveUp": "上へ",
+    "moveDown": "下へ",
+    "makeCover": "先頭へ（代表にする）",
+    "cover": "COVER",
+    "delete": "削除"
+  },
+  "confirm": {
+    "cancel": "キャンセル",
+    "delete": "削除する",
+    "irreversible": "この操作は取り消しできません"
   }
 }

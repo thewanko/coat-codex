@@ -21,5 +21,38 @@
   "errors": {
     "unsupportedImageFormat": "Unsupported image format",
     "storageQuota": "Storage is full. Reduce photos or delete recipes after backing up."
+  },
+  "paint": {
+    "brandLabel": "Brand",
+    "colorLabel": "Color",
+    "customBrand": "Other (custom)",
+    "customColorName": "Color name",
+    "pickHex": "Pick a swatch color",
+    "attachChip": "Color chip photo",
+    "hexUnset": "No hex",
+    "searchPlaceholder": "Search colors"
+  },
+  "mix": {
+    "label": "MIX",
+    "total": "Total {{value}}%",
+    "totalWarning": "Adjust so the total equals 100%",
+    "ratioHint": "Enter as ratio (e.g. 5:3:2)",
+    "addPaint": "+ Add paint",
+    "maxPaints": "Up to 5 paints",
+    "remaining": "({{count}} left)"
+  },
+  "photo": {
+    "add": "+ Add",
+    "uploading": "Uploading…",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "makeCover": "Make cover",
+    "cover": "COVER",
+    "delete": "Delete"
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "irreversible": "This cannot be undone."
   }
 }
