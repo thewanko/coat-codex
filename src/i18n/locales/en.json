@@ -136,7 +136,7 @@
   },
   "overview": {
     "baseOverline": "BASE",
-    "editBaseSteps": "Edit ›",
+    "baseCardName": "Base steps (overall)",
     "addBaseStep": "+ Add base steps",
     "partsHeading": "PARTS",
     "partsHeadingJp": "Parts",

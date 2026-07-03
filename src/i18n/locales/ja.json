@@ -136,7 +136,7 @@
   },
   "overview": {
     "baseOverline": "BASE",
-    "editBaseSteps": "編集 ›",
+    "baseCardName": "ベース工程（全体）",
     "addBaseStep": "＋ ベース工程を追加",
     "partsHeading": "PARTS",
     "partsHeadingJp": "パーツ",

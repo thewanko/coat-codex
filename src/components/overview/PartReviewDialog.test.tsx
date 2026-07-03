@@ -77,7 +77,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> & { id: string }): RecipeDoc {
 
 function renderDialog(
   recipe: RecipeDoc,
-  partId: string,
+  partId: string | null,
   onClose = vi.fn(),
   open = true,
 ) {
@@ -326,6 +326,52 @@ describe("PartReviewDialog — 工程0件", () => {
     });
 
     renderDialog(recipe, "part_1");
+
+    expect(screen.getByText("工程がまだありません")).toBeInTheDocument();
+  });
+});
+
+describe("PartReviewDialog — baseモード（partId=null。2026-07-03 BASEカード独立化）", () => {
+  test("recipe.baseStepsを表示し、見出しはoverview.baseCardName、共有ボタンは描画しない", async () => {
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      baseSteps: [
+        makeStep({
+          id: "base_stp_1",
+          technique: { presetKey: "basecoat", label: null },
+          memo: "下地はムラなく",
+        }),
+      ],
+    });
+
+    renderDialog(recipe, null);
+
+    expect(
+      screen.getByRole("heading", { name: "ベース工程（全体）" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(t("techniques.basecoat"))).toBeInTheDocument();
+    expect(screen.getByText("下地はムラなく")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Xで共有" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Blueskyで共有" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("編集リンク先は/recipe/:id/part/base", () => {
+    const recipe = makeRecipe({ id: "rcp_1", baseSteps: [] });
+
+    renderDialog(recipe, null);
+
+    const editLink = screen.getByRole("link", { name: "このパーツを編集" });
+    expect(editLink).toHaveAttribute("href", "/recipe/rcp_1/part/base");
+  });
+
+  test("baseSteps0件時はpartReview.noStepsを表示する", () => {
+    const recipe = makeRecipe({ id: "rcp_1", baseSteps: [] });
+
+    renderDialog(recipe, null);
 
     expect(screen.getByText("工程がまだありません")).toBeInTheDocument();
   });

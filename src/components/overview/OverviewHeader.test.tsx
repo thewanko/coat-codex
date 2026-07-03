@@ -17,45 +17,26 @@ vi.mock("../../db/photoStore", () => ({
 
 describe("OverviewHeader", () => {
   test("代表写真ロード中はSkeleton(photo)を表示する", () => {
-    render(
-      <OverviewHeader
-        representativePhotoId="pht_1"
-        baseSteps={[]}
-        onEditBaseSteps={vi.fn()}
-      />,
-    );
+    render(<OverviewHeader representativePhotoId="pht_1" />);
 
     expect(screen.getByRole("status")).toHaveAttribute("data-variant", "photo");
   });
 
-  test("代表写真解決後は写真とBaseStepOverlayを表示する", async () => {
-    render(
-      <OverviewHeader
-        representativePhotoId="pht_1"
-        baseSteps={[]}
-        onEditBaseSteps={vi.fn()}
-      />,
-    );
+  test("代表写真解決後は写真を表示する", async () => {
+    render(<OverviewHeader representativePhotoId="pht_1" />);
 
     await waitFor(() => {
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
     });
     expect(
-      screen.getByRole("button", { name: "＋ ベース工程を追加" }),
+      document.querySelector('img[src="blob:mock-url"]'),
     ).toBeInTheDocument();
   });
 
-  test("代表写真未設定でもBaseStepOverlayの帯は表示される", () => {
-    render(
-      <OverviewHeader
-        representativePhotoId={null}
-        baseSteps={[]}
-        onEditBaseSteps={vi.fn()}
-      />,
-    );
+  test("代表写真未設定でもエラーにならず表示される", () => {
+    render(<OverviewHeader representativePhotoId={null} />);
 
-    expect(
-      screen.getByRole("button", { name: "＋ ベース工程を追加" }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(document.querySelector("img")).not.toBeInTheDocument();
   });
 });

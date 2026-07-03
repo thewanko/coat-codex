@@ -18,6 +18,9 @@
 // onReviewを呼ぶ。カード自体はタップ=編集直行（onOpen）を維持するため、カードのルート要素は
 // button同士のネストを避けてdiv role="button"へ変更し、レビューボタンのクリックは
 // stopPropagationでカードのonOpenと干渉しないようにする（技術計画v2.3 §3.3 PartCard行）。
+//
+// 2026-07-03: order propを省略可能にした（BASEカード=RecipeOverviewPage直下の合成part表示で
+// 番号セルを出さないため。SortableContext外で使う場合に対応。他の意匠・ロジックは不変）。
 
 import { useEffect, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
@@ -32,7 +35,7 @@ export type RecipePart = RecipeDoc["parts"][number];
 
 interface PartCardProps {
   part: RecipePart;
-  order: number;
+  order?: number;
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
 }
@@ -114,9 +117,11 @@ function PartCard({ part, order, onOpen, onReview }: PartCardProps) {
       onKeyDown={handleKeyDown}
       data-testid="part-card"
     >
-      <span className={styles.order} aria-hidden="true">
-        {order}
-      </span>
+      {order !== undefined && (
+        <span className={styles.order} aria-hidden="true">
+          {order}
+        </span>
+      )}
 
       {photoLoading ? (
         <Skeleton variant="photo" aria-label={t("photo.uploading")} />
