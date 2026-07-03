@@ -58,8 +58,12 @@ function makeSummaryImage(): ComposedShareImage {
     variant: "whole",
     title: "T",
     progressLabel: "パーツ1・全2工程",
+    partRows: [],
+    overflowPartsLabel: null,
+    sectionPartsLabel: "パーツ構成",
     swatches: [],
     overflowColorsLabel: null,
+    sectionColorsLabel: "使用カラー",
   };
   return {
     spec,

@@ -68,6 +68,19 @@ export interface CandidateResolvers {
   overflowStepsLabel(remaining: number): string;
   /** まとめカード（part）: 工程のツール名列（recipe.toolsからtoolIdsを名前解決）。ツールなしは空配列 */
   toolLabels(step: StepLike): string[];
+  /**
+   * まとめカード（whole）: パーツ行の先頭に置く「ベース工程（全体）」の行名
+   * （既存i18nキー overview.baseCardName の値と同一文言。呼び出し側が同じ解決結果を注入すること）。
+   */
+  baseSectionLabel(): string;
+  /** まとめカード（whole）: パーツ行の工程数表示（例: "5工程"） */
+  partStepsLabel(count: number): string;
+  /** まとめカード（whole）: パーツ行が上限を超えた際の残数表示（例: "…他3パーツ"） */
+  overflowPartsLabel(remaining: number): string;
+  /** まとめカード（whole）: 「パーツ構成」セクション見出し */
+  sectionPartsLabel(): string;
+  /** まとめカード（whole）: 「使用カラー」セクション見出し */
+  sectionColorsLabel(): string;
 }
 
 /** カードに描くスウォッチ1件分（解決済み） */
@@ -144,17 +157,38 @@ export interface SummaryStepRow {
   memo: string;
 }
 
-/** まとめカード（whole）: レシピ名・パーツ数/全工程数・パレット全色スウォッチの表紙1枚絵 */
+/** まとめカード（whole）のパーツ行1行分（解決済み）。「パーツ名 … N工程」の目次形式 */
+export interface SummaryPartRow {
+  name: string;
+  stepsLabel: string;
+}
+
+/**
+ * まとめカード（whole）: レシピ名・進捗・「レシピの目次」（パーツ構成一覧＋使用カラー一覧）の表紙1枚絵。
+ * 2026-07-03実機フィードバック（「パーツ：工程数と使用カラーの一覧ぐらいでいい」）を受け、
+ * summary(whole)は工程詳細を持たず目次に徹する（工程の詳細はsummary(part)の役割）。
+ */
 export interface SummaryWholeCandidateSpec {
   kind: "summary";
   variant: "whole";
   title: string;
   /** パーツ数/全工程数の進捗文字列（resolvers.summaryProgress解決済み） */
   progressLabel: string;
+  /**
+   * パーツ構成の目次行（baseSteps非空時は先頭に「ベース工程（全体）」行、以降parts順で
+   * 工程数1以上のパーツのみ）。静的上限を超えた分はoverflowPartsLabelへ集約する。
+   */
+  partRows: SummaryPartRow[];
+  /** パーツ行が上限を超えた場合の残数表示（resolvers.overflowPartsLabel解決済み）。超過なしはnull */
+  overflowPartsLabel: string | null;
+  /** 「パーツ構成」セクション見出し（resolvers.sectionPartsLabel解決済み） */
+  sectionPartsLabel: string;
   /** パレット全色スウォッチ（上限12色）。13色目以降はoverflowColorsLabelへ集約 */
   swatches: SwatchSpec[];
   /** スウォッチが12色を超えた場合の残数表示（resolvers.overflowColorsLabel解決済み）。超過なしはnull */
   overflowColorsLabel: string | null;
+  /** 「使用カラー」セクション見出し（resolvers.sectionColorsLabel解決済み） */
+  sectionColorsLabel: string;
 }
 
 /**
@@ -191,6 +225,48 @@ const TITLE_AREA_HEIGHT = 64;
 
 /** まとめカードのスウォッチ列表示上限（超過分は「+N」に集約） */
 const SUMMARY_SWATCH_LIMIT = 12;
+
+/**
+ * summary(whole)のパーツ行（目次）表示上限（超過分はoverflowPartsLabelへ集約）。
+ * レイアウト計算根拠はcomputeCardLayoutのsummary(whole)分岐コメントを参照。
+ */
+const SUMMARY_PART_ROWS_LIMIT = 8;
+/**
+ * summary(whole)のパーツ行1行分の高さ・セクション小見出しの高さ。
+ * computeCardLayoutのsummary(whole)分岐とdrawSummaryPartRows/drawSectionHeadingの
+ * 両方が同じ値を参照する（レイアウト計算と描画実装の値の一致をここで保証する）。
+ */
+const SUMMARY_PART_ROW_HEIGHT = 40;
+/** パーツ行内: 行頭からベースラインまでのオフセット（fillTextのy）。行高より小さい必要がある */
+const SUMMARY_PART_ROW_BASELINE_OFFSET = 26;
+/** パーツ行内: 行間の細罫のy位置（次行境界の直前）。行高から見た罫線の食い込み量 */
+const SUMMARY_PART_ROW_RULE_INSET = 8;
+/**
+ * overflow行（「…他Nパーツ」）1行分の高さ予算。SUMMARY_PART_ROW_HEIGHTと同じ値を採用し
+ * 「1行ぶん」として予算確保する（summary(part)のcomputeStepCapacityと同じ「overflow行の
+ * 高さをareaの予算に含める」パターン）。
+ */
+const SUMMARY_PART_OVERFLOW_ROW_HEIGHT = SUMMARY_PART_ROW_HEIGHT;
+/**
+ * overflow行内: 行頭（rows.length行ぶんの直後）からベースラインまでのオフセット。
+ * 通常行のSUMMARY_PART_ROW_BASELINE_OFFSET(26/フォント20px)よりオーバーラインが軽い
+ * フォント18pxのぶん小さい値。SUMMARY_PART_OVERFLOW_ROW_HEIGHT(40)の予算内に収まる。
+ */
+const SUMMARY_PART_OVERFLOW_ROW_BASELINE_OFFSET = 20;
+const SUMMARY_SECTION_HEADING_HEIGHT = 30;
+
+/**
+ * summary(whole)の「使用カラー」グリッドの列数（色名・ブランド併記セルを3列で並べる。
+ * FB-3: 旧実装drawSwatchGridは名前なしの正方形を1行に並べるだけだったため、
+ * summary(part)工程行のスウォッチ表記（色名・ブランド併記）に意匠を揃える）。
+ */
+const SUMMARY_COLOR_GRID_COLUMNS = 3;
+/**
+ * 使用カラーグリッド1行分の高さ。スウォッチ40px＋色名（15px）＋ブランド小字（13px）を
+ * 縦に収めて44px（swatch下端から4pxの余白）。この値はcomputeCardLayoutのsummary(whole)
+ * 分岐（colorsGridHeight計算）とdrawSummaryColorGridの両方が参照する（値の一致を保証）。
+ */
+const SUMMARY_COLOR_GRID_ROW_HEIGHT = 44;
 
 /** summary(part)の工程行1行分の高さ（技法行のみ。印刷ビュー工程行の翻案） */
 const SUMMARY_STEP_ROW_HEIGHT = 44;
@@ -264,6 +340,37 @@ function capSwatches(
   };
 }
 
+/**
+ * whole用まとめカードのパーツ行（目次）を構築する。baseStepsが非空なら先頭に
+ * 「ベース工程（全体）」行、以降parts順で工程数1以上のパーツのみを行にする
+ * （工程0件のパーツは書きかけとみなしスキップ）。
+ */
+function buildSummaryPartRows(
+  recipe: RecipeDocLike,
+  resolvers: CandidateResolvers,
+): SummaryPartRow[] {
+  const rows: SummaryPartRow[] = [];
+
+  if (recipe.baseSteps.length > 0) {
+    rows.push({
+      name: resolvers.baseSectionLabel(),
+      stepsLabel: resolvers.partStepsLabel(recipe.baseSteps.length),
+    });
+  }
+
+  for (const part of recipe.parts) {
+    if (part.steps.length === 0) {
+      continue;
+    }
+    rows.push({
+      name: part.name,
+      stepsLabel: resolvers.partStepsLabel(part.steps.length),
+    });
+  }
+
+  return rows;
+}
+
 /** whole用まとめカードのスペックを構築する（全体写真の有無を問わず常に1枚生成する「レシピの表紙」） */
 function buildSummaryWholeCandidate(
   recipe: RecipeDocLike,
@@ -284,13 +391,26 @@ function buildSummaryWholeCandidate(
     .map((color) => ({ name: color.name, hex: color.hex, brand: color.brand }));
   const { swatches, overflowColorsLabel } = capSwatches(allSwatches, resolvers);
 
+  const allPartRows = buildSummaryPartRows(recipe, resolvers);
+  const partRows = allPartRows.slice(0, SUMMARY_PART_ROWS_LIMIT);
+  const overflowPartsLabel =
+    allPartRows.length > SUMMARY_PART_ROWS_LIMIT
+      ? resolvers.overflowPartsLabel(
+          allPartRows.length - SUMMARY_PART_ROWS_LIMIT,
+        )
+      : null;
+
   return {
     kind: "summary",
     variant: "whole",
     title: recipe.title,
     progressLabel: resolvers.summaryProgress(recipe.parts.length, totalSteps),
+    partRows,
+    overflowPartsLabel,
+    sectionPartsLabel: resolvers.sectionPartsLabel(),
     swatches,
     overflowColorsLabel,
+    sectionColorsLabel: resolvers.sectionColorsLabel(),
   };
 }
 
@@ -464,7 +584,9 @@ export interface CardLayout {
   swatchArea: Rect | null;
   /** summary(part)専用: 工程リスト（収容計算による動的行数＋overflow行）の描画領域。タイトル直下〜フッタ直上まで拡大。whole/part・summary(whole)はnull */
   summaryStepListArea: Rect | null;
-  /** summary(whole)専用: パレット全色スウォッチ列の描画領域。summary(part)は工程行に色が出るため廃止済み。whole/partはnull */
+  /** summary(whole)専用: 「パーツ構成」セクション（見出し＋パーツ行リスト）の描画領域。whole/part・summary(part)はnull */
+  summaryPartRowsArea: Rect | null;
+  /** summary(whole)専用: 「使用カラー」セクション（見出し＋パレット全色スウォッチ列）の描画領域。summary(part)は工程行に色が出るため廃止済み。whole/partはnull */
   summarySwatchArea: Rect | null;
 }
 
@@ -502,13 +624,56 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
     const bodyTop = titleArea.y + titleArea.height;
 
     if (spec.variant === "whole") {
-      const swatchAreaHeight = 200;
+      // summary(whole)は「レシピの目次」（2026-07-03実機フィードバック）: 進捗行の下に
+      // 「パーツ構成」セクション（見出し＋パーツ行リスト。spec.partRows.lengthは
+      // buildSummaryWholeCandidateで既にSUMMARY_PART_ROWS_LIMIT行に切り詰め済みのため、
+      // ここでは渡された行数をそのまま信じて上詰めレイアウトする＝FB-3）、
+      // その下に「使用カラー」セクション（見出し＋色名・ブランド併記の3列グリッド・
+      // 上限SUMMARY_SWATCH_LIMIT色＝ceil(12/3)=4行）を縦に並べる。
+      // overflow行の高さ予算はcomputeStepCapacity（summary(part)）と同じ考え方で
+      // area側に含める（drawSummaryPartRowsのoverflow行がrect外にはみ出さないための保証）。
+      //
+      // 予算内訳（bodyTop〜contentBottomの716pxに対して。パーツ行8＋overflow・色12の最大ケース）:
+      //   progressReserve(48) + sectionGapTop(12) + partsHeading(30) + 8行×40px(320)
+      //   + overflowRow(40) + sectionGapMid(28) + colorsHeading(30) + colorsGrid(4行×44=176)
+      //   = 684px（bottomMost=828px。contentBottom 860pxに対し32pxの余裕）
+      const progressReserve = 48;
+      const sectionGapTop = 12;
+      const sectionGapMid = 28;
+      const colorSlotCount = Math.min(
+        spec.swatches.length,
+        SUMMARY_SWATCH_LIMIT,
+      );
+      const colorGridRows = Math.max(
+        1,
+        Math.ceil(colorSlotCount / SUMMARY_COLOR_GRID_COLUMNS),
+      );
+      const colorsGridHeight = colorGridRows * SUMMARY_COLOR_GRID_ROW_HEIGHT;
+
+      const partsHeadingY = bodyTop + progressReserve + sectionGapTop;
+      const partsAreaHeight =
+        SUMMARY_SECTION_HEADING_HEIGHT +
+        spec.partRows.length * SUMMARY_PART_ROW_HEIGHT +
+        (spec.overflowPartsLabel !== null
+          ? SUMMARY_PART_OVERFLOW_ROW_HEIGHT
+          : 0);
+      const summaryPartRowsArea: Rect = {
+        x: MARGIN,
+        y: partsHeadingY,
+        width: CARD_WIDTH - MARGIN * 2,
+        height: partsAreaHeight,
+      };
+
+      const colorsHeadingY = partsHeadingY + partsAreaHeight + sectionGapMid;
+      const colorsAreaHeight =
+        SUMMARY_SECTION_HEADING_HEIGHT + colorsGridHeight;
       const summarySwatchArea: Rect = {
         x: MARGIN,
-        y: contentBottom - swatchAreaHeight,
+        y: colorsHeadingY,
         width: CARD_WIDTH - MARGIN * 2,
-        height: swatchAreaHeight,
+        height: colorsAreaHeight,
       };
+
       return {
         cardWidth: CARD_WIDTH,
         cardHeight: CARD_HEIGHT,
@@ -520,6 +685,7 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
         textArea: null,
         swatchArea: null,
         summaryStepListArea: null,
+        summaryPartRowsArea,
         summarySwatchArea,
       };
     }
@@ -544,6 +710,7 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
       textArea: null,
       swatchArea: null,
       summaryStepListArea,
+      summaryPartRowsArea: null,
       summarySwatchArea: null,
     };
   }
@@ -574,6 +741,7 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
       },
       swatchArea: null,
       summaryStepListArea: null,
+      summaryPartRowsArea: null,
       summarySwatchArea: null,
     };
   }
@@ -636,6 +804,7 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
           }
         : null,
     summaryStepListArea: null,
+    summaryPartRowsArea: null,
     summarySwatchArea: null,
   };
 }
@@ -730,8 +899,20 @@ export interface CanvasContextLike {
   fillRect(x: number, y: number, w: number, h: number): void;
   strokeRect(x: number, y: number, w: number, h: number): void;
   fillText(text: string, x: number, y: number, maxWidth?: number): void;
+  /** 全面描画（画像全体をdest矩形へ引き伸ばして描く）。naturalSize取得不能時のフォールバックに使う */
   drawImage(
     image: CanvasImageSource,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
+  ): void;
+  drawImage(
+    image: CanvasImageSource,
+    sx: number,
+    sy: number,
+    sw: number,
+    sh: number,
     dx: number,
     dy: number,
     dw: number,
@@ -786,6 +967,68 @@ function drawPhotoPlaceholder(ctx: CanvasContextLike, rect: Rect): void {
   ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
 }
 
+/** drawImageの9引数形式に渡す元画像側の切り出し矩形（cover配置計算の結果） */
+export interface SourceRect {
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+}
+
+/**
+ * cover配置（rect全面を埋め、はみ出す側を中央クロップ・レターボックス無し）で描画するための
+ * 元画像側の切り出し矩形を計算する（純関数）。dest（描画先rect）のアスペクト比を保ったまま、
+ * 元画像内で最大となる中央矩形を返す。
+ * ゼロ・負値ガード: src/destいずれかの幅高さが0以下の場合は例外を投げず、
+ * フォールバックとして元画像全面 `{0, 0, srcWidth, srcHeight}` を返す。
+ */
+export function computeCoverSourceRect(
+  srcWidth: number,
+  srcHeight: number,
+  destWidth: number,
+  destHeight: number,
+): SourceRect {
+  if (srcWidth <= 0 || srcHeight <= 0 || destWidth <= 0 || destHeight <= 0) {
+    return { sx: 0, sy: 0, sw: srcWidth, sh: srcHeight };
+  }
+
+  const srcAspect = srcWidth / srcHeight;
+  const destAspect = destWidth / destHeight;
+
+  if (srcAspect > destAspect) {
+    // 元画像の方が横長: 高さいっぱいを使い、左右をクロップする
+    const sw = srcHeight * destAspect;
+    return { sx: (srcWidth - sw) / 2, sy: 0, sw, sh: srcHeight };
+  }
+
+  if (srcAspect < destAspect) {
+    // 元画像の方が縦長: 幅いっぱいを使い、上下をクロップする
+    const sh = srcWidth / destAspect;
+    return { sx: 0, sy: (srcHeight - sh) / 2, sw: srcWidth, sh };
+  }
+
+  // アスペクト比が同一: クロップ不要で全面を使う
+  return { sx: 0, sy: 0, sw: srcWidth, sh: srcHeight };
+}
+
+/**
+ * CanvasImageSource（ImageBitmap等）から安全に自然寸法（width/height）を読む。
+ * width/heightがnumberでない実装（SVGElement系はSVGAnimatedLength等を持つ）の場合はnullを返し、
+ * 呼び出し側でcover計算をスキップして従来どおりの全面描画にフォールバックできるようにする。
+ */
+function readImageNaturalSize(
+  image: CanvasImageSource,
+): { width: number; height: number } | null {
+  const candidate = image as { width?: unknown; height?: unknown };
+  if (
+    typeof candidate.width === "number" &&
+    typeof candidate.height === "number"
+  ) {
+    return { width: candidate.width, height: candidate.height };
+  }
+  return null;
+}
+
 /** 写真Blobをrect内へアスペクト維持のcover配置で描画する。decode失敗時はプレースホルダ */
 async function drawPhoto(
   ctx: CanvasContextLike,
@@ -806,11 +1049,36 @@ async function drawPhoto(
 
   try {
     const image = await deps.decodeImage(blob);
+    const naturalSize = readImageNaturalSize(image);
+
     ctx.save();
     ctx.beginPath();
     ctx.rect(rect.x, rect.y, rect.width, rect.height);
     ctx.clip();
-    ctx.drawImage(image, rect.x, rect.y, rect.width, rect.height);
+    if (naturalSize) {
+      const source: SourceRect = computeCoverSourceRect(
+        naturalSize.width,
+        naturalSize.height,
+        rect.width,
+        rect.height,
+      );
+      ctx.drawImage(
+        image,
+        source.sx,
+        source.sy,
+        source.sw,
+        source.sh,
+        rect.x,
+        rect.y,
+        rect.width,
+        rect.height,
+      );
+    } else {
+      // naturalSize取得不能: cover計算ができないため、画像全体をrect全面へ描画する
+      // （5引数形式=「画像全体をdestへ」で、ソースを画像全体に固定する意味的に非等価な
+      // 部分クロップを避ける。ネイティブCanvasRenderingContext2D.drawImageの正規オーバーロード）。
+      ctx.drawImage(image, rect.x, rect.y, rect.width, rect.height);
+    }
     ctx.restore();
   } catch {
     drawPhotoPlaceholder(ctx, rect);
@@ -1000,7 +1268,90 @@ function drawPartCard(
   }
 }
 
-/** まとめカード（summary/whole）: レシピ名＋進捗＋パレット全色スウォッチの表紙意匠 */
+/**
+ * まとめカード共通のセクション小見出しを描く（金のオーバーライン風小文字。既存カード意匠と一貫）。
+ * areaの最上部に描き、戻り値としてこの見出し直下のyオフセット（次要素の開始位置）を返す。
+ */
+function drawSectionHeading(
+  ctx: CanvasContextLike,
+  area: Rect,
+  label: string,
+): number {
+  ctx.fillStyle = THEME_COLORS.gold;
+  ctx.font = `500 15px ${OVERLINE_FONT_STACK}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  fillTextTracked(ctx, label, area.x, area.y + 14, 1.5);
+  return area.y + SUMMARY_SECTION_HEADING_HEIGHT;
+}
+
+/**
+ * summary(whole)のパーツ行リストを描く（「パーツ名 … N工程」の目次形式）。
+ * パーツ名は左寄せ・工程数ラベルは行右端に右寄せ。名前が幅超過時はtruncateToWidthで詰める。
+ */
+function drawSummaryPartRows(
+  ctx: CanvasContextLike,
+  area: Rect,
+  headingLabel: string,
+  rows: SummaryPartRow[],
+  overflowLabel: string | null,
+): void {
+  const rowsTop = drawSectionHeading(ctx, area, headingLabel);
+  const rowWidth = area.width;
+
+  rows.forEach((row, index) => {
+    // SUMMARY_PART_ROW_HEIGHT（行高）を前提としたベースライン位置（行頭からのオフセット）
+    const baselineY =
+      rowsTop +
+      index * SUMMARY_PART_ROW_HEIGHT +
+      SUMMARY_PART_ROW_BASELINE_OFFSET;
+
+    ctx.font = `400 20px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = THEME_COLORS.goldSoft;
+    ctx.fillText(row.stepsLabel, area.x + rowWidth, baselineY);
+    const stepsLabelWidth = ctx.measureText(row.stepsLabel).width;
+
+    ctx.font = `500 20px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "left";
+    ctx.fillStyle = THEME_COLORS.ink;
+    const nameMaxWidth = rowWidth - stepsLabelWidth - 24;
+    ctx.fillText(
+      truncateToWidth(ctx, row.name, Math.max(0, nameMaxWidth)),
+      area.x,
+      baselineY,
+    );
+
+    // 行間の細罫（印刷ビューstepRowのborder-bottom相当。次行境界からSUMMARY_PART_ROW_RULE_INSETぶん上）
+    const ruleY =
+      rowsTop +
+      (index + 1) * SUMMARY_PART_ROW_HEIGHT -
+      SUMMARY_PART_ROW_RULE_INSET;
+    ctx.fillStyle = THEME_COLORS.line;
+    ctx.fillRect(area.x, ruleY, rowWidth, 1);
+  });
+
+  if (overflowLabel !== null) {
+    // overflow行はrows.length行ぶんの直後（SUMMARY_PART_OVERFLOW_ROW_HEIGHT予算の枠内）に
+    // ベースラインオフセットSUMMARY_PART_OVERFLOW_ROW_BASELINE_OFFSETで配置する。
+    const y =
+      rowsTop +
+      rows.length * SUMMARY_PART_ROW_HEIGHT +
+      SUMMARY_PART_OVERFLOW_ROW_BASELINE_OFFSET;
+    ctx.fillStyle = THEME_COLORS.gold;
+    ctx.font = `600 18px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(overflowLabel, area.x, y);
+  }
+}
+
+/**
+ * まとめカード（summary/whole）: レシピ名＋進捗＋「パーツ構成」（目次）＋「使用カラー」の表紙意匠。
+ * 2026-07-03実機フィードバック（「パーツ：工程数と使用カラーの一覧ぐらいでいい」）を受け、
+ * summary(whole)は「レシピの目次」に徹する（工程の詳細はsummary(part)の役割）。
+ */
 function drawSummaryWholeCard(
   ctx: CanvasContextLike,
   spec: SummaryWholeCandidateSpec,
@@ -1018,11 +1369,29 @@ function drawSummaryWholeCard(
     layout.titleArea.y + layout.titleArea.height + 32,
   );
 
-  if (layout.summarySwatchArea !== null) {
-    // スウォッチは複数行に折り返す（12色を1行で収めるとカード幅を超えるため）
-    drawSwatchGrid(
+  if (layout.summaryPartRowsArea !== null) {
+    drawSummaryPartRows(
       ctx,
-      layout.summarySwatchArea,
+      layout.summaryPartRowsArea,
+      spec.sectionPartsLabel,
+      spec.partRows,
+      spec.overflowPartsLabel,
+    );
+  }
+
+  if (layout.summarySwatchArea !== null) {
+    const area = layout.summarySwatchArea;
+    const gridTop = drawSectionHeading(ctx, area, spec.sectionColorsLabel);
+    const gridArea: Rect = {
+      x: area.x,
+      y: gridTop,
+      width: area.width,
+      height: area.height - SUMMARY_SECTION_HEADING_HEIGHT,
+    };
+    // 色名・ブランド併記の3列グリッド（FB-3: 旧drawSwatchGridは名前なしの正方形羅列だった）
+    drawSummaryColorGrid(
+      ctx,
+      gridArea,
       spec.swatches,
       spec.overflowColorsLabel,
     );
@@ -1241,42 +1610,71 @@ function drawSummaryPartCard(
   }
 }
 
-/** スウォッチをグリッド状（1行6個まで）に描く。まとめカードは最大12色＋overflow文字を収めるため折り返す */
-function drawSwatchGrid(
+/** 使用カラーグリッド1セル内のスウォッチ辺長（drawSwatchRowと共通の意匠） */
+const SUMMARY_COLOR_SWATCH_SIZE = 40;
+
+/**
+ * summary(whole)「使用カラー」セクション専用: 色名・ブランド併記のセルを
+ * SUMMARY_COLOR_GRID_COLUMNS列のグリッドで描く（FB-3）。
+ * 1セル =「スウォッチ（塗り＋線色枠）＋右に色名（ink・15px）＋その下にブランド小字
+ * （line色・13px。brandがnullなら省略）」で、summary(part)工程行のスウォッチ表記
+ * （drawSummaryStepRow）と意匠を揃える。色名はセル幅内でtruncateToWidthして詰める。
+ * overflowLabelはcapSwatchesの仕様上swatches.length===SUMMARY_SWATCH_LIMIT（グリッド満杯）
+ * の時のみ非nullになるため、新規セル/行を追加せず最終行の右端に金文字で添える。
+ */
+function drawSummaryColorGrid(
   ctx: CanvasContextLike,
   area: Rect,
   swatches: SwatchSpec[],
   overflowLabel: string | null,
 ): void {
-  const swatchSize = 40;
-  const gap = 12;
-  const perRow = Math.max(
-    1,
-    Math.floor((area.width + gap) / (swatchSize + gap)),
-  );
+  const swatchSize = SUMMARY_COLOR_SWATCH_SIZE;
+  const columns = SUMMARY_COLOR_GRID_COLUMNS;
+  const cellWidth = area.width / columns;
+  const labelMaxWidth = cellWidth - swatchSize - 12 - 8;
 
   swatches.forEach((swatch, index) => {
-    const col = index % perRow;
-    const row = Math.floor(index / perRow);
-    const x = area.x + col * (swatchSize + gap);
-    const y = area.y + row * (swatchSize + gap);
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const x = area.x + col * cellWidth;
+    const y = area.y + row * SUMMARY_COLOR_GRID_ROW_HEIGHT;
+
     ctx.fillStyle = swatch.hex ?? THEME_COLORS.line;
     ctx.fillRect(x, y, swatchSize, swatchSize);
     ctx.strokeStyle = THEME_COLORS.line;
     ctx.strokeRect(x, y, swatchSize, swatchSize);
+
+    const labelX = x + swatchSize + 12;
+    ctx.fillStyle = THEME_COLORS.ink;
+    ctx.font = `400 15px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(
+      truncateToWidth(ctx, swatch.name, Math.max(0, labelMaxWidth)),
+      labelX,
+      y + swatchSize / 2 - 3,
+    );
+
+    if (swatch.brand !== null) {
+      ctx.fillStyle = THEME_COLORS.line;
+      ctx.font = `400 13px ${BODY_FONT_STACK}`;
+      ctx.fillText(
+        truncateToWidth(ctx, swatch.brand, Math.max(0, labelMaxWidth)),
+        labelX,
+        y + swatchSize / 2 + 14,
+      );
+    }
   });
 
   if (overflowLabel !== null) {
-    const index = swatches.length;
-    const col = index % perRow;
-    const row = Math.floor(index / perRow);
-    const x = area.x + col * (swatchSize + gap);
-    const y = area.y + row * (swatchSize + gap);
+    const lastRow = Math.max(0, Math.ceil(swatches.length / columns) - 1);
+    const y = area.y + lastRow * SUMMARY_COLOR_GRID_ROW_HEIGHT;
     ctx.fillStyle = THEME_COLORS.gold;
     ctx.font = `600 20px ${BODY_FONT_STACK}`;
-    ctx.textAlign = "left";
+    ctx.textAlign = "right";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(overflowLabel, x, y + swatchSize / 2 + 7);
+    ctx.fillText(overflowLabel, area.x + area.width, y + swatchSize / 2 + 7);
+    ctx.textAlign = "left";
   }
 }
 
