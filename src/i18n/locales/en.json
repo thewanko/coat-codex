@@ -92,7 +92,6 @@
     "photosLabel": "Overview photos",
     "paletteLabel": "Colors",
     "toolsLabel": "Tools",
-    "addColor": "+ Add color",
     "addTool": "+ Add tool",
     "toolPlaceholder": "Tool name",
     "usedInSteps": "Used in {{count}} steps",
@@ -106,11 +105,9 @@
   },
   "editor": {
     "techniqueLabel": "Technique",
-    "techniquePreset": "Preset",
     "techniqueCustom": "Custom",
     "techniquePlaceholder": "Enter a technique name",
     "toolLabel": "Tools",
-    "toolEmpty": "Register tools on the Setup screen to select them",
     "memoLabel": "Memo",
     "memoPlaceholder": "Memo (optional)",
     "stepLabel": "STEP {{n}}",
@@ -197,10 +194,8 @@
     "unknownFailure": "An unknown error occurred during import"
   },
   "partReview": {
-    "title": "Step Review",
     "open": "Review steps",
     "edit": "Edit this part",
-    "share": "Share on SNS",
     "shareX": "Share on X",
     "shareBluesky": "Share on Bluesky",
     "noSteps": "No steps yet"
@@ -215,6 +210,10 @@
     "partDefaultTextNoFlow": "{{title}} - {{partName}} paint recipe. {{stepsCount}} steps total. #coat-codex",
     "overflowColors": "+{{count}}",
     "overflowSteps": "…and {{count}} more steps",
+    "partStepsCount": "{{count}} steps",
+    "overflowParts": "…and {{count}} more parts",
+    "sectionParts": "Parts",
+    "sectionColors": "Colors used",
     "summaryTag": "SUMMARY",
     "textLabel": "Post text",
     "counter": "{{count}} / {{limit}}",

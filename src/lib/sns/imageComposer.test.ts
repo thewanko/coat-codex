@@ -3,6 +3,7 @@ import {
   buildFileName,
   composeShareImages,
   computeCardLayout,
+  computeCoverSourceRect,
   listShareCandidates,
   SUMMARY_STEP_LIST_AREA_HEIGHT,
   truncateToWidth,
@@ -81,6 +82,11 @@ const resolvers: CandidateResolvers = {
   overflowColorsLabel: (remaining) => `+${remaining}`,
   overflowStepsLabel: (remaining) => `…他${remaining}工程`,
   toolLabels: (step) => step.toolIds.map((id) => `Tool ${id}`),
+  baseSectionLabel: () => "ベース工程（全体）",
+  partStepsLabel: (count) => `${count}工程`,
+  overflowPartsLabel: (remaining) => `…他${remaining}パーツ`,
+  sectionPartsLabel: () => "パーツ構成",
+  sectionColorsLabel: () => "使用カラー",
 };
 
 // ---- listShareCandidates ----
@@ -141,6 +147,101 @@ describe("listShareCandidates", () => {
 
     expect(summary.swatches).toHaveLength(12);
     expect(summary.overflowColorsLabel).toBe("+3");
+  });
+
+  // ---- FB-2: summary(whole)のパーツ行（目次）構築ロジック ----
+
+  test("whole: まとめカードのpartRows先頭はbaseSteps非空時「ベース工程（全体）」行、以降parts順", () => {
+    const recipe = makeRecipe({
+      baseSteps: [makeStep(), makeStep()],
+      parts: [
+        makePart({ id: "part_1", name: "兜", steps: [makeStep()] }),
+        makePart({ id: "part_2", name: "盾", steps: [makeStep(), makeStep()] }),
+      ],
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.partRows).toEqual([
+      { name: "ベース工程（全体）", stepsLabel: "2工程" },
+      { name: "兜", stepsLabel: "1工程" },
+      { name: "盾", stepsLabel: "2工程" },
+    ]);
+    expect(summary.overflowPartsLabel).toBeNull();
+  });
+
+  test("whole: baseSteps=0件→partRowsにベース行が含まれない", () => {
+    const recipe = makeRecipe({
+      baseSteps: [],
+      parts: [makePart({ id: "part_1", name: "兜", steps: [makeStep()] })],
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.partRows).toEqual([{ name: "兜", stepsLabel: "1工程" }]);
+  });
+
+  test("whole: 工程0件のパーツ（書きかけ）はpartRowsからスキップされる", () => {
+    const recipe = makeRecipe({
+      baseSteps: [],
+      parts: [
+        makePart({ id: "part_1", name: "兜", steps: [makeStep()] }),
+        makePart({ id: "part_2", name: "未着手パーツ", steps: [] }),
+        makePart({ id: "part_3", name: "盾", steps: [makeStep()] }),
+      ],
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.partRows.map((row) => row.name)).toEqual(["兜", "盾"]);
+  });
+
+  test("whole: パーツ行が上限（8件）を超える→上限で切り詰めoverflowPartsLabelへ残数集約", () => {
+    const recipe = makeRecipe({
+      baseSteps: [],
+      parts: Array.from({ length: 10 }, (_, i) =>
+        makePart({ id: `part_${i}`, name: `パーツ${i}`, steps: [makeStep()] }),
+      ),
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.partRows).toHaveLength(8);
+    expect(summary.partRows.map((row) => row.name)).toEqual([
+      "パーツ0",
+      "パーツ1",
+      "パーツ2",
+      "パーツ3",
+      "パーツ4",
+      "パーツ5",
+      "パーツ6",
+      "パーツ7",
+    ]);
+    expect(summary.overflowPartsLabel).toBe("…他2パーツ");
+  });
+
+  test("whole: baseSteps非空＋パーツ多数で合計が上限を超える場合もbase行を含めて切り詰め、overflowは合算件数", () => {
+    const recipe = makeRecipe({
+      baseSteps: [makeStep()],
+      parts: Array.from({ length: 9 }, (_, i) =>
+        makePart({ id: `part_${i}`, name: `パーツ${i}`, steps: [makeStep()] }),
+      ),
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    // ベース行1 + パーツ9件 = 10行 → 上限8で切り詰め、残り2件がoverflow
+    expect(summary.partRows).toHaveLength(8);
+    expect(summary.partRows[0]).toEqual({
+      name: "ベース工程（全体）",
+      stepsLabel: "1工程",
+    });
+    expect(summary.overflowPartsLabel).toBe("…他2パーツ");
   });
 
   test("part: 写真つき工程0件（全工程が写真なし）→まとめカード（summary/part）1枚のみ", () => {
@@ -437,6 +538,68 @@ describe("listShareCandidates", () => {
   });
 });
 
+// ---- computeCoverSourceRect ----
+//
+// 期待値はcover配置の定義（destのアスペクト比を保った元画像内の最大中央矩形）から
+// 独立に手計算した数値（実装式の写経ではない）。
+
+describe("computeCoverSourceRect", () => {
+  test("横長src（アスペクト比2:1）→4:3 destでは縦（高さ）フル・左右クロップ", () => {
+    // src 2000x1000（アスペクト2.0） / dest 1200x900（アスペクト1.333...）
+    // destの方が縦長寄り→高さ1000をフルに使い、幅は 1000 * (1200/900) = 1333.33... に絞る
+    // 左右の余り = 2000 - 1333.33... = 666.66... を等分 → sx = 333.33...
+    const result = computeCoverSourceRect(2000, 1000, 1200, 900);
+    expect(result.sy).toBe(0);
+    expect(result.sh).toBe(1000);
+    expect(result.sw).toBeCloseTo(1333.3333, 3);
+    expect(result.sx).toBeCloseTo(333.3333, 3);
+  });
+
+  test("縦長src（アスペクト比1:2）→正方形destでは横（幅）フル・上下クロップ", () => {
+    // src 800x1600（アスペクト0.5） / dest 220x220（アスペクト1.0）
+    // 幅800をフルに使い、高さは 800 / 1.0 = 800 に絞る
+    // 上下の余り = 1600 - 800 = 800 を等分 → sy = 400
+    const result = computeCoverSourceRect(800, 1600, 220, 220);
+    expect(result.sx).toBe(0);
+    expect(result.sw).toBe(800);
+    expect(result.sh).toBe(800);
+    expect(result.sy).toBe(400);
+  });
+
+  test("同一アスペクト比（4:3 src → 4:3 dest）→クロップなしで全面", () => {
+    const result = computeCoverSourceRect(400, 300, 800, 600);
+    expect(result).toEqual({ sx: 0, sy: 0, sw: 400, sh: 300 });
+  });
+
+  test("極端な横長src（アスペクト比30:1）→正方形destでは高さフル・左右を大きくクロップ", () => {
+    // src 3000x100（アスペクト30） / dest 500x500（アスペクト1.0）
+    // 高さ100をフルに使い、幅は 100 * 1.0 = 100 に絞る
+    // 左右の余り = 3000 - 100 = 2900 を等分 → sx = 1450
+    const result = computeCoverSourceRect(3000, 100, 500, 500);
+    expect(result).toEqual({ sx: 1450, sy: 0, sw: 100, sh: 100 });
+  });
+
+  test("srcの幅が0以下→例外を投げずフォールバック（元画像全面 {0,0,srcWidth,srcHeight}）", () => {
+    const result = computeCoverSourceRect(0, 500, 100, 100);
+    expect(result).toEqual({ sx: 0, sy: 0, sw: 0, sh: 500 });
+  });
+
+  test("srcの高さが0以下→例外を投げずフォールバック", () => {
+    const result = computeCoverSourceRect(500, -1, 100, 100);
+    expect(result).toEqual({ sx: 0, sy: 0, sw: 500, sh: -1 });
+  });
+
+  test("destの幅が0以下→例外を投げずフォールバック（destが不正な入力でもsrc全面を返す）", () => {
+    const result = computeCoverSourceRect(500, 400, 0, 100);
+    expect(result).toEqual({ sx: 0, sy: 0, sw: 500, sh: 400 });
+  });
+
+  test("destの高さが負値→例外を投げずフォールバック", () => {
+    const result = computeCoverSourceRect(500, 400, 100, -50);
+    expect(result).toEqual({ sx: 0, sy: 0, sw: 500, sh: 400 });
+  });
+});
+
 // ---- computeCardLayout ----
 
 function rectsOverlap(a: Rect, b: Rect): boolean {
@@ -602,18 +765,30 @@ describe("computeCardLayout", () => {
     );
   });
 
-  test("summary(whole): titleArea/summarySwatchAreaがカード内・相互不重複。mainPhoto/textArea/swatchAreaはnull（写真を載せない）", () => {
-    const spec: SummaryWholeCandidateSpec = {
+  /** テスト用SummaryWholeCandidateSpecフィクスチャ（FB-2: 目次形式の全フィールドを埋める） */
+  function makeSummaryWholeSpec(
+    overrides: Partial<SummaryWholeCandidateSpec> = {},
+  ): SummaryWholeCandidateSpec {
+    return {
       kind: "summary",
       variant: "whole",
       title: "Title",
       progressLabel: "3パーツ・全10工程",
+      partRows: [{ name: "兜", stepsLabel: "5工程" }],
+      overflowPartsLabel: null,
+      sectionPartsLabel: "パーツ構成",
       swatches: [
         { name: "A", hex: "#960F0F", brand: null },
         { name: "B", hex: "#123456", brand: null },
       ],
       overflowColorsLabel: null,
+      sectionColorsLabel: "使用カラー",
+      ...overrides,
     };
+  }
+
+  test("summary(whole): titleArea/summaryPartRowsArea/summarySwatchAreaがカード内・相互不重複。mainPhoto/textArea/swatchArea/summaryStepListAreaはnull（写真を載せない）", () => {
+    const spec = makeSummaryWholeSpec();
     const layout = computeCardLayout(spec);
 
     expect(layout.mainPhoto).toBeNull();
@@ -625,15 +800,129 @@ describe("computeCardLayout", () => {
     assertWithinCard(layout.headerArea, layout);
     assertWithinCard(layout.footerArea, layout);
     assertWithinCard(layout.titleArea, layout);
+
+    expect(layout.summaryPartRowsArea).not.toBeNull();
+    assertWithinCard(layout.summaryPartRowsArea!, layout);
     expect(layout.summarySwatchArea).not.toBeNull();
     assertWithinCard(layout.summarySwatchArea!, layout);
+
+    // セクションの縦順序: タイトル → パーツ行セクション → スウォッチセクション（重複なし）
+    expect(rectsOverlap(layout.titleArea, layout.summaryPartRowsArea!)).toBe(
+      false,
+    );
+    expect(
+      rectsOverlap(layout.summaryPartRowsArea!, layout.summarySwatchArea!),
+    ).toBe(false);
+    expect(layout.summaryPartRowsArea!.y).toBeLessThan(
+      layout.summarySwatchArea!.y,
+    );
     expect(rectsOverlap(layout.titleArea, layout.summarySwatchArea!)).toBe(
       false,
     );
     expect(rectsOverlap(layout.headerArea, layout.titleArea)).toBe(false);
+    expect(rectsOverlap(layout.footerArea, layout.summaryPartRowsArea!)).toBe(
+      false,
+    );
     expect(rectsOverlap(layout.footerArea, layout.summarySwatchArea!)).toBe(
       false,
     );
+  });
+
+  test("summary(whole): パーツ行上限8件・スウォッチ上限12件の最大ケースでも全要素がカード内に静的に収まる", () => {
+    const spec = makeSummaryWholeSpec({
+      partRows: Array.from({ length: 8 }, (_, i) => ({
+        name: `パーツ${i + 1}`,
+        stepsLabel: `${i + 1}工程`,
+      })),
+      overflowPartsLabel: "…他2パーツ",
+      swatches: Array.from({ length: 12 }, (_, i) => ({
+        name: `Color ${i}`,
+        hex: "#960F0F",
+        brand: null,
+      })),
+      overflowColorsLabel: "+3",
+    });
+    const layout = computeCardLayout(spec);
+
+    assertWithinCard(layout.summaryPartRowsArea!, layout);
+    assertWithinCard(layout.summarySwatchArea!, layout);
+    expect(
+      rectsOverlap(layout.summaryPartRowsArea!, layout.summarySwatchArea!),
+    ).toBe(false);
+    expect(rectsOverlap(layout.footerArea, layout.summarySwatchArea!)).toBe(
+      false,
+    );
+
+    // レビューL3対応の回帰防止: rect相互不重複だけでなく合計高さの絶対値も検算する
+    // （定数を同時に肥大させても通ってしまう抜け穴を塞ぐ）。閾値840は実装式の写経ではなく、
+    // FB-3後の最大ケース最下端（実測828px。パーツ行8＋overflow・色12＝3列×4行）に対して
+    // 余裕を持たせた独立数値。footerArea開始位置（contentBottom = 860px）よりは十分厳しい。
+    const bottomMost =
+      layout.summarySwatchArea!.y + layout.summarySwatchArea!.height;
+    expect(bottomMost).toBeLessThanOrEqual(840);
+  });
+
+  test("summary(whole)FB-3: パーツ行が2行しかない場合、summaryPartRowsAreaの高さは8行固定ではなく実行数（2行）分＋見出しになる（上詰めレイアウト）", () => {
+    const twoRowsSpec = makeSummaryWholeSpec({
+      partRows: [
+        { name: "パーツ1", stepsLabel: "3工程" },
+        { name: "パーツ2", stepsLabel: "2工程" },
+      ],
+      overflowPartsLabel: null,
+    });
+    const eightRowsSpec = makeSummaryWholeSpec({
+      partRows: Array.from({ length: 8 }, (_, i) => ({
+        name: `パーツ${i + 1}`,
+        stepsLabel: `${i + 1}工程`,
+      })),
+      overflowPartsLabel: null,
+    });
+
+    const twoRowsLayout = computeCardLayout(twoRowsSpec);
+    const eightRowsLayout = computeCardLayout(eightRowsSpec);
+
+    // 見出し30px + 2行×40px = 110px（8行固定予約の見出し30+320=350pxより明確に小さい）
+    expect(twoRowsLayout.summaryPartRowsArea!.height).toBe(110);
+    expect(eightRowsLayout.summaryPartRowsArea!.height).toBe(350);
+    expect(twoRowsLayout.summaryPartRowsArea!.height).toBeLessThan(
+      eightRowsLayout.summaryPartRowsArea!.height,
+    );
+
+    // 上詰め: パーツ行が少ないほど使用カラーセクションの開始位置（y）が上に来る
+    expect(twoRowsLayout.summarySwatchArea!.y).toBeLessThan(
+      eightRowsLayout.summarySwatchArea!.y,
+    );
+  });
+
+  test("summary(whole)FB-3: 黒狼実データ相当（パーツ行2・色11）でも全要素がカード内に収まり、最大ケースより十分上に詰まる", () => {
+    const spec = makeSummaryWholeSpec({
+      partRows: [
+        { name: "パーツ1", stepsLabel: "6工程" },
+        { name: "パーツ2", stepsLabel: "4工程" },
+      ],
+      overflowPartsLabel: null,
+      swatches: Array.from({ length: 11 }, (_, i) => ({
+        name: `Color ${i}`,
+        hex: "#960F0F",
+        brand: i % 2 === 0 ? "Citadel" : null,
+      })),
+      overflowColorsLabel: null,
+    });
+    const layout = computeCardLayout(spec);
+
+    assertWithinCard(layout.summaryPartRowsArea!, layout);
+    assertWithinCard(layout.summarySwatchArea!, layout);
+    expect(
+      rectsOverlap(layout.summaryPartRowsArea!, layout.summarySwatchArea!),
+    ).toBe(false);
+
+    // 算術: partsHeadingY(204) + partsAreaHeight(30+2*40=110) + sectionGapMid(28) = 342
+    expect(layout.summarySwatchArea!.y).toBe(342);
+    // colorsAreaHeight = 30 + ceil(11/3)*44 = 30+176 = 206 → bottomMost = 548
+    const bottomMost =
+      layout.summarySwatchArea!.y + layout.summarySwatchArea!.height;
+    expect(bottomMost).toBe(548);
+    expect(bottomMost).toBeLessThan(840);
   });
 
   /** テスト用SummaryStepRowフィクスチャ（印刷ビュー工程行相当の全フィールドを埋める） */
@@ -860,6 +1149,90 @@ describe("composeShareImages", () => {
     expect(ctx.fillText).toHaveBeenCalled();
   });
 
+  test("FB-1: drawImageが9引数（source矩形＋dest矩形）で呼ばれ、source矩形がcover計算値と一致する（横長写真×whole mainPhoto領域）", async () => {
+    // whole mainPhoto領域は1200x(640)（HEADER_HEIGHT=56, infoAreaHeight=200, footer=40の固定値から
+    // 900-56-200-40=604。ここでは実測せず、計算後にlayoutから直接取得して独立検算する）
+    const specs: ShareCandidateSpec[] = [
+      { kind: "whole", photoId: "ph_wide", title: "Title" },
+    ];
+    const layout = computeCardLayout(specs[0]);
+    const rect = layout.mainPhoto!;
+
+    // 元画像は2400x1200（横長・アスペクト2.0）のImageBitmap相当（width/heightを持つオブジェクト）
+    const fakeBitmap = { width: 2400, height: 1200 } as unknown as ImageBitmap;
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(
+        async () => fakeBitmap as unknown as CanvasImageSource,
+      ),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(drawImageMock).toHaveBeenCalledTimes(1);
+    const call = drawImageMock.mock.calls[0];
+    // 9引数（image, sx, sy, sw, sh, dx, dy, dw, dh）で呼ばれている
+    expect(call).toHaveLength(9);
+
+    // source矩形はcomputeCoverSourceRectの計算値と独立に一致する
+    const expectedSource = computeCoverSourceRect(
+      2400,
+      1200,
+      rect.width,
+      rect.height,
+    );
+    expect(call[0]).toBe(fakeBitmap);
+    expect(call[1]).toBeCloseTo(expectedSource.sx, 6);
+    expect(call[2]).toBeCloseTo(expectedSource.sy, 6);
+    expect(call[3]).toBeCloseTo(expectedSource.sw, 6);
+    expect(call[4]).toBeCloseTo(expectedSource.sh, 6);
+
+    // dest矩形はrect全面（cover配置＝rect全面を埋める。レターボックス無し）
+    expect(call[5]).toBe(rect.x);
+    expect(call[6]).toBe(rect.y);
+    expect(call[7]).toBe(rect.width);
+    expect(call[8]).toBe(rect.height);
+  });
+
+  test("FB-1: decodeImageの戻り値がwidth/heightを持たない場合（SVGElement等）はcover計算をスキップし、画像全体をdest矩形全面へ描画する5引数形式にフォールバックする（レビュー指摘3対応: 部分クロップと非等価にならないよう「全面描画」の意味を固定）", async () => {
+    const specs: ShareCandidateSpec[] = [
+      { kind: "whole", photoId: "ph_svg", title: "Title" },
+    ];
+    const layout = computeCardLayout(specs[0]);
+    const rect = layout.mainPhoto!;
+
+    // width/heightがnumberでない疑似SVGElement（SVGAnimatedLength等を持つ想定のダミー）
+    const fakeSvgImage = {
+      width: {},
+      height: {},
+    } as unknown as CanvasImageSource;
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => fakeSvgImage),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(drawImageMock).toHaveBeenCalledTimes(1);
+    const call = drawImageMock.mock.calls[0];
+    // フォールバック: 5引数形式（image, dx, dy, dw, dh）＝ソースは画像全体・destはrect全面。
+    // 9引数形式のsource矩形をdest全面固定値にする実装は「元画像の左上をrectサイズで切り出す」
+    // 意味になり非等価（画像がrectより大きければ左上一部のみ表示）だったため、5引数形式で
+    // 「画像全体をdestへ引き伸ばす」という意味的に正しい全面描画を固定する。
+    expect(call).toHaveLength(5);
+    expect(call[0]).toBe(fakeSvgImage);
+    expect(call[1]).toBe(rect.x);
+    expect(call[2]).toBe(rect.y);
+    expect(call[3]).toBe(rect.width);
+    expect(call[4]).toBe(rect.height);
+  });
+
   test("loadPhotoがnullを返す候補は写真領域をプレースホルダ塗りしつつカード自体は生成する", async () => {
     const specs: ShareCandidateSpec[] = [
       { kind: "whole", photoId: "ph_missing", title: "No Photo" },
@@ -1025,6 +1398,10 @@ describe("composeShareImages", () => {
       fillRectMock.mock.invocationCallOrder[backgroundCallIndex];
     const firstDrawImageOrder = drawImageMock.mock.invocationCallOrder[0];
     expect(backgroundOrder).toBeLessThan(firstDrawImageOrder);
+
+    // このdecodeImageスタブ（{}）はwidth/heightを持たないためnaturalSize取得不能フォールバック
+    // （5引数形式=画像全体をdest全面へ）で呼ばれる（レビュー指摘3対応）
+    expect(drawImageMock.mock.calls[0]).toHaveLength(5);
   });
 
   test("part: 背景の全面fillRectがdrawImage・プレースホルダfillRectより前に呼ばれる（写真が背景で上書きされないことの回帰検証）", async () => {
@@ -1066,6 +1443,10 @@ describe("composeShareImages", () => {
       fillRectMock.mock.invocationCallOrder[backgroundCallIndex];
     const firstDrawImageOrder = drawImageMock.mock.invocationCallOrder[0];
     expect(backgroundOrder).toBeLessThan(firstDrawImageOrder);
+
+    // このdecodeImageスタブ（{}）はwidth/heightを持たないためnaturalSize取得不能フォールバック
+    // （5引数形式=画像全体をdest全面へ）で呼ばれる（レビュー指摘3対応）
+    expect(drawImageMock.mock.calls[0]).toHaveLength(5);
   });
 
   test("part: 写真プレースホルダ（loadPhoto null）でも背景の全面fillRectがプレースホルダfillRectより前に呼ばれる", async () => {
@@ -1195,8 +1576,12 @@ describe("composeShareImages", () => {
         variant: "whole",
         title: "Summary Title",
         progressLabel: "1パーツ・全2工程",
+        partRows: [{ name: "兜", stepsLabel: "2工程" }],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
         swatches: [{ name: "A", hex: "#960F0F", brand: null }],
         overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
       },
     ];
     const ctx = makeSpyContext();
@@ -1366,8 +1751,12 @@ describe("composeShareImages", () => {
         variant: "whole",
         title: "Recipe",
         progressLabel: "1パーツ・全1工程",
+        partRows: [],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
         swatches: [],
         overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
       },
     ];
     const ctx = makeSpyContext();
@@ -1385,6 +1774,237 @@ describe("composeShareImages", () => {
         call[0] === 0 && call[1] === 0 && call[2] === 1200 && call[3] === 900,
     );
     expect(backgroundCallIndex).toBe(0);
+  });
+});
+
+// ---- FB-2: summary(whole)「レシピの目次」配線・セクション縦順序 ----
+
+describe("composeShareImages — summary(whole)のパーツ構成/使用カラーセクション配線", () => {
+  test("パーツ行（名前・工程数・overflow）とセクション見出しがfillTextへ配線される", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "3パーツ・全8工程",
+        partRows: [
+          { name: "ベース工程（全体）", stepsLabel: "2工程" },
+          { name: "兜", stepsLabel: "3工程" },
+        ],
+        overflowPartsLabel: "…他1パーツ",
+        sectionPartsLabel: "パーツ構成",
+        swatches: [{ name: "Eshin Grey", hex: "#3C3C3C", brand: "Citadel" }],
+        overflowColorsLabel: "+2",
+        sectionColorsLabel: "使用カラー",
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const fillTextCalls = fillTextMock.mock.calls.map((call) => call[0]);
+
+    // セクション見出しは1文字ずつfillTextされる（letter-spacing風の実装）ため連結して確認する
+    const sectionPartsChars = fillTextCalls.filter((text) =>
+      "パーツ構成".includes(text as string),
+    );
+    expect(sectionPartsChars.length).toBeGreaterThan(0);
+    const sectionColorsChars = fillTextCalls.filter((text) =>
+      "使用カラー".includes(text as string),
+    );
+    expect(sectionColorsChars.length).toBeGreaterThan(0);
+
+    // パーツ行（名前・工程数ラベル）
+    expect(fillTextCalls).toContain("ベース工程（全体）");
+    expect(fillTextCalls).toContain("2工程");
+    expect(fillTextCalls).toContain("兜");
+    expect(fillTextCalls).toContain("3工程");
+    expect(fillTextCalls).toContain("…他1パーツ");
+
+    // スウォッチのoverflowラベル（drawSummaryColorGrid経由）
+    expect(fillTextCalls).toContain("+2");
+  });
+
+  test("セクションの縦順序: タイトル→進捗→パーツ行セクション→スウォッチグリッドの順でfillText/fillRectが呼ばれる", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "1パーツ・全2工程",
+        partRows: [{ name: "兜", stepsLabel: "2工程" }],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
+        swatches: [{ name: "A", hex: "#960F0F", brand: null }],
+        overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const calls = fillTextMock.mock.calls.map((call) => call[0] as string);
+
+    const titleIndex = calls.indexOf("Recipe");
+    const progressIndex = calls.indexOf("1パーツ・全2工程");
+    // パーツ行名は"兜"1文字のみのfillText呼び出しになる
+    const partRowIndex = calls.indexOf("兜");
+    // FB-3以降、色グリッドは色名（"A"）もfillTextで描くが、セクション見出しの検出には
+    // 「使用カラー」に固有の文字（"使"。"パーツ構成"とは重複しない）の出現位置を使う。
+    // partRowIndex以降で探索する（「使用カラー」見出しはパーツ行セクションの後に描かれるため）。
+    const colorsHeadingIndex = calls.indexOf("使", partRowIndex + 1);
+
+    expect(titleIndex).toBeGreaterThanOrEqual(0);
+    expect(progressIndex).toBeGreaterThan(titleIndex);
+    expect(partRowIndex).toBeGreaterThan(progressIndex);
+    expect(colorsHeadingIndex).toBeGreaterThan(partRowIndex);
+  });
+
+  test("パーツ名が幅超過時はtruncateToWidthで「…」トリムされ、工程数ラベルは末尾までフル表示される", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "1パーツ・全2工程",
+        partRows: [
+          {
+            // 長さ比例スタブ（1文字10px・行幅1104px）で必ずtruncateToWidthが発火するよう、
+            // 実用上あり得ない長さまで反復して確実に幅超過させる
+            name: "非常に長いパーツ名でトリムが必ず発生するテストケース用の名前".repeat(
+              4,
+            ),
+            stepsLabel: "12工程",
+          },
+        ],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
+        swatches: [],
+        overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
+      },
+    ];
+    // 長さ比例スタブ（1文字10px）でトリムロジックが実際に発火する幅を再現する
+    const ctx: CanvasContextLike = {
+      ...makeSpyContext(),
+      measureText: (text: string) => ({ width: text.length * 10 }),
+    };
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const calls = fillTextMock.mock.calls.map((call) => call[0] as string);
+
+    // 工程数ラベルは常にフル表示（右寄せ・先に予約するため優先度が高い）
+    expect(calls).toContain("12工程");
+    // パーツ名はフル文字列のままでは入らず、末尾が「…」にトリムされたものが描かれる
+    expect(calls).not.toContain(
+      "非常に長いパーツ名でトリムが必ず発生するテストケース用の名前".repeat(4),
+    );
+    expect(calls.some((c) => c.endsWith("…"))).toBe(true);
+  });
+
+  test("FB-3: 使用カラーグリッドは色名をfillTextで描画し、brandがあればブランド小字も併記、brandがnullならブランド行を描画しない", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "1パーツ・全2工程",
+        partRows: [{ name: "兜", stepsLabel: "2工程" }],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
+        swatches: [
+          { name: "Eshin Grey", hex: "#3C3C3C", brand: "Citadel" },
+          { name: "Flat Black", hex: "#101010", brand: null },
+        ],
+        overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const calls = fillTextMock.mock.calls.map((call) => call[0] as string);
+
+    // 色名は両方描画される
+    expect(calls).toContain("Eshin Grey");
+    expect(calls).toContain("Flat Black");
+    // brandありの色はブランド名も別要素として描画される
+    expect(calls).toContain("Citadel");
+    // brand=nullの色はブランド行自体が描画されない（"null"文字列化されていないことも確認）
+    expect(calls).not.toContain("null");
+  });
+
+  test("FB-3: 色名が幅超過時はtruncateToWidthで「…」トリムされる", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "1パーツ・全1工程",
+        partRows: [{ name: "兜", stepsLabel: "1工程" }],
+        overflowPartsLabel: null,
+        sectionPartsLabel: "パーツ構成",
+        swatches: [
+          {
+            // 長さ比例スタブ（1文字10px・セル幅368/3列相当）で必ずtruncateToWidthが
+            // 発火するよう、実用上あり得ない長さまで反復して確実に幅超過させる
+            name: "非常に長い色名でトリムが必ず発生するテストケース用の名前".repeat(
+              4,
+            ),
+            hex: "#960F0F",
+            brand: null,
+          },
+        ],
+        overflowColorsLabel: null,
+        sectionColorsLabel: "使用カラー",
+      },
+    ];
+    const ctx: CanvasContextLike = {
+      ...makeSpyContext(),
+      measureText: (text: string) => ({ width: text.length * 10 }),
+    };
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const calls = fillTextMock.mock.calls.map((call) => call[0] as string);
+
+    expect(calls).not.toContain(
+      "非常に長い色名でトリムが必ず発生するテストケース用の名前".repeat(4),
+    );
+    expect(calls.some((c) => c.endsWith("…"))).toBe(true);
   });
 });
 

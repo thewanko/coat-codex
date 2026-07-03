@@ -179,6 +179,15 @@ function buildCandidateResolvers(
           (tool): tool is RecipeDoc["tools"][number] => tool !== undefined,
         )
         .map((tool) => tool.name),
+    // FB-2（2026-07-03ユーザー実機フィードバック）: summary(whole)は「レシピの目次」
+    // （パーツ：工程数と使用カラーの一覧）に徹する。baseSectionLabelは既存
+    // overview.baseCardNameと同一文言をここでも再利用する（呼び出し側の解決結果を統一）。
+    baseSectionLabel: () => t("overview.baseCardName"),
+    partStepsLabel: (count: number) => t("share.partStepsCount", { count }),
+    overflowPartsLabel: (remaining: number) =>
+      t("share.overflowParts", { count: remaining }),
+    sectionPartsLabel: () => t("share.sectionParts"),
+    sectionColorsLabel: () => t("share.sectionColors"),
   };
 }
 
