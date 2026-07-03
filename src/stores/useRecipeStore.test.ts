@@ -1,18 +1,37 @@
-// stores/useRecipeStore.test.ts — 編集中レシピストアのテスト（技術計画v2.2 §4.2 T16）
+// stores/useRecipeStore.test.ts — 編集中レシピストアのテスト（技術計画v2.3 §4.2 T16）
 //
-// db層（loadRecipe/saveRecipe）はvi.mockでスタブする（fake-indexeddb不要。ストア自体の
-// debounce/title補完/pending strip/エラー通知ロジックのみを検証する）。
+// db層（loadRecipe/saveRecipe/deletePhoto）はvi.mockでスタブする（fake-indexeddb不要。
+// ストア自体のdebounce/title補完/pending strip/未使用palette色の自動GC/
+// エラー通知ロジックのみを検証する）。
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import type { RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
 
 vi.mock("../db/recipeStore", () => ({
   loadRecipe: vi.fn(),
   saveRecipe: vi.fn(),
 }));
 
+vi.mock("../db/photoStore", () => ({
+  deletePhoto: vi.fn(),
+}));
+
 import { loadRecipe, saveRecipe } from "../db/recipeStore";
+import { deletePhoto } from "../db/photoStore";
 import { useRecipeStore, __resetRecipeStoreForTest } from "./useRecipeStore";
+
+function makeColor(overrides: Partial<PaletteColor> = {}): PaletteColor {
+  return {
+    id: "col_a",
+    source: "custom",
+    brand: null,
+    name: "朱金",
+    presetId: null,
+    hex: "#7A2E1F",
+    chipPhotoId: null,
+    ...overrides,
+  };
+}
 
 function makeStep(overrides: Partial<Step> = {}): Step {
   return {
@@ -49,6 +68,8 @@ beforeEach(() => {
   vi.mocked(saveRecipe).mockImplementation((doc: RecipeDoc) =>
     Promise.resolve(doc),
   );
+  vi.mocked(deletePhoto).mockReset();
+  vi.mocked(deletePhoto).mockResolvedValue(undefined);
   __resetRecipeStoreForTest();
 });
 
@@ -220,6 +241,100 @@ describe("M4必須事項①: pending塗料スロットのstrip", () => {
 
     const saved = vi.mocked(saveRecipe).mock.calls[0][0];
     expect(saved.baseSteps[0]).toBe(cleanStep);
+  });
+});
+
+describe("M4必須事項③: 未使用palette色の自動GC（v2.3）", () => {
+  test("参照0のpalette色は保存文書から除去され、deletePhotoは呼ばれない（chipPhotoIdがnull）", async () => {
+    vi.useFakeTimers();
+    const unusedColor = makeColor({ id: "col_unused", chipPhotoId: null });
+    const doc = makeDoc({ palette: [unusedColor] });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.palette).toEqual([]);
+    expect(deletePhoto).not.toHaveBeenCalled();
+  });
+
+  test("参照0のcustom色のchipPhotoIdはdeletePhotoで回収される", async () => {
+    vi.useFakeTimers();
+    const unusedColor = makeColor({ id: "col_unused", chipPhotoId: "ph_1" });
+    const doc = makeDoc({ palette: [unusedColor] });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.palette).toEqual([]);
+    expect(deletePhoto).toHaveBeenCalledTimes(1);
+    expect(deletePhoto).toHaveBeenCalledWith("ph_1");
+  });
+
+  test("工程から参照されているpalette色は保存文書に残る", async () => {
+    vi.useFakeTimers();
+    const usedColor = makeColor({ id: "col_used" });
+    const usedStep = makeStep({
+      id: "stp_used",
+      paints: [{ colorId: "col_used" }],
+      mix: null,
+    });
+    const doc = makeDoc({ palette: [usedColor], baseSteps: [usedStep] });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.palette).toEqual([usedColor]);
+    expect(deletePhoto).not.toHaveBeenCalled();
+  });
+
+  test("deletePhotoが失敗してもconsole.warnのみで保存自体は成功する", async () => {
+    vi.useFakeTimers();
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.mocked(deletePhoto).mockRejectedValueOnce(new Error("boom"));
+    const unusedColor = makeColor({ id: "col_unused", chipPhotoId: "ph_1" });
+    const doc = makeDoc({ palette: [unusedColor] });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+    // deletePhotoのrejectハンドラ（.catch）はマイクロタスクとして解決するため、
+    // タイマー進行後にもう一段マイクロタスクをflushする。
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(useRecipeStore.getState().saveError).toBeNull();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+
+    warnSpy.mockRestore();
+  });
+
+  test("未使用色が無ければstateのpaletteはstate側で変化しない（stateは常にupdater結果のまま）", async () => {
+    vi.useFakeTimers();
+    const usedColor = makeColor({ id: "col_used" });
+    const usedStep = makeStep({
+      id: "stp_used",
+      paints: [{ colorId: "col_used" }],
+      mix: null,
+    });
+    const doc = makeDoc({ palette: [usedColor], baseSteps: [usedStep] });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    // GCは保存文書にのみ適用され、stateのpalette要素の参照は変わらない
+    expect(useRecipeStore.getState().doc?.palette[0]).toBe(usedColor);
   });
 });
 

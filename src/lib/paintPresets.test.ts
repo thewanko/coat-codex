@@ -10,6 +10,9 @@ import type {
   PaintBrandIndex,
   PaintPresetColor,
 } from "./paintPresets";
+import citadelData from "../../public/paints/citadel.json";
+import vallejoData from "../../public/paints/vallejo.json";
+import coatdarmsData from "../../public/paints/coatdarms.json";
 
 const INDEX_FIXTURE: PaintBrandIndex = {
   brands: [
@@ -30,6 +33,18 @@ const CITADEL_COLORS: PaintPresetColor[] = [
     name: "Abaddon Black",
     nameJa: "アバドンブラック",
     hex: "#141414",
+  },
+  {
+    id: "citadel:base-khaki",
+    name: "Khaki",
+    range: "base",
+    hex: "#8C7D53",
+  },
+  {
+    id: "citadel:layer-khaki",
+    name: "Khaki",
+    range: "layer",
+    hex: "#A69466",
   },
 ];
 
@@ -257,5 +272,105 @@ describe("searchColors", () => {
     const result = await searchColors("citadel", "red");
 
     expect(result).toEqual([]);
+  });
+
+  test("rangeを持つ色はloadBrandColors/searchColorsを通じてそのまま透過する", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(CITADEL_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { searchColors } = await importFresh();
+    const result = await searchColors("citadel", "khaki");
+
+    expect(result).toHaveLength(2);
+    expect(result.map((c) => c.range)).toEqual(
+      expect.arrayContaining(["base", "layer"]),
+    );
+    expect(result.every((c) => c.name === "Khaki")).toBe(true);
+  });
+
+  test("range引数を指定すると、そのrangeに完全一致する色のみへ絞り込む", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(CITADEL_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { searchColors } = await importFresh();
+    const result = await searchColors("citadel", "khaki", "base");
+
+    expect(result).toEqual([CITADEL_COLORS[2]]);
+  });
+
+  test("range引数を省略すると絞り込みなし（従来どおり全range対象）", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(CITADEL_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { searchColors } = await importFresh();
+    const result = await searchColors("citadel", "khaki");
+
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("getAvailableRanges", () => {
+  test("全色にrangeがあれば、データ順を保持した重複排除済みの一覧を返す", async () => {
+    const { getAvailableRanges } = await importFresh();
+    const colors: PaintPresetColor[] = [
+      { id: "a", name: "A", range: "fantasy", hex: "#111111" },
+      { id: "b", name: "B", range: "military", hex: "#222222" },
+      { id: "c", name: "C", range: "fantasy", hex: "#333333" },
+      { id: "d", name: "D", range: "wwii", hex: "#444444" },
+    ];
+
+    expect(getAvailableRanges(colors)).toEqual(["fantasy", "military", "wwii"]);
+  });
+
+  test("range未指定の色が1件でもあれば空配列を返す（絞り込みUIを出さない）", async () => {
+    const { getAvailableRanges } = await importFresh();
+    const colors: PaintPresetColor[] = [
+      { id: "a", name: "A", range: "fantasy", hex: "#111111" },
+      { id: "b", name: "B", hex: "#222222" },
+    ];
+
+    expect(getAvailableRanges(colors)).toEqual([]);
+  });
+
+  test("空配列を渡すと空配列を返す", async () => {
+    const { getAvailableRanges } = await importFresh();
+    expect(getAvailableRanges([])).toEqual([]);
+  });
+});
+
+describe("生成データの整合性（実ファイル検証）", () => {
+  const HEX_RE = /^#[0-9A-F]{6}$/;
+
+  test.each([
+    ["citadel", citadelData],
+    ["vallejo", vallejoData],
+    ["coatdarms", coatdarmsData],
+  ])("%s.json: id一意・hex形式・range非空", (_brand, data) => {
+    const colors = data.colors;
+    expect(colors.length).toBeGreaterThan(0);
+
+    const ids = colors.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    for (const c of colors) {
+      // hexはnull許容（varnish等、単色hexで質感を表現できない色のため）。
+      // 値がある場合のみ形式を検証する
+      if (c.hex !== null) {
+        expect(c.hex).toMatch(HEX_RE);
+      }
+      expect(c.range).toBeTruthy();
+    }
   });
 });

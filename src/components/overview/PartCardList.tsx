@@ -35,6 +35,7 @@ export type RecipePart = RecipeDoc["parts"][number];
 interface PartCardListProps {
   parts: RecipePart[];
   onOpen: (partId: string) => void;
+  onReview: (partId: string) => void;
   onReorder: (nextParts: RecipePart[]) => void;
   onAdd: (part: RecipePart) => void;
 }
@@ -45,6 +46,7 @@ interface SortablePartCardProps {
   index: number;
   total: number;
   onOpen: (partId: string) => void;
+  onReview: (partId: string) => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
@@ -55,6 +57,7 @@ function SortablePartCard({
   index,
   total,
   onOpen,
+  onReview,
   onMoveUp,
   onMoveDown,
 }: SortablePartCardProps) {
@@ -106,13 +109,24 @@ function SortablePartCard({
         </button>
       </div>
       <div className={styles.cardWrap}>
-        <PartCard part={part} order={order} onOpen={onOpen} />
+        <PartCard
+          part={part}
+          order={order}
+          onOpen={onOpen}
+          onReview={onReview}
+        />
       </div>
     </li>
   );
 }
 
-function PartCardList({ parts, onOpen, onReorder, onAdd }: PartCardListProps) {
+function PartCardList({
+  parts,
+  onOpen,
+  onReview,
+  onReorder,
+  onAdd,
+}: PartCardListProps) {
   const { t } = useTranslation();
 
   const sensors = useSensors(
@@ -177,6 +191,7 @@ function PartCardList({ parts, onOpen, onReorder, onAdd }: PartCardListProps) {
                 index={index}
                 total={parts.length}
                 onOpen={onOpen}
+                onReview={onReview}
                 onMoveUp={() => moveItem(index, -1)}
                 onMoveDown={() => moveItem(index, 1)}
               />

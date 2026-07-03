@@ -4,7 +4,9 @@
     "tagline": "塗装秘伝書"
   },
   "nav": {
-    "terms": "利用規約・免責"
+    "terms": "利用規約・免責",
+    "backToOverview": "全体表示へ",
+    "backToLibrary": "レシピ一覧へ"
   },
   "techniques": {
     "prime": "プライマー",
@@ -33,7 +35,8 @@
     "attachChip": "カラーチップ写真",
     "hexUnset": "hex未指定",
     "searchPlaceholder": "カラー名で検索",
-    "noResults": "該当するカラーがありません"
+    "noResults": "該当するカラーがありません",
+    "rangeAll": "すべて"
   },
   "mix": {
     "label": "MIX",
@@ -122,7 +125,10 @@
     "closePanel": "閉じる",
     "partNotFound": "パーツが見つかりません",
     "stepPhotoStripLabel": "写真つき工程一覧",
-    "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動"
+    "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動",
+    "toolAdd": "＋ツールを追加",
+    "toolNamePlaceholder": "ツール名（例: 筆、エアブラシ）",
+    "toolAddButton": "追加"
   },
   "overview": {
     "baseOverline": "BASE",
@@ -146,5 +152,16 @@
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
     "exportPlainMd": "素MD"
+  },
+  "export": {
+    "menuButton": "出力・共有"
+  },
+  "partReview": {
+    "title": "工程レビュー",
+    "open": "工程レビュー",
+    "edit": "このパーツを編集",
+    "share": "SNSで共有",
+    "shareComingSoon": "共有機能は準備中です",
+    "noSteps": "工程がまだありません"
   }
 }

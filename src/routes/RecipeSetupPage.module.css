@@ -14,6 +14,10 @@
   padding-top: var(--space-4);
 }
 
+.backLink {
+  margin-bottom: var(--space-2);
+}
+
 .error {
   color: var(--color-danger);
   font-size: var(--font-size-md);

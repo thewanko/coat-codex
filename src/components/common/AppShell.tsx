@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../../stores/useRecipeStore";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -27,7 +27,7 @@ function AppShell({ children }: { children?: ReactNode }) {
     <ToastHost>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <div className={styles.brand}>
+          <Link to="/" className={styles.brand}>
             <span className={styles.seal} aria-hidden="true">
               <span className={styles.sealInner}>cc</span>
             </span>
@@ -38,7 +38,7 @@ function AppShell({ children }: { children?: ReactNode }) {
               </span>
               <span className={styles.tagline}>{t("app.tagline")}</span>
             </div>
-          </div>
+          </Link>
           <LanguageSwitcher />
         </header>
         <main className={styles.main}>{children ?? <Outlet />}</main>

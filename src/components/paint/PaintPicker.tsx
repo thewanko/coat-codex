@@ -15,11 +15,17 @@ import { useTranslation } from "react-i18next";
 import type { PaletteColor } from "../../models/recipe";
 import type { PaintPresetColor } from "../../lib/paintPresets";
 import { savePhoto } from "../../db/photoStore";
-import { loadBrandIndex, type PaintBrandMeta } from "../../lib/paintPresets";
+import {
+  loadBrandIndex,
+  loadBrandColors,
+  getAvailableRanges,
+  type PaintBrandMeta,
+} from "../../lib/paintPresets";
 import { useToast } from "../common/toastContext";
 import SwatchChip from "../common/SwatchChip";
 import BrandSelect from "./BrandSelect";
 import ColorSelect from "./ColorSelect";
+import RangeFilter from "./RangeFilter";
 import styles from "./PaintPicker.module.css";
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
@@ -85,6 +91,8 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
   const [selectedColor, setSelectedColor] = useState<PaintPresetColor | null>(
     initialState.selectedColor,
   );
+  const [availableRanges, setAvailableRanges] = useState<string[]>([]);
+  const [rangeFilter, setRangeFilter] = useState<string | null>(null);
 
   // 自由入力モードの下書き
   const [customBrandName, setCustomBrandName] = useState(
@@ -123,12 +131,31 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
     };
   }, []);
 
+  // brandIdが変わるたびに、そのブランドの全色からレンジ一覧を導出する
+  // （レンジ一覧はロード済みカラーから動的導出。ハードコード禁止）
+  useEffect(() => {
+    if (!brandId) {
+      setAvailableRanges([]);
+      return;
+    }
+    let cancelled = false;
+    void loadBrandColors(brandId).then((colors) => {
+      if (!cancelled) {
+        setAvailableRanges(getAvailableRanges(colors));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [brandId]);
+
   const isCustomMode = brandId === null;
   const brandMeta = brands.find((b) => b.id === brandId);
 
   function handleBrandChange(nextBrandId: string | null) {
     setBrandId(nextBrandId);
     setSelectedColor(null);
+    setRangeFilter(null);
   }
 
   function handlePresetColorSelect(color: PaintPresetColor) {
@@ -240,22 +267,43 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
   return (
     <div className={styles.root}>
       <div className={styles.row}>
-        <BrandSelect value={brandId} onChange={handleBrandChange} />
-        {!isCustomMode && brandId && (
-          <ColorSelect
-            brandId={brandId}
-            value={selectedColor}
-            onSelect={handlePresetColorSelect}
-          />
+        <div className={styles.brandCell}>
+          <BrandSelect value={brandId} onChange={handleBrandChange} />
+        </div>
+
+        {!isCustomMode && brandId && availableRanges.length > 0 && (
+          <div className={styles.rangeCell}>
+            <RangeFilter
+              ranges={availableRanges}
+              value={rangeFilter}
+              onChange={setRangeFilter}
+            />
+          </div>
         )}
-        <SwatchChip
-          variant={previewProps.variant}
-          size="md"
-          hex={"hex" in previewProps ? previewProps.hex : undefined}
-          photoId={"photoId" in previewProps ? previewProps.photoId : undefined}
-          name={previewName}
-          brand={brandMeta?.label}
-        />
+
+        {!isCustomMode && brandId && (
+          <div className={styles.colorCell}>
+            <ColorSelect
+              brandId={brandId}
+              value={selectedColor}
+              onSelect={handlePresetColorSelect}
+              rangeFilter={rangeFilter ?? undefined}
+            />
+          </div>
+        )}
+
+        <div className={styles.swatchCell}>
+          <SwatchChip
+            variant={previewProps.variant}
+            size="md"
+            hex={"hex" in previewProps ? previewProps.hex : undefined}
+            photoId={
+              "photoId" in previewProps ? previewProps.photoId : undefined
+            }
+            name={previewName}
+            brand={brandMeta?.label}
+          />
+        </div>
       </div>
 
       {isCustomMode && (

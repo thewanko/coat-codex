@@ -3,7 +3,7 @@
 
 import "../../i18n";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
 import { useRecipeStore } from "../../stores/useRecipeStore";
@@ -50,5 +50,18 @@ describe("AppShell — pagehideでのautosave flush", () => {
     window.dispatchEvent(new Event("pagehide"));
 
     expect(flushSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("AppShell — ワードマークのHomeリンク化", () => {
+  test("ワードマークが/へのリンクになっている", () => {
+    render(
+      <MemoryRouter>
+        <AppShell>{null}</AppShell>
+      </MemoryRouter>,
+    );
+
+    const link = screen.getByRole("link", { name: /Coat Codex/ });
+    expect(link).toHaveAttribute("href", "/");
   });
 });

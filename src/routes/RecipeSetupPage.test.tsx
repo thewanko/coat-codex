@@ -1,7 +1,8 @@
-// routes/RecipeSetupPage.test.tsx — RecipeSetupPageのテスト（技術計画v2.2 §4.2 T23）
+// routes/RecipeSetupPage.test.tsx — RecipeSetupPageのテスト（技術計画v2.3 §4.2 T23）
 //
 // db/recipeStoreをモックしuseRecipeStore（実物）経由でのload連携・タイトル編集の
 // autosave結線・ロード失敗/未存在の表示分岐を検証する。
+// v2.3: 使用カラー先行登録（PaletteEditor）は廃止済みのため本ページからは検証しない。
 
 import "../i18n";
 import {
@@ -95,7 +96,6 @@ describe("RecipeSetupPage", () => {
       ).toBeInTheDocument();
     });
     expect(screen.getByText("全体写真")).toBeInTheDocument();
-    expect(screen.getByText("使用カラー")).toBeInTheDocument();
     expect(screen.getByText("使用ツール")).toBeInTheDocument();
     expect(screen.getByText("make codex!")).toBeInTheDocument();
   });
@@ -148,5 +148,14 @@ describe("RecipeSetupPage", () => {
     fireEvent.click(button);
 
     expect(screen.getByText("Overview画面")).toBeInTheDocument();
+  });
+
+  test("レシピ一覧へ戻るリンクが/を指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage();
+
+    await screen.findByRole("textbox", { name: "タイトル" });
+    const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
+    expect(link).toHaveAttribute("href", "/");
   });
 });

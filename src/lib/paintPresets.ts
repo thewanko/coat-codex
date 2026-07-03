@@ -22,6 +22,9 @@ export interface PaintPresetColor {
   id: string;
   name: string;
   nameJa?: string;
+  /** 同名色のレンジ区別用（例: Citadelは"base"等、Vallejoは"Game Color"/"Model Color"、
+   *  Coat d'armsは"fantasy"/"military"/"wwii"）。range未対応ブランドは後方互換のため省略可 */
+  range?: string;
   hex: string | null;
 }
 
@@ -98,18 +101,42 @@ export async function loadBrandColors(
   return pending;
 }
 
-/** name/nameJaの部分一致（大文字小文字無視）で指定ブランドのカラーを絞り込む
+/** name/nameJaの部分一致（大文字小文字無視）で指定ブランドのカラーを絞り込む。
+ *  rangeを指定すると、その値に完全一致するカラーのみへさらに絞り込む
+ *  （undefined/省略時は絞り込みなし＝全range対象）。
  *  内部でloadBrandColors（キャッシュ済みならfetch不要）を呼ぶ */
 export async function searchColors(
   brandId: string,
   query: string,
+  range?: string,
 ): Promise<PaintPresetColor[]> {
   const colors = await loadBrandColors(brandId);
   const q = query.trim().toLowerCase();
-  if (q === "") return colors;
-  return colors.filter((c) => {
-    const name = c.name.toLowerCase();
-    const nameJa = c.nameJa?.toLowerCase() ?? "";
-    return name.includes(q) || nameJa.includes(q);
-  });
+  const byQuery =
+    q === ""
+      ? colors
+      : colors.filter((c) => {
+          const name = c.name.toLowerCase();
+          const nameJa = c.nameJa?.toLowerCase() ?? "";
+          return name.includes(q) || nameJa.includes(q);
+        });
+  if (!range) return byQuery;
+  return byQuery.filter((c) => c.range === range);
+}
+
+/** カラー一覧からrange一覧を導出する（データ順を保持した重複排除）。
+ *  rangeを持たないカラーが1件でもあれば絞り込みUIを出す意味がないため空配列を返す。 */
+export function getAvailableRanges(colors: PaintPresetColor[]): string[] {
+  if (colors.length === 0) return [];
+  if (colors.some((c) => !c.range)) return [];
+  const seen = new Set<string>();
+  const ranges: string[] = [];
+  for (const c of colors) {
+    const r = c.range;
+    if (r && !seen.has(r)) {
+      seen.add(r);
+      ranges.push(r);
+    }
+  }
+  return ranges;
 }

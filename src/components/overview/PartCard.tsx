@@ -13,8 +13,14 @@
 // isMixTotalValidがfalseの対象工程には mix.badgeWarning（新規i18nキー）バッジを追加併記する。
 //
 // STEP nタグ（§8-A）はサムネ工程のindex（1-based）。タップで/recipe/:id/part/:partIdへ。
+//
+// v2.3: カードに「工程レビュー」ボタン（partReview.open）を追加。PartReviewDialogを起動する
+// onReviewを呼ぶ。カード自体はタップ=編集直行（onOpen）を維持するため、カードのルート要素は
+// button同士のネストを避けてdiv role="button"へ変更し、レビューボタンのクリックは
+// stopPropagationでカードのonOpenと干渉しないようにする（技術計画v2.3 §3.3 PartCard行）。
 
 import { useEffect, useState } from "react";
+import type { KeyboardEvent, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
@@ -28,6 +34,7 @@ interface PartCardProps {
   part: RecipePart;
   order: number;
   onOpen: (partId: string) => void;
+  onReview: (partId: string) => void;
 }
 
 interface ThumbStepInfo {
@@ -45,7 +52,7 @@ function findThumbStep(steps: Step[]): ThumbStepInfo | null {
   return null;
 }
 
-function PartCard({ part, order, onOpen }: PartCardProps) {
+function PartCard({ part, order, onOpen, onReview }: PartCardProps) {
   const { t } = useTranslation();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoLoading, setPhotoLoading] = useState(false);
@@ -86,11 +93,25 @@ function PartCard({ part, order, onOpen }: PartCardProps) {
     ? thumbInfo.step.mix.reduce((sum, value) => sum + value, 0)
     : 0;
 
+  function handleReviewClick(event: MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    onReview(part.id);
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onOpen(part.id);
+    }
+  }
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={styles.card}
       onClick={() => onOpen(part.id)}
+      onKeyDown={handleKeyDown}
       data-testid="part-card"
     >
       <span className={styles.order} aria-hidden="true">
@@ -133,10 +154,19 @@ function PartCard({ part, order, onOpen }: PartCardProps) {
         )}
       </span>
 
+      <button
+        type="button"
+        className={styles.reviewButton}
+        onClick={handleReviewClick}
+        data-testid="part-review-open"
+      >
+        {t("partReview.open")}
+      </button>
+
       <span className={styles.chevron} aria-hidden="true">
         ›
       </span>
-    </button>
+    </div>
   );
 }
 

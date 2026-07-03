@@ -428,3 +428,38 @@ describe("PartEditorPage — 閉じる操作", () => {
     expect(screen.getByText("Overview画面")).toBeInTheDocument();
   });
 });
+
+describe("PartEditorPage — 戻るリンク", () => {
+  test("baseモード: 全体表示へ戻るリンクが/recipe/:idを指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage("/recipe/rcp_1/part/base");
+
+    await screen.findByTestId("step-list-stub");
+    const link = screen.getByRole("link", { name: /全体表示へ/ });
+    expect(link).toHaveAttribute("href", "/recipe/rcp_1");
+  });
+
+  test("通常モード: 全体表示へ戻るリンクが/recipe/:idを指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        parts: [{ id: "part_1", name: "腕", steps: [] }],
+      }),
+    );
+    renderPage("/recipe/rcp_1/part/part_1");
+
+    await screen.findByTestId("step-list-stub");
+    const link = screen.getByRole("link", { name: /全体表示へ/ });
+    expect(link).toHaveAttribute("href", "/recipe/rcp_1");
+  });
+
+  test("partId不存在時（partNotFound）も戻るリンクが表示される", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc({ parts: [] }));
+    renderPage("/recipe/rcp_1/part/part_missing");
+
+    await waitFor(() => {
+      expect(screen.getByText("パーツが見つかりません")).toBeInTheDocument();
+    });
+    const link = screen.getByRole("link", { name: /全体表示へ/ });
+    expect(link).toHaveAttribute("href", "/recipe/rcp_1");
+  });
+});

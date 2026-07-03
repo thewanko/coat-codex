@@ -1,543 +1,2014 @@
 {
   "_meta": {
-    "hexNote": "hexは近似値。公式チャートでの校正はQA時"
+    "source": "citadelcolour.com (official); compiled via github.com/SimoGecko/CitadelColours",
+    "note": "Citadel Colour paint names are trademarks of Games Workshop Ltd. hexは実物塗料の近似デジタル値（公式スペクトロフォトメータ実測値ではない）。"
   },
   "brandId": "citadel",
   "label": "Citadel",
   "colors": [
     {
-      "id": "citadel:abaddon-black",
-      "name": "Abaddon Black",
-      "nameJa": "アバドンブラック",
-      "hex": "#141414"
+      "id": "citadel:spray-chaos-black",
+      "name": "Chaos Black",
+      "range": "spray",
+      "hex": "#000000"
     },
     {
-      "id": "citadel:mephiston-red",
-      "name": "Mephiston Red",
-      "nameJa": "メフィストンレッド",
-      "hex": "#960C0C"
-    },
-    {
-      "id": "citadel:khorne-red",
-      "name": "Khorne Red",
-      "nameJa": "コーンレッド",
-      "hex": "#5D0A0A"
-    },
-    {
-      "id": "citadel:wazdakka-red",
-      "name": "Wazdakka Red",
-      "nameJa": "ワズダッカレッド",
-      "hex": "#9C1F0E"
-    },
-    {
-      "id": "citadel:evil-sunz-scarlet",
-      "name": "Evil Sunz Scarlet",
-      "nameJa": "イーブルサンズスカーレット",
-      "hex": "#C41E11"
-    },
-    {
-      "id": "citadel:jokaero-orange",
-      "name": "Jokaero Orange",
-      "nameJa": "ジョカエロオレンジ",
-      "hex": "#E0631E"
-    },
-    {
-      "id": "citadel:troll-slayer-orange",
-      "name": "Troll Slayer Orange",
-      "nameJa": "トロールスレイヤーオレンジ",
-      "hex": "#F27324"
-    },
-    {
-      "id": "citadel:fire-dragon-bright",
-      "name": "Fire Dragon Bright",
-      "nameJa": "ファイアドラゴンブライト",
-      "hex": "#F58020"
-    },
-    {
-      "id": "citadel:averland-sunset",
-      "name": "Averland Sunset",
-      "nameJa": "アバーランドサンセット",
-      "hex": "#F2A900"
-    },
-    {
-      "id": "citadel:yriel-yellow",
-      "name": "Yriel Yellow",
-      "nameJa": "ユリエルイエロー",
-      "hex": "#F6EB1B"
-    },
-    {
-      "id": "citadel:flash-gitz-yellow",
-      "name": "Flash Gitz Yellow",
-      "nameJa": "フラッシュギッツイエロー",
-      "hex": "#F7E017"
-    },
-    {
-      "id": "citadel:zandri-dust",
-      "name": "Zandri Dust",
-      "nameJa": "ザンドリダスト",
-      "hex": "#9C7A3C"
-    },
-    {
-      "id": "citadel:karak-stone",
-      "name": "Karak Stone",
-      "nameJa": "カラクストーン",
-      "hex": "#C5B27E"
-    },
-    {
-      "id": "citadel:rhinox-hide",
-      "name": "Rhinox Hide",
-      "nameJa": "ライノックスハイド",
-      "hex": "#4B3220"
-    },
-    {
-      "id": "citadel:doombull-brown",
-      "name": "Doombull Brown",
-      "nameJa": "ドゥームブルブラウン",
-      "hex": "#5C3A21"
-    },
-    {
-      "id": "citadel:mournfang-brown",
-      "name": "Mournfang Brown",
-      "nameJa": "モーンファングブラウン",
-      "hex": "#4A2E1C"
-    },
-    {
-      "id": "citadel:steel-legion-drab",
-      "name": "Steel Legion Drab",
-      "nameJa": "スティールレギオンドラブ",
-      "hex": "#7B7256"
-    },
-    {
-      "id": "citadel:death-guard-green",
+      "id": "citadel:spray-death-guard-green",
       "name": "Death Guard Green",
-      "nameJa": "デスガードグリーン",
-      "hex": "#8A9A5B"
+      "range": "spray",
+      "hex": "#556229"
     },
     {
-      "id": "citadel:ork-flesh",
-      "name": "Ork Flesh",
-      "nameJa": "オークフレッシュ",
-      "hex": "#5A7318"
+      "id": "citadel:spray-grey-seer",
+      "name": "Grey Seer",
+      "range": "spray",
+      "hex": "#A2A5A7"
     },
     {
-      "id": "citadel:waaagh-flesh",
-      "name": "Waaagh! Flesh",
-      "nameJa": "ワァァグフレッシュ",
-      "hex": "#1F5C21"
-    },
-    {
-      "id": "citadel:warboss-green",
-      "name": "Warboss Green",
-      "nameJa": "ウォーボスグリーン",
-      "hex": "#1C4B22"
-    },
-    {
-      "id": "citadel:caliban-green",
-      "name": "Caliban Green",
-      "nameJa": "カリバングリーン",
-      "hex": "#0E3B1E"
-    },
-    {
-      "id": "citadel:castellan-green",
-      "name": "Castellan Green",
-      "nameJa": "カステラングリーン",
-      "hex": "#1B4D2E"
-    },
-    {
-      "id": "citadel:kabalite-green",
-      "name": "Kabalite Green",
-      "nameJa": "カバライトグリーン",
-      "hex": "#0F3D2A"
-    },
-    {
-      "id": "citadel:skarsnik-green",
-      "name": "Skarsnik Green",
-      "nameJa": "スカースニックグリーン",
-      "hex": "#4E8F3D"
-    },
-    {
-      "id": "citadel:warpstone-glow",
-      "name": "Warpstone Glow",
-      "nameJa": "ワープストーングロウ",
-      "hex": "#1FA646"
-    },
-    {
-      "id": "citadel:moot-green",
-      "name": "Moot Green",
-      "nameJa": "ムートグリーン",
-      "hex": "#7BC142"
-    },
-    {
-      "id": "citadel:kantor-blue",
-      "name": "Kantor Blue",
-      "nameJa": "カントールブルー",
-      "hex": "#1B2A4A"
-    },
-    {
-      "id": "citadel:macragge-blue",
-      "name": "Macragge Blue",
-      "nameJa": "マクラッジブルー",
-      "hex": "#0F2C5C"
-    },
-    {
-      "id": "citadel:altdorf-guard-blue",
-      "name": "Altdorf Guard Blue",
-      "nameJa": "アルトドルフガードブルー",
-      "hex": "#1750A5"
-    },
-    {
-      "id": "citadel:calgar-blue",
-      "name": "Calgar Blue",
-      "nameJa": "カルガーブルー",
-      "hex": "#153E7A"
-    },
-    {
-      "id": "citadel:teclis-blue",
-      "name": "Teclis Blue",
-      "nameJa": "テクリスブルー",
-      "hex": "#3E7FC1"
-    },
-    {
-      "id": "citadel:lothern-blue",
-      "name": "Lothern Blue",
-      "nameJa": "ロサーンブルー",
-      "hex": "#1C8FC1"
-    },
-    {
-      "id": "citadel:caledor-sky",
-      "name": "Caledor Sky",
-      "nameJa": "キャレドアスカイ",
-      "hex": "#4A9FD8"
-    },
-    {
-      "id": "citadel:kabalite-wraithbone",
-      "name": "Kabalite Wraithbone",
-      "nameJa": "カバライトレイスボーン",
-      "hex": "#D6CFB4"
-    },
-    {
-      "id": "citadel:rakarth-flesh",
-      "name": "Rakarth Flesh",
-      "nameJa": "ラカースフレッシュ",
-      "hex": "#9C8F7C"
-    },
-    {
-      "id": "citadel:screamer-pink",
-      "name": "Screamer Pink",
-      "nameJa": "スクリーマーピンク",
-      "hex": "#C13A8F"
-    },
-    {
-      "id": "citadel:naggaroth-night",
-      "name": "Naggaroth Night",
-      "nameJa": "ナガロスナイト",
-      "hex": "#3C2A5E"
-    },
-    {
-      "id": "citadel:xereus-purple",
-      "name": "Xereus Purple",
-      "nameJa": "ゼレウスパープル",
-      "hex": "#3A2049"
-    },
-    {
-      "id": "citadel:genestealer-purple",
-      "name": "Genestealer Purple",
-      "nameJa": "ジーンスティーラーパープル",
-      "hex": "#4E2A6E"
-    },
-    {
-      "id": "citadel:daemonette-hide",
-      "name": "Daemonette Hide",
-      "nameJa": "デーモネットハイド",
-      "hex": "#7A2E5C"
-    },
-    {
-      "id": "citadel:khorne-berserkers-red",
-      "name": "Khorne Berserkers Red",
-      "nameJa": "コーンバーサーカーズレッド",
-      "hex": "#7D1616"
-    },
-    {
-      "id": "citadel:wraithbone",
-      "name": "Wraithbone",
-      "nameJa": "レイスボーン",
-      "hex": "#E4D9B8"
-    },
-    {
-      "id": "citadel:white-scar",
-      "name": "White Scar",
-      "nameJa": "ホワイトスカー",
-      "hex": "#F0F0F0"
-    },
-    {
-      "id": "citadel:corax-white",
-      "name": "Corax White",
-      "nameJa": "コラックスホワイト",
-      "hex": "#E8E8E8"
-    },
-    {
-      "id": "citadel:celestra-grey",
-      "name": "Celestra Grey",
-      "nameJa": "セレストラグレイ",
-      "hex": "#A8A9AC"
-    },
-    {
-      "id": "citadel:dawnstone",
-      "name": "Dawnstone",
-      "nameJa": "ドーンストーン",
-      "hex": "#7E8285"
-    },
-    {
-      "id": "citadel:mechanicus-standard-grey",
-      "name": "Mechanicus Standard Grey",
-      "nameJa": "メカニカムスタンダードグレイ",
-      "hex": "#42474D"
-    },
-    {
-      "id": "citadel:eshin-grey",
-      "name": "Eshin Grey",
-      "nameJa": "エシングレイ",
-      "hex": "#5B5F63"
-    },
-    {
-      "id": "citadel:administratum-grey",
-      "name": "Administratum Grey",
-      "nameJa": "アドミニストラタムグレイ",
-      "hex": "#8D9192"
-    },
-    {
-      "id": "citadel:leadbelcher",
+      "id": "citadel:spray-leadbelcher",
       "name": "Leadbelcher",
-      "nameJa": "リードベルチャー",
-      "hex": "#8B8E90"
+      "range": "spray",
+      "hex": "#151E24"
     },
     {
-      "id": "citadel:ironbreaker",
-      "name": "Ironbreaker",
-      "nameJa": "アイアンブレイカー",
-      "hex": "#A5A9AC"
+      "id": "citadel:spray-macragge-blue",
+      "name": "Macragge Blue",
+      "range": "spray",
+      "hex": "#0F3D7C"
     },
     {
-      "id": "citadel:runefang-steel",
-      "name": "Runefang Steel",
-      "nameJa": "ルーンファングスチール",
-      "hex": "#C6C9CB"
+      "id": "citadel:spray-mechanicus-standard-grey",
+      "name": "Mechanicus Standard Grey",
+      "range": "spray",
+      "hex": "#39484A"
     },
     {
-      "id": "citadel:retributor-armour",
+      "id": "citadel:spray-mephiston-red",
+      "name": "Mephiston Red",
+      "range": "spray",
+      "hex": "#960C09"
+    },
+    {
+      "id": "citadel:spray-munitorum-varnish",
+      "name": "Munitorum Varnish",
+      "range": "spray",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:spray-retributor-armour",
       "name": "Retributor Armour",
-      "nameJa": "レトリビューターアーマー",
-      "hex": "#B9852F"
+      "range": "spray",
+      "hex": "#89571D"
     },
     {
-      "id": "citadel:auric-armour-gold",
-      "name": "Auric Armour Gold",
-      "nameJa": "オーリックアーマーゴールド",
-      "hex": "#C8952E"
+      "id": "citadel:spray-white-scar",
+      "name": "White Scar",
+      "range": "spray",
+      "hex": "#FFFFFF"
     },
     {
-      "id": "citadel:balthasar-gold",
+      "id": "citadel:spray-wraithbone",
+      "name": "Wraithbone",
+      "range": "spray",
+      "hex": "#DBD1B2"
+    },
+    {
+      "id": "citadel:spray-zandri-dust",
+      "name": "Zandri Dust",
+      "range": "spray",
+      "hex": "#988E56"
+    },
+    {
+      "id": "citadel:base-abaddon-black",
+      "name": "Abaddon Black",
+      "range": "base",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:base-averland-sunset",
+      "name": "Averland Sunset",
+      "range": "base",
+      "hex": "#FBB81C"
+    },
+    {
+      "id": "citadel:base-balthasar-gold",
       "name": "Balthasar Gold",
-      "nameJa": "バルタザールゴールド",
-      "hex": "#8C6C1F"
+      "range": "base",
+      "hex": "#1D0F07"
     },
     {
-      "id": "citadel:warplock-bronze",
-      "name": "Warplock Bronze",
-      "nameJa": "ウォーロックブロンズ",
-      "hex": "#5C4A28"
+      "id": "citadel:base-barak-nar-burgundy",
+      "name": "Barak-Nar Burgundy",
+      "range": "base",
+      "hex": "#451636"
     },
     {
-      "id": "citadel:screaming-skull",
-      "name": "Screaming Skull",
-      "nameJa": "スクリーミングスカル",
-      "hex": "#DCCE8C"
-    },
-    {
-      "id": "citadel:ushabti-bone",
-      "name": "Ushabti Bone",
-      "nameJa": "ウシャブティボーン",
-      "hex": "#C4A66B"
-    },
-    {
-      "id": "citadel:tallarn-sand",
-      "name": "Tallarn Sand",
-      "nameJa": "タラーンサンド",
-      "hex": "#C89050"
-    },
-    {
-      "id": "citadel:wild-rider-red",
-      "name": "Wild Rider Red",
-      "nameJa": "ワイルドライダーレッド",
-      "hex": "#B31E24"
-    },
-    {
-      "id": "citadel:fulgrim-pink",
-      "name": "Fulgrim Pink",
-      "nameJa": "フルグリムピンク",
-      "hex": "#E799A3"
-    },
-    {
-      "id": "citadel:baharroth-blue",
-      "name": "Baharroth Blue",
-      "nameJa": "バハロスブルー",
-      "hex": "#5FC7E8"
-    },
-    {
-      "id": "citadel:sotek-green",
-      "name": "Sotek Green",
-      "nameJa": "ソテックグリーン",
-      "hex": "#1E8F7A"
-    },
-    {
-      "id": "citadel:sybarite-green",
-      "name": "Sybarite Green",
-      "nameJa": "シバライトグリーン",
-      "hex": "#5CA13E"
-    },
-    {
-      "id": "citadel:nurgling-green",
-      "name": "Nurgling Green",
-      "nameJa": "ナーグリングリーン",
-      "hex": "#8FAE5C"
-    },
-    {
-      "id": "citadel:ogryn-camo",
-      "name": "Ogryn Camo",
-      "nameJa": "オグリンカモ",
-      "hex": "#7C8A4E"
-    },
-    {
-      "id": "citadel:elysian-green",
-      "name": "Elysian Green",
-      "nameJa": "エリシアングリーン",
-      "hex": "#5E8F3E"
-    },
-    {
-      "id": "citadel:flayed-one-flesh",
-      "name": "Flayed One Flesh",
-      "nameJa": "フレイドワンフレッシュ",
-      "hex": "#C9AD82"
-    },
-    {
-      "id": "citadel:cadian-fleshtone",
-      "name": "Cadian Fleshtone",
-      "nameJa": "カディアンフレッシュトーン",
-      "hex": "#C48A6A"
-    },
-    {
-      "id": "citadel:kislev-flesh",
-      "name": "Kislev Flesh",
-      "nameJa": "キスレフフレッシュ",
-      "hex": "#D9A57C"
-    },
-    {
-      "id": "citadel:bugman-s-glow",
+      "id": "citadel:base-bugman-s-glow",
       "name": "Bugman's Glow",
-      "nameJa": "バグマンズグロウ",
-      "hex": "#966352"
+      "range": "base",
+      "hex": "#804C43"
     },
     {
-      "id": "citadel:ratskin-flesh",
+      "id": "citadel:base-caledor-sky",
+      "name": "Caledor Sky",
+      "range": "base",
+      "hex": "#366699"
+    },
+    {
+      "id": "citadel:base-caliban-green",
+      "name": "Caliban Green",
+      "range": "base",
+      "hex": "#003D15"
+    },
+    {
+      "id": "citadel:base-castellan-green",
+      "name": "Castellan Green",
+      "range": "base",
+      "hex": "#264715"
+    },
+    {
+      "id": "citadel:base-catachan-flesh",
+      "name": "Catachan Flesh",
+      "range": "base",
+      "hex": "#442B25"
+    },
+    {
+      "id": "citadel:base-celestra-grey",
+      "name": "Celestra Grey",
+      "range": "base",
+      "hex": "#8BA3A3"
+    },
+    {
+      "id": "citadel:base-corax-white",
+      "name": "Corax White",
+      "range": "base",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "citadel:base-corvus-black",
+      "name": "Corvus Black",
+      "range": "base",
+      "hex": "#171314"
+    },
+    {
+      "id": "citadel:base-daemonette-hide",
+      "name": "Daemonette Hide",
+      "range": "base",
+      "hex": "#655F81"
+    },
+    {
+      "id": "citadel:base-death-guard-green",
+      "name": "Death Guard Green",
+      "range": "base",
+      "hex": "#6D774D"
+    },
+    {
+      "id": "citadel:base-death-korps-drab",
+      "name": "Death Korps Drab",
+      "range": "base",
+      "hex": "#3D4539"
+    },
+    {
+      "id": "citadel:base-deathworld-forest",
+      "name": "Deathworld Forest",
+      "range": "base",
+      "hex": "#556229"
+    },
+    {
+      "id": "citadel:base-dryad-bark",
+      "name": "Dryad Bark",
+      "range": "base",
+      "hex": "#2B2A24"
+    },
+    {
+      "id": "citadel:base-gal-vorbak-red",
+      "name": "Gal Vorbak Red",
+      "range": "base",
+      "hex": "#4B213C"
+    },
+    {
+      "id": "citadel:base-grey-knights-steel",
+      "name": "Grey Knights Steel",
+      "range": "base",
+      "hex": "#465863"
+    },
+    {
+      "id": "citadel:base-grey-seer",
+      "name": "Grey Seer",
+      "range": "base",
+      "hex": "#A2A5A7"
+    },
+    {
+      "id": "citadel:base-hobgrot-hide",
+      "name": "Hobgrot Hide",
+      "range": "base",
+      "hex": "#A1812A"
+    },
+    {
+      "id": "citadel:base-incubi-darkness",
+      "name": "Incubi Darkness",
+      "range": "base",
+      "hex": "#082E32"
+    },
+    {
+      "id": "citadel:base-ionrach-skin",
+      "name": "Ionrach Skin",
+      "range": "base",
+      "hex": "#97A384"
+    },
+    {
+      "id": "citadel:base-iron-hands-steel",
+      "name": "Iron Hands Steel",
+      "range": "base",
+      "hex": "#44423F"
+    },
+    {
+      "id": "citadel:base-iron-warriors",
+      "name": "Iron Warriors",
+      "range": "base",
+      "hex": "#292725"
+    },
+    {
+      "id": "citadel:base-jokaero-orange",
+      "name": "Jokaero Orange",
+      "range": "base",
+      "hex": "#ED3814"
+    },
+    {
+      "id": "citadel:base-kantor-blue",
+      "name": "Kantor Blue",
+      "range": "base",
+      "hex": "#02134E"
+    },
+    {
+      "id": "citadel:base-khorne-red",
+      "name": "Khorne Red",
+      "range": "base",
+      "hex": "#650001"
+    },
+    {
+      "id": "citadel:base-leadbelcher",
+      "name": "Leadbelcher",
+      "range": "base",
+      "hex": "#151E24"
+    },
+    {
+      "id": "citadel:base-lupercal-green",
+      "name": "Lupercal Green",
+      "range": "base",
+      "hex": "#002C2B"
+    },
+    {
+      "id": "citadel:base-macragge-blue",
+      "name": "Macragge Blue",
+      "range": "base",
+      "hex": "#0F3D7C"
+    },
+    {
+      "id": "citadel:base-mechanicus-standard-grey",
+      "name": "Mechanicus Standard Grey",
+      "range": "base",
+      "hex": "#39484A"
+    },
+    {
+      "id": "citadel:base-mephiston-red",
+      "name": "Mephiston Red",
+      "range": "base",
+      "hex": "#960C09"
+    },
+    {
+      "id": "citadel:base-morghast-bone",
+      "name": "Morghast Bone",
+      "range": "base",
+      "hex": "#C0A973"
+    },
+    {
+      "id": "citadel:base-mournfang-brown",
+      "name": "Mournfang Brown",
+      "range": "base",
+      "hex": "#490F06"
+    },
+    {
+      "id": "citadel:base-naggaroth-night",
+      "name": "Naggaroth Night",
+      "range": "base",
+      "hex": "#3B2B50"
+    },
+    {
+      "id": "citadel:base-night-lords-blue",
+      "name": "Night Lords Blue",
+      "range": "base",
+      "hex": "#002B5C"
+    },
+    {
+      "id": "citadel:base-nocturne-green",
+      "name": "Nocturne Green",
+      "range": "base",
+      "hex": "#162A29"
+    },
+    {
+      "id": "citadel:base-orruk-flesh",
+      "name": "Orruk Flesh",
+      "range": "base",
+      "hex": "#8CC276"
+    },
+    {
+      "id": "citadel:base-phoenician-purple",
+      "name": "Phoenician Purple",
+      "range": "base",
+      "hex": "#440052"
+    },
+    {
+      "id": "citadel:base-rakarth-flesh",
+      "name": "Rakarth Flesh",
+      "range": "base",
+      "hex": "#9C998D"
+    },
+    {
+      "id": "citadel:base-ratskin-flesh",
       "name": "Ratskin Flesh",
-      "nameJa": "ラットスキンフレッシュ",
-      "hex": "#8A5A3C"
+      "range": "base",
+      "hex": "#A86648"
     },
     {
-      "id": "citadel:ungor-flesh",
-      "name": "Ungor Flesh",
-      "nameJa": "アンゴアフレッシュ",
-      "hex": "#C79A7B"
+      "id": "citadel:base-retributor-armour",
+      "name": "Retributor Armour",
+      "range": "base",
+      "hex": "#89571D"
     },
     {
-      "id": "citadel:pallid-wych-flesh",
-      "name": "Pallid Wych Flesh",
-      "nameJa": "パリッドウィッチフレッシュ",
-      "hex": "#E8DFC6"
+      "id": "citadel:base-rhinox-hide",
+      "name": "Rhinox Hide",
+      "range": "base",
+      "hex": "#462F30"
     },
     {
-      "id": "citadel:lothern-blue-layer",
-      "name": "Lothern Blue Layer",
-      "nameJa": "ロサーンブルー(レイヤー)",
-      "hex": "#3AA6D9"
+      "id": "citadel:base-runelord-brass",
+      "name": "Runelord Brass",
+      "range": "base",
+      "hex": "#190E07"
     },
     {
-      "id": "citadel:hoeth-blue",
+      "id": "citadel:base-screamer-pink",
+      "name": "Screamer Pink",
+      "range": "base",
+      "hex": "#7A0E44"
+    },
+    {
+      "id": "citadel:base-screaming-bell",
+      "name": "Screaming Bell",
+      "range": "base",
+      "hex": "#642F1F"
+    },
+    {
+      "id": "citadel:base-steel-legion-drab",
+      "name": "Steel Legion Drab",
+      "range": "base",
+      "hex": "#584E2D"
+    },
+    {
+      "id": "citadel:base-stegadon-scale-green",
+      "name": "Stegadon Scale Green",
+      "range": "base",
+      "hex": "#06455D"
+    },
+    {
+      "id": "citadel:base-the-fang",
+      "name": "The Fang",
+      "range": "base",
+      "hex": "#405B71"
+    },
+    {
+      "id": "citadel:base-thondia-brown",
+      "name": "Thondia Brown",
+      "range": "base",
+      "hex": "#54302A"
+    },
+    {
+      "id": "citadel:base-thousand-sons-blue",
+      "name": "Thousand Sons Blue",
+      "range": "base",
+      "hex": "#00506F"
+    },
+    {
+      "id": "citadel:base-waaagh-flesh",
+      "name": "Waaagh! Flesh",
+      "range": "base",
+      "hex": "#0B3B36"
+    },
+    {
+      "id": "citadel:base-warplock-bronze",
+      "name": "Warplock Bronze",
+      "range": "base",
+      "hex": "#440808"
+    },
+    {
+      "id": "citadel:base-wraithbone",
+      "name": "Wraithbone",
+      "range": "base",
+      "hex": "#DBD1B2"
+    },
+    {
+      "id": "citadel:base-xv-88",
+      "name": "XV-88",
+      "range": "base",
+      "hex": "#6C4811"
+    },
+    {
+      "id": "citadel:base-zandri-dust",
+      "name": "Zandri Dust",
+      "range": "base",
+      "hex": "#988E56"
+    },
+    {
+      "id": "citadel:layer-administratum-grey",
+      "name": "Administratum Grey",
+      "range": "layer",
+      "hex": "#989C94"
+    },
+    {
+      "id": "citadel:layer-ahriman-blue",
+      "name": "Ahriman Blue",
+      "range": "layer",
+      "hex": "#00708A"
+    },
+    {
+      "id": "citadel:layer-alaitoc-blue",
+      "name": "Alaitoc Blue",
+      "range": "layer",
+      "hex": "#2F4F85"
+    },
+    {
+      "id": "citadel:layer-altdorf-guard-blue",
+      "name": "Altdorf Guard Blue",
+      "range": "layer",
+      "hex": "#2D4696"
+    },
+    {
+      "id": "citadel:layer-auric-armour-gold",
+      "name": "Auric Armour Gold",
+      "range": "layer",
+      "hex": "#B05A25"
+    },
+    {
+      "id": "citadel:layer-baharroth-blue",
+      "name": "Baharroth Blue",
+      "range": "layer",
+      "hex": "#54BDCA"
+    },
+    {
+      "id": "citadel:layer-balor-brown",
+      "name": "Balor Brown",
+      "range": "layer",
+      "hex": "#875408"
+    },
+    {
+      "id": "citadel:layer-baneblade-brown",
+      "name": "Baneblade Brown",
+      "range": "layer",
+      "hex": "#8F7C68"
+    },
+    {
+      "id": "citadel:layer-bestigor-flesh",
+      "name": "Bestigor Flesh",
+      "range": "layer",
+      "hex": "#D08951"
+    },
+    {
+      "id": "citadel:layer-bloodreaver-flesh",
+      "name": "Bloodreaver Flesh",
+      "range": "layer",
+      "hex": "#6A4848"
+    },
+    {
+      "id": "citadel:layer-blue-horror",
+      "name": "Blue Horror",
+      "range": "layer",
+      "hex": "#9EB5CE"
+    },
+    {
+      "id": "citadel:layer-brass-scorpion",
+      "name": "Brass Scorpion",
+      "range": "layer",
+      "hex": "#3D0700"
+    },
+    {
+      "id": "citadel:layer-cadian-fleshtone",
+      "name": "Cadian Fleshtone",
+      "range": "layer",
+      "hex": "#C47652"
+    },
+    {
+      "id": "citadel:layer-calgar-blue",
+      "name": "Calgar Blue",
+      "range": "layer",
+      "hex": "#2A497F"
+    },
+    {
+      "id": "citadel:layer-canoptek-alloy",
+      "name": "Canoptek Alloy",
+      "range": "layer",
+      "hex": "#967F7A"
+    },
+    {
+      "id": "citadel:layer-castellax-bronze",
+      "name": "Castellax Bronze",
+      "range": "layer",
+      "hex": "#3D0700"
+    },
+    {
+      "id": "citadel:layer-dark-reaper",
+      "name": "Dark Reaper",
+      "range": "layer",
+      "hex": "#354D4C"
+    },
+    {
+      "id": "citadel:layer-dawnstone",
+      "name": "Dawnstone",
+      "range": "layer",
+      "hex": "#697068"
+    },
+    {
+      "id": "citadel:layer-deathclaw-brown",
+      "name": "Deathclaw Brown",
+      "range": "layer",
+      "hex": "#AF634F"
+    },
+    {
+      "id": "citadel:layer-dechala-lilac",
+      "name": "Dechala Lilac",
+      "range": "layer",
+      "hex": "#B598C9"
+    },
+    {
+      "id": "citadel:layer-deepkin-flesh",
+      "name": "Deepkin Flesh",
+      "range": "layer",
+      "hex": "#A9B79F"
+    },
+    {
+      "id": "citadel:layer-doombull-brown",
+      "name": "Doombull Brown",
+      "range": "layer",
+      "hex": "#570003"
+    },
+    {
+      "id": "citadel:layer-dorn-yellow",
+      "name": "Dorn Yellow",
+      "range": "layer",
+      "hex": "#FFF55A"
+    },
+    {
+      "id": "citadel:layer-elysian-green",
+      "name": "Elysian Green",
+      "range": "layer",
+      "hex": "#6B8C37"
+    },
+    {
+      "id": "citadel:layer-emperor-s-children",
+      "name": "Emperor's Children",
+      "range": "layer",
+      "hex": "#B74073"
+    },
+    {
+      "id": "citadel:layer-eshin-grey",
+      "name": "Eshin Grey",
+      "range": "layer",
+      "hex": "#484B4E"
+    },
+    {
+      "id": "citadel:layer-evil-sunz-scarlet",
+      "name": "Evil Sunz Scarlet",
+      "range": "layer",
+      "hex": "#C01411"
+    },
+    {
+      "id": "citadel:layer-fenrisian-grey",
+      "name": "Fenrisian Grey",
+      "range": "layer",
+      "hex": "#6D94B3"
+    },
+    {
+      "id": "citadel:layer-fire-dragon-bright",
+      "name": "Fire Dragon Bright",
+      "range": "layer",
+      "hex": "#F4874E"
+    },
+    {
+      "id": "citadel:layer-flash-gitz-yellow",
+      "name": "Flash Gitz Yellow",
+      "range": "layer",
+      "hex": "#FFF300"
+    },
+    {
+      "id": "citadel:layer-flayed-one-flesh",
+      "name": "Flayed One Flesh",
+      "range": "layer",
+      "hex": "#EEC483"
+    },
+    {
+      "id": "citadel:layer-fulgrim-pink",
+      "name": "Fulgrim Pink",
+      "range": "layer",
+      "hex": "#F3ABCA"
+    },
+    {
+      "id": "citadel:layer-fulgurite-copper",
+      "name": "Fulgurite Copper",
+      "range": "layer",
+      "hex": "#6D2711"
+    },
+    {
+      "id": "citadel:layer-gauss-blaster-green",
+      "name": "Gauss Blaster Green",
+      "range": "layer",
+      "hex": "#7FC1A5"
+    },
+    {
+      "id": "citadel:layer-gehenna-s-gold",
+      "name": "Gehenna's Gold",
+      "range": "layer",
+      "hex": "#722A0B"
+    },
+    {
+      "id": "citadel:layer-genestealer-purple",
+      "name": "Genestealer Purple",
+      "range": "layer",
+      "hex": "#7658A5"
+    },
+    {
+      "id": "citadel:layer-gorthor-brown",
+      "name": "Gorthor Brown",
+      "range": "layer",
+      "hex": "#5F463F"
+    },
+    {
+      "id": "citadel:layer-hashut-copper",
+      "name": "Hashut Copper",
+      "range": "layer",
+      "hex": "#492109"
+    },
+    {
+      "id": "citadel:layer-hoeth-blue",
       "name": "Hoeth Blue",
-      "nameJa": "ホースブルー",
-      "hex": "#3E9FD1"
+      "range": "layer",
+      "hex": "#4C78AF"
     },
     {
-      "id": "citadel:sigmarite-white",
-      "name": "Sigmarite White",
-      "nameJa": "シグマライトホワイト",
-      "hex": "#EDEDED"
+      "id": "citadel:layer-ironbreaker",
+      "name": "Ironbreaker",
+      "range": "layer",
+      "hex": "#414141"
     },
     {
-      "id": "citadel:ceramite-white",
-      "name": "Ceramite White",
-      "nameJa": "セラマイトホワイト",
-      "hex": "#FBFBFB"
+      "id": "citadel:layer-kabalite-green",
+      "name": "Kabalite Green",
+      "range": "layer",
+      "hex": "#008962"
     },
     {
-      "id": "citadel:nuln-oil",
-      "name": "Nuln Oil",
-      "nameJa": "ナルンオイル",
-      "hex": "#0C0C0C"
+      "id": "citadel:layer-kakophoni-purple",
+      "name": "Kakophoni Purple",
+      "range": "layer",
+      "hex": "#8869AE"
     },
     {
-      "id": "citadel:agrax-earthshade",
+      "id": "citadel:layer-karak-stone",
+      "name": "Karak Stone",
+      "range": "layer",
+      "hex": "#B7945C"
+    },
+    {
+      "id": "citadel:layer-kislev-flesh",
+      "name": "Kislev Flesh",
+      "range": "layer",
+      "hex": "#D1A570"
+    },
+    {
+      "id": "citadel:layer-knight-questor-flesh",
+      "name": "Knight-Questor Flesh",
+      "range": "layer",
+      "hex": "#996563"
+    },
+    {
+      "id": "citadel:layer-krieg-khaki",
+      "name": "Krieg Khaki",
+      "range": "layer",
+      "hex": "#BCBB7E"
+    },
+    {
+      "id": "citadel:layer-liberator-gold",
+      "name": "Liberator Gold",
+      "range": "layer",
+      "hex": "#886625"
+    },
+    {
+      "id": "citadel:layer-loren-forest",
+      "name": "Loren Forest",
+      "range": "layer",
+      "hex": "#486C25"
+    },
+    {
+      "id": "citadel:layer-lothern-blue",
+      "name": "Lothern Blue",
+      "range": "layer",
+      "hex": "#2C9BCC"
+    },
+    {
+      "id": "citadel:layer-lugganath-orange",
+      "name": "Lugganath Orange",
+      "range": "layer",
+      "hex": "#F69B82"
+    },
+    {
+      "id": "citadel:layer-moot-green",
+      "name": "Moot Green",
+      "range": "layer",
+      "hex": "#3DAF44"
+    },
+    {
+      "id": "citadel:layer-nurgling-green",
+      "name": "Nurgling Green",
+      "range": "layer",
+      "hex": "#7E975E"
+    },
+    {
+      "id": "citadel:layer-ogryn-camo",
+      "name": "Ogryn Camo",
+      "range": "layer",
+      "hex": "#96A648"
+    },
+    {
+      "id": "citadel:layer-pallid-wych-flesh",
+      "name": "Pallid Wych Flesh",
+      "range": "layer",
+      "hex": "#CACCBB"
+    },
+    {
+      "id": "citadel:layer-phalanx-yellow",
+      "name": "Phalanx Yellow",
+      "range": "layer",
+      "hex": "#FFE200"
+    },
+    {
+      "id": "citadel:layer-pink-horror",
+      "name": "Pink Horror",
+      "range": "layer",
+      "hex": "#8E2757"
+    },
+    {
+      "id": "citadel:layer-runefang-steel",
+      "name": "Runefang Steel",
+      "range": "layer",
+      "hex": "#797F82"
+    },
+    {
+      "id": "citadel:layer-russ-grey",
+      "name": "Russ Grey",
+      "range": "layer",
+      "hex": "#507085"
+    },
+    {
+      "id": "citadel:layer-screaming-skull",
+      "name": "Screaming Skull",
+      "range": "layer",
+      "hex": "#B9C099"
+    },
+    {
+      "id": "citadel:layer-skarsnik-green",
+      "name": "Skarsnik Green",
+      "range": "layer",
+      "hex": "#588F6B"
+    },
+    {
+      "id": "citadel:layer-skavenblight-dinge",
+      "name": "Skavenblight Dinge",
+      "range": "layer",
+      "hex": "#45413B"
+    },
+    {
+      "id": "citadel:layer-skrag-brown",
+      "name": "Skrag Brown",
+      "range": "layer",
+      "hex": "#8B4806"
+    },
+    {
+      "id": "citadel:layer-skullcrusher-brass",
+      "name": "Skullcrusher Brass",
+      "range": "layer",
+      "hex": "#C38841"
+    },
+    {
+      "id": "citadel:layer-slaanesh-grey",
+      "name": "Slaanesh Grey",
+      "range": "layer",
+      "hex": "#8B8893"
+    },
+    {
+      "id": "citadel:layer-sons-of-horus-green",
+      "name": "Sons of Horus Green",
+      "range": "layer",
+      "hex": "#00545E"
+    },
+    {
+      "id": "citadel:layer-sotek-green",
+      "name": "Sotek Green",
+      "range": "layer",
+      "hex": "#0B6371"
+    },
+    {
+      "id": "citadel:layer-squig-orange",
+      "name": "Squig Orange",
+      "range": "layer",
+      "hex": "#A74D42"
+    },
+    {
+      "id": "citadel:layer-stormhost-silver",
+      "name": "Stormhost Silver",
+      "range": "layer",
+      "hex": "#9DA3A7"
+    },
+    {
+      "id": "citadel:layer-stormvermin-fur",
+      "name": "Stormvermin Fur",
+      "range": "layer",
+      "hex": "#6D655F"
+    },
+    {
+      "id": "citadel:layer-straken-green",
+      "name": "Straken Green",
+      "range": "layer",
+      "hex": "#597F1C"
+    },
+    {
+      "id": "citadel:layer-sybarite-green",
+      "name": "Sybarite Green",
+      "range": "layer",
+      "hex": "#17A166"
+    },
+    {
+      "id": "citadel:layer-sycorax-bronze",
+      "name": "Sycorax Bronze",
+      "range": "layer",
+      "hex": "#59322D"
+    },
+    {
+      "id": "citadel:layer-tallarn-sand",
+      "name": "Tallarn Sand",
+      "range": "layer",
+      "hex": "#A07409"
+    },
+    {
+      "id": "citadel:layer-tau-light-ochre",
+      "name": "Tau Light Ochre",
+      "range": "layer",
+      "hex": "#BC6B10"
+    },
+    {
+      "id": "citadel:layer-teclis-blue",
+      "name": "Teclis Blue",
+      "range": "layer",
+      "hex": "#3877BF"
+    },
+    {
+      "id": "citadel:layer-temple-guard-blue",
+      "name": "Temple Guard Blue",
+      "range": "layer",
+      "hex": "#239489"
+    },
+    {
+      "id": "citadel:layer-thunderhawk-blue",
+      "name": "Thunderhawk Blue",
+      "range": "layer",
+      "hex": "#396A70"
+    },
+    {
+      "id": "citadel:layer-troll-slayer-orange",
+      "name": "Troll Slayer Orange",
+      "range": "layer",
+      "hex": "#F16C23"
+    },
+    {
+      "id": "citadel:layer-tuskgor-fur",
+      "name": "Tuskgor Fur",
+      "range": "layer",
+      "hex": "#863231"
+    },
+    {
+      "id": "citadel:layer-ulthuan-grey",
+      "name": "Ulthuan Grey",
+      "range": "layer",
+      "hex": "#C4DDD5"
+    },
+    {
+      "id": "citadel:layer-ungor-flesh",
+      "name": "Ungor Flesh",
+      "range": "layer",
+      "hex": "#D1A560"
+    },
+    {
+      "id": "citadel:layer-ushabti-bone",
+      "name": "Ushabti Bone",
+      "range": "layer",
+      "hex": "#ABA173"
+    },
+    {
+      "id": "citadel:layer-vulkan-green",
+      "name": "Vulkan Green",
+      "range": "layer",
+      "hex": "#223C2E"
+    },
+    {
+      "id": "citadel:layer-warboss-green",
+      "name": "Warboss Green",
+      "range": "layer",
+      "hex": "#317E57"
+    },
+    {
+      "id": "citadel:layer-warpfiend-grey",
+      "name": "Warpfiend Grey",
+      "range": "layer",
+      "hex": "#66656E"
+    },
+    {
+      "id": "citadel:layer-warpstone-glow",
+      "name": "Warpstone Glow",
+      "range": "layer",
+      "hex": "#0F702A"
+    },
+    {
+      "id": "citadel:layer-wazdakka-red",
+      "name": "Wazdakka Red",
+      "range": "layer",
+      "hex": "#880804"
+    },
+    {
+      "id": "citadel:layer-white-scar",
+      "name": "White Scar",
+      "range": "layer",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "citadel:layer-wild-rider-red",
+      "name": "Wild Rider Red",
+      "range": "layer",
+      "hex": "#E82E1B"
+    },
+    {
+      "id": "citadel:layer-word-bearers-red",
+      "name": "Word Bearers Red",
+      "range": "layer",
+      "hex": "#620104"
+    },
+    {
+      "id": "citadel:layer-xereus-purple",
+      "name": "Xereus Purple",
+      "range": "layer",
+      "hex": "#47125A"
+    },
+    {
+      "id": "citadel:layer-yriel-yellow",
+      "name": "Yriel Yellow",
+      "range": "layer",
+      "hex": "#FFD900"
+    },
+    {
+      "id": "citadel:layer-zamesi-desert",
+      "name": "Zamesi Desert",
+      "range": "layer",
+      "hex": "#D89D1B"
+    },
+    {
+      "id": "citadel:shade-agrax-earthshade",
       "name": "Agrax Earthshade",
-      "nameJa": "アグラックスアースシェイド",
-      "hex": "#3A2A1C"
+      "range": "shade",
+      "hex": "#2D190C"
     },
     {
-      "id": "citadel:reikland-fleshshade",
-      "name": "Reikland Fleshshade",
-      "nameJa": "ライクランドフレッシュシェイド",
-      "hex": "#8A4A2C"
-    },
-    {
-      "id": "citadel:seraphim-sepia",
-      "name": "Seraphim Sepia",
-      "nameJa": "セラフィムセピア",
-      "hex": "#6E4318"
-    },
-    {
-      "id": "citadel:druchii-violet",
-      "name": "Druchii Violet",
-      "nameJa": "ドルチィヴァイオレット",
-      "hex": "#2A1140"
-    },
-    {
-      "id": "citadel:carroburg-crimson",
-      "name": "Carroburg Crimson",
-      "nameJa": "カロバーグクリムゾン",
-      "hex": "#5C0E14"
-    },
-    {
-      "id": "citadel:biel-tan-green",
-      "name": "Biel-Tan Green",
-      "nameJa": "ビエルタングリーン",
-      "hex": "#0E3B22"
-    },
-    {
-      "id": "citadel:athonian-camoshade",
+      "id": "citadel:shade-athonian-camoshade",
       "name": "Athonian Camoshade",
-      "nameJa": "アソニアンカモシェイド",
-      "hex": "#4A4E22"
+      "range": "shade",
+      "hex": "#1C1C10"
     },
     {
-      "id": "citadel:coelia-greenshade",
+      "id": "citadel:shade-berserker-bloodshade",
+      "name": "Berserker Bloodshade",
+      "range": "shade",
+      "hex": "#B8083E"
+    },
+    {
+      "id": "citadel:shade-biel-tan-green",
+      "name": "Biel-Tan Green",
+      "range": "shade",
+      "hex": "#132E21"
+    },
+    {
+      "id": "citadel:shade-carroburg-crimson",
+      "name": "Carroburg Crimson",
+      "range": "shade",
+      "hex": "#310808"
+    },
+    {
+      "id": "citadel:shade-casandora-yellow",
+      "name": "Casandora Yellow",
+      "range": "shade",
+      "hex": "#E78035"
+    },
+    {
+      "id": "citadel:shade-coelia-greenshade",
       "name": "Coelia Greenshade",
-      "nameJa": "セリアグリーンシェイド",
-      "hex": "#0E3A38"
+      "range": "shade",
+      "hex": "#113431"
     },
     {
-      "id": "citadel:drakenhof-nightshade",
+      "id": "citadel:shade-drakenhof-nightshade",
       "name": "Drakenhof Nightshade",
-      "nameJa": "ドラケンホフナイトシェイド",
-      "hex": "#152840"
+      "range": "shade",
+      "hex": "#0A131B"
+    },
+    {
+      "id": "citadel:shade-druchii-violet",
+      "name": "Druchii Violet",
+      "range": "shade",
+      "hex": "#250B27"
+    },
+    {
+      "id": "citadel:shade-fuegan-orange",
+      "name": "Fuegan Orange",
+      "range": "shade",
+      "hex": "#6C1C03"
+    },
+    {
+      "id": "citadel:shade-kroak-green",
+      "name": "Kroak Green",
+      "range": "shade",
+      "hex": "#7DBF92"
+    },
+    {
+      "id": "citadel:shade-mortarion-grime",
+      "name": "Mortarion Grime",
+      "range": "shade",
+      "hex": "#AFA400"
+    },
+    {
+      "id": "citadel:shade-nuln-oil",
+      "name": "Nuln Oil",
+      "range": "shade",
+      "hex": "#101010"
+    },
+    {
+      "id": "citadel:shade-poxwalker",
+      "name": "Poxwalker",
+      "range": "shade",
+      "hex": "#54989C"
+    },
+    {
+      "id": "citadel:shade-reikland-fleshshade",
+      "name": "Reikland Fleshshade",
+      "range": "shade",
+      "hex": "#311908"
+    },
+    {
+      "id": "citadel:shade-seraphim-sepia",
+      "name": "Seraphim Sepia",
+      "range": "shade",
+      "hex": "#2E1F08"
+    },
+    {
+      "id": "citadel:shade-soulblight-grey",
+      "name": "Soulblight Grey",
+      "range": "shade",
+      "hex": "#A6A1A5"
+    },
+    {
+      "id": "citadel:shade-targor-rageshade",
+      "name": "Targor Rageshade",
+      "range": "shade",
+      "hex": "#614E66"
+    },
+    {
+      "id": "citadel:shade-tyran-blue",
+      "name": "Tyran Blue",
+      "range": "shade",
+      "hex": "#0083CA"
+    },
+    {
+      "id": "citadel:technical-agrellan-badland",
+      "name": "Agrellan Badland",
+      "range": "technical",
+      "hex": "#948165"
+    },
+    {
+      "id": "citadel:technical-agrellan-earth",
+      "name": "Agrellan Earth",
+      "range": "technical",
+      "hex": "#948165"
+    },
+    {
+      "id": "citadel:technical-ardcoat",
+      "name": "Ardcoat",
+      "range": "technical",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:technical-armageddon-dust",
+      "name": "Armageddon Dust",
+      "range": "technical",
+      "hex": "#D2AD00"
+    },
+    {
+      "id": "citadel:technical-astrogranite",
+      "name": "Astrogranite",
+      "range": "technical",
+      "hex": "#767675"
+    },
+    {
+      "id": "citadel:technical-blood-for-the-blood-god",
+      "name": "Blood For The Blood God",
+      "range": "technical",
+      "hex": "#600005"
+    },
+    {
+      "id": "citadel:technical-contrast-medium",
+      "name": "Contrast Medium",
+      "range": "technical",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:technical-lahmian-medium",
+      "name": "Lahmian Medium",
+      "range": "technical",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:technical-martian-ironcrust",
+      "name": "Martian Ironcrust",
+      "range": "technical",
+      "hex": "#9B5041"
+    },
+    {
+      "id": "citadel:technical-martian-ironearth",
+      "name": "Martian Ironearth",
+      "range": "technical",
+      "hex": "#9B5041"
+    },
+    {
+      "id": "citadel:technical-mordant-earth",
+      "name": "Mordant Earth",
+      "range": "technical",
+      "hex": "#171314"
+    },
+    {
+      "id": "citadel:technical-nihilakh-oxide",
+      "name": "Nihilakh Oxide",
+      "range": "technical",
+      "hex": "#66B39A"
+    },
+    {
+      "id": "citadel:technical-nurgles-rot",
+      "name": "Nurgles Rot",
+      "range": "technical",
+      "hex": "#9D8B16"
+    },
+    {
+      "id": "citadel:technical-soulstone-blue",
+      "name": "Soulstone Blue",
+      "range": "technical",
+      "hex": "#01154B"
+    },
+    {
+      "id": "citadel:technical-spiritstone-red",
+      "name": "Spiritstone Red",
+      "range": "technical",
+      "hex": "#7C1100"
+    },
+    {
+      "id": "citadel:technical-stirland-mud",
+      "name": "Stirland Mud",
+      "range": "technical",
+      "hex": "#482B00"
+    },
+    {
+      "id": "citadel:technical-stormshield",
+      "name": "Stormshield",
+      "range": "technical",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:technical-tesseract-glow",
+      "name": "Tesseract Glow",
+      "range": "technical",
+      "hex": "#49AD33"
+    },
+    {
+      "id": "citadel:technical-typhus-corrosion",
+      "name": "Typhus Corrosion",
+      "range": "technical",
+      "hex": "#373A22"
+    },
+    {
+      "id": "citadel:technical-valhallan-blizzard",
+      "name": "Valhallan Blizzard",
+      "range": "technical",
+      "hex": "#E1E1E1"
+    },
+    {
+      "id": "citadel:technical-waystone-green",
+      "name": "Waystone Green",
+      "range": "technical",
+      "hex": "#00381F"
+    },
+    {
+      "id": "citadel:contrast-aeldari-emerald",
+      "name": "Aeldari Emerald",
+      "range": "contrast",
+      "hex": "#005959"
+    },
+    {
+      "id": "citadel:contrast-aethermatic-blue",
+      "name": "Aethermatic Blue",
+      "range": "contrast",
+      "hex": "#006D83"
+    },
+    {
+      "id": "citadel:contrast-aggaros-dunes",
+      "name": "Aggaros Dunes",
+      "range": "contrast",
+      "hex": "#554C36"
+    },
+    {
+      "id": "citadel:contrast-akhelian-green",
+      "name": "Akhelian Green",
+      "range": "contrast",
+      "hex": "#004354"
+    },
+    {
+      "id": "citadel:contrast-apothecary-white",
+      "name": "Apothecary White",
+      "range": "contrast",
+      "hex": "#8FADC8"
+    },
+    {
+      "id": "citadel:contrast-asurmen-blue",
+      "name": "Asurmen Blue",
+      "range": "contrast",
+      "hex": "#00325F"
+    },
+    {
+      "id": "citadel:contrast-baal-red",
+      "name": "Baal Red",
+      "range": "contrast",
+      "hex": "#C01823"
+    },
+    {
+      "id": "citadel:contrast-bad-moon-yellow",
+      "name": "Bad Moon Yellow",
+      "range": "contrast",
+      "hex": "#FBAD18"
+    },
+    {
+      "id": "citadel:contrast-basilicanum-grey",
+      "name": "Basilicanum Grey",
+      "range": "contrast",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:contrast-black-legion",
+      "name": "Black Legion",
+      "range": "contrast",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:contrast-black-templar",
+      "name": "Black Templar",
+      "range": "contrast",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:contrast-blood-angels-red",
+      "name": "Blood Angels Red",
+      "range": "contrast",
+      "hex": "#76080B"
+    },
+    {
+      "id": "citadel:contrast-briar-queen-chill",
+      "name": "Briar Queen Chill",
+      "range": "contrast",
+      "hex": "#4394A8"
+    },
+    {
+      "id": "citadel:contrast-celestium-blue",
+      "name": "Celestium Blue",
+      "range": "contrast",
+      "hex": "#003C77"
+    },
+    {
+      "id": "citadel:contrast-creed-camo",
+      "name": "Creed Camo",
+      "range": "contrast",
+      "hex": "#004E1B"
+    },
+    {
+      "id": "citadel:contrast-cygor-brown",
+      "name": "Cygor Brown",
+      "range": "contrast",
+      "hex": "#2F0D0A"
+    },
+    {
+      "id": "citadel:contrast-dark-angels-green",
+      "name": "Dark Angels Green",
+      "range": "contrast",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:contrast-darkoath-flesh",
+      "name": "Darkoath Flesh",
+      "range": "contrast",
+      "hex": "#87524F"
+    },
+    {
+      "id": "citadel:contrast-doomfire-magenta",
+      "name": "Doomfire Magenta",
+      "range": "contrast",
+      "hex": "#A70063"
+    },
+    {
+      "id": "citadel:contrast-dreadful-visage",
+      "name": "Dreadful Visage",
+      "range": "contrast",
+      "hex": "#896F8E"
+    },
+    {
+      "id": "citadel:contrast-flesh-tearers-red",
+      "name": "Flesh Tearers Red",
+      "range": "contrast",
+      "hex": "#3A0100"
+    },
+    {
+      "id": "citadel:contrast-frostheart",
+      "name": "Frostheart",
+      "range": "contrast",
+      "hex": "#003B54"
+    },
+    {
+      "id": "citadel:contrast-fyreslayer-flesh",
+      "name": "Fyreslayer Flesh",
+      "range": "contrast",
+      "hex": "#5D4231"
+    },
+    {
+      "id": "citadel:contrast-garaghak-s-sewer",
+      "name": "Garaghak's Sewer",
+      "range": "contrast",
+      "hex": "#4F4135"
+    },
+    {
+      "id": "citadel:contrast-gore-grunta-fur",
+      "name": "Gore-Grunta Fur",
+      "range": "contrast",
+      "hex": "#543927"
+    },
+    {
+      "id": "citadel:contrast-gryph-charger-grey",
+      "name": "Gryph-Charger Grey",
+      "range": "contrast",
+      "hex": "#004E74"
+    },
+    {
+      "id": "citadel:contrast-gryph-hound-orange",
+      "name": "Gryph-Hound Orange",
+      "range": "contrast",
+      "hex": "#7C2303"
+    },
+    {
+      "id": "citadel:contrast-guilliman-flesh",
+      "name": "Guilliman Flesh",
+      "range": "contrast",
+      "hex": "#912D20"
+    },
+    {
+      "id": "citadel:contrast-gutrippa-flesh",
+      "name": "Gutrippa Flesh",
+      "range": "contrast",
+      "hex": "#145F1F"
+    },
+    {
+      "id": "citadel:contrast-hexwraith-flame",
+      "name": "Hexwraith Flame",
+      "range": "contrast",
+      "hex": "#00A237"
+    },
+    {
+      "id": "citadel:contrast-imperial-fist",
+      "name": "Imperial Fist",
+      "range": "contrast",
+      "hex": "#F9A01B"
+    },
+    {
+      "id": "citadel:contrast-ironjawz-yellow",
+      "name": "Ironjawz Yellow",
+      "range": "contrast",
+      "hex": "#AB7709"
+    },
+    {
+      "id": "citadel:contrast-iyanden-yellow",
+      "name": "Iyanden Yellow",
+      "range": "contrast",
+      "hex": "#D26B04"
+    },
+    {
+      "id": "citadel:contrast-karandras-green",
+      "name": "Karandras Green",
+      "range": "contrast",
+      "hex": "#004B20"
+    },
+    {
+      "id": "citadel:contrast-kroxigor-scales",
+      "name": "Kroxigor Scales",
+      "range": "contrast",
+      "hex": "#005A70"
+    },
+    {
+      "id": "citadel:contrast-leviadon-blue",
+      "name": "Leviadon Blue",
+      "range": "contrast",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:contrast-leviathan-purple",
+      "name": "Leviathan Purple",
+      "range": "contrast",
+      "hex": "#07074E"
+    },
+    {
+      "id": "citadel:contrast-luxion-purple",
+      "name": "Luxion Purple",
+      "range": "contrast",
+      "hex": "#27004B"
+    },
+    {
+      "id": "citadel:contrast-magmadroth-flame",
+      "name": "Magmadroth Flame",
+      "range": "contrast",
+      "hex": "#D64A28"
+    },
+    {
+      "id": "citadel:contrast-magos-purple",
+      "name": "Magos Purple",
+      "range": "contrast",
+      "hex": "#662357"
+    },
+    {
+      "id": "citadel:contrast-mantis-warriors-green",
+      "name": "Mantis Warriors Green",
+      "range": "contrast",
+      "hex": "#2B621D"
+    },
+    {
+      "id": "citadel:contrast-militarum-green",
+      "name": "Militarum Green",
+      "range": "contrast",
+      "hex": "#5F6D00"
+    },
+    {
+      "id": "citadel:contrast-nazdreg-yellow",
+      "name": "Nazdreg Yellow",
+      "range": "contrast",
+      "hex": "#4E3700"
+    },
+    {
+      "id": "citadel:contrast-nighthaunt-gloom",
+      "name": "Nighthaunt Gloom",
+      "range": "contrast",
+      "hex": "#4C838A"
+    },
+    {
+      "id": "citadel:contrast-ork-flesh",
+      "name": "Ork Flesh",
+      "range": "contrast",
+      "hex": "#004E1B"
+    },
+    {
+      "id": "citadel:contrast-plaguebearer-flesh",
+      "name": "Plaguebearer Flesh",
+      "range": "contrast",
+      "hex": "#596B02"
+    },
+    {
+      "id": "citadel:contrast-pylar-glacier",
+      "name": "Pylar Glacier",
+      "range": "contrast",
+      "hex": "#009EDE"
+    },
+    {
+      "id": "citadel:contrast-ratling-grime",
+      "name": "Ratling Grime",
+      "range": "contrast",
+      "hex": "#3E3B39"
+    },
+    {
+      "id": "citadel:contrast-shyish-purple",
+      "name": "Shyish Purple",
+      "range": "contrast",
+      "hex": "#1F0137"
+    },
+    {
+      "id": "citadel:contrast-sigvald-burgundy",
+      "name": "Sigvald Burgundy",
+      "range": "contrast",
+      "hex": "#590048"
+    },
+    {
+      "id": "citadel:contrast-skeleton-horde",
+      "name": "Skeleton Horde",
+      "range": "contrast",
+      "hex": "#918158"
+    },
+    {
+      "id": "citadel:contrast-snakebite-leather",
+      "name": "Snakebite Leather",
+      "range": "contrast",
+      "hex": "#554431"
+    },
+    {
+      "id": "citadel:contrast-space-wolves-grey",
+      "name": "Space Wolves Grey",
+      "range": "contrast",
+      "hex": "#002C51"
+    },
+    {
+      "id": "citadel:contrast-stormfiend",
+      "name": "Stormfiend",
+      "range": "contrast",
+      "hex": "#00416B"
+    },
+    {
+      "id": "citadel:contrast-striking-scorpion-green",
+      "name": "Striking Scorpion Green",
+      "range": "contrast",
+      "hex": "#004E1E"
+    },
+    {
+      "id": "citadel:contrast-talassar-blue",
+      "name": "Talassar Blue",
+      "range": "contrast",
+      "hex": "#002C59"
+    },
+    {
+      "id": "citadel:contrast-terradon-turquoise",
+      "name": "Terradon Turquoise",
+      "range": "contrast",
+      "hex": "#00494F"
+    },
+    {
+      "id": "citadel:contrast-ultramarines-blue",
+      "name": "Ultramarines Blue",
+      "range": "contrast",
+      "hex": "#000A37"
+    },
+    {
+      "id": "citadel:contrast-volupus-pink",
+      "name": "Volupus Pink",
+      "range": "contrast",
+      "hex": "#530011"
+    },
+    {
+      "id": "citadel:contrast-warp-lightning",
+      "name": "Warp Lightning",
+      "range": "contrast",
+      "hex": "#004E1B"
+    },
+    {
+      "id": "citadel:contrast-wyldwood",
+      "name": "Wyldwood",
+      "range": "contrast",
+      "hex": "#381D17"
+    },
+    {
+      "id": "citadel:air-abaddon-black",
+      "name": "Abaddon Black",
+      "range": "air",
+      "hex": "#000000"
+    },
+    {
+      "id": "citadel:air-administratum-grey",
+      "name": "Administratum Grey",
+      "range": "air",
+      "hex": "#8F9690"
+    },
+    {
+      "id": "citadel:air-air-caste-thinner",
+      "name": "Air Caste Thinner",
+      "range": "air",
+      "hex": "#DADADA"
+    },
+    {
+      "id": "citadel:air-angron-red-clear",
+      "name": "Angron Red Clear",
+      "range": "air",
+      "hex": "#E21823"
+    },
+    {
+      "id": "citadel:air-averland-sunset",
+      "name": "Averland Sunset",
+      "range": "air",
+      "hex": "#FBB81C"
+    },
+    {
+      "id": "citadel:air-balthasar-gold",
+      "name": "Balthasar Gold",
+      "range": "air",
+      "hex": "#1D0F07"
+    },
+    {
+      "id": "citadel:air-baneblade-brown",
+      "name": "Baneblade Brown",
+      "range": "air",
+      "hex": "#8F7C68"
+    },
+    {
+      "id": "citadel:air-caliban-green",
+      "name": "Caliban Green",
+      "range": "air",
+      "hex": "#003D15"
+    },
+    {
+      "id": "citadel:air-calth-blue-clear",
+      "name": "Calth Blue Clear",
+      "range": "air",
+      "hex": "#0087D1"
+    },
+    {
+      "id": "citadel:air-castellan-green",
+      "name": "Castellan Green",
+      "range": "air",
+      "hex": "#264715"
+    },
+    {
+      "id": "citadel:air-corvus-black",
+      "name": "Corvus Black",
+      "range": "air",
+      "hex": "#171314"
+    },
+    {
+      "id": "citadel:air-dawnstone",
+      "name": "Dawnstone",
+      "range": "air",
+      "hex": "#697068"
+    },
+    {
+      "id": "citadel:air-deathworld-forest",
+      "name": "Deathworld Forest",
+      "range": "air",
+      "hex": "#556229"
+    },
+    {
+      "id": "citadel:air-eidolon-purple-clear",
+      "name": "Eidolon Purple Clear",
+      "range": "air",
+      "hex": "#7D4D99"
+    },
+    {
+      "id": "citadel:air-elysian-green",
+      "name": "Elysian Green",
+      "range": "air",
+      "hex": "#6B8C37"
+    },
+    {
+      "id": "citadel:air-evil-sunz-scarlet",
+      "name": "Evil Sunz Scarlet",
+      "range": "air",
+      "hex": "#C01411"
+    },
+    {
+      "id": "citadel:air-fenrisian-grey",
+      "name": "Fenrisian Grey",
+      "range": "air",
+      "hex": "#6D94B3"
+    },
+    {
+      "id": "citadel:air-flash-gitz-yellow",
+      "name": "Flash Gitz Yellow",
+      "range": "air",
+      "hex": "#FFF300"
+    },
+    {
+      "id": "citadel:air-grey-knights-steel",
+      "name": "Grey Knights Steel",
+      "range": "air",
+      "hex": "#465863"
+    },
+    {
+      "id": "citadel:air-kantor-blue",
+      "name": "Kantor Blue",
+      "range": "air",
+      "hex": "#02134E"
+    },
+    {
+      "id": "citadel:air-khorne-red",
+      "name": "Khorne Red",
+      "range": "air",
+      "hex": "#650001"
+    },
+    {
+      "id": "citadel:air-kislev-flesh",
+      "name": "Kislev Flesh",
+      "range": "air",
+      "hex": "#D1A570"
+    },
+    {
+      "id": "citadel:air-leadbelcher",
+      "name": "Leadbelcher",
+      "range": "air",
+      "hex": "#151E24"
+    },
+    {
+      "id": "citadel:air-lothern-blue",
+      "name": "Lothern Blue",
+      "range": "air",
+      "hex": "#2C9BCC"
+    },
+    {
+      "id": "citadel:air-macragge-blue",
+      "name": "Macragge Blue",
+      "range": "air",
+      "hex": "#0F3D7C"
+    },
+    {
+      "id": "citadel:air-mechanicus-standard-grey",
+      "name": "Mechanicus Standard Grey",
+      "range": "air",
+      "hex": "#39484A"
+    },
+    {
+      "id": "citadel:air-mephiston-red",
+      "name": "Mephiston Red",
+      "range": "air",
+      "hex": "#960C09"
+    },
+    {
+      "id": "citadel:air-moot-green",
+      "name": "Moot Green",
+      "range": "air",
+      "hex": "#3DAF44"
+    },
+    {
+      "id": "citadel:air-mortarion-green-clear",
+      "name": "Mortarion Green Clear",
+      "range": "air",
+      "hex": "#00832B"
+    },
+    {
+      "id": "citadel:air-mournfang-brown",
+      "name": "Mournfang Brown",
+      "range": "air",
+      "hex": "#490F06"
+    },
+    {
+      "id": "citadel:air-night-lords-blue",
+      "name": "Night Lords Blue",
+      "range": "air",
+      "hex": "#002B5C"
+    },
+    {
+      "id": "citadel:air-ogryn-camo",
+      "name": "Ogryn Camo",
+      "range": "air",
+      "hex": "#96A648"
+    },
+    {
+      "id": "citadel:air-phalanx-yellow",
+      "name": "Phalanx Yellow",
+      "range": "air",
+      "hex": "#FFE200"
+    },
+    {
+      "id": "citadel:air-phoenician-purple",
+      "name": "Phoenician Purple",
+      "range": "air",
+      "hex": "#440052"
+    },
+    {
+      "id": "citadel:air-runefang-steel",
+      "name": "Runefang Steel",
+      "range": "air",
+      "hex": "#797F82"
+    },
+    {
+      "id": "citadel:air-russ-grey",
+      "name": "Russ Grey",
+      "range": "air",
+      "hex": "#507085"
+    },
+    {
+      "id": "citadel:air-tallarn-sand",
+      "name": "Tallarn Sand",
+      "range": "air",
+      "hex": "#A07409"
+    },
+    {
+      "id": "citadel:air-temple-guard-blue",
+      "name": "Temple Guard Blue",
+      "range": "air",
+      "hex": "#239489"
+    },
+    {
+      "id": "citadel:air-thallax-gold",
+      "name": "Thallax Gold",
+      "range": "air",
+      "hex": "#722A0B"
+    },
+    {
+      "id": "citadel:air-the-fang",
+      "name": "The Fang",
+      "range": "air",
+      "hex": "#405B71"
+    },
+    {
+      "id": "citadel:air-troll-slayer-orange",
+      "name": "Troll Slayer Orange",
+      "range": "air",
+      "hex": "#F16C23"
+    },
+    {
+      "id": "citadel:air-typhon-ash",
+      "name": "Typhon Ash",
+      "range": "air",
+      "hex": "#E4D8C1"
+    },
+    {
+      "id": "citadel:air-ulthuan-grey",
+      "name": "Ulthuan Grey",
+      "range": "air",
+      "hex": "#C4DDD5"
+    },
+    {
+      "id": "citadel:air-ushabti-bone",
+      "name": "Ushabti Bone",
+      "range": "air",
+      "hex": "#ABA173"
+    },
+    {
+      "id": "citadel:air-valdor-gold",
+      "name": "Valdor Gold",
+      "range": "air",
+      "hex": "#6D2711"
+    },
+    {
+      "id": "citadel:air-white-scar",
+      "name": "White Scar",
+      "range": "air",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "citadel:air-zandri-dust",
+      "name": "Zandri Dust",
+      "range": "air",
+      "hex": "#988E56"
+    },
+    {
+      "id": "citadel:dry-astorath-red",
+      "name": "Astorath Red",
+      "range": "dry",
+      "hex": "#A9311E"
+    },
+    {
+      "id": "citadel:dry-dawnstone",
+      "name": "Dawnstone",
+      "range": "dry",
+      "hex": "#697068"
+    },
+    {
+      "id": "citadel:dry-eldar-flesh",
+      "name": "Eldar Flesh",
+      "range": "dry",
+      "hex": "#E8C07F"
+    },
+    {
+      "id": "citadel:dry-etherium-blue",
+      "name": "Etherium Blue",
+      "range": "dry",
+      "hex": "#9EB5CE"
+    },
+    {
+      "id": "citadel:dry-golden-griffon",
+      "name": "Golden Griffon",
+      "range": "dry",
+      "hex": "#886625"
+    },
+    {
+      "id": "citadel:dry-golgfag-brown",
+      "name": "Golgfag Brown",
+      "range": "dry",
+      "hex": "#8F502A"
+    },
+    {
+      "id": "citadel:dry-hexos-palesun",
+      "name": "Hexos Palesun",
+      "range": "dry",
+      "hex": "#FFF55A"
+    },
+    {
+      "id": "citadel:dry-hoeth-blue",
+      "name": "Hoeth Blue",
+      "range": "dry",
+      "hex": "#4C78AF"
+    },
+    {
+      "id": "citadel:dry-imrik-blue",
+      "name": "Imrik Blue",
+      "range": "dry",
+      "hex": "#208ABF"
+    },
+    {
+      "id": "citadel:dry-longbeard-grey",
+      "name": "Longbeard Grey",
+      "range": "dry",
+      "hex": "#DBDCC6"
+    },
+    {
+      "id": "citadel:dry-lucius-lilac",
+      "name": "Lucius Lilac",
+      "range": "dry",
+      "hex": "#B598C9"
+    },
+    {
+      "id": "citadel:dry-necron-compound",
+      "name": "Necron Compound",
+      "range": "dry",
+      "hex": "#9DA3A7"
+    },
+    {
+      "id": "citadel:dry-niblet-green",
+      "name": "Niblet Green",
+      "range": "dry",
+      "hex": "#378C35"
+    },
+    {
+      "id": "citadel:dry-nurgling-green",
+      "name": "Nurgling Green",
+      "range": "dry",
+      "hex": "#7E975E"
+    },
+    {
+      "id": "citadel:dry-praxeti-white",
+      "name": "Praxeti White",
+      "range": "dry",
+      "hex": "#FFFFFF"
+    },
+    {
+      "id": "citadel:dry-ryza-rust",
+      "name": "Ryza Rust",
+      "range": "dry",
+      "hex": "#F16C23"
+    },
+    {
+      "id": "citadel:dry-sigmarite",
+      "name": "Sigmarite",
+      "range": "dry",
+      "hex": "#C6863A"
+    },
+    {
+      "id": "citadel:dry-skink-blue",
+      "name": "Skink Blue",
+      "range": "dry",
+      "hex": "#54BDCA"
+    },
+    {
+      "id": "citadel:dry-stormfang",
+      "name": "Stormfang",
+      "range": "dry",
+      "hex": "#5A7FA3"
+    },
+    {
+      "id": "citadel:dry-sylvaneth-bark",
+      "name": "Sylvaneth Bark",
+      "range": "dry",
+      "hex": "#4E483B"
+    },
+    {
+      "id": "citadel:dry-terminatus-stone",
+      "name": "Terminatus Stone",
+      "range": "dry",
+      "hex": "#C8B79D"
+    },
+    {
+      "id": "citadel:dry-tyrant-skull",
+      "name": "Tyrant Skull",
+      "range": "dry",
+      "hex": "#C8C483"
+    },
+    {
+      "id": "citadel:dry-underhive-ash",
+      "name": "Underhive Ash",
+      "range": "dry",
+      "hex": "#BCBB7E"
+    },
+    {
+      "id": "citadel:dry-wrack-white",
+      "name": "Wrack White",
+      "range": "dry",
+      "hex": "#D3D0CF"
     }
   ]
 }

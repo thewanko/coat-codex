@@ -48,7 +48,9 @@ describe("PartCard — サムネ規約（写真がある最後の工程）", () 
         makeStep({ id: "stp_3", photoId: "pht_3" }),
       ],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("STEP 3")).toBeInTheDocument();
@@ -60,14 +62,18 @@ describe("PartCard — サムネ規約（写真がある最後の工程）", () 
       id: "part_1",
       steps: [makeStep({ id: "stp_1", photoId: null })],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     expect(screen.queryByText(/^STEP/)).not.toBeInTheDocument();
   });
 
   test("工程が0件でもプレースホルダで工程数0を表示する", () => {
     const part = makePart({ id: "part_1", steps: [] });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     expect(screen.getByText("工程 0")).toBeInTheDocument();
   });
@@ -86,7 +92,9 @@ describe("PartCard — 混合バッジ（formatMixBadgeの素通し）", () => {
         }),
       ],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("60% + 40% (3:2)")).toBeInTheDocument();
@@ -105,7 +113,9 @@ describe("PartCard — 混合バッジ（formatMixBadgeの素通し）", () => {
         }),
       ],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("60% + 50%")).toBeInTheDocument();
@@ -125,7 +135,9 @@ describe("PartCard — 混合バッジ（formatMixBadgeの素通し）", () => {
         }),
       ],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("STEP 1")).toBeInTheDocument();
@@ -138,7 +150,9 @@ describe("PartCard — タップでonOpen", () => {
   test("カードをクリックするとonOpen(part.id)が呼ばれる", () => {
     const part = makePart({ id: "part_1", name: "腕" });
     const onOpen = vi.fn();
-    render(<PartCard part={part} order={1} onOpen={onOpen} />);
+    render(
+      <PartCard part={part} order={1} onOpen={onOpen} onReview={vi.fn()} />,
+    );
 
     fireEvent.click(screen.getByTestId("part-card"));
     expect(onOpen).toHaveBeenCalledWith("part_1");
@@ -150,9 +164,26 @@ describe("PartCard — タップでonOpen", () => {
       name: "兜",
       steps: [makeStep({ id: "stp_1" }), makeStep({ id: "stp_2" })],
     });
-    render(<PartCard part={part} order={1} onOpen={vi.fn()} />);
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
 
     expect(screen.getByText("兜")).toBeInTheDocument();
     expect(screen.getByText("工程 2")).toBeInTheDocument();
+  });
+});
+
+describe("PartCard — 工程レビューボタン", () => {
+  test("工程レビューボタンをクリックするとonReview(part.id)が呼ばれ、onOpenは呼ばれない（stopPropagation）", () => {
+    const part = makePart({ id: "part_1" });
+    const onOpen = vi.fn();
+    const onReview = vi.fn();
+    render(
+      <PartCard part={part} order={1} onOpen={onOpen} onReview={onReview} />,
+    );
+
+    fireEvent.click(screen.getByTestId("part-review-open"));
+    expect(onReview).toHaveBeenCalledWith("part_1");
+    expect(onOpen).not.toHaveBeenCalled();
   });
 });

@@ -37,6 +37,7 @@ function renderList(
   }> = {},
 ) {
   const onOpen = vi.fn();
+  const onReview = vi.fn();
   const onReorder = vi.fn(overrides.onReorder);
   const onAdd = vi.fn(overrides.onAdd);
 
@@ -44,12 +45,13 @@ function renderList(
     <PartCardList
       parts={parts}
       onOpen={onOpen}
+      onReview={onReview}
       onReorder={onReorder}
       onAdd={onAdd}
     />,
   );
 
-  return { onOpen, onReorder, onAdd };
+  return { onOpen, onReview, onReorder, onAdd };
 }
 
 describe("PartCardList — 上下移動ボタン", () => {

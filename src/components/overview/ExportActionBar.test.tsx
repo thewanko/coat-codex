@@ -1,9 +1,22 @@
 // components/overview/ExportActionBar.test.tsx — 枠のみ配置（全disabled）のテスト
-// （技術計画v2.2 §3.3・§4.2 T28。結線はT33/T40）
+// （技術計画v2.3 §3.3 ExportActionBar行・T28。結線はT33/T40）
+//
+// PC幅(>=768px): 従来のピル群がそのまま描画されることを確認。
+// mobile幅(<768px, v2.3): 「出力・共有」ボタン1つに集約→タップでボトムシートが
+// 開閉すること、シート内に全アクションが存在しJSON・素MDが隣接すること、
+// Esc・backdropクリックで閉じることを確認（RTL。matchMediaはここでモックする）。
 
 import "../../i18n";
-import { beforeAll, describe, expect, test } from "vitest";
-import { render, screen } from "@testing-library/react";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import i18next from "../../i18n";
 import ExportActionBar from "./ExportActionBar";
 
@@ -11,7 +24,48 @@ beforeAll(() => {
   void i18next.changeLanguage("ja");
 });
 
-describe("ExportActionBar — 配置のみ（全ボタンdisabled）", () => {
+type Listener = (event: MediaQueryListEvent) => void;
+
+function mockMatchMedia(matches: boolean) {
+  const listeners = new Set<Listener>();
+  const mql: Partial<MediaQueryList> = {
+    matches,
+    media: "(max-width: 767px)",
+    addEventListener: (
+      _type: string,
+      listener: EventListenerOrEventListenerObject,
+    ) => {
+      listeners.add(listener as Listener);
+    },
+    removeEventListener: (
+      _type: string,
+      listener: EventListenerOrEventListenerObject,
+    ) => {
+      listeners.delete(listener as Listener);
+    },
+    addListener: (listener: Listener | null) => {
+      if (listener) listeners.add(listener);
+    },
+    removeListener: (listener: Listener | null) => {
+      if (listener) listeners.delete(listener);
+    },
+  };
+
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn().mockImplementation(() => mql as MediaQueryList),
+  );
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("ExportActionBar — PC幅（従来のピル群）", () => {
+  beforeEach(() => {
+    mockMatchMedia(false);
+  });
+
   test("印刷・PDF・X・Bluesky・note MD・JSON・素MDの7ボタンをすべてdisabledで配置する", () => {
     render(<ExportActionBar />);
 
@@ -28,5 +82,131 @@ describe("ExportActionBar — 配置のみ（全ボタンdisabled）", () => {
     const jsonButton = screen.getByRole("button", { name: "JSON" });
     const mdButton = screen.getByRole("button", { name: "素MD" });
     expect(jsonButton.parentElement).toBe(mdButton.parentElement);
+  });
+
+  test("「出力・共有」メニューボタンは描画されない", () => {
+    render(<ExportActionBar />);
+    expect(
+      screen.queryByRole("button", { name: "出力・共有" }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("ExportActionBar — mobile幅（出力・共有ボタン→ボトムシート）", () => {
+  beforeEach(() => {
+    mockMatchMedia(true);
+  });
+
+  test("「出力・共有」ボタン1つに集約され、従来のピル群は描画されない", () => {
+    render(<ExportActionBar />);
+
+    expect(
+      screen.getByRole("button", { name: "出力・共有" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "印刷" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("メニューボタンをタップするとボトムシートが開き、全アクション項目が存在する", () => {
+    render(<ExportActionBar />);
+
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+
+    const labels = ["印刷", "PDF", "X", "Bluesky", "note MD", "JSON", "素MD"];
+    for (const label of labels) {
+      expect(
+        within(dialog).getByRole("button", { name: label }),
+      ).toBeDisabled();
+    }
+  });
+
+  test("JSON・素MDはシート内で隣接する結合グループに配置される（隣接維持）", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+
+    const jsonButton = screen.getByRole("button", { name: "JSON" });
+    const mdButton = screen.getByRole("button", { name: "素MD" });
+    expect(jsonButton.parentElement).toBe(mdButton.parentElement);
+  });
+
+  test("Escapeキーでシートが閉じる", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("backdropクリックでシートが閉じる", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("export-sheet-backdrop"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("シート内クリックでは閉じない", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  test("閉じるボタンでシートが閉じる", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("ドラッグゾーンを大きく下にドラッグするとonClose相当でシートが閉じる（setPointerCapture未定義でも落ちない）", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    const dragZone = screen.getByTestId("export-sheet-drag-zone");
+    // jsdomにはsetPointerCaptureが実装されていない環境を想定（`?.`ガードで無害）。
+    fireEvent.pointerDown(dragZone, { pointerId: 1, clientY: 0, button: 0 });
+    fireEvent.pointerMove(dragZone, { pointerId: 1, clientY: 200 });
+    fireEvent.pointerUp(dragZone, { pointerId: 1, clientY: 200 });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("ドラッグゾーンを小さく下にドラッグしただけではシートは閉じない（スナップバック）", () => {
+    render(<ExportActionBar />);
+    fireEvent.click(screen.getByRole("button", { name: "出力・共有" }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+
+    // jsdomはレイアウトを計算しないためgetBoundingClientRect()は既定で0を返す。
+    // シート高30%判定を実条件（十分な高さ）で検証するためスタブする。
+    vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue({
+      height: 600,
+      width: 400,
+      top: 0,
+      left: 0,
+      bottom: 600,
+      right: 400,
+      x: 0,
+      y: 0,
+      toJSON: () => "",
+    });
+
+    const dragZone = screen.getByTestId("export-sheet-drag-zone");
+    fireEvent.pointerDown(dragZone, { pointerId: 1, clientY: 0, button: 0 });
+    fireEvent.pointerMove(dragZone, { pointerId: 1, clientY: 20 });
+    fireEvent.pointerUp(dragZone, { pointerId: 1, clientY: 20 });
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });
