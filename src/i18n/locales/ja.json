@@ -205,6 +205,26 @@
     "shareComingSoon": "共有機能は準備中です",
     "noSteps": "工程がまだありません"
   },
+  "print": {
+    "brandName": "coat codex — paint recipe",
+    "print": "印刷する",
+    "pdfHint": "PDF保存はブラウザ印刷ダイアログで「PDFとして保存」を選択してください",
+    "figCaption": "fig. 1 — 完成状態",
+    "coverPhotoAlt": "完成状態の代表写真",
+    "stepPhotoAlt": "工程 {{index}} の写真",
+    "paletteHeading": "PALETTE",
+    "paletteHeadingJp": "使用カラー",
+    "toolsHeading": "TOOLS",
+    "baseHeading": "BASE",
+    "baseHeadingJp": "ベース工程（全体）",
+    "partHeading": "PART {{roman}}",
+    "stepsMeta": "工程 {{count}}",
+    "totalMeta": "全{{steps}}工程 ・ {{parts}}パーツ",
+    "photoNone": "写真なし",
+    "footerLine": "coat-codex ・ {{title}}",
+    "loadError": "レシピの読み込みに失敗しました",
+    "notFound": "レシピが見つかりません"
+  },
   "footer": {
     "trademarkNotice": "「Citadel Colour」「Vallejo」「AK Interactive」「Coat d'Arms」は各社の商標です。coat-codexは非公式のファンメイドツールであり、上記いずれの企業とも提携・後援関係はありません。"
   },

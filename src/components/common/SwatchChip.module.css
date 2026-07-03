@@ -90,3 +90,14 @@
   font-size: var(--font-size-xs);
   color: var(--color-ink-muted);
 }
+
+/* 印刷時、背景色を塗る実体（hex/photo variant共通の.chip・.chipPhoto）の色を
+   ブラウザの省インク設定によらず保持する（デザイン仕様書§6-1「exactはスウォッチにのみ適用」）。
+   通常画面では一切影響しない（@media print内のみ）。 */
+@media print {
+  .chip,
+  .chipPhoto {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

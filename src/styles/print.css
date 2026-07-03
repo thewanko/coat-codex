@@ -1,0 +1,41 @@
+/* ============================================================
+   coat-codex — src/styles/print.css
+   PrintViewPage 専用のグローバル印刷規則（技術計画v2.2 §4.2 T36 / 指摘7）
+   （デザイン仕様書§6「print.css方針」）
+
+   方針:
+   - `@media print` の外では一切のスタイルを与えない（通常画面に影響しない）
+   - コンポーネント意匠（色・寸法・レイアウト）は各 *.module.css 側の責務。
+     ここでは `@page` とページング規則・印刷時のみの表示制御のみを扱う
+   - 色保持が必要な要素（スウォッチ・混合バッジ等）にのみ
+     `print-color-adjust: exact` を適用する（デザイン仕様書§6-1）
+   ============================================================ */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  html,
+  body {
+    background: #ffffff;
+  }
+
+  /* PrintToolbar・アプリ共通ナビ・フッタは印刷に出さない */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* 色保持が必要な要素（スウォッチ・混合バッジ）— デザイン仕様書§6-1 */
+  .print-color-exact {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* パーツ節 = 基本break-inside: avoid（収まらない場合の break-before: page は
+     コンポーネント側で `.print-part--pagebreak` 等の修飾クラスを併用する） */
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+}

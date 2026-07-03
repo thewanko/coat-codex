@@ -6,7 +6,7 @@ function AppFooter() {
   const { t } = useTranslation();
 
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} print-hide`}>
       <div className={styles.row}>
         <span>© coat-codex</span>
         <span className={styles.diamond} aria-hidden="true" />

@@ -1,0 +1,47 @@
+/* PrintToolbar — 印刷プレビュー操作バー（デザイン仕様書§6サンプル準拠）
+   @media printでは非表示（.print-hideグローバルクラス＋念のためここでも明示） */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-bg-sunken);
+  border-bottom: 1px solid var(--color-line-strong);
+  padding: var(--space-3) var(--space-5);
+  flex-wrap: wrap;
+}
+
+.printButton {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--space-5);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border: 1px solid var(--color-accent-hover);
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1.5px var(--color-gold-ring);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.printButton:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--focus-ring),
+    inset 0 0 0 1.5px var(--color-gold-ring);
+}
+
+.pdfHint {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+@media print {
+  .root {
+    display: none !important;
+  }
+}

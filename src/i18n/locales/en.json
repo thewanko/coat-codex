@@ -205,6 +205,26 @@
     "shareComingSoon": "Sharing is coming soon",
     "noSteps": "No steps yet"
   },
+  "print": {
+    "brandName": "coat codex — paint recipe",
+    "print": "Print",
+    "pdfHint": "To save as PDF, choose \"Save as PDF\" in the browser's print dialog",
+    "figCaption": "fig. 1 — finished state",
+    "coverPhotoAlt": "Representative photo of the finished state",
+    "stepPhotoAlt": "Photo of step {{index}}",
+    "paletteHeading": "PALETTE",
+    "paletteHeadingJp": "Colors used",
+    "toolsHeading": "TOOLS",
+    "baseHeading": "BASE",
+    "baseHeadingJp": "Base steps (whole model)",
+    "partHeading": "PART {{roman}}",
+    "stepsMeta": "{{count}} steps",
+    "totalMeta": "{{steps}} steps total ・ {{parts}} parts",
+    "photoNone": "No photo",
+    "footerLine": "coat-codex ・ {{title}}",
+    "loadError": "Failed to load the recipe",
+    "notFound": "Recipe not found"
+  },
   "footer": {
     "trademarkNotice": "Citadel Colour, Vallejo, AK Interactive, and Coat d'Arms are trademarks of their respective owners. coat-codex is an independent fan project and is not affiliated with, endorsed by, or sponsored by any of them."
   },
