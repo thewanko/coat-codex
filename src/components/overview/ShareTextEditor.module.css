@@ -1,0 +1,71 @@
+/* ShareTextEditor — 投稿テキスト編集（デザイン仕様書§4「Dialog / Modal」の本体トーン踏襲） */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font:
+    13px/1.7 "Inter",
+    "Noto Sans JP",
+    sans-serif;
+  color: var(--color-ink);
+  resize: vertical;
+}
+
+.counterRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.counter {
+  font:
+    600 11px "JetBrains Mono",
+    monospace;
+  color: var(--color-success);
+}
+
+.counterOver {
+  font:
+    600 11px "JetBrains Mono",
+    monospace;
+  color: var(--color-danger);
+}
+
+.warning {
+  font:
+    9px "JetBrains Mono",
+    monospace;
+  color: var(--color-danger);
+}
+
+.trimButton {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--color-gold);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font:
+    600 11px "Inter",
+    "Noto Sans JP",
+    sans-serif;
+  cursor: pointer;
+}
+
+.trimButton:hover {
+  filter: brightness(1.05);
+}
