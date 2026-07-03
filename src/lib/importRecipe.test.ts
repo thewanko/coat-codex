@@ -667,4 +667,39 @@ describe("importRecipe: Dexie rwトランザクション書き込み", () => {
     expect(await db.recipes.count()).toBe(0);
     expect(await db.photos.count()).toBe(0);
   });
+
+  test("回帰: dataUrlToBlobがマクロタスク境界を跨いでも写真2枚以上のインポートが成功する（tx内でDexie管理外Promiseをawaitしない）", async () => {
+    // dataUrlToBlobがsetTimeoutでマクロタスク境界を跨ぐ（=fetch同様、Dexieのzone-lessな
+    // Promiseパッチが追跡できないPromiseになる）実装を注入する。tx内でこれをawaitすると
+    // Dexieがtxを自動コミット・失効させ、後続のbulkAddがTransactionInactiveErrorになる。
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["ph_1", "ph_2"],
+    });
+    const file = makeExportFile(recipe, [
+      { id: "ph_1", dataUrl: PNG_DATA_URL },
+      { id: "ph_2", dataUrl: PNG_DATA_URL },
+    ]);
+    const json = JSON.stringify(file);
+
+    const deps: ImportRecipeDeps = {
+      loadBrandColorsResult: noopDeps.loadBrandColorsResult,
+      dataUrlToBlob: async (dataUrl) => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        return new Blob([dataUrl], { type: "image/png" });
+      },
+    };
+
+    const result = await importRecipe(json, deps);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const stored = await db.recipes.get(result.recipe.id);
+      expect(stored).toBeDefined();
+      const photoCount = await db.photos
+        .where("recipeId")
+        .equals(result.recipe.id)
+        .count();
+      expect(photoCount).toBe(2);
+    }
+  });
 });
