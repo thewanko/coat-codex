@@ -153,6 +153,7 @@
   padding: var(--space-2) var(--space-4)
     calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
   animation: sheet-slide-up 0.2s ease-out;
+  transition: transform 0.2s ease-out;
 }
 
 @keyframes sheet-slide-up {
@@ -167,13 +168,26 @@
 @media (prefers-reduced-motion: reduce) {
   .sheet {
     animation: none;
+    transition: none;
   }
+}
+
+/* ハンドル＋ヘッダ行をまとめた「掴んで下に引く」ドラッグゾーン。
+   ✕ボタンはstopPropagationでドラッグ開始から除外（JS側）。
+   touch-action: noneでスクロールジェスチャーとの競合を防止。 */
+.sheetDragZone {
+  cursor: grab;
+  touch-action: none;
+}
+
+.sheetDragZone:active {
+  cursor: grabbing;
 }
 
 .sheetHandle {
   display: block;
-  width: 36px;
-  height: 4px;
+  width: 48px;
+  height: 5px;
   margin: var(--space-2) auto var(--space-3);
   background: var(--color-gold-soft);
   border-radius: var(--radius-full);

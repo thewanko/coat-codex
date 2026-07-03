@@ -267,32 +267,44 @@ function PaintPicker({ recipeId, value, onCommit }: PaintPickerProps) {
   return (
     <div className={styles.root}>
       <div className={styles.row}>
-        <BrandSelect value={brandId} onChange={handleBrandChange} />
-        {!isCustomMode && brandId && (
-          <ColorSelect
-            brandId={brandId}
-            value={selectedColor}
-            onSelect={handlePresetColorSelect}
-            rangeFilter={rangeFilter ?? undefined}
-          />
-        )}
-        <SwatchChip
-          variant={previewProps.variant}
-          size="md"
-          hex={"hex" in previewProps ? previewProps.hex : undefined}
-          photoId={"photoId" in previewProps ? previewProps.photoId : undefined}
-          name={previewName}
-          brand={brandMeta?.label}
-        />
-      </div>
+        <div className={styles.brandCell}>
+          <BrandSelect value={brandId} onChange={handleBrandChange} />
+        </div>
 
-      {!isCustomMode && brandId && availableRanges.length > 0 && (
-        <RangeFilter
-          ranges={availableRanges}
-          value={rangeFilter}
-          onChange={setRangeFilter}
-        />
-      )}
+        {!isCustomMode && brandId && availableRanges.length > 0 && (
+          <div className={styles.rangeCell}>
+            <RangeFilter
+              ranges={availableRanges}
+              value={rangeFilter}
+              onChange={setRangeFilter}
+            />
+          </div>
+        )}
+
+        {!isCustomMode && brandId && (
+          <div className={styles.colorCell}>
+            <ColorSelect
+              brandId={brandId}
+              value={selectedColor}
+              onSelect={handlePresetColorSelect}
+              rangeFilter={rangeFilter ?? undefined}
+            />
+          </div>
+        )}
+
+        <div className={styles.swatchCell}>
+          <SwatchChip
+            variant={previewProps.variant}
+            size="md"
+            hex={"hex" in previewProps ? previewProps.hex : undefined}
+            photoId={
+              "photoId" in previewProps ? previewProps.photoId : undefined
+            }
+            name={previewName}
+            brand={brandMeta?.label}
+          />
+        </div>
+      </div>
 
       {isCustomMode && (
         <div className={styles.customPanel}>

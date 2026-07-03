@@ -1,7 +1,8 @@
-// stores/useRecipeStore.ts — 編集中レシピのZustand v5ストア（技術計画v2.2 §4.2 T16・D-8）
+// stores/useRecipeStore.ts — 編集中レシピのZustand v5ストア（技術計画v2.3 §4.2 T16・D-8）
 //
 // load（lazy migration経由）・更新・autosave（debounce 500ms→Dexie書き込み）・
 // 書き込み直前のtitle既定名補完（D-8）・pending塗料スロットのstrip（M4必須事項①）・
+// 未使用palette色の自動GC（v2.3 §4.2 M4必須事項③）・
 // 保存失敗（StorageQuotaError含む）のリスナー通知を担う。
 //
 // 参照同一性（M4必須事項②）: 本ストアは呼び出し側から渡されたupdaterの戻り値をそのまま
@@ -11,7 +12,9 @@
 import { create } from "zustand";
 import i18next from "../i18n";
 import { loadRecipe, saveRecipe } from "../db/recipeStore";
+import { deletePhoto } from "../db/photoStore";
 import { isPendingColorId, stripPendingPaints } from "../lib/pendingPaints";
+import { gcUnusedPaletteColors } from "../lib/paletteGc";
 import type { RecipeDoc, Step } from "../models/recipe";
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -123,9 +126,17 @@ function withStrippedPending(doc: RecipeDoc): RecipeDoc {
   };
 }
 
-/** 保存直前の変換（title既定名補完 → pending strip）をまとめて適用する */
-function toPersistedDoc(doc: RecipeDoc): RecipeDoc {
-  return withStrippedPending(withResolvedTitle(doc));
+/**
+ * 保存直前の変換（title既定名補完 → pending strip → 未使用palette色の自動GC）を
+ * まとめて適用する（v2.3 §4.2 M4必須事項③）。除去した色のchipPhotoIdはBlob削除の
+ * ためremovedChipPhotoIdsとして返す（削除自体は呼び出し側=performSaveの責務）。
+ */
+function toPersistedDoc(doc: RecipeDoc): {
+  doc: RecipeDoc;
+  removedChipPhotoIds: string[];
+} {
+  const stripped = withStrippedPending(withResolvedTitle(doc));
+  return gcUnusedPaletteColors(stripped);
 }
 
 // debounceタイマー・リスナー集合はモジュールスコープで保持する（Reactの再レンダーで
@@ -157,12 +168,28 @@ export const useRecipeStore = create<RecipeStoreState>((set, get) => {
       return;
     }
 
+    const { doc: persistedDoc, removedChipPhotoIds } =
+      toPersistedDoc(docToSave);
+
     try {
-      await saveRecipe(toPersistedDoc(docToSave));
+      await saveRecipe(persistedDoc);
       set({ saveError: null });
     } catch (error) {
       set({ saveError: error });
       notifySaveError({ error, recipeId: docToSave.id });
+      return;
+    }
+
+    // GCで参照0になったcustom色のチップ写真Blobを回収する（v2.3 §4.2 M4必須事項③）。
+    // 保存自体は完了しているため、Blob削除の成否は保存結果に影響させない
+    // （失敗してもconsole.warnのみ・fire-and-forget）。
+    for (const photoId of removedChipPhotoIds) {
+      deletePhoto(photoId).catch((error: unknown) => {
+        console.warn(
+          `[useRecipeStore] GC対象のチップ写真Blob削除に失敗しました（photoId=${photoId}）`,
+          error,
+        );
+      });
     }
   }
 

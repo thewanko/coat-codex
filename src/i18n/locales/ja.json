@@ -125,7 +125,10 @@
     "closePanel": "閉じる",
     "partNotFound": "パーツが見つかりません",
     "stepPhotoStripLabel": "写真つき工程一覧",
-    "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動"
+    "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動",
+    "toolAdd": "＋ツールを追加",
+    "toolNamePlaceholder": "ツール名（例: 筆、エアブラシ）",
+    "toolAddButton": "追加"
   },
   "overview": {
     "baseOverline": "BASE",
@@ -152,5 +155,13 @@
   },
   "export": {
     "menuButton": "出力・共有"
+  },
+  "partReview": {
+    "title": "工程レビュー",
+    "open": "工程レビュー",
+    "edit": "このパーツを編集",
+    "share": "SNSで共有",
+    "shareComingSoon": "共有機能は準備中です",
+    "noSteps": "工程がまだありません"
   }
 }

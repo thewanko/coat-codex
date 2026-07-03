@@ -9,7 +9,7 @@
 // docへ差し替える（配列内の各Part要素自体は呼び出し元=PartCardListが再生成しない）。
 // パーツ追加はスプレッド追加のみで既存parts要素の参照を保つ。
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
@@ -20,6 +20,7 @@ import BackLink from "../components/common/BackLink";
 import OverviewHeader from "../components/overview/OverviewHeader";
 import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
 import PartCardList from "../components/overview/PartCardList";
+import PartReviewDialog from "../components/overview/PartReviewDialog";
 import ExportActionBar from "../components/overview/ExportActionBar";
 import type { RecipeDoc } from "../models/recipe";
 import styles from "./RecipeOverviewPage.module.css";
@@ -38,6 +39,8 @@ function RecipeOverviewPage() {
   const load = useRecipeStore((state) => state.load);
   const updateRecipe = useRecipeStore((state) => state.updateRecipe);
   const onSaveError = useRecipeStore((state) => state.onSaveError);
+
+  const [reviewPartId, setReviewPartId] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -83,6 +86,10 @@ function RecipeOverviewPage() {
     navigate(`/recipe/${id}/part/${partId}`);
   }
 
+  function handleReviewPart(partId: string) {
+    setReviewPartId(partId);
+  }
+
   function handleEditBaseSteps() {
     navigate(`/recipe/${id}/part/base`);
   }
@@ -118,12 +125,22 @@ function RecipeOverviewPage() {
         <PartCardList
           parts={doc.parts}
           onOpen={handleOpenPart}
+          onReview={handleReviewPart}
           onReorder={handleReorderParts}
           onAdd={handleAddPart}
         />
       </section>
 
       <ExportActionBar />
+
+      {reviewPartId !== null && (
+        <PartReviewDialog
+          recipe={doc}
+          partId={reviewPartId}
+          open={reviewPartId !== null}
+          onClose={() => setReviewPartId(null)}
+        />
+      )}
     </div>
   );
 }

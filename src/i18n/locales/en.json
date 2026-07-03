@@ -125,7 +125,10 @@
     "closePanel": "Close",
     "partNotFound": "Part not found",
     "stepPhotoStripLabel": "Steps with photos",
-    "stepPhotoStripItemLabel": "Jump to STEP {{n}} photo"
+    "stepPhotoStripItemLabel": "Jump to STEP {{n}} photo",
+    "toolAdd": "+ Add tool",
+    "toolNamePlaceholder": "Tool name (e.g. brush, airbrush)",
+    "toolAddButton": "Add"
   },
   "overview": {
     "baseOverline": "BASE",
@@ -152,5 +155,13 @@
   },
   "export": {
     "menuButton": "Export & Share"
+  },
+  "partReview": {
+    "title": "Step Review",
+    "open": "Review steps",
+    "edit": "Edit this part",
+    "share": "Share on SNS",
+    "shareComingSoon": "Sharing is coming soon",
+    "noSteps": "No steps yet"
   }
 }

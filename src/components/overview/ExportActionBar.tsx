@@ -11,8 +11,10 @@
 // 上角のみradius）を開く。PC幅(≥768px)は従来のピル群のまま変更しない。
 
 import { useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./ExportActionBar.module.css";
+import { shouldCloseFromDrag } from "./exportSheetDrag";
 
 const MOBILE_QUERY = "(max-width: 767px)";
 
@@ -151,6 +153,14 @@ interface ExportSheetProps {
 function ExportSheet({ open, onClose }: ExportSheetProps) {
   const { t } = useTranslation();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  // ドラッグ状態（再レンダー不要なのでrefで保持。dyのみ描画用にstate化）
+  const dragStateRef = useRef<{ pointerId: number; startY: number } | null>(
+    null,
+  );
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -168,6 +178,56 @@ function ExportSheet({ open, onClose }: ExportSheetProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
+  // シートが開き直すたびにドラッグ状態をリセット
+  useEffect(() => {
+    if (!open) {
+      dragStateRef.current = null;
+      setDragY(0);
+      setIsDragging(false);
+    }
+  }, [open]);
+
+  function handleDragPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== undefined && event.button !== 0) {
+      return;
+    }
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+    };
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function handleDragPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+    const dy = Math.max(0, event.clientY - dragState.startY);
+    setDragY(dy);
+  }
+
+  function handleDragPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+    const dy = Math.max(0, event.clientY - dragState.startY);
+    const sheetHeight = sheetRef.current?.getBoundingClientRect().height ?? 0;
+
+    dragStateRef.current = null;
+    setIsDragging(false);
+
+    if (shouldCloseFromDrag(dy, sheetHeight)) {
+      setDragY(0);
+      onClose();
+      return;
+    }
+    // しきい値未満はスナップバック
+    setDragY(0);
+  }
+
   if (!open) {
     return null;
   }
@@ -179,26 +239,41 @@ function ExportSheet({ open, onClose }: ExportSheetProps) {
       data-testid="export-sheet-backdrop"
     >
       <div
+        ref={sheetRef}
         className={styles.sheet}
         role="dialog"
         aria-modal="true"
         aria-labelledby="export-sheet-title"
         onClick={(event) => event.stopPropagation()}
+        style={{
+          transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
+          transition: isDragging ? "none" : undefined,
+        }}
       >
-        <span className={styles.sheetHandle} aria-hidden="true" />
-        <div className={styles.sheetHeader}>
-          <h2 id="export-sheet-title" className={styles.sheetTitle}>
-            {t("export.menuButton")}
-          </h2>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className={styles.sheetClose}
-            onClick={onClose}
-            aria-label={t("editor.closePanel")}
-          >
-            ✕
-          </button>
+        <div
+          className={styles.sheetDragZone}
+          data-testid="export-sheet-drag-zone"
+          onPointerDown={handleDragPointerDown}
+          onPointerMove={handleDragPointerMove}
+          onPointerUp={handleDragPointerUp}
+          onPointerCancel={handleDragPointerUp}
+        >
+          <span className={styles.sheetHandle} aria-hidden="true" />
+          <div className={styles.sheetHeader}>
+            <h2 id="export-sheet-title" className={styles.sheetTitle}>
+              {t("export.menuButton")}
+            </h2>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className={styles.sheetClose}
+              onClick={onClose}
+              onPointerDown={(event) => event.stopPropagation()}
+              aria-label={t("editor.closePanel")}
+            >
+              ✕
+            </button>
+          </div>
         </div>
         <div className={styles.sheetBody}>
           <ExportSheetActions />
