@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-03 official-paint-charts [GOOD]
+
+- 事象: ユーザー提供のカラーチャート（Citadel/Vallejo）を、Coat d'armsで確立した「docs/paints/*-master.json（原本）→ public/paints/*.json（配信・再生成）」の2層構成にそのまま載せられ、AK除外やレンジ付与も配信層の再生成だけで完結した
+- 原因: 原本と配信を分離し、配信は常に原本から機械生成する構造にしていたため、データ差し替えが安全な単方向処理になった
+- 一般化ルール (次ループの指示文としてそのまま使える形で): 外部由来データは「原本（docs・出典明記・無加工に近い形）」と「配信（アプリ最適形・原本から再生成）」の2層で持ち、配信側を直接手編集しない
+- 反映先: loop prompt
+- 発生回数: 1 回目
+
 ## 2026-07-02 M0-foundation [GOOD]
 
 - 事象: T1〜T6の全impl委譲が一発で全ゲート（install/test/lint/build/prettier）通過し、出口一括opusレビューもPASS（C0/H0）

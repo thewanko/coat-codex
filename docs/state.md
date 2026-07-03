@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-02 (loop: M4-editor 完了)
+最終更新: 2026-07-03 (loop: official-paint-charts 完了)
 
 ## 完了
+
+- 2026-07-03: **プリセット塗料の公式チャート化＋レンジフィルタ** — Citadel 334色（公式サイト由来・8レンジ）／Vallejo 255色（Game/Model）をユーザー提供チャートで差し替え、Coat d'armsにもレンジ付与。AKは除外（チャート入手不可・自由入力で記録可）。レンジフィルタUI（RangeFilter・チップ式）で候補絞り込み対応。実機確認済み・計459テスト。**あわせてv2.3仕様変更を計画に記録: SNS共有はパーツ単位・URL非掲載・#coat-codex必須（M6で実装）**
 
 - 2026-07-02: **M4 編集画面（T16＋T22〜T28）** — useRecipeStore（Zustand・autosave 500ms・D-8既定名補完・INV-12 pending strip・pagehide flush）／HomePage／RecipeSetupPage（PaletteEditor削除ガード=必須事項③）／TechniqueSelect・ToolSelect・MemoField／StepCard＋StepPhotoTile（§8-A）／StepList（dnd-kit）／PartEditorPage（base予約ルート・768pxパネル分岐・StepPhotoStrip）／RecipeOverviewPage（PartCardList D&D・D-1バッジ・ExportActionBar枠）。**実機フロー一巡検証PASS**（新規作成→Setup→Overview→パーツ/ベース編集・リロード永続化・INV-12 strip・必須事項④再現記録）。**opusレビュー2ラウンド**（R1 FAIL: StepPhotoStripスクロール不発High等8件→修正→同一レビュアーR2 PASS: C0/H0/M0/L1）。計446テスト。※T16はM2/M3の番号の谷間で未実装だったことをM4入口で発見し先頭で実装
 - 2026-07-02: 計画フェーズ — 技術計画v2.2確定（3観点レビュー約30件＋デザイン決定稿§8の提案A/B反映済み）。デザイン引き継ぎ資料＋決定稿一式は docs/design/
@@ -29,8 +31,9 @@
 
 - 仕様の正 = docs/coat-codex_技術計画_v2.md（v2.2）。ビジュアルの正 = デザイン仕様書＋決定デザインdc.html＋theme.css（**無改変**で src/styles/ へコピー済み。改変は決定稿の改訂を経ること）
 - @dnd-kit/core@6.3.1 + @dnd-kit/sortable@10.0.0 で確定（新@dnd-kit/reactは見送り）
-- プリセット塗料ブランドは**Citadel／Vallejo／AK／Coat d'arms**の4種（2026-07-02決定）。Coat d'armsマスタは docs/paints/coatdarms-master.json（全150色。hexは目視推定→M3で校正）。他3ブランドの収録数は未決（M3着手時に確認、既定は各50〜100色）
+- プリセット塗料ブランドは**Citadel（334色）／Vallejo（255色）／Coat d'arms（150色）の3種**（2026-07-03改訂: 全色チャート由来・range付き。AKはチャート入手不可で除外=自由入力で記録可、入手次第マスタ方式で復活）。マスタ=docs/paints/*-master.json、収録数未決は解消
 - レビュー運用: コンフィグ中心のマイルストーンはタスク毎selfcheck省略・出口で一括opusレビュー（ロジック層M1からはタスク毎の規律に戻すか出口で判断）
+- **SNS共有はパーツ単位**（2026-07-03決定、v2.3）: X/Bluesky共通。投稿テキストにURL非掲載（Xリーチ抑制対策）・`#coat-codex`必須（トリム対象外）。起点=PartCardメニュー、ExportActionBarからX/Bluesky廃止。詳細は計画§3.4冒頭とT37/T39/T40
 
 ## 申し送り (次セッションの自分へ)
 

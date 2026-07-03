@@ -33,7 +33,8 @@
     "attachChip": "カラーチップ写真",
     "hexUnset": "hex未指定",
     "searchPlaceholder": "カラー名で検索",
-    "noResults": "該当するカラーがありません"
+    "noResults": "該当するカラーがありません",
+    "rangeAll": "すべて"
   },
   "mix": {
     "label": "MIX",

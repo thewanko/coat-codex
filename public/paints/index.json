@@ -13,12 +13,6 @@
       "count": 255
     },
     {
-      "id": "ak",
-      "label": "AK Interactive",
-      "file": "ak.json",
-      "count": 52
-    },
-    {
       "id": "coatdarms",
       "label": "Coat d'arms",
       "file": "coatdarms.json",

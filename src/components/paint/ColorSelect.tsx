@@ -16,6 +16,8 @@ interface ColorSelectProps {
   /** 選択中カラーの表示用ラベル（未選択はnull） */
   value: PaintPresetColor | null;
   onSelect: (color: PaintPresetColor) => void;
+  /** 指定時はこのrangeに完全一致するカラーのみへ候補を絞り込む（未指定/undefinedは絞り込みなし） */
+  rangeFilter?: string;
 }
 
 function displayName(color: PaintPresetColor): string {
@@ -29,7 +31,12 @@ function displayNameWithRange(color: PaintPresetColor): string {
   return color.range ? `${base} — ${color.range}` : base;
 }
 
-function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
+function ColorSelect({
+  brandId,
+  value,
+  onSelect,
+  rangeFilter,
+}: ColorSelectProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState(() =>
     value ? displayNameWithRange(value) : "",
@@ -44,7 +51,7 @@ function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
 
   useEffect(() => {
     let cancelled = false;
-    void searchColors(brandId, open ? query : "").then((found) => {
+    void searchColors(brandId, open ? query : "", rangeFilter).then((found) => {
       if (!cancelled) {
         setResults(found);
       }
@@ -52,7 +59,7 @@ function ColorSelect({ brandId, value, onSelect }: ColorSelectProps) {
     return () => {
       cancelled = true;
     };
-  }, [brandId, query, open]);
+  }, [brandId, query, open, rangeFilter]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -17,35 +17,80 @@ beforeAll(() => {
   void i18next.changeLanguage("ja");
 });
 
-vi.mock("../../lib/paintPresets", () => ({
-  loadBrandIndex: vi.fn().mockResolvedValue([
-    { id: "citadel", label: "Citadel", file: "citadel.json", count: 2 },
-    { id: "vallejo", label: "Vallejo", file: "vallejo.json", count: 1 },
-  ]),
-  searchColors: vi.fn(async (brandId: string, query: string) => {
-    const all = [
-      {
-        id: "citadel:mephiston-red",
-        name: "Mephiston Red",
-        nameJa: "メフィストンレッド",
-        hex: "#960C0C",
+const CITADEL_COLORS = [
+  {
+    id: "citadel:mephiston-red",
+    name: "Mephiston Red",
+    nameJa: "メフィストンレッド",
+    hex: "#960C0C",
+  },
+  {
+    id: "citadel:abaddon-black",
+    name: "Abaddon Black",
+    nameJa: "アバドンブラック",
+    hex: "#141414",
+  },
+];
+
+// vallejoはrange（fantasy/military）を持つブランドとしてレンジフィルタのテストに使う
+const VALLEJO_COLORS = [
+  {
+    id: "vallejo:elf-skintone",
+    name: "Elf Skintone",
+    range: "fantasy",
+    hex: "#E8B48A",
+  },
+  {
+    id: "vallejo:orc-skin",
+    name: "Orc Skin",
+    range: "fantasy",
+    hex: "#6B8C4A",
+  },
+  {
+    id: "vallejo:german-grey",
+    name: "German Grey",
+    range: "military",
+    hex: "#5A5F5E",
+  },
+];
+
+vi.mock("../../lib/paintPresets", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../lib/paintPresets")>();
+  return {
+    ...actual,
+    loadBrandIndex: vi.fn().mockResolvedValue([
+      { id: "citadel", label: "Citadel", file: "citadel.json", count: 2 },
+      { id: "vallejo", label: "Vallejo", file: "vallejo.json", count: 3 },
+    ]),
+    loadBrandColors: vi.fn(async (brandId: string) => {
+      if (brandId === "citadel") return CITADEL_COLORS;
+      if (brandId === "vallejo") return VALLEJO_COLORS;
+      return [];
+    }),
+    searchColors: vi.fn(
+      async (brandId: string, query: string, range?: string) => {
+        const all =
+          brandId === "citadel"
+            ? CITADEL_COLORS
+            : brandId === "vallejo"
+              ? VALLEJO_COLORS
+              : [];
+        const q = query.trim().toLowerCase();
+        const byQuery =
+          q === ""
+            ? all
+            : all.filter(
+                (c) =>
+                  c.name.toLowerCase().includes(q) ||
+                  ("nameJa" in c && c.nameJa.toLowerCase().includes(q)),
+              );
+        if (!range) return byQuery;
+        return byQuery.filter((c) => "range" in c && c.range === range);
       },
-      {
-        id: "citadel:abaddon-black",
-        name: "Abaddon Black",
-        nameJa: "アバドンブラック",
-        hex: "#141414",
-      },
-    ];
-    if (brandId !== "citadel") return [];
-    const q = query.trim().toLowerCase();
-    if (q === "") return all;
-    return all.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) || c.nameJa.toLowerCase().includes(q),
-    );
-  }),
-}));
+    ),
+  };
+});
 
 vi.mock("../../db/photoStore", () => ({
   savePhoto: vi.fn(),
@@ -111,6 +156,108 @@ describe("PaintPicker — preset flow", () => {
     expect(
       screen.queryByRole("option", { name: /Mephiston Red/ }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("PaintPicker — レンジフィルタ", () => {
+  test("rangeを持たないブランド（Citadel）ではレンジフィルタが表示されない", async () => {
+    renderPicker();
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    fireEvent.change(brandSelect, { target: { value: "citadel" } });
+
+    await screen.findByLabelText("カラー");
+    // レンジフィルタは「すべて」チップの存在で判定する
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "すべて" })).toBeNull();
+    });
+  });
+
+  test("rangeを持つブランド（Vallejo）を選ぶとレンジフィルタが表示され、レンジ選択で候補が絞られる", async () => {
+    renderPicker();
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    fireEvent.change(brandSelect, { target: { value: "vallejo" } });
+
+    const allChip = await screen.findByRole("button", { name: "すべて" });
+    const militaryChip = await screen.findByRole("button", {
+      name: "military",
+    });
+
+    fireEvent.click(militaryChip);
+
+    const colorInput = await screen.findByLabelText("カラー");
+    fireEvent.focus(colorInput);
+
+    await screen.findByRole("option", { name: /German Grey/ });
+    expect(
+      screen.queryByRole("option", { name: /Elf Skintone/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: /Orc Skin/ }),
+    ).not.toBeInTheDocument();
+
+    // activeなチップはaria-pressed=trueで判定できる
+    expect(militaryChip.getAttribute("aria-pressed")).toBe("true");
+    expect(allChip.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  test("「すべて」を選ぶと全レンジの候補が表示される", async () => {
+    renderPicker();
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    fireEvent.change(brandSelect, { target: { value: "vallejo" } });
+
+    const militaryChip = await screen.findByRole("button", {
+      name: "military",
+    });
+    fireEvent.click(militaryChip);
+
+    const colorInput = await screen.findByLabelText("カラー");
+    fireEvent.focus(colorInput);
+    await screen.findByRole("option", { name: /German Grey/ });
+
+    const allChip = await screen.findByRole("button", { name: "すべて" });
+    fireEvent.click(allChip);
+
+    await screen.findByRole("option", { name: /Elf Skintone/ });
+    await screen.findByRole("option", { name: /Orc Skin/ });
+    await screen.findByRole("option", { name: /German Grey/ });
+  });
+
+  test("ブランドを切り替えるとレンジフィルタは「すべて」にリセットされる", async () => {
+    renderPicker();
+
+    const brandSelect = await screen.findByRole("combobox", {
+      name: "メーカー",
+    });
+    fireEvent.change(brandSelect, { target: { value: "vallejo" } });
+
+    const militaryChip = await screen.findByRole("button", {
+      name: "military",
+    });
+    fireEvent.click(militaryChip);
+    expect(militaryChip.getAttribute("aria-pressed")).toBe("true");
+
+    // 別ブランド（citadel、rangeなし）へ切替 → フィルタ自体が消える
+    fireEvent.change(brandSelect, { target: { value: "citadel" } });
+    await screen.findByLabelText("カラー");
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "すべて" })).toBeNull();
+    });
+
+    // vallejoへ戻すと「すべて」がactiveな状態（リセット済み）で再表示される
+    fireEvent.change(brandSelect, { target: { value: "vallejo" } });
+    const allChipAgain = await screen.findByRole("button", { name: "すべて" });
+    await waitFor(() => {
+      expect(allChipAgain.getAttribute("aria-pressed")).toBe("true");
+    });
   });
 });
 

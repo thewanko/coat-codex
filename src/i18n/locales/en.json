@@ -33,7 +33,8 @@
     "attachChip": "Color chip photo",
     "hexUnset": "No hex",
     "searchPlaceholder": "Search colors",
-    "noResults": "No matching colors"
+    "noResults": "No matching colors",
+    "rangeAll": "All"
   },
   "mix": {
     "label": "MIX",
