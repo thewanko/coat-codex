@@ -7,25 +7,98 @@
   gap: var(--space-5);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+/* ヒーロー（dc.html PC版60〜78行目・モバイル版152〜161行目）: LIBRARY overline →
+   YOUR CODEX display → 和文gloss → 金の飾り罫 → VOLUMES mono行、すべて中央寄せ */
+.hero {
+  text-align: center;
+  margin: var(--space-6) 0 var(--space-5);
 }
 
+.heroOverline {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-overline);
+  text-indent: var(--tracking-overline);
+  color: var(--color-gold);
+}
+
+.heroTitle {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .heroTitle {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+.heroGloss {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-jp-gloss);
+  text-indent: var(--tracking-jp-gloss);
+  color: var(--color-ink-muted);
+}
+
+.heroGloss:lang(en) {
+  letter-spacing: normal;
+  text-indent: 0;
+}
+
+/* 金の飾り罫（章題ブロック直下のみ・1見出し1本。theme.css実装メモ「金の飾り罫」） */
+.heroDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 420px;
+  margin: var(--space-4) auto 0;
+}
+
+.heroDividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-gold-soft);
+}
+
+.heroDiamond {
+  width: 5px;
+  height: 5px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.heroVolumes {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-faint);
+  margin-top: var(--space-3);
+}
+
+/* ボタン行（dc.html PC版75〜78行目）: 新規作成＋インポートを中央寄せで独立行に */
 .actions {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
 }
 
-.heading {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-ink);
-  margin: 0;
+@media (max-width: 767px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions > * {
+    width: 100%;
+  }
 }

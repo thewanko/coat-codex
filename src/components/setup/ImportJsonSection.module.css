@@ -1,21 +1,101 @@
-/* ImportJsonSection — secondaryボタン相当の見た目 */
+/* ImportJsonSection — 破線カード化（dc.html PC版297〜311行目・モバイル版360〜367行目）
+   PC(≥768px): 「または」ディバイダ＋破線カード（アイコン円・タイトル・説明・ファイル選択ボタン）
+   Mobile(<768px): コンパクトな破線ボタン1行（アイコン等は非表示、ボタン全体がタップ域） */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-gold-soft);
+}
+
+.dividerDiamond {
+  width: 4px;
+  height: 4px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.dividerLabel {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--color-ink-muted);
+}
+
+.dividerLabel:lang(en) {
+  letter-spacing: normal;
+  text-indent: 0;
+}
+
+.card {
+  border: 1px dashed var(--color-line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  color: var(--color-gold);
+  flex: none;
+}
+
+.textGroup {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+}
 
 .note {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-ink-muted);
 }
 
 .button {
-  align-self: flex-start;
   min-height: 40px;
   padding: 0 var(--space-4);
-  border: 1px solid var(--color-line-strong);
-  border-radius: var(--radius-sm);
   background: var(--color-bg-raised);
-  color: var(--color-ink-muted);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
   cursor: pointer;
+  flex: none;
 }
 
 .button:disabled {
@@ -26,6 +106,43 @@
 .button:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+/* Mobile(<768px): コンパクトな破線ボタン1行に差し替え、PC用カードは非表示 */
+.compactButton {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .card {
+    display: none;
+  }
+
+  .compactButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: var(--size-touch-target);
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-link);
+    font-family: var(--font-family-body);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  .compactButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .compactButton:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 
 .hiddenInput {

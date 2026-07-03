@@ -60,6 +60,13 @@
   cursor: pointer;
 }
 
+@media (max-width: 767px) {
+  .moveButton {
+    width: var(--size-touch-target);
+    height: var(--size-touch-target);
+  }
+}
+
 .moveButton:disabled {
   opacity: 0.45;
   cursor: not-allowed;

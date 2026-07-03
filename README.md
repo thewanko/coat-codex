@@ -12,6 +12,31 @@ Chronicle your painting rituals — a modern codex for miniature and model paint
 - **2026-07-02 T2（React 19×@dnd-kit peer依存スパイク）**: `@dnd-kit/core@6.3.1`＋`@dnd-kit/sortable@10.0.0`を採用確定。`npm install`でpeer依存警告なし。StrictMode下でKeyboardSensor経由の並び替え動作をブラウザ実機（Chrome/dev server）で確認、コンソール警告ゼロ。Safari・モバイル実機での追確認は任意（採用判断には影響しない）
 - **2026-07-02 T6（SPAフォールバック）**: `wrangler pages dev dist`で `/`・`/terms`・`/recipe/xxx/print`（深いURL直接アクセス）すべて200＋index.htmlフォールバックを確認。`dist/`に`_redirects`・`404.html`が無いことを確認（wrangler 4.106.0）
 
+### 2026-07-03 M7 T43 通しQA（黒狼実データ＋合成検証レシピで実施）
+
+検証データ: ユーザー提供の黒狼2.json（黒狼: 1パーツ6工程＋ベース3工程・palette 11色・写真2枚）と、そこから合成した「黒狼検証」（マスタ外presetId・brand nullのcustom色・0工程パーツ・MIX工程入り）。dev server（preview）＋本番URLで実施。
+
+| # | QA項目 | 結果 | 実機確認内容 |
+|---|---|---|---|
+| ① | UI経由export→import往復 | ✅ | JSONエクスポート（2.65MB・写真含む）→再インポートで黒狼が2件・ID再採番（別ID）・構造（パーツ/工程/palette/tools/写真数）一致・photosテーブル4→6件。T31の本番read-back経路をUI実機でカバー |
+| ② | 本番URL全7ルート直接リロード | ✅ | coat-codex.com の `/`・`/setup`・`/recipe/:id`・`/part/base`・`/part/:id`・`/print`・`/terms` すべて200＋index.htmlフォールバック（`/404.html`もindex返却＝§5.2） |
+| ③ | Chrome/Safari実印刷プレビュー | ⏳ユーザー | preview経由で実印刷ダイアログを開けないため未検証（下記「ユーザー依頼事項」参照） |
+| ④ | 共有A系統 iOS/Android実機 | ⏳ユーザー | canShare成立環境がデスクトップpreviewに無いため未検証。B系統（手順ガイド・連番DL・Intent）はデスクトップ実機で検証済み |
+| ⑤ | persist拒否時の警告表示 | ✅ | persisted()=false時にStorageStatusBarが「保護なし — ブラウザにより自動削除される可能性があります」＋Safari 7日警告を表示 |
+| ⑥ | Quota超過模擬のエラー表示 | ✅ | photos書き込みをQuotaExceededErrorでスタブ→写真追加で「容量不足です…」トースト表示・onChange不発 |
+| ⑦ | 使用中削除ガード | ✅ | ツール: 使用中は削除✕disabled＋「工程で使用中のため削除できません」注記、未使用ツールは削除可。色はv2.3でSetup先行登録廃止＋保存時自動GCに移行済み（手動削除UI非存在＝ガード対象外） |
+| ⑧ | マスタ外presetKeyインポート降格 | ✅ | presetId `citadel:nonexistent-color-zzz` の色がsource=custom・presetId=nullへ降格、brand/hexは保持（§2.7 d′）。brand nullのcustom色もそのまま保持 |
+| ⑨ | D-8既定名 | ✅ | 新規作成→タイトル未入力のままautosave→リロードで「無題のレシピ」として正常に開く（loadエラーなし） |
+| ⑩ | D-6未バックアップドット消灯 | ✅ | JSONエクスポート後、当該レシピ（黒狼）のドットが data-visible=false へ消灯。未エクスポートの黒狼検証・無題は点灯継続 |
+| ⑪ | 工程写真付け外しの3出力反映 | ✅ | 工程7に写真追加→PartCardサムネ＝写真がある最後の工程＋「STEP 7」タグ・印刷64×48セル・共有候補の2枚目以降（STEP 6/STEP 7）に反映 |
+| ⑫ | 合計≠100の警告継承＋autosave継続 | ✅ | MIX 70/20（計90%）に変更→autosave継続（DB保存[70,20]）・PartCardバッジ「⚠ 計90%」・印刷「⚠ 計90%」・共有合成画像（1200×900）に「⚠ 計90%」＋色名ブランド併記を実ピクセル目視で確認 |
+
+**レスポンシブ（T42）**: PC(1280)/モバイル(375)/768px境界で全7ルートをヒットテスト（elementFromPoint併用）。ヒットミス0・横スクロールなし。モバイルのタッチターゲット不足（工程↑↓ 32px・写真✕ 24px・各種✕/menu 28px・addButton 40px 等）を44px化（視覚拡大 or 不可視ヒット領域拡張）。768px境界でフルページ↔スライドインパネル・StepPhotoStripモバイル限定表示を確認。
+
+**ユーザー依頼事項（セッションから検証不能）**:
+- ③ Chrome/Safari の実ブラウザ印刷ダイアログで「背景色（スウォッチ/バッジ/封蝋の print-color-adjust）」「改ページ（break-inside: avoid）」「A4 15mmマージン」「PDFとして保存」を確認
+- ④ iOS Safari / Android Chrome の実機で Web Share A系統（`navigator.share({ files })`＝共有シートで画像付き投稿）を確認。デスクトップでは canShare が files 非対応のため B系統フォールバックのみ検証済み
+
 ---
 
 ## 開発ループ運用（fable-loop-starter）

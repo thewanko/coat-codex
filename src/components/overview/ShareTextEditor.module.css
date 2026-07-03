@@ -66,6 +66,12 @@
   cursor: pointer;
 }
 
+@media (max-width: 767px) {
+  .trimButton {
+    height: var(--size-touch-target);
+  }
+}
+
 .trimButton:hover {
   filter: brightness(1.05);
 }
