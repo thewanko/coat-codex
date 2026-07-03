@@ -1,0 +1,115 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`exportRecipeToMarkdown > 代表フィクスチャのスナップショット 1`] = `
+"# Space Marine Captain
+
+## 使用カラー
+- Citadel Mephiston Red
+- Citadel White Scar
+- 自家調合ブラック
+
+## 使用ツール
+- 筆（面相筆）
+- マスキングテープ
+
+## ベース工程（全体）
+
+### STEP 1: ベースコート
+- 塗料: Citadel Mephiston Red + Citadel White Scar — 60% + 40% (3:2)
+- ツール: 筆
+- メモ: 2度塗りでムラを消す
+- 写真あり
+
+### STEP 2: ドライブラシ
+- 塗料: Citadel Mephiston Red
+- ツール: 筆
+- メモ: エッジに軽くドライブラシ
+- 写真あり
+
+## パーツ
+
+### 頭部
+
+#### STEP 1: レイヤー
+- 塗料: Citadel Mephiston Red + Citadel White Scar — 55% + 45%
+
+#### STEP 2: オリジナルウェザリング
+- 塗料: 自家調合ブラック
+- メモ: 自作技法のメモ
+
+### 胴体
+
+#### STEP 1: ウォッシュ
+- 塗料: Citadel Mephiston Red + Citadel White Scar — 60% + 50% ⚠ 計 110%
+- ツール: 筆
+- メモ: 合計オーバーの警告表示を確認する工程
+
+#### STEP 2: マスキング
+- ツール: マスキングテープ
+
+#### STEP 3
+- （未設定）
+"
+`;
+
+exports[`exportRecipeToNoteMarkdown > 代表フィクスチャのスナップショット 1`] = `
+"# Space Marine Captain
+
+---
+
+## 🖌️ 使用カラー
+- Citadel Mephiston Red
+- Citadel White Scar
+- 自家調合ブラック
+
+## 🧰 使用ツール
+- 筆（面相筆）
+- マスキングテープ
+
+---
+
+## ベース工程（全体）
+
+#### 🎨 STEP 1: ベースコート
+- **塗料**: Citadel Mephiston Red + Citadel White Scar — 60% + 40% (3:2)
+- **ツール**: 筆
+- **メモ**: 2度塗りでムラを消す
+- 📷 写真あり
+
+#### 🎨 STEP 2: ドライブラシ
+- **塗料**: Citadel Mephiston Red
+- **ツール**: 筆
+- **メモ**: エッジに軽くドライブラシ
+- 📷 写真あり
+
+---
+
+## パーツ
+
+### 頭部
+
+#### 🎨 STEP 1: レイヤー
+- **塗料**: Citadel Mephiston Red + Citadel White Scar — 55% + 45%
+
+#### 🎨 STEP 2: オリジナルウェザリング
+- **塗料**: 自家調合ブラック
+- **メモ**: 自作技法のメモ
+
+### 胴体
+
+#### 🎨 STEP 1: ウォッシュ
+- **塗料**: Citadel Mephiston Red + Citadel White Scar — 60% + 50% ⚠ 計 110%
+- **ツール**: 筆
+- **メモ**: 合計オーバーの警告表示を確認する工程
+
+#### 🎨 STEP 2: マスキング
+- **ツール**: マスキングテープ
+
+#### 🎨 STEP 3
+- （未設定）
+
+---
+
+#coat-codex
+"
+`;
