@@ -33,6 +33,13 @@
   flex: none;
 }
 
+.logo {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  flex: none;
+}
+
 .link {
   color: var(--color-link);
   text-decoration: underline dotted;

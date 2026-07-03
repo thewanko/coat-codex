@@ -28,6 +28,7 @@ import { resolveTechniqueLabel } from "../../lib/techniques";
 import type { SnsTarget } from "../../lib/sns/types";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import { useToast } from "../common/toastContext";
+import { useFocusTrap } from "../common/useFocusTrap";
 import ShareImagePreview, {
   SHARE_IMAGE_MAX_SELECTION,
 } from "./ShareImagePreview";
@@ -256,6 +257,7 @@ type ShareRoute = "pending" | "a" | "b" | "a-text-only";
 function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
   const { t } = useTranslation();
   const toast = useToast();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const [generating, setGenerating] = useState(true);
@@ -383,21 +385,12 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
     };
   }, [open, context.mode, context.recipe.id, partId]);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    closeButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  useFocusTrap({
+    containerRef: dialogRef,
+    open,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   function handleToggleImage(index: number) {
     setSelectedIndexes((prev) => {
@@ -490,6 +483,7 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
       data-testid="share-dialog-backdrop"
     >
       <div
+        ref={dialogRef}
         className={styles.dialog}
         role="dialog"
         aria-modal="true"

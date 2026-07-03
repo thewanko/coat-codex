@@ -19,10 +19,10 @@
 
 | 要素 | 仕様 |
 |---|---|
-| 封蝋モノグラム | 円 `--color-accent`、内側に1px環 `--color-on-overlay-line`、中央に EB Garamond Italic 小文字 "cc"（`--color-accent-contrast`）。サイズはヘッダ34px／印刷26px／空状態44px |
+| 封蝋モノグラム | 支給PNG（`coat-codex_logo.png`由来・`src/assets/seal-logo.png`配信。（2026-07-03改訂）CSS描画からの差し替え）。サイズはヘッダ34px／印刷26px／空状態44px |
 | ワードマーク | `Coat Codex` EB Garamond 500。**両単語の頭文字Cのみ `--color-accent`**、他は `--color-ink` |
 | 和文タグ | 「塗装秘伝書」しっぽり明朝 500、`letter-spacing: var(--tracking-jp-gloss)` |
-| 使用箇所上限 | 封蝋モチーフは 1画面3箇所まで（ヘッダ／印刷ヘッダ／空状態） |
+| 使用箇所上限 | 封蝋モチーフは 1画面4箇所まで（ヘッダ／フッター／印刷ヘッダ／空状態）（2026-07-03改訂: フッターロゴ追加に伴い3→4箇所） |
 
 ## 2. 見出しシステム（EN display ＋ JP gloss）
 
@@ -154,6 +154,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 
 ### AppFooter
 - 上辺1px `--color-gold-soft`。`© coat-codex ◆ 利用規約・免責`（菱区切り、リンクはdotted下線）
+- （2026-07-03改訂）`© coat-codex` の直前に封蝋ロゴ画像（18px・`aria-hidden`・`vertical-align: middle`）を追加
 
 ### EmptyState
 - 破線枠（gold-soft）＋封蝋 or ＋円＋明朝見出し＋1行説明＋CTA。Home空: 「最初の秘伝書を作る」(primary)＋インポート導線＋「データはこの端末のブラウザにのみ保存されます」
@@ -197,11 +198,11 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 
 ## 7. 装飾アセット方針
 
-原則 **CSSで実装（SVG供給不要）**。供給するSVGは封蝋モノグラム1点のみ。
+原則 **CSSで実装**。（2026-07-03改訂）封蝋モノグラムのみユーザー支給PNG（`docs/design/coat-codex_logo.png`原本・編集禁止）から生成した配信アセットを使用する。
 
 | アセット | 実装 | 使用ルール |
 |---|---|---|
-| 封蝋モノグラム "cc" | **SVG供給**（`logo.svg`。favicon/OGP兼用） | 1画面3箇所まで。最小24px |
+| 封蝋モノグラム "cc" | （2026-07-03改訂）**PNG供給**（原本`coat-codex_logo.png`由来・`src/assets/seal-logo.png`として配信。favicon/apple-touch-icon/ヘッダ/フッターで使用） | 1画面3箇所まで。最小16px |
 | 菱（ダイヤ） | span 4–8px `rotate(45deg)` `--color-gold` | 飾り罫の中心・枠四隅・区切りのみ。連続配置禁止 |
 | 金の飾り罫 | flex: 1px線(gold-soft)＋中央菱 | 章題ブロック直下のみ（1見出し1本） |
 | 二重枠 | border＋inset box-shadow ×2 | recipe/partカード・ヒーロー枠。入力・スウォッチには禁止 |

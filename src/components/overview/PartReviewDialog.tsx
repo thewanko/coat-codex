@@ -16,10 +16,9 @@
 // 下に置かれる構成ではないためoverride不要）。
 //
 // ShareDialogの重ね表示: PartReviewDialogは開いたまま、その上にShareDialogを重ねて表示する。
-// 両者ともbackdrop position:fixed・z-index:60（同一スタッキングコンテキスト）のため、
-// ShareDialogをPartReviewDialogのJSXツリー内でbackdrop要素の後（DOM順で後）にレンダーする
-// ことで、同一z-index同士はDOM順が後のものが上に描画されるCSS仕様に従い正しく最前面に出す
-// （ShareDialog.tsx/module.cssはT39確定物のためスコープ外＝z-index変更不可。DOM順序のみで解決）。
+// ShareDialog.module.cssはz-index:300、PartReviewDialog.module.cssはz-index:60であり
+// （M6のz-index修正により）ShareDialogのz値がPartReviewDialogより高いため最前面に表示される
+// （ShareDialog.tsx/module.cssはT39確定物のためスコープ外＝z-index変更不可）。
 //
 // objectURLはこのダイアログのアンマウント時にrevokeしない（photoStore.tsの共有objectURL
 // キャッシュ方針に従い、resolvePhotoUrlの解決のみ行う。§2.6）。
@@ -30,7 +29,7 @@
 // §3.4の決定によりベース工程単独のSNS共有は対象外（全体共有でカバー）のため、baseモードでは
 // フッタの共有ボタン2つを描画しない（ShareDialogContextにbaseは存在しないため型的にも組めない）。
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
@@ -39,6 +38,7 @@ import { resolveTechniqueLabel } from "../../lib/techniques";
 import { snsTargets } from "../../lib/sns/types";
 import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
+import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import styles from "./PartReviewDialog.module.css";
@@ -197,21 +197,15 @@ function PartReviewDialog({
   const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
     null,
   );
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  useFocusTrap({
+    containerRef: dialogRef,
+    open,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   // ダイアログを閉じ直したら共有ダイアログの選択状態もリセットする
   useEffect(() => {
@@ -243,6 +237,7 @@ function PartReviewDialog({
         data-testid="part-review-backdrop"
       >
         <div
+          ref={dialogRef}
           className={styles.dialog}
           role="dialog"
           aria-modal="true"
@@ -254,6 +249,7 @@ function PartReviewDialog({
               {reviewTitle}
             </h2>
             <button
+              ref={closeButtonRef}
               type="button"
               className={styles.closeButton}
               onClick={onClose}

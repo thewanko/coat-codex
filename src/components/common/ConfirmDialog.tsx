@@ -3,8 +3,9 @@
 // confirm.cancel、注記 confirm.irreversible。Escで閉じる・backdropクリックで閉じる・
 // role="dialog" aria-modal）
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useFocusTrap } from "./useFocusTrap";
 import styles from "./ConfirmDialog.module.css";
 
 interface ConfirmDialogProps {
@@ -25,23 +26,17 @@ function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const { t } = useTranslation();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    confirmButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onCancel();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onCancel]);
+  useFocusTrap({
+    containerRef: dialogRef,
+    open,
+    onClose: onCancel,
+    // キャンセル側を初期フォーカスにする（危険な確定操作を誤って即実行しないための安全策）
+    initialFocusRef: cancelButtonRef,
+  });
 
   if (!open) {
     return null;
@@ -54,6 +49,7 @@ function ConfirmDialog({
       data-testid="confirm-dialog-backdrop"
     >
       <div
+        ref={dialogRef}
         className={styles.dialog}
         role="dialog"
         aria-modal="true"
@@ -66,7 +62,12 @@ function ConfirmDialog({
         {description && <p className={styles.description}>{description}</p>}
         <p className={styles.irreversible}>{t("confirm.irreversible")}</p>
         <div className={styles.actions}>
-          <button type="button" className={styles.cancel} onClick={onCancel}>
+          <button
+            ref={cancelButtonRef}
+            type="button"
+            className={styles.cancel}
+            onClick={onCancel}
+          >
             {t("confirm.cancel")}
           </button>
           <button

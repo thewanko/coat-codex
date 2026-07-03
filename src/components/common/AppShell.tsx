@@ -10,6 +10,7 @@ import {
 import LanguageSwitcher from "./LanguageSwitcher";
 import AppFooter from "./AppFooter";
 import ToastHost from "./ToastHost";
+import sealLogo from "../../assets/seal-logo.png";
 import styles from "./AppShell.module.css";
 
 function AppShell({ children }: { children?: ReactNode }) {
@@ -55,9 +56,12 @@ function AppShell({ children }: { children?: ReactNode }) {
       <div className={styles.shell}>
         <header className={`${styles.header} print-hide`}>
           <Link to="/" className={styles.brand}>
-            <span className={styles.seal} aria-hidden="true">
-              <span className={styles.sealInner}>cc</span>
-            </span>
+            <img
+              src={sealLogo}
+              alt=""
+              aria-hidden="true"
+              className={styles.seal}
+            />
             <div className={styles.wordmarkGroup}>
               <span className={styles.wordmark}>
                 <span className={styles.wordmarkInitial}>C</span>oat{" "}
