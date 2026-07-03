@@ -1,8 +1,10 @@
 // components/overview/ExportActionBar.tsx — 出力アクションバー
-// （技術計画v2.3 §3.3 ExportActionBar行・T28。結線T33: JSON・素MD隣接配置＋note MD）
+// （技術計画v2.3 §3.3 ExportActionBar行・T28。結線T33: JSON・素MD隣接配置＋note MD。
+//   結線T40: 印刷／PDF（/recipe/:id/printへnavigate）／X・Bluesky（ShareDialog whole起点）。
 //
-// 印刷／PDFダウンロード／X共有／Bluesky共有はT36/T39/T40で結線するためdisabledのまま。
 // JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）・note MDをT33で結線する。
+// 印刷・PDFは/recipe/:id/printへnavigate（保存手順案内はPrintToolbar側=T36仕様）。
+// X・BlueskyはShareDialog（context={mode:"whole", recipe}）を対応するtargetで開く（T40）。
 // 並び順・グルーピング（菱区切り＋JSON+素MDの結合ピル）はデザイン仕様書§4「ActionBar」。
 // 結線ロジックはuseExportActions（react-refresh対応で分離）に委譲する。
 //
@@ -16,9 +18,13 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { RecipeDoc } from "../../models/recipe";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
+import ShareDialog from "./ShareDialog";
 import styles from "./ExportActionBar.module.css";
 import { shouldCloseFromDrag } from "./exportSheetDrag";
-import { useExportActions } from "./useExportActions";
+import {
+  useExportActions,
+  type UseExportActionsResult,
+} from "./useExportActions";
 
 const MOBILE_QUERY = "(max-width: 767px)";
 
@@ -64,23 +70,51 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    handlePrint,
+    handlePdf,
+    handleShareX,
+    handleShareBluesky,
+    shareDialogOpen,
+    shareDialogContext,
+    shareDialogTarget,
+    handleCloseShareDialog,
   } = useExportActions(recipe, onExported);
 
   return (
     <>
-      <button type="button" className={styles.pill} disabled>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handlePrint}
+      >
         {t("overview.exportPrint")}
       </button>
-      <button type="button" className={styles.pill} disabled>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handlePdf}
+      >
         {t("overview.exportPdf")}
       </button>
 
       <span className={styles.divider} aria-hidden="true" />
 
-      <button type="button" className={styles.pill} disabled>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handleShareX}
+      >
         {t("overview.exportX")}
       </button>
-      <button type="button" className={styles.pill} disabled>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handleShareBluesky}
+      >
         {t("overview.exportBluesky")}
       </button>
       <button
@@ -119,16 +153,32 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         onChoose={handleChooseJsonExport}
         onCancel={handleCancelJsonExport}
       />
+
+      {shareDialogOpen &&
+        shareDialogContext !== null &&
+        shareDialogTarget !== null && (
+          <ShareDialog
+            open={shareDialogOpen}
+            onClose={handleCloseShareDialog}
+            context={shareDialogContext}
+            target={shareDialogTarget}
+          />
+        )}
     </>
   );
 }
 
 interface ExportSheetActionsProps {
   recipe: RecipeDoc | null;
-  onExported?: (recipeId: string) => void;
+  actions: UseExportActionsResult;
 }
 
-function ExportSheetActions({ recipe, onExported }: ExportSheetActionsProps) {
+// ShareDialog関連の状態・ダイアログ本体はここではレンダーしない（ExportActionBarの
+// mobile分岐側でExportSheetと兄弟としてリフトアップ済み。レビューRound1 Medium-1対応:
+// .sheetはtransition: transform／ドラッグ中のstyle.transform／開閉アニメーションを持ち、
+// transformが非noneの間は子孫のposition: fixed要素の基準がbodyでなく.sheetになってしまう
+// ため、ShareDialog（backdrop=position: fixed）を.sheetの子孫に置かない）。
+function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
   const { t } = useTranslation();
   const {
     handleRequestJsonExport,
@@ -137,15 +187,29 @@ function ExportSheetActions({ recipe, onExported }: ExportSheetActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
-  } = useExportActions(recipe, onExported);
+    handlePrint,
+    handlePdf,
+    handleShareX,
+    handleShareBluesky,
+  } = actions;
 
   return (
     <>
       <div className={styles.sheetGroup}>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handlePrint}
+        >
           {t("overview.exportPrint")}
         </button>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handlePdf}
+        >
           {t("overview.exportPdf")}
         </button>
       </div>
@@ -157,10 +221,20 @@ function ExportSheetActions({ recipe, onExported }: ExportSheetActionsProps) {
       </span>
 
       <div className={styles.sheetGroup}>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handleShareX}
+        >
           {t("overview.exportX")}
         </button>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handleShareBluesky}
+        >
           {t("overview.exportBluesky")}
         </button>
       </div>
@@ -221,10 +295,10 @@ interface ExportSheetProps {
   open: boolean;
   onClose: () => void;
   recipe: RecipeDoc | null;
-  onExported?: (recipeId: string) => void;
+  actions: UseExportActionsResult;
 }
 
-function ExportSheet({ open, onClose, recipe, onExported }: ExportSheetProps) {
+function ExportSheet({ open, onClose, recipe, actions }: ExportSheetProps) {
   const { t } = useTranslation();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -350,9 +424,56 @@ function ExportSheet({ open, onClose, recipe, onExported }: ExportSheetProps) {
           </div>
         </div>
         <div className={styles.sheetBody}>
-          <ExportSheetActions recipe={recipe} onExported={onExported} />
+          <ExportSheetActions recipe={recipe} actions={actions} />
         </div>
       </div>
+    </div>
+  );
+}
+
+interface MobileExportRootProps {
+  recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
+}
+
+// レビューRound1 Medium-1対応: mobile専用ルート。useExportActionsをここで1回だけ呼び、
+// ShareDialogをExportSheetの外（兄弟）でレンダーする。ExportSheetは`open`がfalseのとき
+// nullを返す（アンマウントされる）ため、ExportSheet配下でこのフックを呼ぶとシートを
+// 閉じた瞬間にShareDialogの状態も失われてしまう。ここに置くことで、ユーザーが
+// ShareDialogを開いたままシートを閉じてもShareDialogは独立して開いたまま残る
+// （意図した挙動。ExportActionBar.test.tsxで固定）。
+function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
+  const { t } = useTranslation();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const actions = useExportActions(recipe, onExported);
+
+  return (
+    <div className={styles.mobileRoot} data-testid="export-action-bar">
+      <button
+        type="button"
+        className={styles.menuButton}
+        onClick={() => setSheetOpen(true)}
+      >
+        {t("export.menuButton")}
+      </button>
+      <ExportSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        recipe={recipe}
+        actions={actions}
+      />
+      {actions.shareDialogOpen &&
+        actions.shareDialogContext !== null &&
+        actions.shareDialogTarget !== null && (
+          <div className={styles.shareDialogRoot}>
+            <ShareDialog
+              open={actions.shareDialogOpen}
+              onClose={actions.handleCloseShareDialog}
+              context={actions.shareDialogContext}
+              target={actions.shareDialogTarget}
+            />
+          </div>
+        )}
     </div>
   );
 }
@@ -365,28 +486,10 @@ interface ExportActionBarProps {
 }
 
 function ExportActionBar({ recipe = null, onExported }: ExportActionBarProps) {
-  const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   if (isMobile) {
-    return (
-      <div className={styles.mobileRoot} data-testid="export-action-bar">
-        <button
-          type="button"
-          className={styles.menuButton}
-          onClick={() => setSheetOpen(true)}
-        >
-          {t("export.menuButton")}
-        </button>
-        <ExportSheet
-          open={sheetOpen}
-          onClose={() => setSheetOpen(false)}
-          recipe={recipe}
-          onExported={onExported}
-        />
-      </div>
-    );
+    return <MobileExportRoot recipe={recipe} onExported={onExported} />;
   }
 
   return (

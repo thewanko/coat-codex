@@ -53,7 +53,7 @@ function AppShell({ children }: { children?: ReactNode }) {
   return (
     <ToastHost>
       <div className={styles.shell}>
-        <header className={styles.header}>
+        <header className={`${styles.header} print-hide`}>
           <Link to="/" className={styles.brand}>
             <span className={styles.seal} aria-hidden="true">
               <span className={styles.sealInner}>cc</span>

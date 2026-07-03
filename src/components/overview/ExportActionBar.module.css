@@ -127,6 +127,15 @@
   box-shadow: var(--shadow-2), var(--focus-ring);
 }
 
+/* ShareDialog（レビューRound1 Medium-1対応でExportSheet外・.mobileRootの兄弟としてリフト
+   アップ）は.mobileRootのpointer-events: noneを継承してしまうため、ここで打ち消す。
+   .mobileRoot自体はtransform/transitionを持たないためcontaining blockはinitial containing
+   block（viewport）のままで、ShareDialogのbackdrop（position: fixed）はここに置いても
+   位置・サイズが破綻しない。 */
+.shareDialogRoot {
+  pointer-events: auto;
+}
+
 /* ---- ボトムシート ---- */
 
 .sheetBackdrop {

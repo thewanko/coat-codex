@@ -1,4 +1,5 @@
-/* OverviewHeader — 代表写真＋BaseStepOverlay（デザイン仕様書§4 決定稿#overview 二重枠） */
+/* OverviewHeader — 代表写真（デザイン仕様書§4 決定稿#overview 二重枠。
+   BASE工程は独立カード化のためこのコンポーネントの対象外＝2026-07-03） */
 
 .root {
   background: var(--color-bg-raised);

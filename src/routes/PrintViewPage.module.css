@@ -1,0 +1,21 @@
+/* PrintViewPage — 印刷プレビュー画面（デザイン仕様書§6準拠）
+   プレビュー時の地色は羊皮紙(--color-bg)、印刷時は白のみ（sheet側で個別に固定） */
+
+.root {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.error {
+  padding: var(--space-6) var(--space-5);
+  font-family: var(--font-family-body);
+  color: var(--color-danger);
+  text-align: center;
+}
+
+@media print {
+  .root {
+    min-height: 0;
+    background: #ffffff;
+  }
+}

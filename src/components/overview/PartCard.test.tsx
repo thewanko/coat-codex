@@ -187,3 +187,26 @@ describe("PartCard — 工程レビューボタン", () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 });
+
+describe("PartCard — order省略（BASEカード用途）", () => {
+  test("order指定時は番号セルを描画する", () => {
+    const part = makePart({ id: "part_1" });
+    render(
+      <PartCard part={part} order={3} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
+
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  test("order省略時は番号セルを描画しない（カード自体は表示される）", () => {
+    const part = makePart({ id: "part_1", name: "ベース工程（全体）" });
+    render(<PartCard part={part} onOpen={vi.fn()} onReview={vi.fn()} />);
+
+    const card = screen.getByTestId("part-card");
+    expect(
+      screen.queryByText(/^\d+$/, { selector: "span" }),
+    ).not.toBeInTheDocument();
+    expect(card).toBeInTheDocument();
+    expect(screen.getByText("ベース工程（全体）")).toBeInTheDocument();
+  });
+});

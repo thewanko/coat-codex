@@ -8,6 +8,15 @@
 // 参照同一性（M4必須事項②）: パーツ並び替えはonReorderで渡されたparts配列をそのまま
 // docへ差し替える（配列内の各Part要素自体は呼び出し元=PartCardListが再生成しない）。
 // パーツ追加はスプレッド追加のみで既存parts要素の参照を保つ。
+//
+// 2026-07-03: BASE工程表示をBaseStepOverlay（オーバーレイ帯）からPARTSカードと同一意匠の
+// 独立カードへ変更（将来のモデリング工程拡張を見据えた工程グループ化UI）。実装は
+// `{ id: "base", name: t("overview.baseCardName"), steps: doc.baseSteps }` の合成partを
+// 組み立て、既存PartCardへそのまま渡す方式（"base"はparts[].id予約語=INV-17のため実パーツと
+// 衝突しない）。BASEセクションはPartCardListのSortableContext外に配置し、D&D・上下移動
+// ボタンは持たない（baseStepsスキーマ自体は不変。UIのみの変更）。
+// baseSteps.length===0のときはPartCardの代わりに既存のaddBaseStepピル（旧BaseStepOverlayの
+// 空状態文言を流用）を表示する。
 
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -24,6 +33,7 @@ import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
 import OverviewHeader from "../components/overview/OverviewHeader";
 import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
+import PartCard from "../components/overview/PartCard";
 import PartCardList from "../components/overview/PartCardList";
 import PartReviewDialog from "../components/overview/PartReviewDialog";
 import ExportActionBar from "../components/overview/ExportActionBar";
@@ -32,6 +42,9 @@ import type { RecipeDoc } from "../models/recipe";
 import styles from "./RecipeOverviewPage.module.css";
 
 type RecipePart = RecipeDoc["parts"][number];
+
+/** BASE_PART_ID: parts[].idの予約語（INV-17）と同じ文字列を合成partのidに使う */
+const BASE_PART_ID = "base";
 
 function RecipeOverviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +59,9 @@ function RecipeOverviewPage() {
   const updateRecipe = useRecipeStore((state) => state.updateRecipe);
   const onSaveError = useRecipeStore((state) => state.onSaveError);
 
-  const [reviewPartId, setReviewPartId] = useState<string | null>(null);
+  // レビュー対象。BASE_PART_ID("base")の場合はBASEカードのレビュー（PartReviewDialogの
+  // baseモード=partId:null相当）。実パーツはparts[].id（"base"予約語のため衝突しない）。
+  const [reviewTarget, setReviewTarget] = useState<string | null>(null);
   // §3.5コンパクト帯: 当該レシピの未バックアップ判定に必要な状態（recipeExport:<id>とスヌーズ期限）
   const [exportedAt, setExportedAt] = useState<string | undefined>(undefined);
   const [snoozedUntil, setSnoozedUntil] = useState<string | undefined>(
@@ -115,11 +130,15 @@ function RecipeOverviewPage() {
   }
 
   function handleReviewPart(partId: string) {
-    setReviewPartId(partId);
+    setReviewTarget(partId);
   }
 
-  function handleEditBaseSteps() {
+  function handleOpenBase() {
     navigate(`/recipe/${id}/part/base`);
+  }
+
+  function handleReviewBase() {
+    setReviewTarget(BASE_PART_ID);
   }
 
   function handleReorderParts(nextParts: RecipePart[]) {
@@ -146,6 +165,14 @@ function RecipeOverviewPage() {
     now: new Date().toISOString(),
   });
 
+  // BASEカード用の合成part（既存PartCardの意匠・ロジックをそのまま流用するための変換のみ。
+  // baseStepsスキーマ自体は不変＝doc.baseStepsの参照をそのまま渡す）
+  const basePart: RecipePart = {
+    id: BASE_PART_ID,
+    name: t("overview.baseCardName"),
+    steps: doc.baseSteps,
+  };
+
   return (
     <div className={styles.root}>
       <BackLink to="/" label={t("nav.backToLibrary")} />
@@ -161,13 +188,29 @@ function RecipeOverviewPage() {
         />
       )}
 
-      <OverviewHeader
-        representativePhotoId={doc.overviewPhotoIds[0] ?? null}
-        baseSteps={doc.baseSteps}
-        onEditBaseSteps={handleEditBaseSteps}
-      />
+      <OverviewHeader representativePhotoId={doc.overviewPhotoIds[0] ?? null} />
 
       <OverviewPhotoStrip photoIds={doc.overviewPhotoIds} />
+
+      <section className={styles.baseSection}>
+        <h2 className={styles.baseHeading}>{t("overview.baseOverline")}</h2>
+        {doc.baseSteps.length === 0 ? (
+          <button
+            type="button"
+            className={styles.addBasePill}
+            onClick={handleOpenBase}
+            data-testid="base-card-empty"
+          >
+            {t("overview.addBaseStep")}
+          </button>
+        ) : (
+          <PartCard
+            part={basePart}
+            onOpen={handleOpenBase}
+            onReview={handleReviewBase}
+          />
+        )}
+      </section>
 
       <section className={styles.partsSection}>
         <h2 className={styles.partsHeading}>{t("overview.partsHeading")}</h2>
@@ -182,12 +225,12 @@ function RecipeOverviewPage() {
 
       <ExportActionBar recipe={doc} onExported={handleReminderChanged} />
 
-      {reviewPartId !== null && (
+      {reviewTarget !== null && (
         <PartReviewDialog
           recipe={doc}
-          partId={reviewPartId}
-          open={reviewPartId !== null}
-          onClose={() => setReviewPartId(null)}
+          partId={reviewTarget === BASE_PART_ID ? null : reviewTarget}
+          open={reviewTarget !== null}
+          onClose={() => setReviewTarget(null)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 // components/overview/PartReviewDialog.test.tsx — パーツ工程レビュー（読み取り専用）のテスト
-// （技術計画v2.3 §3.3 PartCard行・§3.4冒頭ブロック・§4.2 T28）
+// （技術計画v2.3 §3.3 PartCard行・§3.4冒頭ブロック・§4.2 T28・T40）
 
 import "../../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
@@ -8,6 +8,27 @@ import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import PartReviewDialog from "./PartReviewDialog";
+import ToastHost from "../common/ToastHost";
+
+vi.mock("../../db/db", () => ({
+  db: {
+    photos: {
+      get: vi.fn().mockResolvedValue(null),
+    },
+  },
+}));
+
+const composeShareImagesMock = vi.fn();
+
+vi.mock("../../lib/sns/imageComposer", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../lib/sns/imageComposer")
+  >("../../lib/sns/imageComposer");
+  return {
+    ...actual,
+    composeShareImages: (...args: unknown[]) => composeShareImagesMock(...args),
+  };
+});
 
 type RecipePart = RecipeDoc["parts"][number];
 
@@ -56,19 +77,21 @@ function makeRecipe(overrides: Partial<RecipeDoc> & { id: string }): RecipeDoc {
 
 function renderDialog(
   recipe: RecipeDoc,
-  partId: string,
+  partId: string | null,
   onClose = vi.fn(),
   open = true,
 ) {
   render(
-    <MemoryRouter>
-      <PartReviewDialog
-        recipe={recipe}
-        partId={partId}
-        open={open}
-        onClose={onClose}
-      />
-    </MemoryRouter>,
+    <ToastHost>
+      <MemoryRouter>
+        <PartReviewDialog
+          recipe={recipe}
+          partId={partId}
+          open={open}
+          onClose={onClose}
+        />
+      </MemoryRouter>
+    </ToastHost>,
   );
   return { onClose };
 }
@@ -147,7 +170,7 @@ describe("PartReviewDialog — 編集リンク・共有ボタン", () => {
     expect(editLink).toHaveAttribute("href", "/recipe/rcp_1/part/part_1");
   });
 
-  test("共有ボタンはdisabledでtitle=shareComingSoon", () => {
+  test("共有ボタンはX用・Bluesky用の2ボタンで、いずれも活性化されている", () => {
     const recipe = makeRecipe({
       id: "rcp_1",
       parts: [makePart({ id: "part_1", name: "腕" })],
@@ -155,9 +178,97 @@ describe("PartReviewDialog — 編集リンク・共有ボタン", () => {
 
     renderDialog(recipe, "part_1");
 
-    const shareButton = screen.getByRole("button", { name: "SNSで共有" });
-    expect(shareButton).toBeDisabled();
-    expect(shareButton).toHaveAttribute("title", "共有機能は準備中です");
+    expect(screen.getByRole("button", { name: "Xで共有" })).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Blueskyで共有" }),
+    ).not.toBeDisabled();
+  });
+});
+
+describe("PartReviewDialog — 共有ボタン押下でShareDialogを開く", () => {
+  test("「Xで共有」押下でShareDialogがpartコンテキスト・target=xで開く", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue([]);
+
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      parts: [
+        makePart({
+          id: "part_1",
+          name: "腕",
+          steps: [makeStep({ id: "s1" })],
+        }),
+      ],
+    });
+    renderDialog(recipe, "part_1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Xで共有" }));
+
+    const shareDialog = await screen.findByTestId("share-dialog-backdrop");
+    expect(shareDialog).toBeInTheDocument();
+    expect(screen.getByText("Xに共有")).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  test("「Blueskyで共有」押下でShareDialogがpartコンテキスト・target=blueskyで開く", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue([]);
+
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      parts: [
+        makePart({
+          id: "part_1",
+          name: "腕",
+          steps: [makeStep({ id: "s1" })],
+        }),
+      ],
+    });
+    renderDialog(recipe, "part_1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Blueskyで共有" }));
+
+    const shareDialog = await screen.findByTestId("share-dialog-backdrop");
+    expect(shareDialog).toBeInTheDocument();
+    expect(screen.getByText("Blueskyに共有")).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  test("ShareDialogはPartReviewDialogの後にDOMマウントされ、両者とも表示され続ける（重ね表示）", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue([]);
+
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      parts: [
+        makePart({
+          id: "part_1",
+          name: "腕",
+          steps: [makeStep({ id: "s1" })],
+        }),
+      ],
+    });
+    renderDialog(recipe, "part_1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Xで共有" }));
+
+    await screen.findByTestId("share-dialog-backdrop");
+    // PartReviewDialog自体は開いたまま
+    expect(screen.getByTestId("part-review-backdrop")).toBeInTheDocument();
+
+    // DOM順序: part-review-backdropの後にshare-dialog-backdropが続く
+    // （同一z-index・同一スタッキングコンテキストでは後発要素が上に描画されるCSS仕様に依拠）
+    const partReviewBackdrop = screen.getByTestId("part-review-backdrop");
+    const shareBackdrop = screen.getByTestId("share-dialog-backdrop");
+    const position = partReviewBackdrop.compareDocumentPosition(shareBackdrop);
+    const isFollowing =
+      (position & Node.DOCUMENT_POSITION_FOLLOWING) ===
+      Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(isFollowing).toBe(true);
+
+    vi.unstubAllGlobals();
   });
 });
 
@@ -215,6 +326,52 @@ describe("PartReviewDialog — 工程0件", () => {
     });
 
     renderDialog(recipe, "part_1");
+
+    expect(screen.getByText("工程がまだありません")).toBeInTheDocument();
+  });
+});
+
+describe("PartReviewDialog — baseモード（partId=null。2026-07-03 BASEカード独立化）", () => {
+  test("recipe.baseStepsを表示し、見出しはoverview.baseCardName、共有ボタンは描画しない", async () => {
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      baseSteps: [
+        makeStep({
+          id: "base_stp_1",
+          technique: { presetKey: "basecoat", label: null },
+          memo: "下地はムラなく",
+        }),
+      ],
+    });
+
+    renderDialog(recipe, null);
+
+    expect(
+      screen.getByRole("heading", { name: "ベース工程（全体）" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(t("techniques.basecoat"))).toBeInTheDocument();
+    expect(screen.getByText("下地はムラなく")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Xで共有" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Blueskyで共有" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("編集リンク先は/recipe/:id/part/base", () => {
+    const recipe = makeRecipe({ id: "rcp_1", baseSteps: [] });
+
+    renderDialog(recipe, null);
+
+    const editLink = screen.getByRole("link", { name: "このパーツを編集" });
+    expect(editLink).toHaveAttribute("href", "/recipe/rcp_1/part/base");
+  });
+
+  test("baseSteps0件時はpartReview.noStepsを表示する", () => {
+    const recipe = makeRecipe({ id: "rcp_1", baseSteps: [] });
+
+    renderDialog(recipe, null);
 
     expect(screen.getByText("工程がまだありません")).toBeInTheDocument();
   });

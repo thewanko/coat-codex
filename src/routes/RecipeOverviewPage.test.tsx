@@ -223,8 +223,8 @@ describe("RecipeOverviewPage — PartCardListへのprops変換（updateRecipe呼
   });
 });
 
-describe("RecipeOverviewPage — ベース工程編集への遷移", () => {
-  test("ベース工程0件時の破線ピルをタップすると/recipe/:id/part/baseへnavigateする", async () => {
+describe("RecipeOverviewPage — BASEセクション（PARTS同様の独立カード。2026-07-03）", () => {
+  test("ベース工程0件時は破線ピルを表示し、タップで/recipe/:id/part/baseへnavigateする", async () => {
     vi.mocked(loadRecipe).mockResolvedValue(makeDoc({ baseSteps: [] }));
     renderPage("/recipe/rcp_1");
 
@@ -238,6 +238,73 @@ describe("RecipeOverviewPage — ベース工程編集への遷移", () => {
     );
 
     expect(screen.getByText("ベース工程編集画面")).toBeInTheDocument();
+  });
+
+  test("ベース工程1件以上ならBASEカード（PartCard）を表示し、タップで/recipe/:id/part/baseへnavigateする", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        baseSteps: [
+          {
+            id: "stp_base_1",
+            technique: { presetKey: null, label: null },
+            photoId: null,
+            paints: [],
+            mix: null,
+            toolIds: [],
+            memo: "",
+          },
+        ],
+      }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("ベース工程（全体）")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("base-card-empty")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("ベース工程（全体）"));
+
+    expect(screen.getByText("ベース工程編集画面")).toBeInTheDocument();
+  });
+
+  test("BASEカードの「工程レビュー」でPartReviewDialogがbaseモードで開く（共有ボタンなし）", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        baseSteps: [
+          {
+            id: "stp_base_1",
+            technique: { presetKey: null, label: null },
+            photoId: null,
+            paints: [],
+            mix: null,
+            toolIds: [],
+            memo: "",
+          },
+        ],
+      }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("ベース工程（全体）")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("part-review-open"));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "ベース工程（全体）" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Xで共有" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Blueskyで共有" }),
+    ).not.toBeInTheDocument();
+
+    const editLink = screen.getByRole("link", { name: "このパーツを編集" });
+    expect(editLink).toHaveAttribute("href", "/recipe/rcp_1/part/base");
   });
 });
 

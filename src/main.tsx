@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import "./i18n";
 import "./styles/theme.css";
 import "./styles/global.css";
+import "./styles/print.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

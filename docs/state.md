@@ -3,10 +3,13 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-03 (loop: M5 データ保全＆エクスポート/インポート 完了)
+最終更新: 2026-07-03 (loop: BASE外出しカード化 完了)
 
 ## 完了
 
+- 2026-07-03: **BASE外出しカード化（ユーザー要望・v2.3改訂）** — OverviewのBaseStepOverlay（写真上の墨帯チップ列）を廃止し、PARTSと同型の「BASE」セクション（見出し＋独立カード）へ外出し。**合成part方式**（`{id:"base"〔INV-17予約語の再利用〕, name:「ベース工程（全体）」, steps: baseSteps}` を既存PartCardへ・変更はorder省略可の1点のみ）でサムネ規約/STEPタグ/混合バッジ/工程レビューが自動継承。PartReviewDialogにbaseモード（partId=null・共有ボタン非描画=§3.4維持）。0件時は破線ピル。スキーマ不変。動機=**将来のモデリング工程等の工程グループ拡張の受け皿**（計画§7にv2.4候補として記録）。レビューR1 PASS（C0/H0/M0/L2=任意）。実機検証（ヒットテスト・BASE 0件/写真ありバリエーション・baseモード共有なし・/part/base遷移）。計783テスト・技術計画§1/§3.2/§3.3/§7改訂済み
+
+- 2026-07-03: **M6 印刷・SNS（T36〜T40）** — PrintViewPage＋print.css（`@page` A4 **15mm**=デザイン仕様書§6優先の裁定〔技術計画の12mmは旧値〕・print-color-adjustはスウォッチ/バッジ/封蝋・break-inside・AppShellヘッダ/フッタを`.print-hide`・工程写真64×48右端セル=写真なしは空欄で行高一定・合計≠100警告の印刷継承）／imageComposer（whole/part 2モード合成・`ComposedShareImage`={spec,file}ペア配列=成功順連番で欠番なし・1200×900 PNG）／sns/types+x+bluesky（SnsTarget配列登録制・X重み280〔CJK=2・URL=23固定〕・Bluesky `Intl.Segmenter` 300 grapheme・`#coat-codex`末尾維持トリム）／ShareDialog 2系統（canShare機能検出・A系統=ハンドラ内await禁止の同期share・B系統=手順ガイド＋連番DL＋Intent・選択式最大4枚=既定先頭4・候補0件切替・生成失敗フォールバック）／T40結線（ExportActionBar X/Bluesky/印刷/PDF・**パーツ共有起点=PartReviewDialogのX/Bluesky 2ボタン**〔v2.3決定どおり。T40表の「PartCardメニュー」表記は旧記述〕・モバイルはMobileExportRootへリフトアップ）。**レビュー8回**（Wave1: UI R1 FAIL H2→R2 PASS／ロジック R1 PASS L3→R2 PASS L0。T39: R1 PASS M3→R2 PASS L0。T40: R1 PASS M2→R2 PASS L1）。**実機検証**（写真あり/なし2レシピ・全ヒットテスト併用）: 印刷2カラム維持・警告110%継承・共有2起点×X/Bluesky・DL実体1200×900連番PNG・カウンタ332/280→トリム279/280タグ維持・Intent URL両ターゲット・候補0件DL非活性。**実機ヒットテストがリフトアップ修正起因のz序列逆転（sheetBackdrop200>dialog60・タップ全滅）を検出→z300修正**（レビュー修正リグレッション2回目としてCLAUDE.md昇格）。計783テスト
 - 2026-07-03: **M5 データ保全＆エクスポート/インポート（T29〜T35）** — exporters/json（Blobパーツ連結=指摘9・dangling除去）／importRecipe（§2.7 3段検証・normalizeImport a〜e・`reassignRecipeIds`分離・**§2.7 d′新設: palette presetId降格3分岐**=index外ブランド降格/fetch失敗preset維持/index不能スキップ）／往復テスト（ID構造保存写像・Blobバイト等価）／markdown+noteMarkdown＋スナップショット＋markdownSanitize（行頭記号は記号前スペース方式・U+200B不使用）／UI結線T33（ImportJsonButton=Home並置・ImportJsonSection・ImportErrorDialog=D-4・複製・§3.5発火点②③・recipeExportメタ）／T34データ保全UI（StorageStatusBar・ExportReminderBanner Home全幅/Overviewコンパクト・D-6ドット・起動時persisted()再確認=未記録時は書かない）／T35 TermsPage＋AppFooter商標（原典逐語一致）。**レビュー6回全PASS**（ロジック層R1→R3・UI層R1→R3、最終C0/H0）。**実機検証**: export→import一巡・ImportErrorDialog・D-6ドット消灯・7日スヌーズ・タッチターゲット44px。**PR後にユーザー実機（写真2枚・スマホ→PC往復）でDexie tx罠を検出**（tx内`fetch(dataUrl)` await→tx失効。写真0枚検証ではすり抜け）→ Blob変換をtx前へ移動し修正・実データで往復成功確認・「実機検証の規律」をCLAUDE.mdへ昇格。計659テスト
 - 2026-07-03: **モバイルUXフィードバック対応ループ**（ユーザー実機テスト起点） — ①戻る動線の全面追加（BackLink・ワードマークHomeリンク化。モバイルに導線ゼロだった問題）②出力バーのボトムシート化（pointer-events透過バグをヒットテストで根治・ドラッグで閉じる対応）③塗料選択のモバイル縦積み（長いカラー名対策）④**PartReviewDialog**（工程レビュー→編集/共有導線。v2.3パーツ共有の起点）⑤**Setupの使用カラー登録廃止＋未使用palette色の保存時自動GC**（paletteGc.ts・チップ写真Blob回収）⑥**ツールのその場追加**（ToolSelect拡張・同名再利用）。仕様はv2.3として計画に記録（SNS共有2起点・URL非掲載・#coat-codex必須・§7多言語バックログ）。計504テスト
 - 2026-07-03: **プリセット塗料の公式チャート化＋レンジフィルタ** — Citadel 334色（公式サイト由来・8レンジ）／Vallejo 255色（Game/Model）をユーザー提供チャートで差し替え、Coat d'armsにもレンジ付与。AKは除外（チャート入手不可・自由入力で記録可）。レンジフィルタUI（RangeFilter・チップ式）で候補絞り込み対応。実機確認済み・計459テスト。**あわせてv2.3仕様変更を計画に記録: SNS共有はパーツ単位・URL非掲載・#coat-codex必須（M6で実装）**
@@ -22,14 +25,15 @@
 
 ## 進行中
 
-- (なし。M5のPRマージ待ち)
+- (なし。M6のPRマージ待ち)
 
 ## 次の候補 (優先順)
 
-1. M6 印刷・SNS（T36〜T40。v2.3の2起点共有・PartReviewDialog共有ボタン結線含む）
+1. M7 仕上げ（T41 i18n全キー棚卸し・T42 レスポンシブ最終調整・T43 通しQA13項目）
 2. M5送りのM4レビュー事項2件（下記申し送り参照。独立タスク化推奨）
-3. （v1後のバックログ）**多言語対応** — Warhammer展開言語準拠でfr/de/it/es追加。計画§7参照（2026-07-03ユーザー要望）
-4. （v1後のバックログ・v2.4候補）**生成AI相談レシピの取り込み** — AI相談テンプレート.md（渡すのは.md・受け取るのはJSON）＋既存T30インポートを受け皿に活用。発展=色名のマスタ名前照合。計画§7参照（2026-07-03ユーザー要望）
+3. 全ダイアログ共通のフォーカストラップ導入（M6レビュー指摘・横断別タスク推奨。ConfirmDialog/ImportErrorDialog/ExportPhotoChoiceDialog/PartReviewDialog/ShareDialog）
+4. （v1後のバックログ）**多言語対応** — Warhammer展開言語準拠でfr/de/it/es追加。計画§7参照（2026-07-03ユーザー要望）
+5. （v1後のバックログ・v2.4候補）**生成AI相談レシピの取り込み** — AI相談テンプレート.md（渡すのは.md・受け取るのはJSON）＋既存T30インポートを受け皿に活用。発展=色名のマスタ名前照合。計画§7参照（2026-07-03ユーザー要望）
 
 ## 決定事項 (変更には理由が要る)
 
@@ -40,10 +44,13 @@
 - **Setupの使用カラー先行登録は廃止**（2026-07-03決定、v2.3）: 色は工程のPaintPickerからのみ追加。参照0のpalette色は保存時に自動GC（チップ写真Blob含む）。トレードオフ: 参照を外したcustom色は再入力が必要（プリセットは再検索で復元可）
 - **工程ツールは「その場追加＋登録済み選択」**（2026-07-03決定、v2.3）: ToolSelectで新規ツール名をその場登録→doc.toolsへ追加＋即チェック。SetupのToolListEditor（削除ガード付き）は併存
 - **パーツ共有の起点はPartReviewDialog**（2026-07-03決定）: PartCard「工程レビュー」→読み取り専用ビュー→共有ボタン（M6結線）
+- **OverviewのBASEは外出しカード表示**（2026-07-03ユーザー決定、v2.3）: BaseStepOverlay廃止。PARTS同型の独立セクション（PartCard合成方式・id:"base"予約語）。ベース単独のSNS共有対象外は維持。将来の工程グループ拡張（モデリング等）の受け皿
 - **SNS共有は「全体」「パーツ」の2起点**（2026-07-03決定、v2.3）: 全体=ExportActionBar起点・全体写真＋タイトルの1枚絵候補／パーツ=PartCardメニュー起点・工程ごとの1枚絵（全体画像＋工程写真＋工程情報）候補。**いずれもユーザーが最大4枚選択**（既定=先頭4枚）。投稿テキストにURL非掲載（Xリーチ抑制対策）・`#coat-codex`必須（トリム対象外）。モバイルの下部固定バーは「出力・共有」→ボトムシートへ改善。詳細は計画§3.4冒頭とT37/T39/T40
 
 ## 申し送り (次セッションの自分へ)
 
+- **M6残Low申し送り（全PASS済み・対応任意、多くはM7で自然回収）**: ①印刷パレット行スウォッチが16px（dc.html規定は30×30。hexテキスト併記で可読性担保。**T42レスポンシブ最終調整と同時に判断**）②ShareImagePreviewの候補カード表示は元写真サムネで、共有・DLされる実体（1200×900合成PNG）と見た目が異なる（機能は正・「合成後プレビュー」化はM7判断）③選択0枚時のB系統DLボタンが活性のまま（押してもno-opで無害）④全ダイアログ共通のフォーカストラップなし（次の候補3に独立タスク化済み）⑤ビューポート767px境界を跨ぐリサイズで共有中のダイアログ状態が失われる（分岐別ツリーの本質的挙動・稀）⑥ShareDialogを開いたまま背後でrecipeが更新されても候補は再生成されない（recipe.id依存・導線上起きにくい）⑦`partReview.share`キーが未使用のまま残置（**T41 i18n棚卸しで回収**）
+- **M6のQA持ち越し（セッション実機検証の限界）**: ブラウザの実印刷ダイアログ（背景色・改ページ・PDF保存）はpreviewツールから開けないため未確認 → **T43③（Chrome/Safari印刷プレビュー）で必ず確認**。Web Share A系統（canShare成立環境）はデスクトップpreviewでは検証不能 → **T43④のiOS Safari/Android Chrome実機で確認**（B系統・機能検出分岐・candidate0件切替はデスクトップ実機で検証済み）
 - **M5レビューLow申し送り（全PASS済み・対応任意）**: ①Homeバナーの`reminderTargets[0]`は並行エクスポートで対象が差し替わるレースあり（最悪DL2回・データ不整合なし=記録のみ）②`loadBrandColorsResult`は「正規に0色のブランド」が将来現れるとfetch失敗と誤判定（現行3ブランド非空で実害なし・コメント補足推奨）③Homeボタン行のヒーロー行移設（決定稿は中央寄せ独立行・現状はM4からのヘッダ行方針）とImportJsonSectionの破線カード意匠はT42レスポンシブ最終調整と同時の別タスク推奨④T31往復テストは本番`collectPhotosForExport`のDB read-back経路が環境制約（fake-indexeddbのBlob復元不能）で未検証 → **QA T43①のUI経由実機往復で必ずカバー**⑤import側dataUrl→Blob変換のPromise.all逐次化は任意
 - **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
 - **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで

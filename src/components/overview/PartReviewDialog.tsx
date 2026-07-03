@@ -1,12 +1,13 @@
 // components/overview/PartReviewDialog.tsx — パーツ工程レビュー（読み取り専用）
-// （技術計画v2.3 §3.3 PartCard行・§3.4冒頭ブロック・§4.2 T28）
+// （技術計画v2.3 §3.3 PartCard行・§3.4冒頭ブロック・§4.2 T28・T40）
 //
 // PartCardの「工程レビュー」ボタンから開く読み取り専用ビュー。工程番号・技法名
 // （resolveTechniqueLabel）・塗料行（SwatchChip sm＋名前＋formatMixBadgeバッジ）・
 // ツール名・メモ・工程写真（resolvePhotoUrl解決。欠損時はプレースホルダ縞）を表示する。
-// フッタに「このパーツを編集」（/recipe/:id/part/:partIdへLink）と共有ボタンを置くが、
-// 共有結線はM6（T39/T40）で行うためここではdisabled＋title=partReview.shareComingSoonのみ
-// （技術計画v2.3 §3.3 PartCard行「v2.3」注記）。
+// フッタに「このパーツを編集」（/recipe/:id/part/:partIdへLink）と共有ボタン（X/Bluesky
+// の2ボタン）を置く。ShareDialogがtarget固定設計（ヘッダ「Xに共有」等）のため、
+// パーツ共有の起点はここでは単一ボタンではなくX用・Bluesky用の2ボタンに分ける
+// （T40セッション裁定）。押下でShareDialogをmode="part"・対応するtargetで開く。
 //
 // 表示形態: モバイル(<768px)はフルスクリーンシート（下から・全高）、PC(≥768px)は中央モーダル
 // （max-width 640px。デザイン仕様書§4「Dialog / Modal」）。Esc・backdropクリック・✕で閉じる。
@@ -14,8 +15,20 @@
 // 明示せず初期値（auto）に任せる（ExportActionBarのボトムシートと同じ注意点だが、fixed親の
 // 下に置かれる構成ではないためoverride不要）。
 //
+// ShareDialogの重ね表示: PartReviewDialogは開いたまま、その上にShareDialogを重ねて表示する。
+// 両者ともbackdrop position:fixed・z-index:60（同一スタッキングコンテキスト）のため、
+// ShareDialogをPartReviewDialogのJSXツリー内でbackdrop要素の後（DOM順で後）にレンダーする
+// ことで、同一z-index同士はDOM順が後のものが上に描画されるCSS仕様に従い正しく最前面に出す
+// （ShareDialog.tsx/module.cssはT39確定物のためスコープ外＝z-index変更不可。DOM順序のみで解決）。
+//
 // objectURLはこのダイアログのアンマウント時にrevokeしない（photoStore.tsの共有objectURL
 // キャッシュ方針に従い、resolvePhotoUrlの解決のみ行う。§2.6）。
+//
+// 2026-07-03: BASEカード（RecipeOverviewPage側の合成part表示）の「工程レビュー」対応として
+// partId: string | null を受け付ける（nullがbaseモード）。baseモードはrecipe.baseStepsを
+// 表示し、見出しはoverview.baseCardName、編集リンク先は/recipe/:id/part/baseへ固定する。
+// §3.4の決定によりベース工程単独のSNS共有は対象外（全体共有でカバー）のため、baseモードでは
+// フッタの共有ボタン2つを描画しない（ShareDialogContextにbaseは存在しないため型的にも組めない）。
 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,17 +36,23 @@ import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { resolveTechniqueLabel } from "../../lib/techniques";
+import { snsTargets } from "../../lib/sns/types";
 import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
+import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import styles from "./PartReviewDialog.module.css";
+
+const X_TARGET = snsTargets.find((target) => target.key === "x");
+const BLUESKY_TARGET = snsTargets.find((target) => target.key === "bluesky");
 
 type PaletteColor = RecipeDoc["palette"][number];
 type Tool = RecipeDoc["tools"][number];
 
 interface PartReviewDialogProps {
   recipe: RecipeDoc;
-  partId: string;
+  /** レビュー対象パーツのid。nullの場合はベース工程（recipe.baseSteps）のbaseモード */
+  partId: string | null;
   open: boolean;
   onClose: () => void;
 }
@@ -166,7 +185,18 @@ function PartReviewDialog({
   onClose,
 }: PartReviewDialogProps) {
   const { t } = useTranslation();
-  const part = recipe.parts.find((p) => p.id === partId) ?? null;
+  const isBaseMode = partId === null;
+  const part = isBaseMode
+    ? null
+    : (recipe.parts.find((p) => p.id === partId) ?? null);
+  const reviewTitle = isBaseMode ? t("overview.baseCardName") : part?.name;
+  const reviewSteps = isBaseMode ? recipe.baseSteps : (part?.steps ?? []);
+  const editHref = isBaseMode
+    ? `/recipe/${recipe.id}/part/base`
+    : `/recipe/${recipe.id}/part/${part?.id}`;
+  const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!open) {
@@ -183,77 +213,113 @@ function PartReviewDialog({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  if (!open || part === null) {
+  // ダイアログを閉じ直したら共有ダイアログの選択状態もリセットする
+  useEffect(() => {
+    if (!open) {
+      setShareTargetKey(null);
+    }
+  }, [open]);
+
+  if (!open || (!isBaseMode && part === null)) {
     return null;
   }
 
+  const shareDialogContext: ShareDialogContext | null =
+    !isBaseMode && part !== null && shareTargetKey !== null
+      ? { mode: "part", recipe, partId: part.id }
+      : null;
+  const shareDialogTarget =
+    shareTargetKey === "x"
+      ? (X_TARGET ?? null)
+      : shareTargetKey === "bluesky"
+        ? (BLUESKY_TARGET ?? null)
+        : null;
+
   return (
-    <div
-      className={styles.backdrop}
-      onClick={onClose}
-      data-testid="part-review-backdrop"
-    >
+    <>
       <div
-        className={styles.dialog}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="part-review-title"
-        onClick={(event) => event.stopPropagation()}
+        className={styles.backdrop}
+        onClick={onClose}
+        data-testid="part-review-backdrop"
       >
-        <div className={styles.header}>
-          <h2 id="part-review-title" className={styles.title}>
-            {part.name}
-          </h2>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={onClose}
-            aria-label={t("editor.closePanel")}
-          >
-            ✕
-          </button>
-        </div>
+        <div
+          className={styles.dialog}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="part-review-title"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className={styles.header}>
+            <h2 id="part-review-title" className={styles.title}>
+              {reviewTitle}
+            </h2>
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={onClose}
+              aria-label={t("editor.closePanel")}
+            >
+              ✕
+            </button>
+          </div>
 
-        <div className={styles.body}>
-          {part.steps.length === 0 ? (
-            <EmptyState
-              variant="steps"
-              heading={t("partReview.noSteps")}
-              description=""
-            />
-          ) : (
-            <ol className={styles.stepList}>
-              {part.steps.map((step, index) => (
-                <StepRow
-                  key={step.id}
-                  step={step}
-                  index={index}
-                  palette={recipe.palette}
-                  tools={recipe.tools}
-                />
-              ))}
-            </ol>
-          )}
-        </div>
+          <div className={styles.body}>
+            {reviewSteps.length === 0 ? (
+              <EmptyState
+                variant="steps"
+                heading={t("partReview.noSteps")}
+                description=""
+              />
+            ) : (
+              <ol className={styles.stepList}>
+                {reviewSteps.map((step, index) => (
+                  <StepRow
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    palette={recipe.palette}
+                    tools={recipe.tools}
+                  />
+                ))}
+              </ol>
+            )}
+          </div>
 
-        <div className={styles.footer}>
-          <Link
-            to={`/recipe/${recipe.id}/part/${part.id}`}
-            className={styles.editLink}
-          >
-            {t("partReview.edit")}
-          </Link>
-          <button
-            type="button"
-            className={styles.shareButton}
-            disabled
-            title={t("partReview.shareComingSoon")}
-          >
-            {t("partReview.share")}
-          </button>
+          <div className={styles.footer}>
+            <Link to={editHref} className={styles.editLink}>
+              {t("partReview.edit")}
+            </Link>
+            {!isBaseMode && (
+              <span className={styles.shareButtonGroup}>
+                <button
+                  type="button"
+                  className={styles.shareButton}
+                  onClick={() => setShareTargetKey("x")}
+                >
+                  {t("partReview.shareX")}
+                </button>
+                <button
+                  type="button"
+                  className={styles.shareButton}
+                  onClick={() => setShareTargetKey("bluesky")}
+                >
+                  {t("partReview.shareBluesky")}
+                </button>
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {shareDialogContext !== null && shareDialogTarget !== null && (
+        <ShareDialog
+          open
+          onClose={() => setShareTargetKey(null)}
+          context={shareDialogContext}
+          target={shareDialogTarget}
+        />
+      )}
+    </>
   );
 }
 
