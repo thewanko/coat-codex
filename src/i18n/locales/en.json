@@ -80,7 +80,11 @@
     "emptyTitle": "No codex yet",
     "emptyDescription": "Your data is stored only in this device's browser",
     "emptyCta": "Create your first codex",
-    "emptyImport": "Import JSON"
+    "emptyImport": "Import JSON",
+    "duplicate": "Duplicate",
+    "exportJson": "Export JSON",
+    "duplicateSuccess": "Duplicated \"{{title}}\"",
+    "duplicateFailed": "Failed to duplicate"
   },
   "setup": {
     "titleLabel": "Title",
@@ -154,7 +158,44 @@
     "exportPlainMd": "Plain MD"
   },
   "export": {
-    "menuButton": "Export & Share"
+    "menuButton": "Export & Share",
+    "markdownPaintsLabel": "Paints",
+    "markdownToolsLabel": "Tools",
+    "markdownHasPhotoLabel": "Photo attached",
+    "markdownEmptyStepLabel": "(Not set)",
+    "jsonSuccess": "Exported JSON file",
+    "jsonFailed": "Failed to export JSON",
+    "markdownCopySuccess": "Copied Markdown to clipboard",
+    "markdownCopyFailed": "Failed to copy to clipboard"
+  },
+  "storageStatus": {
+    "protectedLabel": "Data protection: On",
+    "unprotectedLabel": "Not protected — your browser may delete data automatically",
+    "safariWarning": "Your data may be deleted if you don't visit this site for 7 days. We recommend a JSON backup.",
+    "usage": "Used: {{used}} / Quota: {{quota}} (estimate)",
+    "lastExport": "Last export: {{date}}",
+    "lastExportNever": "Last export: never",
+    "volumesCount": "{{count}} VOLUMES"
+  },
+  "exportReminder": {
+    "homeMessage": "You have codices that haven't been backed up. Export a JSON backup.",
+    "overviewMessage": "This recipe hasn't been backed up yet.",
+    "exportNow": "Export now",
+    "later": "Later"
+  },
+  "exportPhotoChoice": {
+    "title": "Include photos?",
+    "description": "Including photos increases the file size. If excluded, photo references are kept but the actual files are not embedded.",
+    "with": "Include photos",
+    "without": "Without photos"
+  },
+  "importError": {
+    "title": "Import failed",
+    "close": "Close",
+    "dismiss": "Dismiss error dialog",
+    "toastSummary": "Import failed. See details for more information",
+    "success": "Imported \"{{title}}\"",
+    "unknownFailure": "An unknown error occurred during import"
   },
   "partReview": {
     "title": "Step Review",
@@ -163,5 +204,29 @@
     "share": "Share on SNS",
     "shareComingSoon": "Sharing is coming soon",
     "noSteps": "No steps yet"
+  },
+  "footer": {
+    "trademarkNotice": "Citadel Colour, Vallejo, AK Interactive, and Coat d'Arms are trademarks of their respective owners. coat-codex is an independent fan project and is not affiliated with, endorsed by, or sponsored by any of them."
+  },
+  "terms": {
+    "pageTitle": "Terms & Disclaimer",
+    "disclaimerHeading": "Disclaimer",
+    "disclaimerBody": "coat-codex is an independent, non-commercial hobby project built by a hobbyist for hobbyists. The developer accepts no responsibility for any loss or corruption of data, or any other damages, arising from use of this app. Backing up your data is your own responsibility.",
+    "storageHeading": "About browser storage",
+    "storageBody": "coat-codex stores your recipe data and photos only in your browser's IndexedDB (local storage on your device). Nothing is sent to or stored on an external server. As a result, your data can be lost if you clear browser data, uninstall the app, or reset your device.",
+    "safariRiskHeading": "Safari's 7-day deletion risk",
+    "safariRiskBody": "Due to Safari's Intelligent Tracking Prevention (ITP), your saved data may be automatically deleted if coat-codex is not opened for 7 consecutive days. We recommend opening the app regularly, or backing up your data as described below.",
+    "backupHeading": "Please back up your data",
+    "backupBody": "Regularly back up your important recipes using each recipe's JSON export feature. Exported JSON files can be restored via the import feature, on the same device or a different one.",
+    "trademarkHeading": "Trademark Notice",
+    "trademarkIntro": "coat-codex is an independent, non-commercial hobby project built by a hobbyist for hobbyists. It is not affiliated with, endorsed by, sponsored by, or otherwise officially connected with any of the paint manufacturers or brands referenced within the app.",
+    "trademarkListIntro": "The following brand and product names referenced in coat-codex are trademarks or trade names of their respective owners:",
+    "trademarkCitadel": "Citadel Colour — a trademark of Games Workshop Limited",
+    "trademarkVallejo": "Vallejo — a trademark of Acrylicos Vallejo, S.L.",
+    "trademarkAk": "AK Interactive — a trademark of its manufacturer",
+    "trademarkCoatDarms": "Coat d'Arms — a trade name of its current manufacturer/distributor",
+    "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
+    "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
+    "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
   }
 }

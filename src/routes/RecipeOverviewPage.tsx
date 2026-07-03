@@ -9,11 +9,16 @@
 // docへ差し替える（配列内の各Part要素自体は呼び出し元=PartCardListが再生成しない）。
 // パーツ追加はスプレッド追加のみで既存parts要素の参照を保つ。
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
+import {
+  readRecipeExport,
+  readReminderSnooze,
+  shouldShowExportReminder,
+} from "../lib/storageHealth";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
@@ -22,6 +27,7 @@ import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
 import PartCardList from "../components/overview/PartCardList";
 import PartReviewDialog from "../components/overview/PartReviewDialog";
 import ExportActionBar from "../components/overview/ExportActionBar";
+import ExportReminderBanner from "../components/home/ExportReminderBanner";
 import type { RecipeDoc } from "../models/recipe";
 import styles from "./RecipeOverviewPage.module.css";
 
@@ -41,6 +47,12 @@ function RecipeOverviewPage() {
   const onSaveError = useRecipeStore((state) => state.onSaveError);
 
   const [reviewPartId, setReviewPartId] = useState<string | null>(null);
+  // §3.5コンパクト帯: 当該レシピの未バックアップ判定に必要な状態（recipeExport:<id>とスヌーズ期限）
+  const [exportedAt, setExportedAt] = useState<string | undefined>(undefined);
+  const [snoozedUntil, setSnoozedUntil] = useState<string | undefined>(
+    undefined,
+  );
+  const [reminderRefreshToken, setReminderRefreshToken] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -57,6 +69,22 @@ function RecipeOverviewPage() {
       toast.error(t(messageKey));
     });
   }, [onSaveError, toast, t]);
+
+  const loadReminderState = useCallback(async () => {
+    if (!id) {
+      return;
+    }
+    const [exportRecord, snooze] = await Promise.all([
+      readRecipeExport(id),
+      readReminderSnooze(),
+    ]);
+    setExportedAt(exportRecord);
+    setSnoozedUntil(snooze);
+  }, [id]);
+
+  useEffect(() => {
+    void loadReminderState();
+  }, [loadReminderState, reminderRefreshToken]);
 
   if (isLoading) {
     return (
@@ -106,11 +134,32 @@ function RecipeOverviewPage() {
     navigate(`/recipe/${id}/part/${part.id}`);
   }
 
+  function handleReminderChanged() {
+    setReminderRefreshToken((token) => token + 1);
+  }
+
+  // §3.5コンパクト帯の表示条件: 当該レシピが未バックアップ、かつスヌーズ中でない
+  const showReminderCompact = shouldShowExportReminder({
+    updatedAt: doc.updatedAt,
+    exportedAt,
+    snoozedUntil,
+    now: new Date().toISOString(),
+  });
+
   return (
     <div className={styles.root}>
       <BackLink to="/" label={t("nav.backToLibrary")} />
 
       <h1 className={styles.title}>{doc.title}</h1>
+
+      {showReminderCompact && (
+        <ExportReminderBanner
+          variant="compact"
+          targetRecipe={doc}
+          onExported={handleReminderChanged}
+          onSnoozed={handleReminderChanged}
+        />
+      )}
 
       <OverviewHeader
         representativePhotoId={doc.overviewPhotoIds[0] ?? null}
@@ -131,7 +180,7 @@ function RecipeOverviewPage() {
         />
       </section>
 
-      <ExportActionBar />
+      <ExportActionBar recipe={doc} onExported={handleReminderChanged} />
 
       {reviewPartId !== null && (
         <PartReviewDialog

@@ -1,4 +1,4 @@
-/* ImportJsonSection — 枠のみ（T33で結線予定）。secondaryボタン相当の見た目にしておく */
+/* ImportJsonSection — secondaryボタン相当の見た目 */
 
 .note {
   margin: 0;
@@ -15,9 +15,27 @@
   background: var(--color-bg-raised);
   color: var(--color-ink-muted);
   font-size: var(--font-size-sm);
+  cursor: pointer;
 }
 
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

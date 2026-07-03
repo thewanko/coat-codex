@@ -536,6 +536,7 @@ export function migrateExportFile(raw: unknown): unknown;   // recipe部にdocMi
    - b. **参照リマップ**: `colorId` / `toolIds` / `overviewPhotoIds` / `steps[].photoId` / `chipPhotoId`をMapで一括置換（v2.2: 旧`parts[].photoIds`は廃止）
    - c. **dangling photo除去（指摘12）**: `photos[].id`に実体がないphoto参照を文書から除去（写真なしエクスポート対応）
    - d. **presetKey降格（指摘14）**: マスタ外の`presetKey`は`{ presetKey: null, label: <旧キー文字列> }`へ降格
+   - d′. **palette[].presetId降格（2026-07-03 M5実装時に裁定・明文化）**: `source: "preset"`の色の`presetId`が塗料プリセットマスタに実在しない場合、`{ source: "custom", presetId: null }`へ降格（色名・hex・brand文字列は保持。INV-14整合）。プリセット改廃（AK除外等）後の旧エクスポートJSONを壊さず取り込むための規則。**判定の3分岐**: ①ブランドがプリセットindex（public/paints/index.json）に存在しない→降格 ②ブランドはindexに存在するが色一覧のfetchに失敗（ネットワーク一過性）→降格せずpresetのまま維持（正規色の不可逆劣化を防ぐ） ③index自体が取得不能→降格処理全体をスキップしインポートは続行
    - e. `schemaVersion = CURRENT`、`createdAt`は保持、`updatedAt = now`
 6. **書き込み**: Dexieのrwトランザクションで、`photos`（dataUrl→Blob変換、`recipeId`=新ID、`createdAt`=now）を`bulkAdd`→`recipes.add`。失敗時はトランザクションごとロールバック
 
@@ -937,3 +938,9 @@ pages_build_output_dir = "dist"
   - プリセット塗料の`nameJa`に相当する各言語名は**持たない**（英名が正。和名はCoat d'arms公式チャート由来の例外）
   - 既知の注意点と接続: i18n永続化キーが独自`coat-codex:lang`のため、言語自動検出（LanguageDetector）導入時は整合確認（state.md申し送り済み）／欧州言語はInterでカバー可・中国語追加時のみフォント検討
   - 翻訳の作成方法（機械翻訳＋校正の運用等）は着手時に判断
+
+- **生成AI相談レシピの取り込み（2026-07-03ユーザー要望。v2.4候補）**: 外部の生成AI（ChatGPT/Claude等）でカラースキームを相談し、結果をエクスポートJSON形式（§2.2）で出力させて既存インポートで取り込むワークフロー。設計メモ:
+  - **受け皿は既存インポートパイプライン（T30・§2.7）を無改変で使う**: 全ID再採番が適当なIDを吸収／マスタ外presetId・presetKeyのcustom降格が生成AIの幻覚キーを吸収／検証失敗時のzod issue一覧（ImportErrorDialog）をユーザーがそのまま生成AIに貼り戻して修正させるループが成立する。写真なしインポートの範囲内で完結（相談ベースのレシピは写真を持たない）
+  - **成果物①: AI相談テンプレート .md** — 役割指示＋§2.2のJSON構造説明＋制約ルール＋few-shot例1〜2件＋「相談確定後にJSONのみをコードブロックで出力」指示。**渡すのは.md、受け取るのはJSON**の分担（Markdownを取り込みフォーマットにはしない — 独自パーサーが必要になり3段検証基盤も使えないため）。schemaVersion追従が必要なため、テンプレートはスキーマから再生成可能な2層構成（原本→配信）で管理する
+  - **成果物②（アプリ内導線）**: SetupのImportJsonSection付近に「AI相談用テンプレートをコピー」ボタン（クリップボード経由でチャットAIに貼る）
+  - **発展（§2.7への仕様変更）**: 「ブランド＋色名」で書かれた塗料をマスタと名前照合し、custom降格ではなく正規プリセットへ自動リンクする正規化拡張。初期リリースは「色は名前＋hexでcustomとして書かせる」方針が堅実（プリセット全739色の語彙をプロンプトに含めるのはトークン過大）

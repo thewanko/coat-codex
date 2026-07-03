@@ -80,7 +80,11 @@
     "emptyTitle": "まだ秘伝書がありません",
     "emptyDescription": "データはこの端末のブラウザにのみ保存されます",
     "emptyCta": "最初の秘伝書を作る",
-    "emptyImport": "JSONをインポート"
+    "emptyImport": "JSONをインポート",
+    "duplicate": "複製",
+    "exportJson": "JSONエクスポート",
+    "duplicateSuccess": "「{{title}}」を複製しました",
+    "duplicateFailed": "複製に失敗しました"
   },
   "setup": {
     "titleLabel": "タイトル",
@@ -154,7 +158,44 @@
     "exportPlainMd": "素MD"
   },
   "export": {
-    "menuButton": "出力・共有"
+    "menuButton": "出力・共有",
+    "markdownPaintsLabel": "塗料",
+    "markdownToolsLabel": "ツール",
+    "markdownHasPhotoLabel": "写真あり",
+    "markdownEmptyStepLabel": "（未設定）",
+    "jsonSuccess": "JSONファイルをエクスポートしました",
+    "jsonFailed": "JSONエクスポートに失敗しました",
+    "markdownCopySuccess": "Markdownをクリップボードにコピーしました",
+    "markdownCopyFailed": "クリップボードへのコピーに失敗しました"
+  },
+  "storageStatus": {
+    "protectedLabel": "データ保護: 有効",
+    "unprotectedLabel": "保護なし — ブラウザにより自動削除される可能性があります",
+    "safariWarning": "7日間サイトを訪問しないとデータが削除される可能性があります。JSONバックアップを推奨します",
+    "usage": "使用中: {{used}} / 目安: {{quota}}（概算）",
+    "lastExport": "最終エクスポート: {{date}}",
+    "lastExportNever": "最終エクスポート: 未実施",
+    "volumesCount": "{{count}} VOLUMES"
+  },
+  "exportReminder": {
+    "homeMessage": "未バックアップの秘伝書があります。JSONでバックアップしましょう",
+    "overviewMessage": "このレシピはまだバックアップされていません",
+    "exportNow": "今すぐエクスポート",
+    "later": "あとで"
+  },
+  "exportPhotoChoice": {
+    "title": "写真を含めますか？",
+    "description": "写真を含めるとファイルサイズが大きくなります。含めない場合、写真の参照は保持されますが実体は同梱されません。",
+    "with": "写真を含める",
+    "without": "写真を含めない"
+  },
+  "importError": {
+    "title": "インポートに失敗しました",
+    "close": "閉じる",
+    "dismiss": "エラーダイアログを閉じる",
+    "toastSummary": "インポートに失敗しました。詳細を確認してください",
+    "success": "「{{title}}」をインポートしました",
+    "unknownFailure": "インポート中に不明なエラーが発生しました"
   },
   "partReview": {
     "title": "工程レビュー",
@@ -163,5 +204,29 @@
     "share": "SNSで共有",
     "shareComingSoon": "共有機能は準備中です",
     "noSteps": "工程がまだありません"
+  },
+  "footer": {
+    "trademarkNotice": "「Citadel Colour」「Vallejo」「AK Interactive」「Coat d'Arms」は各社の商標です。coat-codexは非公式のファンメイドツールであり、上記いずれの企業とも提携・後援関係はありません。"
+  },
+  "terms": {
+    "pageTitle": "利用規約・免責事項",
+    "disclaimerHeading": "免責事項",
+    "disclaimerBody": "coat-codexは、ホビー塗装愛好家が個人で開発している非営利のファンメイドツールです。本アプリの利用により生じたデータの消失・破損その他の損害について、開発者は一切の責任を負いません。データの保全はご自身の責任で行ってください。",
+    "storageHeading": "ブラウザストレージについて",
+    "storageBody": "coat-codexのレシピデータや写真は、お使いのブラウザのIndexedDB（端末内のローカルストレージ）にのみ保存されます。外部のサーバーには送信・保存されません。そのため、ブラウザのデータ消去やアプリのアンインストール、端末の初期化などにより、保存したデータは失われる可能性があります。",
+    "safariRiskHeading": "Safariの7日間消去リスク",
+    "safariRiskBody": "SafariのITP（Intelligent Tracking Prevention）機能により、7日間coat-codexを開かない状態が続くと、保存したデータが自動的に消去される場合があります。定期的にアプリを開くか、下記のバックアップを行うことを推奨します。",
+    "backupHeading": "バックアップのお願い",
+    "backupBody": "大切なレシピは、各レシピのJSONエクスポート機能でこまめにバックアップしてください。エクスポートしたJSONファイルは、インポート機能で同じ端末・別端末どちらでも復元できます。",
+    "trademarkHeading": "商標について",
+    "trademarkIntro": "coat-codexは、ホビー塗装愛好家が個人で開発している非営利のファンメイドツールです。本アプリ内で言及している塗料メーカー・ブランドのいずれとも、提携・後援・公式な関係はありません。",
+    "trademarkListIntro": "coat-codex内で言及している以下のブランド名・製品名は、各社の商標または商号です。",
+    "trademarkCitadel": "Citadel Colour — Games Workshop Limitedの商標",
+    "trademarkVallejo": "Vallejo — Acrylicos Vallejo, S.L.の商標",
+    "trademarkAk": "AK Interactive — 同社の商標",
+    "trademarkCoatDarms": "Coat d'Arms — 現在の製造・販売元の商号",
+    "trademarkOwnership": "これらのブランド名・製品名の権利は、それぞれの権利者に帰属します。coat-codex内での使用は、ユーザーが自分の塗装記録のために色を識別・記録する目的に限られ、いかなる業務提携・後援・公認関係を示すものではありません。",
+    "trademarkColorNote": "coat-codexに表示される色（hex/RGB値）は、公開されている参考情報をもとに作成した実物塗料の近似デジタル値です。画面の表示設定・照明条件・製造ロットの違いにより、実物の色と異なる場合があります。",
+    "trademarkContact": "本アプリでのブランド表記について権利者の方からご懸念がある場合は、下記までご連絡ください：{{email}}"
   }
 }

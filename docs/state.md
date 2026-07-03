@@ -3,10 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-03 (loop: official-paint-charts 完了)
+最終更新: 2026-07-03 (loop: M5 データ保全＆エクスポート/インポート 完了)
 
 ## 完了
 
+- 2026-07-03: **M5 データ保全＆エクスポート/インポート（T29〜T35）** — exporters/json（Blobパーツ連結=指摘9・dangling除去）／importRecipe（§2.7 3段検証・normalizeImport a〜e・`reassignRecipeIds`分離・**§2.7 d′新設: palette presetId降格3分岐**=index外ブランド降格/fetch失敗preset維持/index不能スキップ）／往復テスト（ID構造保存写像・Blobバイト等価）／markdown+noteMarkdown＋スナップショット＋markdownSanitize（行頭記号は記号前スペース方式・U+200B不使用）／UI結線T33（ImportJsonButton=Home並置・ImportJsonSection・ImportErrorDialog=D-4・複製・§3.5発火点②③・recipeExportメタ）／T34データ保全UI（StorageStatusBar・ExportReminderBanner Home全幅/Overviewコンパクト・D-6ドット・起動時persisted()再確認=未記録時は書かない）／T35 TermsPage＋AppFooter商標（原典逐語一致）。**レビュー6回全PASS**（ロジック層R1→R3・UI層R1→R3、最終C0/H0）。**実機検証**: export→import一巡・ImportErrorDialog・D-6ドット消灯・7日スヌーズ・タッチターゲット44px。計658テスト
 - 2026-07-03: **モバイルUXフィードバック対応ループ**（ユーザー実機テスト起点） — ①戻る動線の全面追加（BackLink・ワードマークHomeリンク化。モバイルに導線ゼロだった問題）②出力バーのボトムシート化（pointer-events透過バグをヒットテストで根治・ドラッグで閉じる対応）③塗料選択のモバイル縦積み（長いカラー名対策）④**PartReviewDialog**（工程レビュー→編集/共有導線。v2.3パーツ共有の起点）⑤**Setupの使用カラー登録廃止＋未使用palette色の保存時自動GC**（paletteGc.ts・チップ写真Blob回収）⑥**ツールのその場追加**（ToolSelect拡張・同名再利用）。仕様はv2.3として計画に記録（SNS共有2起点・URL非掲載・#coat-codex必須・§7多言語バックログ）。計504テスト
 - 2026-07-03: **プリセット塗料の公式チャート化＋レンジフィルタ** — Citadel 334色（公式サイト由来・8レンジ）／Vallejo 255色（Game/Model）をユーザー提供チャートで差し替え、Coat d'armsにもレンジ付与。AKは除外（チャート入手不可・自由入力で記録可）。レンジフィルタUI（RangeFilter・チップ式）で候補絞り込み対応。実機確認済み・計459テスト。**あわせてv2.3仕様変更を計画に記録: SNS共有はパーツ単位・URL非掲載・#coat-codex必須（M6で実装）**
 
@@ -21,13 +22,14 @@
 
 ## 進行中
 
-- (なし。M4のPRマージ待ち)
+- (なし。M5のPRマージ待ち)
 
 ## 次の候補 (優先順)
 
-1. M5 データ保全＆エクスポート/インポート（T29〜T35）
+1. M6 印刷・SNS（T36〜T40。v2.3の2起点共有・PartReviewDialog共有ボタン結線含む）
 2. M5送りのM4レビュー事項2件（下記申し送り参照。独立タスク化推奨）
 3. （v1後のバックログ）**多言語対応** — Warhammer展開言語準拠でfr/de/it/es追加。計画§7参照（2026-07-03ユーザー要望）
+4. （v1後のバックログ・v2.4候補）**生成AI相談レシピの取り込み** — AI相談テンプレート.md（渡すのは.md・受け取るのはJSON）＋既存T30インポートを受け皿に活用。発展=色名のマスタ名前照合。計画§7参照（2026-07-03ユーザー要望）
 
 ## 決定事項 (変更には理由が要る)
 
@@ -42,6 +44,7 @@
 
 ## 申し送り (次セッションの自分へ)
 
+- **M5レビューLow申し送り（全PASS済み・対応任意）**: ①Homeバナーの`reminderTargets[0]`は並行エクスポートで対象が差し替わるレースあり（最悪DL2回・データ不整合なし=記録のみ）②`loadBrandColorsResult`は「正規に0色のブランド」が将来現れるとfetch失敗と誤判定（現行3ブランド非空で実害なし・コメント補足推奨）③Homeボタン行のヒーロー行移設（決定稿は中央寄せ独立行・現状はM4からのヘッダ行方針）とImportJsonSectionの破線カード意匠はT42レスポンシブ最終調整と同時の別タスク推奨④T31往復テストは本番`collectPhotosForExport`のDB read-back経路が環境制約（fake-indexeddbのBlob復元不能）で未検証 → **QA T43①のUI経由実機往復で必ずカバー**⑤import側dataUrl→Blob変換のPromise.all逐次化は任意
 - **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
 - **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで
 - **M4レビューLow申し送り**: `color-mix()`をRecipeCard.module.cssで初導入（Baseline 2023、Safari 16.2+が実質のブラウザ下限に）／写真表示系のobjectURL未revokeはphotoStore共有キャッシュ設計と整合した意図的挙動／pagehideのflushAutosaveはbest-effort（非同期完了非保証）

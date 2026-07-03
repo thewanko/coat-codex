@@ -2,12 +2,27 @@
   border-top: 1px solid var(--color-gold-soft);
   padding: var(--space-4);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   font-family: var(--font-family-body);
   font-size: var(--font-size-sm);
   color: var(--color-ink-muted);
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.trademark {
+  margin: 0;
+  max-width: var(--container-max);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-faint);
+  text-align: center;
 }
 
 .diamond {

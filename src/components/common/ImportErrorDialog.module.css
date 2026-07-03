@@ -1,0 +1,130 @@
+/* ImportErrorDialog — Dialog error-detailバリアント（デザイン仕様書§4「Dialog / Modal」）
+   backdrop --color-bg-backdrop。本体 --color-bg / radius 10px / --shadow-3。
+   zod issue一覧はmonoでスクロール可能なリスト表示。ConfirmDialogと同じ骨格を踏襲する。 */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 100;
+}
+
+.dialog {
+  background: var(--color-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-3);
+  padding: var(--space-5);
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-gold-soft);
+  flex: none;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.closeButton {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-line);
+  background: var(--color-bg-raised);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.message {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+  margin: 0 0 var(--space-3);
+}
+
+.issueList {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-raised);
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.issueRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  font-family: var(--font-family-mono);
+}
+
+.issueRow:not(:last-child) {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.issuePath {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-danger);
+}
+
+.issueMessage {
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex: none;
+}
+
+.confirm {
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.confirm:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

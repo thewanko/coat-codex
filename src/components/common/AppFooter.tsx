@@ -7,11 +7,14 @@ function AppFooter() {
 
   return (
     <footer className={styles.footer}>
-      <span>© coat-codex</span>
-      <span className={styles.diamond} aria-hidden="true" />
-      <Link to="/terms" className={styles.link}>
-        {t("nav.terms")}
-      </Link>
+      <div className={styles.row}>
+        <span>© coat-codex</span>
+        <span className={styles.diamond} aria-hidden="true" />
+        <Link to="/terms" className={styles.link}>
+          {t("nav.terms")}
+        </Link>
+      </div>
+      <p className={styles.trademark}>{t("footer.trademarkNotice")}</p>
     </footer>
   );
 }

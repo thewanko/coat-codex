@@ -1,9 +1,10 @@
-// components/overview/ExportActionBar.tsx — 出力アクションバー（枠のみ）
-// （技術計画v2.3 §3.3 ExportActionBar行・T28。結線はT33/T40）
+// components/overview/ExportActionBar.tsx — 出力アクションバー
+// （技術計画v2.3 §3.3 ExportActionBar行・T28。結線T33: JSON・素MD隣接配置＋note MD）
 //
-// 印刷／PDFダウンロード／X共有／Bluesky共有／note.com向けMD／JSONエクスポート・
-// 素のMarkdownエクスポート（要件どおり隣接配置）を配置のみ行う。全ボタンdisabled。
+// 印刷／PDFダウンロード／X共有／Bluesky共有はT36/T39/T40で結線するためdisabledのまま。
+// JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）・note MDをT33で結線する。
 // 並び順・グルーピング（菱区切り＋JSON+素MDの結合ピル）はデザイン仕様書§4「ActionBar」。
+// 結線ロジックはuseExportActions（react-refresh対応で分離）に委譲する。
 //
 // v2.3改善（ユーザーフィードバック「下部Post系がダサい」対応）:
 // モバイル(<768px)は下部固定の横並びバーを廃止し「出力・共有」ボタン1つに集約→
@@ -13,8 +14,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
+import type { RecipeDoc } from "../../models/recipe";
+import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
 import styles from "./ExportActionBar.module.css";
 import { shouldCloseFromDrag } from "./exportSheetDrag";
+import { useExportActions } from "./useExportActions";
 
 const MOBILE_QUERY = "(max-width: 767px)";
 
@@ -46,8 +50,21 @@ function useIsMobile(): boolean {
   return isMobile;
 }
 
-function ExportActions() {
+interface ExportActionsProps {
+  recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
+}
+
+function ExportActions({ recipe, onExported }: ExportActionsProps) {
   const { t } = useTranslation();
+  const {
+    handleRequestJsonExport,
+    exportChoiceOpen,
+    handleChooseJsonExport,
+    handleCancelJsonExport,
+    handlePlainMdExport,
+    handleNoteMdExport,
+  } = useExportActions(recipe, onExported);
 
   return (
     <>
@@ -66,27 +83,61 @@ function ExportActions() {
       <button type="button" className={styles.pill} disabled>
         {t("overview.exportBluesky")}
       </button>
-      <button type="button" className={styles.pill} disabled>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handleNoteMdExport}
+      >
         {t("overview.exportNoteMd")}
       </button>
 
       <span className={styles.divider} aria-hidden="true" />
 
       <span className={styles.combinedPill}>
-        <button type="button" className={styles.combinedButton} disabled>
+        <button
+          type="button"
+          className={styles.combinedButton}
+          disabled={recipe === null}
+          onClick={handleRequestJsonExport}
+        >
           {t("overview.exportJson")}
         </button>
         <span className={styles.combinedSeparator} aria-hidden="true" />
-        <button type="button" className={styles.combinedButton} disabled>
+        <button
+          type="button"
+          className={styles.combinedButton}
+          disabled={recipe === null}
+          onClick={handlePlainMdExport}
+        >
           {t("overview.exportPlainMd")}
         </button>
       </span>
+
+      <ExportPhotoChoiceDialog
+        open={exportChoiceOpen}
+        onChoose={handleChooseJsonExport}
+        onCancel={handleCancelJsonExport}
+      />
     </>
   );
 }
 
-function ExportSheetActions() {
+interface ExportSheetActionsProps {
+  recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
+}
+
+function ExportSheetActions({ recipe, onExported }: ExportSheetActionsProps) {
   const { t } = useTranslation();
+  const {
+    handleRequestJsonExport,
+    exportChoiceOpen,
+    handleChooseJsonExport,
+    handleCancelJsonExport,
+    handlePlainMdExport,
+    handleNoteMdExport,
+  } = useExportActions(recipe, onExported);
 
   return (
     <>
@@ -121,7 +172,12 @@ function ExportSheetActions() {
       </span>
 
       <div className={styles.sheetGroup}>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handleNoteMdExport}
+        >
           {t("overview.exportNoteMd")}
         </button>
       </div>
@@ -134,13 +190,29 @@ function ExportSheetActions() {
 
       {/* JSON・素MDは要件どおり隣接配置（結合ピルで視覚化。デザイン仕様書§4「ActionBar」） */}
       <div className={`${styles.sheetGroup} ${styles.sheetCombinedGroup}`}>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handleRequestJsonExport}
+        >
           {t("overview.exportJson")}
         </button>
-        <button type="button" className={styles.sheetButton} disabled>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handlePlainMdExport}
+        >
           {t("overview.exportPlainMd")}
         </button>
       </div>
+
+      <ExportPhotoChoiceDialog
+        open={exportChoiceOpen}
+        onChoose={handleChooseJsonExport}
+        onCancel={handleCancelJsonExport}
+      />
     </>
   );
 }
@@ -148,9 +220,11 @@ function ExportSheetActions() {
 interface ExportSheetProps {
   open: boolean;
   onClose: () => void;
+  recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
 }
 
-function ExportSheet({ open, onClose }: ExportSheetProps) {
+function ExportSheet({ open, onClose, recipe, onExported }: ExportSheetProps) {
   const { t } = useTranslation();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -276,14 +350,21 @@ function ExportSheet({ open, onClose }: ExportSheetProps) {
           </div>
         </div>
         <div className={styles.sheetBody}>
-          <ExportSheetActions />
+          <ExportSheetActions recipe={recipe} onExported={onExported} />
         </div>
       </div>
     </div>
   );
 }
 
-function ExportActionBar() {
+interface ExportActionBarProps {
+  /** JSONエクスポート・素MD・note MDの元になる編集中レシピ。未ロード時はnull（全ボタン無効） */
+  recipe?: RecipeDoc | null;
+  /** JSONエクスポート成功時に呼び出し側へ通知（D-6: 未バックアップドット・リマインダー帯の再判定用） */
+  onExported?: (recipeId: string) => void;
+}
+
+function ExportActionBar({ recipe = null, onExported }: ExportActionBarProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -298,14 +379,19 @@ function ExportActionBar() {
         >
           {t("export.menuButton")}
         </button>
-        <ExportSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+        <ExportSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          recipe={recipe}
+          onExported={onExported}
+        />
       </div>
     );
   }
 
   return (
     <div className={styles.root} data-testid="export-action-bar">
-      <ExportActions />
+      <ExportActions recipe={recipe} onExported={onExported} />
     </div>
   );
 }

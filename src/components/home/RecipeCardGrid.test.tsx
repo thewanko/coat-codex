@@ -4,8 +4,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
 import RecipeCardGrid from "./RecipeCardGrid";
+import ToastHost from "../common/ToastHost";
 import { deleteRecipe, listRecipes } from "../../db/recipeStore";
 import { deletePhotosForRecipe } from "../../db/photoStore";
+import { readAllRecipeExports } from "../../lib/storageHealth";
 import type { RecipeDoc } from "../../models/recipe";
 
 beforeAll(() => {
@@ -34,6 +36,19 @@ vi.mock("../../db/photoStore", async () => {
   };
 });
 
+// D-6（未バックアップドット）・§3.5リマインダー判定がlib/storageHealth経由でDexie(meta)を
+// 読むため、fake-indexeddb非依存のこのテストではAPI非対応環境相当（空データ）にモックする。
+vi.mock("../../lib/storageHealth", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../lib/storageHealth")
+  >("../../lib/storageHealth");
+  return {
+    ...actual,
+    readAllRecipeExports: vi.fn().mockResolvedValue({}),
+    readReminderSnooze: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
 function makeRecipe(id: string, title: string, updatedAt: string): RecipeDoc {
   return {
     schemaVersion: 1,
@@ -52,7 +67,9 @@ function makeRecipe(id: string, title: string, updatedAt: string): RecipeDoc {
 function renderGrid() {
   return render(
     <MemoryRouter>
-      <RecipeCardGrid />
+      <ToastHost>
+        <RecipeCardGrid />
+      </ToastHost>
     </MemoryRouter>,
   );
 }
@@ -62,6 +79,8 @@ describe("RecipeCardGrid", () => {
     vi.mocked(listRecipes).mockReset();
     vi.mocked(deleteRecipe).mockClear();
     vi.mocked(deletePhotosForRecipe).mockClear();
+    vi.mocked(readAllRecipeExports).mockReset();
+    vi.mocked(readAllRecipeExports).mockResolvedValue({});
   });
 
   test("ロード中はSkeleton(card)を表示する", async () => {
@@ -158,10 +177,99 @@ describe("RecipeCardGrid", () => {
 
     render(
       <MemoryRouter>
-        <RecipeCardGrid onCountChange={onCountChange} />
+        <ToastHost>
+          <RecipeCardGrid onCountChange={onCountChange} />
+        </ToastHost>
       </MemoryRouter>,
     );
 
     await waitFor(() => expect(onCountChange).toHaveBeenCalledWith(1));
+  });
+
+  test("D-6: recipeExport:<id>が無いレシピは未バックアップドットが表示される", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "未バックアップ", "2026-06-15T00:00:00.000Z"),
+    ]);
+    vi.mocked(readAllRecipeExports).mockResolvedValue({});
+
+    const { container } = renderGrid();
+    await screen.findByText("未バックアップ");
+
+    const dot = container.querySelector("[data-visible]");
+    expect(dot).toHaveAttribute("data-visible", "true");
+  });
+
+  test("D-6: recipeExport:<id>がupdatedAt以降なら未バックアップドットは表示されない", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "バックアップ済み", "2026-06-15T00:00:00.000Z"),
+    ]);
+    vi.mocked(readAllRecipeExports).mockResolvedValue({
+      rcp_1: "2026-06-16T00:00:00.000Z",
+    });
+
+    const { container } = renderGrid();
+    await screen.findByText("バックアップ済み");
+
+    const dot = container.querySelector("[data-visible]");
+    expect(dot).toHaveAttribute("data-visible", "false");
+  });
+
+  test("D-6: recipeExport:<id>がupdatedAtより古いレシピは未バックアップドットが表示される", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "編集後未再エクスポート", "2026-06-15T00:00:00.000Z"),
+    ]);
+    vi.mocked(readAllRecipeExports).mockResolvedValue({
+      rcp_1: "2026-06-01T00:00:00.000Z",
+    });
+
+    const { container } = renderGrid();
+    await screen.findByText("編集後未再エクスポート");
+
+    const dot = container.querySelector("[data-visible]");
+    expect(dot).toHaveAttribute("data-visible", "true");
+  });
+
+  test("onReminderTargetsChangeにリマインダー対象レシピ一覧を通知する（未エクスポートを含む）", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "未エクスポート", "2026-06-15T00:00:00.000Z"),
+    ]);
+    vi.mocked(readAllRecipeExports).mockResolvedValue({});
+    const onReminderTargetsChange = vi.fn();
+
+    render(
+      <MemoryRouter>
+        <ToastHost>
+          <RecipeCardGrid onReminderTargetsChange={onReminderTargetsChange} />
+        </ToastHost>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(onReminderTargetsChange).toHaveBeenCalledWith([
+        expect.objectContaining({ id: "rcp_1" }),
+      ]);
+    });
+  });
+
+  test("onReminderTargetsChangeはバックアップ済みレシピを対象から除外する", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "バックアップ済み", "2026-06-15T00:00:00.000Z"),
+    ]);
+    vi.mocked(readAllRecipeExports).mockResolvedValue({
+      rcp_1: "2026-06-16T00:00:00.000Z",
+    });
+    const onReminderTargetsChange = vi.fn();
+
+    render(
+      <MemoryRouter>
+        <ToastHost>
+          <RecipeCardGrid onReminderTargetsChange={onReminderTargetsChange} />
+        </ToastHost>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(onReminderTargetsChange).toHaveBeenCalledWith([]);
+    });
   });
 });
