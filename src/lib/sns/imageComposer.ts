@@ -334,14 +334,17 @@ async function drawPhoto(
   }
 }
 
+/** カード背景（紙色）の全面塗り。写真描画より前に呼ぶこと（後に呼ぶと写真を上書きしてしまう） */
+function drawCardBackground(ctx: CanvasContextLike, layout: CardLayout): void {
+  ctx.fillStyle = THEME_COLORS.paper;
+  ctx.fillRect(0, 0, layout.cardWidth, layout.cardHeight);
+}
+
 function drawWholeCard(
   ctx: CanvasContextLike,
   spec: WholeCandidateSpec,
   layout: CardLayout,
 ): void {
-  ctx.fillStyle = THEME_COLORS.paper;
-  ctx.fillRect(0, 0, layout.cardWidth, layout.cardHeight);
-
   ctx.fillStyle = THEME_COLORS.ink;
   ctx.font = `600 40px ${TITLE_FONT_STACK}`;
   ctx.textAlign = "left";
@@ -359,9 +362,6 @@ function drawPartCard(
   spec: PartCandidateSpec,
   layout: CardLayout,
 ): void {
-  ctx.fillStyle = THEME_COLORS.paper;
-  ctx.fillRect(0, 0, layout.cardWidth, layout.cardHeight);
-
   ctx.fillStyle = THEME_COLORS.gold;
   ctx.font = `600 28px ${BODY_FONT_STACK}`;
   ctx.textAlign = "left";
@@ -457,6 +457,8 @@ export async function composeShareImages(
     if (ctx === null) {
       continue;
     }
+
+    drawCardBackground(ctx, layout);
 
     if (spec.kind === "whole") {
       await drawPhoto(ctx, layout.mainPhoto, spec.photoId, photoDeps);

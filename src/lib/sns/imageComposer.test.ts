@@ -516,6 +516,109 @@ describe("composeShareImages", () => {
     ]);
   });
 
+  test("whole: 背景の全面fillRectがdrawImageより前に呼ばれる（写真が背景で上書きされないことの回帰検証）", async () => {
+    const specs: ShareCandidateSpec[] = [
+      { kind: "whole", photoId: "ph_1", title: "Title 1" },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillRectMock = ctx.fillRect as unknown as ReturnType<typeof vi.fn>;
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(fillRectMock).toHaveBeenCalled();
+    expect(drawImageMock).toHaveBeenCalled();
+
+    // 背景全面塗り（0,0,カード全幅,全高）の呼び出しを特定し、そのcall順序がdrawImageより前であることを検証する
+    const backgroundCallIndex = fillRectMock.mock.calls.findIndex(
+      (call) =>
+        call[0] === 0 && call[1] === 0 && call[2] === 1200 && call[3] === 900,
+    );
+    expect(backgroundCallIndex).toBeGreaterThanOrEqual(0);
+    const backgroundOrder =
+      fillRectMock.mock.invocationCallOrder[backgroundCallIndex];
+    const firstDrawImageOrder = drawImageMock.mock.invocationCallOrder[0];
+    expect(backgroundOrder).toBeLessThan(firstDrawImageOrder);
+  });
+
+  test("part: 背景の全面fillRectがdrawImage・プレースホルダfillRectより前に呼ばれる（写真が背景で上書きされないことの回帰検証）", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "part",
+        overviewPhotoId: null, // インセットなし → mainPhotoはプレースホルダfillRectで描画される
+        stepPhotoId: "ph_step",
+        stepTag: "STEP 1",
+        techniqueLabel: "basecoat",
+        mixBadge: "",
+        mixWarning: null,
+        swatches: [],
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      // stepPhotoIdはloadPhoto成功→drawImage、overviewPhotoIdはnullなのでinsetPhoto自体がない
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillRectMock = ctx.fillRect as unknown as ReturnType<typeof vi.fn>;
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(fillRectMock).toHaveBeenCalled();
+    expect(drawImageMock).toHaveBeenCalled();
+
+    const backgroundCallIndex = fillRectMock.mock.calls.findIndex(
+      (call) =>
+        call[0] === 0 && call[1] === 0 && call[2] === 1200 && call[3] === 900,
+    );
+    expect(backgroundCallIndex).toBeGreaterThanOrEqual(0);
+    const backgroundOrder =
+      fillRectMock.mock.invocationCallOrder[backgroundCallIndex];
+    const firstDrawImageOrder = drawImageMock.mock.invocationCallOrder[0];
+    expect(backgroundOrder).toBeLessThan(firstDrawImageOrder);
+  });
+
+  test("part: 写真プレースホルダ（loadPhoto null）でも背景の全面fillRectがプレースホルダfillRectより前に呼ばれる", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "part",
+        overviewPhotoId: null,
+        stepPhotoId: "ph_missing",
+        stepTag: "STEP 1",
+        techniqueLabel: "basecoat",
+        mixBadge: "",
+        mixWarning: null,
+        swatches: [],
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null), // プレースホルダ描画（fillRect）に入る
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillRectMock = ctx.fillRect as unknown as ReturnType<typeof vi.fn>;
+    // 背景（0,0,1200,900）とプレースホルダ（mainPhoto領域=0,0,1200,640）はx/yが同一のため
+    // 高さ（cardHeight=900 vs photoArea=640）のみで区別している。レイアウト定数を変えたら要追随
+    // 背景とプレースホルダの両方がfillRectで呼ばれる
+    const backgroundCallIndex = fillRectMock.mock.calls.findIndex(
+      (call) =>
+        call[0] === 0 && call[1] === 0 && call[2] === 1200 && call[3] === 900,
+    );
+    expect(backgroundCallIndex).toBe(0); // 背景が最初のfillRect呼び出しであること
+    expect(fillRectMock.mock.calls.length).toBeGreaterThan(1); // プレースホルダ分も呼ばれている
+  });
+
   test("部分失敗（2枚目のみcanvas.getContextがnullを返す）: 候補とFileの対応が崩れず欠番なし連番になる", async () => {
     const specs: ShareCandidateSpec[] = [
       { kind: "whole", photoId: "ph_1", title: "Title 1" },
