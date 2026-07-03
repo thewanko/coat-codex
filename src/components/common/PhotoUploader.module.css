@@ -85,6 +85,16 @@
   box-shadow: var(--focus-ring);
 }
 
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （デザイン仕様書§a11y: タッチ44px。タイル右上の単独ボタンで隣接インタラクティブ要素なし） */
+@media (max-width: 767px) {
+  .removeButton::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+}
+
 .tileControls {
   display: flex;
   align-items: center;
@@ -124,6 +134,25 @@
   color: var(--color-link);
   font-size: var(--font-size-xs);
   cursor: pointer;
+}
+
+/* モバイル(<768px): 112px幅タイル内に44px統一のcontrolButtonを2つ横並びさせると
+   controlButtonWideの表示幅が確保できないため、controlsを折り返して
+   ↑↓行／COVER化行の2段に分ける（視覚サイズを44pxへ拡大する方式）。 */
+@media (max-width: 767px) {
+  .tileControls {
+    flex-wrap: wrap;
+  }
+
+  .controlButton {
+    width: var(--size-touch-target);
+    height: var(--size-touch-target);
+  }
+
+  .controlButtonWide {
+    flex-basis: 100%;
+    min-height: var(--size-touch-target);
+  }
 }
 
 .addTile {

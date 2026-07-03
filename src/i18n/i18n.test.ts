@@ -46,6 +46,25 @@ function flattenWithValues(obj: JsonRecord, prefix = ""): [string, string][] {
 const jaKeys = new Set(flatten(ja as unknown as JsonRecord));
 const enKeys = new Set(flatten(en as unknown as JsonRecord));
 
+// i18nextの複数形サフィックス（CLDR plural categories）。`t()`呼び出し側は
+// count渡し時にベースキー（例: `volumesCount`）のみを参照し、i18nextが実行時に
+// `_one`/`_other`等へ自動解決するため、キー一致・使用網羅・デッドキーの各チェックは
+// このサフィックスを剥がした「ベースキー」単位で比較する。ja/en間で複数形カテゴリ数が
+// 異なっても（例: ja=`_other`のみ, en=`_one`/`_other`）ベースキーが揃っていれば整合とみなす。
+const PLURAL_SUFFIXES = ["zero", "one", "two", "few", "many", "other"];
+const pluralSuffixRegex = new RegExp(`_(?:${PLURAL_SUFFIXES.join("|")})$`);
+
+function toBaseKey(key: string): string {
+  return key.replace(pluralSuffixRegex, "");
+}
+
+function toBaseKeySet(keys: Iterable<string>): Set<string> {
+  return new Set([...keys].map(toBaseKey));
+}
+
+const jaBaseKeys = toBaseKeySet(jaKeys);
+const enBaseKeys = toBaseKeySet(enKeys);
+
 // --- ソースコード走査（テストファイル・locales自体を除くsrc/**/*.ts, *.tsx） ---
 // node:fs（tsc -bのtype-check対象。@types/node非導入のため使用不可）の代わりに
 // Vite組み込みのimport.meta.globで生ソースを静的取得する（ビルド時のtsc型検査を
@@ -125,9 +144,9 @@ for (const content of sourceFileContents.values()) {
 }
 
 describe("i18n key inventory (T41)", () => {
-  test("(a) ja.json/en.jsonのキー集合が完全一致する（欠落ゼロ・双方向）", () => {
-    const jaMissingInEn = [...jaKeys].filter((k) => !enKeys.has(k));
-    const enMissingInJa = [...enKeys].filter((k) => !jaKeys.has(k));
+  test("(a) ja.json/en.jsonのキー集合が完全一致する（欠落ゼロ・双方向、複数形サフィックス差は許容）", () => {
+    const jaMissingInEn = [...jaBaseKeys].filter((k) => !enBaseKeys.has(k));
+    const enMissingInJa = [...enBaseKeys].filter((k) => !jaBaseKeys.has(k));
     expect(jaMissingInEn).toEqual([]);
     expect(enMissingInJa).toEqual([]);
   });
@@ -143,14 +162,14 @@ describe("i18n key inventory (T41)", () => {
     expect(enEmpty).toEqual([]);
   });
 
-  test("(c) ソースコードで静的参照される全キーがja.jsonに存在する", () => {
+  test("(c) ソースコードで静的参照される全キーがja.jsonに存在する（複数形はベースキーで判定）", () => {
     expect(sourceFiles.length).toBeGreaterThan(0);
     expect(allStaticKeysUsed.size).toBeGreaterThan(0);
 
     const missing: string[] = [];
     for (const [file, keys] of staticKeysByFile) {
       for (const key of keys) {
-        if (!jaKeys.has(key)) {
+        if (!jaKeys.has(key) && !jaBaseKeys.has(toBaseKey(key))) {
           missing.push(`${key} (${file})`);
         }
       }
@@ -179,7 +198,7 @@ describe("i18n key inventory (T41)", () => {
     expect([...enTechniqueKeys].sort()).toEqual([...presetKeySet].sort());
   });
 
-  test("(f) ja.jsonの全キーは到達可能である（静的抽出キー ∪ 動的名前空間techniques.*配下、逆方向: デッドキー検出）", () => {
+  test("(f) ja.jsonの全キーは到達可能である（静的抽出キー ∪ 動的名前空間techniques.*配下、逆方向: デッドキー検出。複数形はベースキーで判定）", () => {
     // 到達可能キー集合 = ソースから静的抽出された全キー ∪ techniques.*名前空間の全キー
     // （techniquesはpresetKey経由の動的参照 `t(\`techniques.${key}\`)` のため、
     // 個々のキー文字列リテラルとしてはソースに出現しない）
@@ -195,8 +214,14 @@ describe("i18n key inventory (T41)", () => {
       ...allStaticKeysUsed,
       ...techniqueNamespaceKeys,
     ]);
+    const reachableBaseKeys = toBaseKeySet(reachableKeys);
 
-    const deadKeys = [...jaKeys].filter((k) => !reachableKeys.has(k));
+    // ja.jsonの実キー（複数形サフィックス付きの場合あり）はベースキー化した上で、
+    // 到達可能キー（サフィックスなしのt()呼び出しキー、またはtechniques.*の完全一致キー）
+    // に含まれるかで判定する。
+    const deadKeys = [...jaKeys].filter(
+      (k) => !reachableKeys.has(k) && !reachableBaseKeys.has(toBaseKey(k)),
+    );
     expect(deadKeys).toEqual([]);
   });
 

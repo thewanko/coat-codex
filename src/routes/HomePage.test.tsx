@@ -186,4 +186,38 @@ describe("HomePage", () => {
       screen.queryByTestId("export-reminder-banner"),
     ).not.toBeInTheDocument();
   });
+
+  test("ヒーロー（LIBRARY・YOUR CODEX・和文gloss）を常時表示する（0件時も含む）", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([]);
+
+    renderHome();
+
+    await screen.findByText("まだ秘伝書がありません");
+    expect(screen.getByText("LIBRARY")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "YOUR CODEX" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("あなたの秘伝書")).toBeInTheDocument();
+  });
+
+  test("レシピ0件時はヒーローにVOLUMES行を表示しない", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([]);
+
+    renderHome();
+
+    await screen.findByText("まだ秘伝書がありません");
+    expect(screen.queryByText(/VOLUMES/)).not.toBeInTheDocument();
+  });
+
+  test("レシピ1件以上のとき、ヒーローに{{count}} VOLUMESを表示する", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "既存レシピ"),
+    ]);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(screen.getByText("1 VOLUMES")).toBeInTheDocument();
+    });
+  });
 });

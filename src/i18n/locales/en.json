@@ -1,6 +1,5 @@
 {
   "app": {
-    "title": "coat-codex",
     "tagline": "Chronicle your painting rituals"
   },
   "nav": {
@@ -69,6 +68,9 @@
     "untitledTitle": "Untitled Recipe"
   },
   "home": {
+    "heroOverline": "LIBRARY",
+    "heroTitle": "YOUR CODEX",
+    "heroGloss": "Your codex of secrets",
     "newRecipe": "New Recipe",
     "open": "Open",
     "delete": "Delete",
@@ -100,8 +102,11 @@
     "notFound": "Recipe not found",
     "inUseNote": "↳ In use by steps — remove it from the steps to delete",
     "makeCodex": "make codex!",
-    "importTitle": "Import from JSON",
-    "importNote": "Restore from an exported JSON file"
+    "importOr": "or",
+    "importTitle": "Resume from a JSON import",
+    "importNote": "Restore this codex from a previously exported .json file",
+    "importSelectFile": "Choose file",
+    "importCompactLabel": "↑ Resume from a JSON import"
   },
   "editor": {
     "techniqueLabel": "Technique",
@@ -171,7 +176,8 @@
     "usage": "Used: {{used}} / Quota: {{quota}} (estimate)",
     "lastExport": "Last export: {{date}}",
     "lastExportNever": "Last export: never",
-    "volumesCount": "{{count}} VOLUMES"
+    "volumesCount_one": "{{count}} VOLUME",
+    "volumesCount_other": "{{count}} VOLUMES"
   },
   "exportReminder": {
     "homeMessage": "You have codices that haven't been backed up. Export a JSON backup.",

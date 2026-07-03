@@ -94,17 +94,25 @@ describe("ImportJsonSection", () => {
     vi.mocked(requestPersist).mockResolvedValue(true);
   });
 
-  test("見出し・説明・ボタンが表示される（結線後はenabled）", () => {
+  test("破線カード（PC）: 「または」ディバイダ・タイトル・説明・ファイル選択ボタンが表示される（結線後はenabled）", () => {
     renderSection();
 
+    expect(screen.getByText("または")).toBeInTheDocument();
+    expect(screen.getByText("JSONインポートで再開")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "JSONからインポート" }),
+      screen.getByText("以前エクスポートした .json からこの秘伝書を復元します"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("エクスポートしたJSONファイルから復元できます"),
-    ).toBeInTheDocument();
-    const button = screen.getByRole("button", { name: "JSONからインポート" });
+    const button = screen.getByRole("button", { name: "ファイルを選択" });
     expect(button).not.toBeDisabled();
+  });
+
+  test("コンパクトボタン（モバイル）: 「↑ JSONインポートで再開」が表示される（結線後はenabled）", () => {
+    renderSection();
+
+    const compactButton = screen.getByRole("button", {
+      name: "↑ JSONインポートで再開",
+    });
+    expect(compactButton).not.toBeDisabled();
   });
 
   test("ファイル選択確定でstorage.persist()が要求される（§3.5発火点③）", async () => {

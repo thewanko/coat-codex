@@ -66,6 +66,23 @@
   z-index: 1;
 }
 
+/* モバイル(<768px)は視覚サイズを維持しつつ、不可視のヒット領域を44px相当に拡張する
+   （デザイン仕様書§a11y: タッチ44px。隣接インタラクティブ要素とは--space-3以上離れており
+   ヒット領域の重なりなし）。
+   .removeButtonは.thumb（overflow: hidden）の子孫でタイル右上コーナーに絶対配置のため、
+   外向き（上・右）の拡張は祖先のoverflowクリップで無効化される（実機検証で判明）。
+   ボタン自身（右上を基準）から内向き（左・下）にのみ広げ、44×44を確保する。 */
+@media (max-width: 767px) {
+  .removeButton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: calc(-1 * (var(--size-touch-target) - 24px));
+    bottom: calc(-1 * (var(--size-touch-target) - 24px));
+  }
+}
+
 .removeButton:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);

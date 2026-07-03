@@ -28,17 +28,29 @@ function HomePage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.heading}>{t("app.title")}</h1>
+      {recipeCount !== null && recipeCount > 0 && (
+        <StorageStatusBar volumeCount={recipeCount} />
+      )}
+      <div className={styles.hero}>
+        <p className={styles.heroOverline}>{t("home.heroOverline")}</p>
+        <h1 className={styles.heroTitle}>{t("home.heroTitle")}</h1>
+        <p className={styles.heroGloss}>{t("home.heroGloss")}</p>
+        <div className={styles.heroDivider} aria-hidden="true">
+          <span className={styles.heroDividerLine} />
+          <span className={styles.heroDiamond} />
+          <span className={styles.heroDividerLine} />
+        </div>
         {recipeCount !== null && recipeCount > 0 && (
-          <div className={styles.actions}>
-            <NewRecipeButton />
-            <ImportJsonButton />
-          </div>
+          <p className={styles.heroVolumes}>
+            {t("storageStatus.volumesCount", { count: recipeCount })}
+          </p>
         )}
       </div>
       {recipeCount !== null && recipeCount > 0 && (
-        <StorageStatusBar volumeCount={recipeCount} />
+        <div className={styles.actions}>
+          <NewRecipeButton />
+          <ImportJsonButton />
+        </div>
       )}
       {reminderTargets.length > 0 && (
         <ExportReminderBanner

@@ -67,6 +67,13 @@
   cursor: pointer;
 }
 
+@media (max-width: 767px) {
+  .removeButton {
+    width: var(--size-touch-target);
+    height: var(--size-touch-target);
+  }
+}
+
 .removeButton:hover {
   color: var(--color-danger);
   border-color: var(--color-danger);

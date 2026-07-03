@@ -27,6 +27,12 @@
   cursor: pointer;
 }
 
+@media (max-width: 767px) {
+  .printButton {
+    height: var(--size-touch-target);
+  }
+}
+
 .printButton:focus-visible {
   outline: none;
   box-shadow:

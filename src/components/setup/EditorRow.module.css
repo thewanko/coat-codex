@@ -47,6 +47,7 @@
 }
 
 .removeButton {
+  position: relative;
   width: 28px;
   height: 28px;
   border-radius: var(--radius-full);
@@ -58,6 +59,16 @@
   justify-content: center;
   cursor: pointer;
   line-height: 1;
+}
+
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （デザイン仕様書§a11y: タッチ44px。行末の単独ボタンで隣接インタラクティブ要素なし） */
+@media (max-width: 767px) {
+  .removeButton::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
 }
 
 .removeButton:disabled {
@@ -114,6 +125,12 @@
   color: var(--color-link);
   font-size: var(--font-size-sm);
   cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .addButton {
+    min-height: var(--size-touch-target);
+  }
 }
 
 .addButton:focus-visible {

@@ -70,6 +70,7 @@
 }
 
 .closeButton {
+  position: relative;
   flex: none;
   width: 32px;
   height: 32px;
@@ -79,6 +80,16 @@
   color: var(--color-ink-muted);
   font: 600 13px sans-serif;
   cursor: pointer;
+}
+
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （デザイン仕様書§a11y: タッチ44px。ヘッダ右端の単独ボタンで隣接インタラクティブ要素なし） */
+@media (max-width: 767px) {
+  .closeButton::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
 }
 
 .body {
@@ -120,6 +131,7 @@
 }
 
 .fallbackLink {
+  position: relative;
   background: none;
   border: none;
   padding: 0;
@@ -130,6 +142,20 @@
   color: var(--color-link);
   text-decoration: underline dotted;
   cursor: pointer;
+}
+
+/* モバイル(<768px)は視覚サイズ（テキストリンクの見た目）を維持し、不可視のヒット領域を
+   44px相当に拡張する（デザイン仕様書§a11y: タッチ44px）。上方向は直上のprimaryButtonと
+   ヒット領域が重ならないよう.routeAのgap(--space-2=8px)の半分未満に抑える。 */
+@media (max-width: 767px) {
+  .fallbackLink::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -16px;
+    bottom: -27px;
+    left: -16px;
+  }
 }
 
 .routeB {
@@ -182,6 +208,12 @@
     "Noto Sans JP",
     sans-serif;
   cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .secondaryButton {
+    height: var(--size-touch-target);
+  }
 }
 
 .secondaryButton:disabled {

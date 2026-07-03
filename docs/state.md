@@ -3,10 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-03 (loop: M7前半 T41＋共有カードFB対応＋favicon 完了)
+最終更新: 2026-07-03 (loop: M7後半 T42/T43 完了 → M7=全タスク完了)
 
 ## 完了
 
+- 2026-07-03: **M7後半: T42 レスポンシブ最終調整＋T43 通しQA**（PR: impl/m7-t42-t43） — ①**T42意匠2件**（dc.html準拠に採用裁定）: Homeを「ヘッダ行ボタン」から「ヒーロー（LIBRARY→YOUR CODEX→和文gloss→金飾り罫→VOLUMES）＋中央寄せ独立ボタン行」へ移設・モバイル縦積み／Setup ImportJsonSectionを「または」ディバイダ＋破線カード（PC）/コンパクト破線ボタン（モバイル）へ意匠化（機能不変）。app.title削除（YOUR CODEXが後継）②**モバイルタッチ44px化を横断適用**（実機ヒットテストで検出: 工程/パーツ↑↓32px・写真✕24px・各種✕/menu28px・addButton40px等を44px化。視覚拡大 or 不可視ヒット領域拡張）。**StepPhotoTile✕は祖先overflow:hiddenで外向き拡張がクリップされる罠を実機検出→内向き拡張（top:0;right:0;left/bottom負値）へ差し戻し修正**③**VOLUMES英語複数形化**（volumesCount_one/_other・i18n.test.tsの一致/網羅/デッド検出を複数形サフィックス許容へ最小修正）④**T43通しQA**: dev実機で①往復②本番URL⑤persist拒否⑥Quota⑦削除ガード⑧presetId降格⑨D-8⑩D-6ドット⑪工程写真3出力⑫≠100警告継承（合成画像の⚠計90%を実ピクセル目視）を確認しREADME追記。③印刷ダイアログ・④Web Share A系統はユーザー実機依頼事項として整理。Opus UIレビューR1 PASS（C0/H0/M0/L2。L2=StepPhotoTileコメントはレビュアー誤検出〔480px縮小media実在〕で対応不要、L1=VOLUMES複数形は対応）。計866テスト
 - 2026-07-03: **M7前半: T41 i18n棚卸し＋共有カードFB対応＋favicon結線**（PR: impl/m7-t41-share-feedback） — ①**T41**: i18n機械チェックテスト新設（ja/en再帰キー完全一致・静的抽出キー網羅・techniques.*動的名前空間の閉包・デッドキー逆方向検出・言語永続化）・未使用5キー削除（partReview.share等）。R1 PASS(M2/L3)→修正→R2 PASS(L0)。裁定: レンジ表記は小文字キー維持（表示名変換見送り）②**FB-1 写真cover配置**（ユーザー実機FB「横伸ばし」）: drawPhotoがコメントに反し5引数drawImage引き伸ばしだった実在バグ。computeCoverSourceRect純関数＋9引数化＋naturalSize不能時は5引数全面描画フォールバック ③**FB-2/3 summary(whole)目次化**（ユーザー指示「パーツ：工程数と使用カラーの一覧ぐらいでいい」）: パーツ構成（ベース先頭・0工程スキップ・上限8行＋…他Nパーツ）＋使用カラー3列グリッド（**色名＋ブランド併記**・上限12色＋N）・実行数ベース上詰め。R1(L3)→R2(L0)→**実機実ピクセル目視がdesign乖離2点（色名なし・8行固定の中央空白）をレビューPASS後に検出**→FB-3→R3 PASS(L1申し送り) ④**favicon**: ユーザー支給封蝋ロゴPNG（docs/design/coat-codex_logo.png原本）→48px/180px配信層＋index.html結線（M4/M7申し送り解消）。実機検証: 黒狼実データ（ユーザー指定のObsidian vault版）UI経由インポート・目次/工程/写真カード実ピクセル・0工程スキップ・brand nullスキップ・全ヒットテスト。計862テスト
 
 - 2026-07-03: **まとめカード工程行リッチ化（ユーザーFB「印刷のPART節相当が理想」対応）** — 工程行を印刷ビュー相当へ（朱番号・技法名・スウォッチ＋色名＋%・混合バッジ/警告・ツール右寄せ・メモ行・行間罫）／動的収容computeStepCapacity（メモなし16行・全メモ9行・「…他N工程」・最低1行）／summary(part)下部スウォッチ帯廃止=リスト領域716px／**ブランド・レンジ併記**（「Eshin Grey Citadel・layer」。レンジはpresetId→paintPresetsマスタを候補生成effect内で非同期解決・fetch失敗時brandのみ続行）／**色名幅の公平分配**（固定130px上限撤廃・バッジ/警告は事前予約・単色はフル幅=「Administratum Grey」が切れない）。レビューR1 PASS(M1=measureText死角/L2)→対応→R2 PASS(C0/H0/M0/L1)。**黒狼2.json実データ（ユーザー提供）をUI経由写真ありインポートして実ピクセル検証**。計829テスト。※運用の学び: 実行中implへのSendMessage追加指示は注入攻撃と誤認され得る（lessons.md参照）
@@ -31,11 +32,11 @@
 
 ## 進行中
 
-- **M7 後半**（PR impl/m7-t41-share-feedback のマージ待ち → T42残り・T43へ）
+- **M7後半（T42/T43）**（PR impl/m7-t42-t43 のマージ待ち）。マージで **M7=全タスク完了 → 計画§4.2の全マイルストーン(M0〜M7)完走**
 
 ## 次の候補 (優先順)
 
-1. M7 後半（T42 レスポンシブ最終調整の実機確認〔favicon済・印刷スウォッチ16px=デザイン仕様書§6適合と確定済みで対応不要・残りはHomeボタン行ヒーロー移設/ImportJsonSection破線カード意匠の判断と全ルート実機確認〕・T43 通しQA⑫項目〔③④はユーザー実機必要〕）
+1. **ユーザー実機QA 2件（T43③④・公開前チェック）**: ③Chrome/Safari実印刷ダイアログ（背景色print-color-adjust・改ページbreak-inside・A4 15mm・PDF保存）④iOS Safari/Android Chrome の Web Share A系統（画像付き共有シート）。READMEのQA表に依頼事項として記載済み
 2. M5送りのM4レビュー事項2件（下記申し送り参照。独立タスク化推奨）
 3. 全ダイアログ共通のフォーカストラップ導入（M6レビュー指摘・横断別タスク推奨。ConfirmDialog/ImportErrorDialog/ExportPhotoChoiceDialog/PartReviewDialog/ShareDialog）
 4. （v1後のバックログ）**多言語対応** — Warhammer展開言語準拠でfr/de/it/es追加。計画§7参照（2026-07-03ユーザー要望）
@@ -55,11 +56,11 @@
 
 ## 申し送り (次セッションの自分へ)
 
-- **M7前半の残Low＋検証環境**: ①summary(whole)使用カラーの「+N」は「13色以上かつ12色目の色名が極端に長い」限定条件で12色目ラベル末尾と視覚干渉しうる（R3 Low・幾何は静的検算済み・機能無影響。最小修正=12色目のみlabelMaxWidthを+N実測幅ぶん縮める分岐）②T41裁定: レンジ表記は小文字キー維持（表示名変換はユーザー反応待ち）③印刷パレット行スウォッチ16pxは**デザイン仕様書§6「16px（工程行）」に適合と確定**（M6申し送りの「dc.html規定30×30」は誤記。対応不要）④検証用データ: previewのIndexedDBに黒狼実データ（ユーザー指定 Obsidian vault の黒狼2.json）と合成「黒狼検証」（0工程パーツ・混合色・brand null入り）をインポート済み。JSON原本は node_modules/.verify-tmp/（gitignore内・再生成可能）
+- **M7前半の残Low＋検証環境**: ①summary(whole)使用カラーの「+N」は「13色以上かつ12色目の色名が極端に長い」限定条件で12色目ラベル末尾と視覚干渉しうる（R3 Low・幾何は静的検算済み・機能無影響。最小修正=12色目のみlabelMaxWidthを+N実測幅ぶん縮める分岐）②T41裁定: レンジ表記は小文字キー維持（表示名変換はユーザー反応待ち）③印刷パレット行スウォッチ16pxは**デザイン仕様書§6「16px（工程行）」に適合と確定**（M6申し送りの「dc.html規定30×30」は誤記。対応不要）④検証用データ: previewのIndexedDBに黒狼実データ（ユーザー指定 Obsidian vault の黒狼2.json＝毎回ユーザーが `@` で添付）と合成「黒狼検証」（0工程パーツ・混合色・brand null・**マスタ外presetId・70/30 MIX工程**入り）をインポート済み。JSON原本は node_modules/.verify-tmp/（gitignore内・再生成可能）⑤summary(whole)「+N」視覚干渉（①）はM7で未対応のまま残置（限定条件・機能無影響。将来のカラー数UX調整時に一括対応推奨）
 - **共有カードv2系の残Low申し送り（全PASS済み・対応任意）**: ①まとめカード工程行のブランド・レンジ併記は幅分配の予約対象外のため、色名が極端に長い行では併記側が「…」化する非対称あり（優先度「色名＞併記」はユーザー要望どおりの意図的設計）②工程数が少ないレシピではまとめカード下部に余白が残る（行間の均等配分調整はユーザー反応を見てM7で判断）③レンジ表記は小文字キーのまま（RangeFilterの既存表示方式と一貫。表示名変換の導入はM7 T41と同時判断）
 - **M6残Low申し送り（全PASS済み・対応任意、多くはM7で自然回収）**: ①印刷パレット行スウォッチが16px（dc.html規定は30×30。hexテキスト併記で可読性担保。**T42レスポンシブ最終調整と同時に判断**）②ShareImagePreviewの候補カード表示は元写真サムネで、共有・DLされる実体（1200×900合成PNG）と見た目が異なる（機能は正・「合成後プレビュー」化はM7判断）③選択0枚時のB系統DLボタンが活性のまま（押してもno-opで無害）④全ダイアログ共通のフォーカストラップなし（次の候補3に独立タスク化済み）⑤ビューポート767px境界を跨ぐリサイズで共有中のダイアログ状態が失われる（分岐別ツリーの本質的挙動・稀）⑥ShareDialogを開いたまま背後でrecipeが更新されても候補は再生成されない（recipe.id依存・導線上起きにくい）⑦`partReview.share`キーが未使用のまま残置（**T41 i18n棚卸しで回収**）
 - **M6のQA持ち越し（セッション実機検証の限界）**: ブラウザの実印刷ダイアログ（背景色・改ページ・PDF保存）はpreviewツールから開けないため未確認 → **T43③（Chrome/Safari印刷プレビュー）で必ず確認**。Web Share A系統（canShare成立環境）はデスクトップpreviewでは検証不能 → **T43④のiOS Safari/Android Chrome実機で確認**（B系統・機能検出分岐・candidate0件切替はデスクトップ実機で検証済み）
-- **M5レビューLow申し送り（全PASS済み・対応任意）**: ①Homeバナーの`reminderTargets[0]`は並行エクスポートで対象が差し替わるレースあり（最悪DL2回・データ不整合なし=記録のみ）②`loadBrandColorsResult`は「正規に0色のブランド」が将来現れるとfetch失敗と誤判定（現行3ブランド非空で実害なし・コメント補足推奨）③Homeボタン行のヒーロー行移設（決定稿は中央寄せ独立行・現状はM4からのヘッダ行方針）とImportJsonSectionの破線カード意匠はT42レスポンシブ最終調整と同時の別タスク推奨④T31往復テストは本番`collectPhotosForExport`のDB read-back経路が環境制約（fake-indexeddbのBlob復元不能）で未検証 → **QA T43①のUI経由実機往復で必ずカバー**⑤import側dataUrl→Blob変換のPromise.all逐次化は任意
+- **M5レビューLow申し送り（全PASS済み・対応任意）**: ①Homeバナーの`reminderTargets[0]`は並行エクスポートで対象が差し替わるレースあり（最悪DL2回・データ不整合なし=記録のみ）②`loadBrandColorsResult`は「正規に0色のブランド」が将来現れるとfetch失敗と誤判定（現行3ブランド非空で実害なし・コメント補足推奨）③~~Homeボタン行のヒーロー行移設とImportJsonSection破線カード意匠~~（**T42で対応済み**）④~~T31往復テストのDB read-back経路~~（**T43①のUI実機往復でカバー済み: export→import後ID再採番・構造一致・photos 4→6件を確認**）⑤import側dataUrl→Blob変換のPromise.all逐次化は任意
 - **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
 - **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで
 - **M4レビューLow申し送り**: `color-mix()`をRecipeCard.module.cssで初導入（Baseline 2023、Safari 16.2+が実質のブラウザ下限に）／写真表示系のobjectURL未revokeはphotoStore共有キャッシュ設計と整合した意図的挙動／pagehideのflushAutosaveはbest-effort（非同期完了非保証）
