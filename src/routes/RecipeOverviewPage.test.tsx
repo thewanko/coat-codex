@@ -116,15 +116,10 @@ function renderPage(path: string) {
     <ToastHost>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/recipe/:id" element={<RecipeOverviewPage />} />
-          <Route
-            path="/recipe/:id/part/base"
-            element={<div>ベース工程編集画面</div>}
-          />
-          <Route
-            path="/recipe/:id/part/:partId"
-            element={<div>パーツ編集画面</div>}
-          />
+          <Route path="/recipe/:id" element={<RecipeOverviewPage />}>
+            <Route path="part/base" element={<div>ベース工程編集画面</div>} />
+            <Route path="part/:partId" element={<div>パーツ編集画面</div>} />
+          </Route>
         </Routes>
       </MemoryRouter>
     </ToastHost>,
@@ -220,6 +215,30 @@ describe("RecipeOverviewPage — PartCardListへのprops変換（updateRecipe呼
     fireEvent.click(screen.getByText("add-part"));
 
     expect(screen.getByText("パーツ編集画面")).toBeInTheDocument();
+  });
+});
+
+describe("RecipeOverviewPage — ネストルート（親子マッチ・T44）", () => {
+  test("/recipe/:id/part/:partIdはOutlet経由で子ルートを描画しつつ、親のOverview（タイトル）も背面に残る", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    renderPage("/recipe/rcp_1/part/part_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("テストレシピ")).toBeInTheDocument();
+    });
+    expect(screen.getByText("パーツ編集画面")).toBeInTheDocument();
+  });
+
+  test("/recipe/:id/part/baseは:partIdより優先してマッチする（予約語base）", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage("/recipe/rcp_1/part/base");
+
+    await waitFor(() => {
+      expect(screen.getByText("ベース工程編集画面")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("パーツ編集画面")).not.toBeInTheDocument();
   });
 });
 
@@ -345,6 +364,57 @@ describe("RecipeOverviewPage — 戻るリンク", () => {
     });
     const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
     expect(link).toHaveAttribute("href", "/");
+  });
+});
+
+describe("RecipeOverviewPage — bodyスクロール固定の前値復元（M8 T44レビューRound1 #3）", () => {
+  type Listener = (event: MediaQueryListEvent) => void;
+
+  function mockMatchMedia(matches: boolean) {
+    const listeners = new Set<Listener>();
+    const mql: Partial<MediaQueryList> = {
+      matches,
+      media: "(min-width: 768px)",
+      addEventListener: (
+        _type: string,
+        listener: EventListenerOrEventListenerObject,
+      ) => {
+        listeners.add(listener as Listener);
+      },
+      removeEventListener: (
+        _type: string,
+        listener: EventListenerOrEventListenerObject,
+      ) => {
+        listeners.delete(listener as Listener);
+      },
+    };
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockImplementation(() => mql as MediaQueryList),
+    );
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.style.overflow = "";
+  });
+
+  test('パネル表示中はoverflow:hiddenになり、パネルが閉じられると開く前の値へ復元される（無条件""上書きしない）', async () => {
+    mockMatchMedia(true);
+    document.body.style.overflow = "scroll";
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    const { unmount } = renderPage("/recipe/rcp_1/part/base");
+
+    await waitFor(() => {
+      expect(screen.getByText("ベース工程編集画面")).toBeInTheDocument();
+    });
+    expect(document.body.style.overflow).toBe("hidden");
+
+    // パネルを閉じる（=isPanelOpenがfalseになる）操作の直接的なUIトリガーはこの簡易ルート
+    // スタブにはないため、cleanup effectの実行（アンマウント）で検証する。
+    unmount();
+
+    expect(document.body.style.overflow).toBe("scroll");
   });
 });
 

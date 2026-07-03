@@ -8,6 +8,7 @@
 // StepListはスタブ化しonChange/onDelete/onReorder/onAdd/onAddColorを直接呼べるようにする。
 
 import "../i18n";
+import { useEffect } from "react";
 import {
   beforeAll,
   beforeEach,
@@ -18,7 +19,7 @@ import {
   vi,
 } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Routes, Route } from "react-router";
+import { MemoryRouter, Outlet, Routes, Route, useParams } from "react-router";
 import i18next from "../i18n";
 import PartEditorPage from "./PartEditorPage";
 import ToastHost from "../components/common/ToastHost";
@@ -147,17 +148,38 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   };
 }
 
+// ネスト構造（router.tsx実物と同型。T44）: 親routeはOutlet経由で子ルートを描画する。
+// 親自身のテキスト（"Overview画面"）はcloseナビゲーション後の到達確認に使う。
+// loadのオーナーは親（RecipeOverviewPage）に一本化されている（M8 T44レビューRound1 #1）ため、
+// 本スタブがload(:id)を呼ぶ。子（PartEditorPage）はストアのdoc/isLoadingを購読するのみで
+// 自身ではloadを呼ばない。
+function OverviewStub() {
+  const { id } = useParams<{ id: string }>();
+  const load = useRecipeStore((state) => state.load);
+
+  useEffect(() => {
+    if (id) {
+      void load(id);
+    }
+  }, [id, load]);
+
+  return (
+    <div>
+      Overview画面
+      <Outlet />
+    </div>
+  );
+}
+
 function renderPage(path: string) {
   return render(
     <ToastHost>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/recipe/:id" element={<div>Overview画面</div>} />
-          <Route
-            path="/recipe/:id/part/base"
-            element={<PartEditorPage isBaseMode />}
-          />
-          <Route path="/recipe/:id/part/:partId" element={<PartEditorPage />} />
+          <Route path="/recipe/:id" element={<OverviewStub />}>
+            <Route path="part/base" element={<PartEditorPage isBaseMode />} />
+            <Route path="part/:partId" element={<PartEditorPage />} />
+          </Route>
         </Routes>
       </MemoryRouter>
     </ToastHost>,
@@ -418,13 +440,40 @@ describe("PartEditorPage — StepPhotoStrip", () => {
 });
 
 describe("PartEditorPage — 閉じる操作", () => {
-  test("閉じるボタンで/recipe/:idへnavigateする", async () => {
+  test("閉じるボタンで/recipe/:idへnavigateする（ネスト子ルートがアンマウントされ、親Overviewのみ残る）", async () => {
     vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
     renderPage("/recipe/rcp_1/part/base");
 
     await screen.findByTestId("step-list-stub");
     fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
 
+    expect(screen.getByText("Overview画面")).toBeInTheDocument();
+    expect(screen.queryByTestId("step-list-stub")).not.toBeInTheDocument();
+  });
+});
+
+describe("PartEditorPage — ネストルート（親子マッチ・base優先・T44）", () => {
+  test("/recipe/:id/part/baseは:partIdより優先してマッチし、baseモードで描画される", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ baseSteps: [makeStep({ id: "stp_1" })] }),
+    );
+    renderPage("/recipe/rcp_1/part/base");
+
+    await waitFor(() => {
+      expect(screen.getByText("ベース工程（全体）")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("textbox", { name: "パーツ名" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("/recipe/:id/part/:partIdは親のOverviewを背面に残したままネスト描画する", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    renderPage("/recipe/rcp_1/part/part_1");
+
+    await screen.findByTestId("step-list-stub");
     expect(screen.getByText("Overview画面")).toBeInTheDocument();
   });
 });
