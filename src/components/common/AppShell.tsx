@@ -41,7 +41,9 @@ function AppShell({ children }: { children?: ReactNode }) {
       if (persisted === undefined) {
         return;
       }
-      if (record !== undefined && record.granted === persisted) {
+      // 未記録（persist()を一度も要求していない）なら書かない — meta.persistは
+      // 「要求履歴と結果」（§3.5）であり、起動時確認で架空のrequestedAtを作らない
+      if (record === undefined || record.granted === persisted) {
         return;
       }
       await recordPersistResult(persisted, new Date().toISOString());

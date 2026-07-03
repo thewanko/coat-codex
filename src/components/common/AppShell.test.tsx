@@ -115,7 +115,7 @@ describe("AppShell — 起動時persisted()再確認（§3.5）", () => {
     expect(recordPersistResult).not.toHaveBeenCalled();
   });
 
-  test("meta.persist未記録でpersisted()がtrueを返す場合はgranted:trueで記録する", async () => {
+  test("meta.persist未記録（persist未要求）の場合は記録しない — 架空のrequestedAtを作らない（§3.5）", async () => {
     vi.mocked(checkPersisted).mockResolvedValue(true);
     vi.mocked(readPersistRecord).mockResolvedValue(undefined);
 
@@ -126,11 +126,9 @@ describe("AppShell — 起動時persisted()再確認（§3.5）", () => {
     );
 
     await vi.waitFor(() => {
-      expect(recordPersistResult).toHaveBeenCalledWith(
-        true,
-        expect.any(String),
-      );
+      expect(checkPersisted).toHaveBeenCalledTimes(1);
     });
+    expect(recordPersistResult).not.toHaveBeenCalled();
   });
 
   test("meta.persistの記録と実許可状態が一致する場合は再記録しない", async () => {
