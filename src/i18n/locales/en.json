@@ -4,7 +4,9 @@
     "tagline": "Chronicle your painting rituals"
   },
   "nav": {
-    "terms": "Terms & Disclaimer"
+    "terms": "Terms & Disclaimer",
+    "backToOverview": "Back to overview",
+    "backToLibrary": "Back to library"
   },
   "techniques": {
     "prime": "Prime",
@@ -147,5 +149,8 @@
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
     "exportPlainMd": "Plain MD"
+  },
+  "export": {
+    "menuButton": "Export & Share"
   }
 }

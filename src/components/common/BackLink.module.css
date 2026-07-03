@@ -1,0 +1,33 @@
+/* BackLink — ghost調の戻るテキストリンク（デザイン仕様書§4 Button/ghost準拠） */
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  padding: var(--space-1) 0;
+  width: fit-content;
+  background: transparent;
+  color: var(--color-link);
+  font-size: var(--font-size-sm);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--color-link) 50%, transparent);
+  text-underline-offset: 3px;
+}
+
+.root:hover {
+  text-decoration-style: solid;
+  text-decoration-color: var(--color-link);
+}
+
+.root:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.chevron {
+  font-size: var(--font-size-md);
+  line-height: 1;
+}

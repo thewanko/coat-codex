@@ -1,6 +1,8 @@
-/* ExportActionBar — デザイン仕様書§4「ActionBar」
+/* ExportActionBar — デザイン仕様書§4「ActionBar」「Dialog / Modal」
    export(PC): [印刷][PDF] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]（結合ピル・隣接固定）
-   export(mobile): 下部固定、CSSメディアクエリで切替（コンポーネント側は1ツリーのみ描画） */
+   export(mobile, v2.3): 下部固定バーは廃止し「出力・共有」ピル1つ→ボトムシート
+   （上角のみ--radius-lg、backdrop=--color-bg-backdrop、--shadow-3）に集約。
+   PC/mobileはJS側(useIsMobile)でツリーを分岐する（技術計画v2.3 §3.3 ExportActionBar行）。*/
 
 .root {
   display: flex;
@@ -80,26 +82,212 @@
   flex: none;
 }
 
-@media (max-width: 767px) {
-  .root {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: var(--actionbar-height);
-    background: var(--color-bg-raised);
-    border-top: 2px solid var(--color-gold-soft);
-    /* 上向き影はtheme.cssに該当トークンなし（--shadow-1は下向き固定）。
-       色成分rgba(43,36,28,.1)は--color-ink(#2B241C)10%と同値（theme.css --shadow-1参照）。
-       値はここで直接維持する（theme.css改変禁止・M4 Opusレビュー Round1 Medium対応） */
-    box-shadow: 0 -2px 8px rgba(43, 36, 28, 0.1);
-    padding: 0 var(--space-3);
-    z-index: var(--z-panel, 40);
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
+/* ---- mobile(<768px): 出力・共有ボタン1つ＋ボトムシート ---- */
 
-  .combinedPill {
-    margin-left: auto;
+.mobileRoot {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4)
+    calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  z-index: var(--z-panel, 40);
+}
+
+.menuButton {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-6);
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent-hover);
+  border-radius: var(--radius-full);
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 0 1.5px var(--color-gold-ring);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-contrast);
+  cursor: pointer;
+}
+
+.menuButton:active {
+  background: var(--color-accent-hover);
+  transform: translateY(1px);
+}
+
+.menuButton:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-2), var(--focus-ring);
+}
+
+/* ---- ボトムシート ---- */
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-backdrop);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+}
+
+.sheet {
+  width: 100%;
+  max-width: var(--container-max);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-3);
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4)
+    calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  animation: sheet-slide-up 0.2s ease-out;
+}
+
+@keyframes sheet-slide-up {
+  from {
+    transform: translateY(100%);
   }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation: none;
+  }
+}
+
+.sheetHandle {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: var(--space-2) auto var(--space-3);
+  background: var(--color-gold-soft);
+  border-radius: var(--radius-full);
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-gold-soft);
+  margin-bottom: var(--space-4);
+}
+
+.sheetTitle {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.sheetClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-touch-target);
+  height: var(--size-touch-target);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.sheetClose:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.sheetBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sheetGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sheetButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.sheetButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sheetButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* JSON・素MD結合グループのみ隣接視覚化（要件どおりの隣接配置。
+   デザイン仕様書§4「ActionBar」: 結合ピル＝外枠--color-accent・中仕切り1px） */
+.sheetCombinedGroup {
+  gap: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.sheetCombinedGroup .sheetButton {
+  border: none;
+  border-radius: 0;
+  background: var(--color-warning-bg);
+}
+
+.sheetCombinedGroup .sheetButton:not(:last-child) {
+  border-bottom: 1px solid var(--color-accent);
+}
+
+.sheetDividerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sheetDividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-gold-soft);
+}
+
+.sheetDividerDiamond {
+  width: 6px;
+  height: 6px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  flex: none;
 }

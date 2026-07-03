@@ -22,6 +22,10 @@
   display: none;
 }
 
+.backLinkRow {
+  padding: var(--space-3) var(--space-4) 0;
+}
+
 .body {
   padding: var(--space-4);
 }

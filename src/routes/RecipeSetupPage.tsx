@@ -10,6 +10,7 @@ import { useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
 import Skeleton from "../components/common/Skeleton";
+import BackLink from "../components/common/BackLink";
 import TitleInput from "../components/setup/TitleInput";
 import OverviewPhotoUploader from "../components/setup/OverviewPhotoUploader";
 import PaletteEditor from "../components/setup/PaletteEditor";
@@ -59,6 +60,10 @@ function RecipeSetupPage() {
 
   return (
     <div className={styles.root}>
+      <div className={styles.backLink}>
+        <BackLink to="/" label={t("nav.backToLibrary")} />
+      </div>
+
       <TitleInput
         value={doc.title}
         onCommit={(title) => updateRecipe((current) => ({ ...current, title }))}

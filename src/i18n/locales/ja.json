@@ -4,7 +4,9 @@
     "tagline": "塗装秘伝書"
   },
   "nav": {
-    "terms": "利用規約・免責"
+    "terms": "利用規約・免責",
+    "backToOverview": "全体表示へ",
+    "backToLibrary": "レシピ一覧へ"
   },
   "techniques": {
     "prime": "プライマー",
@@ -147,5 +149,8 @@
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
     "exportPlainMd": "素MD"
+  },
+  "export": {
+    "menuButton": "出力・共有"
   }
 }

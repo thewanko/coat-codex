@@ -16,6 +16,7 @@ import { useRecipeStore } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
+import BackLink from "../components/common/BackLink";
 import OverviewHeader from "../components/overview/OverviewHeader";
 import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
 import PartCardList from "../components/overview/PartCardList";
@@ -100,6 +101,8 @@ function RecipeOverviewPage() {
 
   return (
     <div className={styles.root}>
+      <BackLink to="/" label={t("nav.backToLibrary")} />
+
       <h1 className={styles.title}>{doc.title}</h1>
 
       <OverviewHeader

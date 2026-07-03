@@ -252,3 +252,16 @@ describe("RecipeOverviewPage — onSaveError購読でのトースト表示", () 
     });
   });
 });
+
+describe("RecipeOverviewPage — 戻るリンク", () => {
+  test("レシピ一覧へ戻るリンクが/を指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("テストレシピ")).toBeInTheDocument();
+    });
+    const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
+    expect(link).toHaveAttribute("href", "/");
+  });
+});

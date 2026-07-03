@@ -24,6 +24,7 @@ import { useRecipeStore } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
+import BackLink from "../components/common/BackLink";
 import PartEditorHeader from "../components/part-editor/PartEditorHeader";
 import StepPhotoStrip from "../components/part-editor/StepPhotoStrip";
 import StepList from "../components/part-editor/StepList";
@@ -103,6 +104,11 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
     return (
       <div className={styles.root}>
         <div className={styles.panel}>
+          {id && (
+            <div className={styles.backLinkRow}>
+              <BackLink to={`/recipe/${id}`} label={t("nav.backToOverview")} />
+            </div>
+          )}
           <p className={styles.error}>{t("setup.loadError")}</p>
         </div>
       </div>
@@ -113,6 +119,11 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
     return (
       <div className={styles.root}>
         <div className={styles.panel}>
+          {id && (
+            <div className={styles.backLinkRow}>
+              <BackLink to={`/recipe/${id}`} label={t("nav.backToOverview")} />
+            </div>
+          )}
           <p className={styles.error}>{t("setup.notFound")}</p>
         </div>
       </div>
@@ -128,6 +139,12 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
       <div className={styles.root}>
         <div className={styles.backdrop} onClick={handleClose} />
         <div className={styles.panel}>
+          <div className={styles.backLinkRow}>
+            <BackLink
+              to={`/recipe/${doc.id}`}
+              label={t("nav.backToOverview")}
+            />
+          </div>
           <p className={styles.error}>{t("editor.partNotFound")}</p>
         </div>
       </div>
@@ -210,6 +227,10 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
         >
           ✕
         </button>
+
+        <div className={styles.backLinkRow}>
+          <BackLink to={`/recipe/${doc.id}`} label={t("nav.backToOverview")} />
+        </div>
 
         <PartEditorHeader
           isBaseMode={isBaseMode}

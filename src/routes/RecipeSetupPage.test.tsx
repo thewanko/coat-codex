@@ -149,4 +149,13 @@ describe("RecipeSetupPage", () => {
 
     expect(screen.getByText("Overview画面")).toBeInTheDocument();
   });
+
+  test("レシピ一覧へ戻るリンクが/を指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage();
+
+    await screen.findByRole("textbox", { name: "タイトル" });
+    const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
+    expect(link).toHaveAttribute("href", "/");
+  });
 });
