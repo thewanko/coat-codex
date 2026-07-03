@@ -1,5 +1,5 @@
-// components/overview/useExportActions.ts — ExportActionBarのJSON/素MD/note MD結線ロジック
-// （技術計画v2.2 §3.3 ExportActionBar行・§3.5・T33）
+// components/overview/useExportActions.ts — ExportActionBarのJSON/素MD/note MD/
+// 印刷/PDF/X/Bluesky結線ロジック（技術計画v2.3 §3.3 ExportActionBar行・§3.4・§3.5・T33・T40）
 //
 // PC版（ExportActions）・mobile版（ExportSheetActions）の両方から共用するフック。
 // react-refresh/only-export-components対応のためコンポーネントファイルから分離する
@@ -10,9 +10,12 @@
 // 素MD・note MD: exportRecipeToMarkdown/exportRecipeToNoteMarkdown（buildMarkdownLabels/
 //       buildNoteMarkdownLabelsでi18n注入）をnavigator.clipboard.writeTextでコピーし、
 //       非対応・失敗時はファイルDLへフォールバックする。
+// 印刷・PDF: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。T36仕様）。
+// X・Bluesky: ShareDialogをmode="whole"・対応するtargetで開く（T40・§3.4手順1）。
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
 import {
   buildMarkdownLabels,
@@ -23,9 +26,14 @@ import {
   exportRecipeToNoteMarkdown,
 } from "../../lib/exporters/noteMarkdown";
 import { recordRecipeExport } from "../../lib/storageHealth";
+import { snsTargets, type SnsTarget } from "../../lib/sns/types";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
 import { useToast } from "../common/toastContext";
 import type { RecipeDoc } from "../../models/recipe";
+import type { ShareDialogContext } from "./ShareDialog";
+
+const X_TARGET = snsTargets.find((target) => target.key === "x");
+const BLUESKY_TARGET = snsTargets.find((target) => target.key === "bluesky");
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
   if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
@@ -50,6 +58,21 @@ export interface UseExportActionsResult {
   handlePlainMdExport: () => void;
   /** note MDエクスポートボタンのonClick */
   handleNoteMdExport: () => void;
+  /** 印刷ボタンのonClick（/recipe/:id/printへnavigate） */
+  handlePrint: () => void;
+  /** PDFボタンのonClick（同じく/recipe/:id/printへnavigate。保存手順案内はPrintToolbar側） */
+  handlePdf: () => void;
+  /** Xボタンのonclick（ShareDialogをwholeコンテキスト・target=xで開く） */
+  handleShareX: () => void;
+  /** Blueskyボタンのonclick（ShareDialogをwholeコンテキスト・target=blueskyで開く） */
+  handleShareBluesky: () => void;
+  /** ShareDialogのopen状態 */
+  shareDialogOpen: boolean;
+  /** ShareDialogのcontext（openがfalseの間はnull。参照安定化は不要。理由はshareDialogContext定義部コメント参照） */
+  shareDialogContext: ShareDialogContext | null;
+  /** ShareDialogのtarget（openがfalseの間はnull） */
+  shareDialogTarget: SnsTarget | null;
+  handleCloseShareDialog: () => void;
 }
 
 export function useExportActions(
@@ -58,7 +81,11 @@ export function useExportActions(
 ): UseExportActionsResult {
   const { t } = useTranslation();
   const toast = useToast();
+  const navigate = useNavigate();
   const [exportChoiceOpen, setExportChoiceOpen] = useState(false);
+  const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
+    null,
+  );
 
   function handleRequestJsonExport() {
     if (!recipe) return;
@@ -132,6 +159,43 @@ export function useExportActions(
     })();
   }
 
+  function handlePrint() {
+    if (!recipe) return;
+    navigate(`/recipe/${recipe.id}/print`);
+  }
+
+  function handlePdf() {
+    if (!recipe) return;
+    navigate(`/recipe/${recipe.id}/print`);
+  }
+
+  function handleShareX() {
+    if (!recipe) return;
+    setShareTargetKey("x");
+  }
+
+  function handleShareBluesky() {
+    if (!recipe) return;
+    setShareTargetKey("bluesky");
+  }
+
+  function handleCloseShareDialog() {
+    setShareTargetKey(null);
+  }
+
+  // ShareDialogのeffectはopen/mode/recipe.id/partIdなど一次値にのみ依存し、
+  // context自体の参照安定性には依存しない（ShareDialog.tsx側のrefパターン・
+  // PartReviewDialogの結線と同趣旨）。そのため参照安定化のためのuseMemoは不要。
+  const shareDialogContext: ShareDialogContext | null =
+    !recipe || shareTargetKey === null ? null : { mode: "whole", recipe };
+
+  const shareDialogTarget: SnsTarget | null =
+    shareTargetKey === "x"
+      ? (X_TARGET ?? null)
+      : shareTargetKey === "bluesky"
+        ? (BLUESKY_TARGET ?? null)
+        : null;
+
   return {
     handleRequestJsonExport,
     exportChoiceOpen,
@@ -139,5 +203,13 @@ export function useExportActions(
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    handlePrint,
+    handlePdf,
+    handleShareX,
+    handleShareBluesky,
+    shareDialogOpen: shareTargetKey !== null,
+    shareDialogContext,
+    shareDialogTarget,
+    handleCloseShareDialog,
   };
 }

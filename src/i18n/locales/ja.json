@@ -202,7 +202,8 @@
     "open": "工程レビュー",
     "edit": "このパーツを編集",
     "share": "SNSで共有",
-    "shareComingSoon": "共有機能は準備中です",
+    "shareX": "Xで共有",
+    "shareBluesky": "Blueskyで共有",
     "noSteps": "工程がまだありません"
   },
   "share": {

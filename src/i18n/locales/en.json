@@ -202,7 +202,8 @@
     "open": "Review steps",
     "edit": "Edit this part",
     "share": "Share on SNS",
-    "shareComingSoon": "Sharing is coming soon",
+    "shareX": "Share on X",
+    "shareBluesky": "Share on Bluesky",
     "noSteps": "No steps yet"
   },
   "share": {
