@@ -92,7 +92,6 @@
     "photosLabel": "全体写真",
     "paletteLabel": "使用カラー",
     "toolsLabel": "使用ツール",
-    "addColor": "＋ カラーを追加",
     "addTool": "＋ ツールを追加",
     "toolPlaceholder": "ツール名",
     "usedInSteps": "{{count}}工程で使用中",
@@ -106,11 +105,9 @@
   },
   "editor": {
     "techniqueLabel": "技法",
-    "techniquePreset": "プリセット",
     "techniqueCustom": "自由入力",
     "techniquePlaceholder": "技法名を入力",
     "toolLabel": "ツール",
-    "toolEmpty": "Setup画面でツールを登録すると選択できます",
     "memoLabel": "メモ",
     "memoPlaceholder": "メモ（任意）",
     "stepLabel": "STEP {{n}}",
@@ -197,10 +194,8 @@
     "unknownFailure": "インポート中に不明なエラーが発生しました"
   },
   "partReview": {
-    "title": "工程レビュー",
     "open": "工程レビュー",
     "edit": "このパーツを編集",
-    "share": "SNSで共有",
     "shareX": "Xで共有",
     "shareBluesky": "Blueskyで共有",
     "noSteps": "工程がまだありません"
@@ -215,6 +210,10 @@
     "partDefaultTextNoFlow": "{{title}} - {{partName}}の塗装レシピ。全{{stepsCount}}工程。#coat-codex",
     "overflowColors": "+{{count}}",
     "overflowSteps": "…他{{count}}工程",
+    "partStepsCount": "{{count}}工程",
+    "overflowParts": "…他{{count}}パーツ",
+    "sectionParts": "パーツ構成",
+    "sectionColors": "使用カラー",
     "summaryTag": "まとめ",
     "textLabel": "投稿テキスト",
     "counter": "{{count}} / {{limit}}",
