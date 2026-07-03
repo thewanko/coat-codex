@@ -101,6 +101,65 @@ export async function loadBrandColors(
   return pending;
 }
 
+/** ブランドindex照会結果。fetch成否を呼び出し側が区別できる形で返す
+ *  （lib/importRecipe.ts のimport時preset降格判定用。§2.7 d 裁定規則a〜c）。
+ *  index.jsonのfetch自体が失敗した場合はok:falseを返す（loadBrandIndexは失敗時
+ *  空配列へ丸めるため、その丸め込みを経由せず本関数はfetch層を直接見る）。 */
+export type LoadBrandIndexResult =
+  { ok: true; brands: PaintBrandMeta[] } | { ok: false };
+
+/** index.jsonをfetchし、fetch成否を区別した形でブランド一覧を返す（メモリキャッシュはloadBrandIndexと共有）。
+ *  既存のloadBrandIndex（常に空配列へフォールバックする挙動）は変更しない追加API。 */
+export async function loadBrandIndexResult(): Promise<LoadBrandIndexResult> {
+  if (indexCache) return { ok: true, brands: indexCache.brands };
+  try {
+    const brands = await loadBrandIndex();
+    // loadBrandIndex成功時は必ずindexCacheが埋まる。失敗時のみindexCacheはnullのまま
+    // （loadBrandIndex内でindexPromiseをnullへ戻すため、ここでの再判定にindexCacheを使う）。
+    if (indexCache) return { ok: true, brands };
+    return { ok: false };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** 指定ブランドのカラー一覧照会結果。fetch成否・「ブランドがindexに存在しない」を
+ *  呼び出し側が区別できる形で返す（lib/importRecipe.ts のimport時preset降格判定用。
+ *  §2.7 d 裁定規則a〜c）。既存のloadBrandColors（常に空配列へフォールバックする挙動）は
+ *  変更しない追加API。メモリキャッシュはloadBrandColorsと共有する。 */
+export type LoadBrandColorsResult =
+  | { ok: true; colors: PaintPresetColor[] }
+  | {
+      ok: false;
+      reason: "unknown-brand" | "fetch-failed" | "index-unavailable";
+    };
+
+export async function loadBrandColorsResult(
+  brandId: string,
+): Promise<LoadBrandColorsResult> {
+  const cached = brandColorsCache.get(brandId);
+  if (cached) return { ok: true, colors: cached };
+
+  const indexResult = await loadBrandIndexResult();
+  if (!indexResult.ok) {
+    return { ok: false, reason: "index-unavailable" };
+  }
+  const meta = indexResult.brands.find((b) => b.id === brandId);
+  if (!meta) {
+    return { ok: false, reason: "unknown-brand" };
+  }
+
+  const colors = await loadBrandColors(brandId);
+  const cachedAfter = brandColorsCache.get(brandId);
+  if (cachedAfter) {
+    return { ok: true, colors: cachedAfter };
+  }
+  // loadBrandColorsはbrandIdがindexに実在してもfetch失敗時は空配列へ丸め込む。
+  // ここではbrandがindexに実在すると確認済みのため、キャッシュ未充填=fetch失敗と判定できる。
+  void colors;
+  return { ok: false, reason: "fetch-failed" };
+}
+
 /** name/nameJaの部分一致（大文字小文字無視）で指定ブランドのカラーを絞り込む。
  *  rangeを指定すると、その値に完全一致するカラーのみへさらに絞り込む
  *  （undefined/省略時は絞り込みなし＝全range対象）。

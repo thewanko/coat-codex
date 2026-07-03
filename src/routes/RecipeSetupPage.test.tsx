@@ -34,6 +34,9 @@ vi.mock("../db/recipeStore", () => ({
 vi.mock("../lib/paintPresets", () => ({
   loadBrandIndex: vi.fn().mockResolvedValue([]),
   loadBrandColors: vi.fn().mockResolvedValue([]),
+  loadBrandColorsResult: vi
+    .fn()
+    .mockResolvedValue({ ok: false, reason: "index-unavailable" }),
 }));
 
 vi.mock("../db/photoStore", () => ({

@@ -21,7 +21,7 @@
 
 ## 進行中
 
-- (なし。M4のPRマージ待ち)
+- **M5 データ保全＆エクスポート/インポート**（impl/m5-export）: Wave1（T29/T30/T32/T35）・Wave2（T31/T33）完了、レビューR1 両輪PASS（ロジック層 C0/H0/M2/L3・UI層 C0/H0/M0/L3）。実機検証で export→import 一巡・ImportErrorDialog・meta更新を確認済み。修正バッチR1（Home importボタン欠落・presetId降格のfetch失敗保護・MDエスケープ・複製tx）を委譲中 → Round 2 レビューへ。残: T34（データ保全UI）
 
 ## 次の候補 (優先順)
 

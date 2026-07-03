@@ -105,4 +105,18 @@ describe("HomePage", () => {
     });
     expect(screen.getByText("既存レシピ")).toBeInTheDocument();
   });
+
+  test("レシピ1件以上のとき、ヘッダーにインポートボタンも並べて表示する", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "既存レシピ"),
+    ]);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "JSONをインポート" }),
+      ).toBeInTheDocument();
+    });
+  });
 });

@@ -15,6 +15,7 @@ import {
   stepMixIrreducible,
   stepMixOverTotal,
   stepMixReducible,
+  stepMultilineMemo,
   stepNoPaint,
   stepSingleColor,
 } from "./fixtures/recipe";
@@ -106,6 +107,39 @@ describe("exportRecipeToMarkdown", () => {
     const output = exportRecipeToMarkdown(recipe);
     expect(output).toContain("ベース工程（全体）");
   });
+
+  test("M5修正3: title行頭#・memo内改行はサニタイズされ構造を壊さない（スナップショット）", () => {
+    const recipe = createFixtureRecipe({
+      title: "# 悪意ある\n改行タイトル",
+      baseSteps: [stepMultilineMemo()],
+      parts: [],
+    });
+    expect(exportRecipeToMarkdown(recipe)).toMatchSnapshot();
+  });
+
+  test("M5修正3: 出力の行数がmemo内改行の数だけ増えない（1工程=1メモ行に畳み込まれる）", () => {
+    const recipe = createFixtureRecipe({
+      title: "通常タイトル",
+      baseSteps: [stepMultilineMemo()],
+      parts: [],
+    });
+    const output = exportRecipeToMarkdown(recipe);
+    const memoLine = output
+      .split("\n")
+      .find((line) => line.includes("1行目のメモ"));
+    expect(memoLine).toBeDefined();
+    expect(memoLine).not.toContain("\n");
+    // memo内の"## 偽の見出し"・"- 偽の箇条書き"が独立行として出力されていないこと
+    expect(output).not.toContain("\n## 偽の見出し");
+    expect(output.split("\n- 偽の箇条書き\n").length).toBe(1);
+  });
+
+  test("M5修正3: 既存の代表フィクスチャ出力（サニタイズ対象を含まない）は変化しない", () => {
+    const recipe = createFixtureRecipe();
+    const output = exportRecipeToMarkdown(recipe);
+    expect(output).toContain("# Space Marine Captain");
+    expect(output).toContain("- Citadel Mephiston Red");
+  });
 });
 
 describe("exportRecipeToNoteMarkdown", () => {
@@ -163,5 +197,25 @@ describe("exportRecipeToNoteMarkdown", () => {
       hashtag: "",
     });
     expect(output).not.toContain("#coat-codex");
+  });
+
+  test("M5修正3: title行頭#・memo内改行はサニタイズされ構造を壊さない（スナップショット）", () => {
+    const recipe = createFixtureRecipe({
+      title: "# 悪意ある\n改行タイトル",
+      baseSteps: [stepMultilineMemo()],
+      parts: [],
+    });
+    expect(exportRecipeToNoteMarkdown(recipe)).toMatchSnapshot();
+  });
+
+  test("M5修正3: memo内の偽見出し・偽箇条書きが独立行として出力されない", () => {
+    const recipe = createFixtureRecipe({
+      title: "通常タイトル",
+      baseSteps: [stepMultilineMemo()],
+      parts: [],
+    });
+    const output = exportRecipeToNoteMarkdown(recipe);
+    expect(output).not.toContain("\n## 偽の見出し");
+    expect(output.split("\n- 偽の箇条書き\n").length).toBe(1);
   });
 });

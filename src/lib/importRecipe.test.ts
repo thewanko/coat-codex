@@ -1,7 +1,7 @@
 // lib/importRecipe.test.ts — インポートパイプラインのテスト（技術計画v2.2 §2.7・T30）
 //
 // fake-indexeddbでグローバルのindexedDBをポリフィルし、Dexie(db.ts)を実DBのように動作させる。
-// dataUrlToBlob/loadBrandColorsはImportRecipeDepsで注入し、fetch実体には依存しない。
+// dataUrlToBlob/loadBrandColorsResultはImportRecipeDepsで注入し、fetch実体には依存しない。
 
 import "fake-indexeddb/auto";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -61,7 +61,7 @@ const PNG_DATA_URL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 const noopDeps: ImportRecipeDeps = {
-  loadBrandColors: async () => [],
+  loadBrandColorsResult: async () => ({ ok: false, reason: "unknown-brand" }),
   dataUrlToBlob: async () => new Blob(["fake"], { type: "image/png" }),
 };
 
@@ -420,8 +420,10 @@ describe("normalizeImport: 正規化規則d（presetKey/presetId降格）", () =
     const file = makeExportFile(recipe);
 
     const deps: ImportRecipeDeps = {
-      loadBrandColors: async (brandId) =>
-        brandId === "citadel" ? [{ id: "citadel:mephiston-red" }] : [],
+      loadBrandColorsResult: async (brandId) =>
+        brandId === "citadel"
+          ? { ok: true, colors: [{ id: "citadel:mephiston-red" }] }
+          : { ok: false, reason: "unknown-brand" },
       dataUrlToBlob: noopDeps.dataUrlToBlob,
     };
 
@@ -448,8 +450,10 @@ describe("normalizeImport: 正規化規則d（presetKey/presetId降格）", () =
     const file = makeExportFile(recipe);
 
     const deps: ImportRecipeDeps = {
-      loadBrandColors: async (brandId) =>
-        brandId === "citadel" ? [{ id: "citadel:mephiston-red" }] : [],
+      loadBrandColorsResult: async (brandId) =>
+        brandId === "citadel"
+          ? { ok: true, colors: [{ id: "citadel:mephiston-red" }] }
+          : { ok: false, reason: "unknown-brand" },
       dataUrlToBlob: noopDeps.dataUrlToBlob,
     };
 
@@ -457,6 +461,108 @@ describe("normalizeImport: 正規化規則d（presetKey/presetId降格）", () =
 
     expect(result.palette[0].source).toBe("preset");
     expect(result.palette[0].presetId).toBe("citadel:mephiston-red");
+  });
+
+  test("裁定規則a: ブランドがindexに存在しない場合は降格する（例: 旧AK）", async () => {
+    const recipe = makeRecipe({
+      palette: [
+        {
+          id: "col_1",
+          source: "preset",
+          brand: "AK",
+          name: "旧 AK カラー",
+          presetId: "ak:old-color",
+          hex: "#654321",
+          chipPhotoId: null,
+        },
+      ],
+    });
+    const file = makeExportFile(recipe);
+
+    const deps: ImportRecipeDeps = {
+      loadBrandColorsResult: async () => ({
+        ok: false,
+        reason: "unknown-brand",
+      }),
+      dataUrlToBlob: noopDeps.dataUrlToBlob,
+    };
+
+    const { recipe: result } = await normalizeImport(file, deps);
+
+    expect(result.palette[0].source).toBe("custom");
+    expect(result.palette[0].presetId).toBeNull();
+  });
+
+  test("裁定規則b: ブランドはindexに存在するが色一覧fetchがネットワーク起因で失敗した場合は降格せずpresetを維持する", async () => {
+    const recipe = makeRecipe({
+      palette: [
+        {
+          id: "col_1",
+          source: "preset",
+          brand: "Citadel",
+          name: "Mephiston Red",
+          presetId: "citadel:mephiston-red",
+          hex: "#960F0F",
+          chipPhotoId: null,
+        },
+      ],
+    });
+    const file = makeExportFile(recipe);
+
+    const deps: ImportRecipeDeps = {
+      loadBrandColorsResult: async () => ({
+        ok: false,
+        reason: "fetch-failed",
+      }),
+      dataUrlToBlob: noopDeps.dataUrlToBlob,
+    };
+
+    const { recipe: result } = await normalizeImport(file, deps);
+
+    expect(result.palette[0].source).toBe("preset");
+    expect(result.palette[0].presetId).toBe("citadel:mephiston-red");
+  });
+
+  test("裁定規則c: index自体が取得不能な場合は降格処理全体をスキップする（インポートは続行）", async () => {
+    const recipe = makeRecipe({
+      palette: [
+        {
+          id: "col_1",
+          source: "preset",
+          brand: "Citadel",
+          name: "廃盤カラー",
+          presetId: "citadel:discontinued-color",
+          hex: "#123456",
+          chipPhotoId: null,
+        },
+        {
+          id: "col_2",
+          source: "custom",
+          brand: null,
+          name: "自由入力カラー",
+          presetId: null,
+          hex: "#abcdef",
+          chipPhotoId: null,
+        },
+      ],
+    });
+    const file = makeExportFile(recipe);
+
+    const deps: ImportRecipeDeps = {
+      loadBrandColorsResult: async () => ({
+        ok: false,
+        reason: "index-unavailable",
+      }),
+      dataUrlToBlob: noopDeps.dataUrlToBlob,
+    };
+
+    const { recipe: result } = await normalizeImport(file, deps);
+
+    // index不能時は降格処理全体をスキップ: preset色はsource/presetIdとも変化しない
+    expect(result.palette[0].source).toBe("preset");
+    expect(result.palette[0].presetId).toBe("citadel:discontinued-color");
+    // custom色も無関係に素通りする（インポート自体は続行）
+    expect(result.palette[1].source).toBe("custom");
   });
 });
 

@@ -23,9 +23,11 @@ export async function duplicateRecipe(
   const now = new Date().toISOString();
   const newRecipe: RecipeDoc = { ...reassigned, updatedAt: now };
 
-  const sourcePhotos = await collectPhotosForExport(sourceRecipe.id);
-
   await db.transaction("rw", db.recipes, db.photos, async () => {
+    // 読み取り（写真一覧）をrwトランザクション内へ移動し、書き込みとread-writeスナップショットを
+    // 共有する（tx外で読むと、読み取り〜書き込みの間に別操作が割り込みうる。M5レビューRound1修正4）。
+    const sourcePhotos = await collectPhotosForExport(sourceRecipe.id);
+
     if (sourcePhotos.length > 0) {
       const records: PhotoRecord[] = sourcePhotos
         .filter((photo) => photoIdMap.has(photo.id))

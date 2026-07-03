@@ -17,7 +17,12 @@ function HomePage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.heading}>{t("app.title")}</h1>
-        {recipeCount !== null && recipeCount > 0 && <NewRecipeButton />}
+        {recipeCount !== null && recipeCount > 0 && (
+          <div className={styles.actions}>
+            <NewRecipeButton />
+            <ImportJsonButton />
+          </div>
+        )}
       </div>
       <RecipeCardGrid
         onCountChange={setRecipeCount}

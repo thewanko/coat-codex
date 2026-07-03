@@ -139,18 +139,21 @@ function makeExportDepsWithOriginalBlobs(
 }
 
 /**
- * importRecipeのdeps。loadBrandColors（マスタ外presetId降格判定・§2.7規則d）は本番実装が
+ * importRecipeのdeps。loadBrandColorsResult（マスタ外presetId降格判定・§2.7規則d）は本番実装が
  * fetch("/paints/index.json")に依存しjsdomでは解決できない相対URLのため、フィクスチャの
  * プリセット色（citadel:mephiston-red 等）が実在するものとして扱う最小スタブへ差し替える
  * （importRecipe.test.tsと同じ注入パターン）。dataUrlToBlobはfetch(dataUrl)を使う本番実装が
  * jsdomでも正しく動作する（=structured clone未経由の実物Blobを生成する）ため既定のまま使う。
  */
 const importDeps: ImportRecipeDeps = {
-  loadBrandColors: async (brandId) => {
+  loadBrandColorsResult: async (brandId) => {
     if (brandId === "citadel") {
-      return [{ id: "citadel:mephiston-red" }, { id: "citadel:white-scar" }];
+      return {
+        ok: true,
+        colors: [{ id: "citadel:mephiston-red" }, { id: "citadel:white-scar" }],
+      };
     }
-    return [];
+    return { ok: false, reason: "unknown-brand" };
   },
   dataUrlToBlob: async (dataUrl: string) => {
     const res = await fetch(dataUrl);

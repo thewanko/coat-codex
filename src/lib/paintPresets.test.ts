@@ -190,6 +190,81 @@ describe("loadBrandColors", () => {
   });
 });
 
+describe("loadBrandColorsResult", () => {
+  test("正常時はok:trueでカラー一覧を返す", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(CITADEL_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadBrandColorsResult } = await importFresh();
+    const result = await loadBrandColorsResult("citadel");
+
+    expect(result).toEqual({ ok: true, colors: CITADEL_COLORS });
+  });
+
+  test("ブランドがindexに存在しない場合はok:false・reason:unknown-brandを返す", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const { loadBrandColorsResult } = await importFresh();
+    const result = await loadBrandColorsResult("ak");
+
+    expect(result).toEqual({ ok: false, reason: "unknown-brand" });
+  });
+
+  test("ブランドはindexに存在するが色一覧fetchが失敗した場合はok:false・reason:fetch-failedを返す", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(null, false, 500);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const { loadBrandColorsResult } = await importFresh();
+    const result = await loadBrandColorsResult("citadel");
+
+    expect(result).toEqual({ ok: false, reason: "fetch-failed" });
+  });
+
+  test("index.json自体のfetchが失敗した場合はok:false・reason:index-unavailableを返す", async () => {
+    const fetchMock = vi.fn(async () => {
+      throw new Error("network down");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const { loadBrandColorsResult } = await importFresh();
+    const result = await loadBrandColorsResult("citadel");
+
+    expect(result).toEqual({ ok: false, reason: "index-unavailable" });
+  });
+
+  test("既存のloadBrandColors（fetch失敗時に空配列を返す挙動）は変更されない", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/paints/index.json") return jsonResponse(INDEX_FIXTURE);
+      if (url === "/paints/citadel.json") return jsonResponse(null, false, 500);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const { loadBrandColors, loadBrandColorsResult } = await importFresh();
+    const colors = await loadBrandColors("citadel");
+    const result = await loadBrandColorsResult("citadel");
+
+    expect(colors).toEqual([]);
+    expect(result).toEqual({ ok: false, reason: "fetch-failed" });
+  });
+});
+
 describe("searchColors", () => {
   test("英名の部分一致（大文字小文字無視）で絞り込む", async () => {
     const fetchMock = vi.fn(async (url: string) => {

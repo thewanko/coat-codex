@@ -536,6 +536,7 @@ export function migrateExportFile(raw: unknown): unknown;   // recipe部にdocMi
    - b. **参照リマップ**: `colorId` / `toolIds` / `overviewPhotoIds` / `steps[].photoId` / `chipPhotoId`をMapで一括置換（v2.2: 旧`parts[].photoIds`は廃止）
    - c. **dangling photo除去（指摘12）**: `photos[].id`に実体がないphoto参照を文書から除去（写真なしエクスポート対応）
    - d. **presetKey降格（指摘14）**: マスタ外の`presetKey`は`{ presetKey: null, label: <旧キー文字列> }`へ降格
+   - d′. **palette[].presetId降格（2026-07-03 M5実装時に裁定・明文化）**: `source: "preset"`の色の`presetId`が塗料プリセットマスタに実在しない場合、`{ source: "custom", presetId: null }`へ降格（色名・hex・brand文字列は保持。INV-14整合）。プリセット改廃（AK除外等）後の旧エクスポートJSONを壊さず取り込むための規則。**判定の3分岐**: ①ブランドがプリセットindex（public/paints/index.json）に存在しない→降格 ②ブランドはindexに存在するが色一覧のfetchに失敗（ネットワーク一過性）→降格せずpresetのまま維持（正規色の不可逆劣化を防ぐ） ③index自体が取得不能→降格処理全体をスキップしインポートは続行
    - e. `schemaVersion = CURRENT`、`createdAt`は保持、`updatedAt = now`
 6. **書き込み**: Dexieのrwトランザクションで、`photos`（dataUrl→Blob変換、`recipeId`=新ID、`createdAt`=now）を`bulkAdd`→`recipes.add`。失敗時はトランザクションごとロールバック
 

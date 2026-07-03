@@ -114,6 +114,21 @@ export function stepEmpty(overrides: Partial<Step> = {}): Step {
   };
 }
 
+/** Markdownサニタイズ検証用の工程: memoに複数行（改行込み）の自由入力を持つ
+ *  （M5レビューRound1修正3: memo内改行によるリスト構造破壊の回帰確認用） */
+export function stepMultilineMemo(overrides: Partial<Step> = {}): Step {
+  return {
+    id: "stp_multiline_memo",
+    technique: { presetKey: null, label: "- 偽の箇条書き技法" },
+    photoId: null,
+    paints: [],
+    mix: null,
+    toolIds: [],
+    memo: "1行目のメモ\n## 偽の見出し\n- 偽の箇条書き",
+    ...overrides,
+  };
+}
+
 /**
  * 代表フィクスチャ: 完全なRecipeDocを返す汎用ファクトリ。
  * ベース工程・複数パーツ・上記全観点の工程を網羅する。

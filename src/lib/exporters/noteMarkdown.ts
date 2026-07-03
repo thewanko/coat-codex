@@ -8,6 +8,7 @@
 
 import { formatMixBadge } from "../mixRatio";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
+import { sanitizeMarkdownText } from "./markdownSanitize";
 import type { RecipeDoc, Step } from "../../models/recipe";
 
 /** i18n未接続時（テスト等）の技法名フォールバック辞書。markdown.tsと同一内容（重複防止のためexportはしない） */
@@ -112,13 +113,16 @@ function resolvePaintNames(step: Step, recipe: RecipeDoc): string[] {
   return step.paints.map((p) => {
     const color = paletteById.get(p.colorId);
     if (!color) return p.colorId;
-    return color.brand ? `${color.brand} ${color.name}` : color.name;
+    const name = color.brand ? `${color.brand} ${color.name}` : color.name;
+    return sanitizeMarkdownText(name);
   });
 }
 
 function resolveToolNames(step: Step, recipe: RecipeDoc): string[] {
   const toolById = new Map(recipe.tools.map((t) => [t.id, t]));
-  return step.toolIds.map((id) => toolById.get(id)?.name ?? id);
+  return step.toolIds.map((id) =>
+    sanitizeMarkdownText(toolById.get(id)?.name ?? id),
+  );
 }
 
 /** 1工程分のnote.com向けMarkdown行群を生成（絵文字装飾つき小見出し#### ） */
@@ -129,9 +133,8 @@ function renderStep(
   labels: NoteMarkdownLabels,
 ): string[] {
   const lines: string[] = [];
-  const techniqueLabel = resolveTechniqueLabel(
-    step.technique,
-    labels.techniqueT,
+  const techniqueLabel = sanitizeMarkdownText(
+    resolveTechniqueLabel(step.technique, labels.techniqueT),
   );
   const heading = techniqueLabel
     ? `${labels.stepLabel(index + 1)}: ${techniqueLabel}`
@@ -159,7 +162,7 @@ function renderStep(
   }
 
   if (step.memo.trim() !== "") {
-    lines.push(`- **${labels.memoLabel}**: ${step.memo}`);
+    lines.push(`- **${labels.memoLabel}**: ${sanitizeMarkdownText(step.memo)}`);
   }
 
   if (step.photoId !== null) {
@@ -203,7 +206,7 @@ export function exportRecipeToNoteMarkdown(
 ): string {
   const lines: string[] = [];
 
-  lines.push(`# ${recipe.title}`);
+  lines.push(`# ${sanitizeMarkdownText(recipe.title)}`);
 
   if (recipe.palette.length > 0 || recipe.tools.length > 0) {
     lines.push("");
@@ -215,7 +218,7 @@ export function exportRecipeToNoteMarkdown(
     lines.push(`## 🖌️ ${labels.paletteHeading}`);
     for (const color of recipe.palette) {
       const name = color.brand ? `${color.brand} ${color.name}` : color.name;
-      lines.push(`- ${name}`);
+      lines.push(`- ${sanitizeMarkdownText(name)}`);
     }
   }
 
@@ -223,9 +226,8 @@ export function exportRecipeToNoteMarkdown(
     lines.push("");
     lines.push(`## 🧰 ${labels.toolsHeading}`);
     for (const tool of recipe.tools) {
-      lines.push(
-        tool.note ? `- ${tool.name}（${tool.note}）` : `- ${tool.name}`,
-      );
+      const line = tool.note ? `${tool.name}（${tool.note}）` : tool.name;
+      lines.push(`- ${sanitizeMarkdownText(line)}`);
     }
   }
 
@@ -245,7 +247,7 @@ export function exportRecipeToNoteMarkdown(
     lines.push(`## ${labels.partsHeading}`);
     recipe.parts.forEach((part) => {
       lines.push("");
-      lines.push(`### ${part.name}`);
+      lines.push(`### ${sanitizeMarkdownText(part.name)}`);
       if (part.steps.length > 0) {
         lines.push("");
         lines.push(...renderSteps(part.steps, recipe, labels));

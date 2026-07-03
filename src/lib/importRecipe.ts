@@ -26,7 +26,7 @@ import {
 import { migrateExportFile } from "../models/migrations";
 import { CURRENT_SCHEMA_VERSION } from "../models/migrations";
 import { TECHNIQUE_PRESET_KEYS } from "./techniques";
-import { loadBrandColors } from "./paintPresets";
+import { loadBrandColorsResult } from "./paintPresets";
 
 /** 第1段ヘッダ検証の最小スキーマ（§2.7①）。app/kind/schemaVersionのみを見る */
 import { z } from "zod";
@@ -193,14 +193,27 @@ export function reassignRecipeIds(recipe: RecipeDoc): ReassignRecipeIdsResult {
 // normalizeImport — 正規化規則a〜e（reassignRecipeIds a・bに加えc・d・eを適用）
 // ---------------------------------------------------------------------------
 
+/** loadBrandColorsResult相当の照会結果（成否・理由を区別する）。
+ *  lib/paintPresets.ts#LoadBrandColorsResultと同型だが、依存注入用にcolorsの要素型のみを
+ *  最小化している（demotePresetColorsが必要とするのはidのみ）。 */
+export type LoadBrandColorsForImportResult =
+  | { ok: true; colors: { id: string }[] }
+  | {
+      ok: false;
+      reason: "unknown-brand" | "fetch-failed" | "index-unavailable";
+    };
+
 /** normalizeImportが依存する外部処理（プリセットマスタ照会）をテストから注入できるようにする束 */
 export interface NormalizeImportDeps {
-  /** 指定brandIdのプリセット色一覧を返す（省略時は本番実装 lib/paintPresets.ts#loadBrandColors） */
-  loadBrandColors: (brandId: string) => Promise<{ id: string }[]>;
+  /** 指定brandIdのプリセット色一覧照会（成否・理由を区別して返す。§2.7 d 裁定規則a〜c）。
+   *  省略時は本番実装 lib/paintPresets.ts#loadBrandColorsResult。 */
+  loadBrandColorsResult: (
+    brandId: string,
+  ) => Promise<LoadBrandColorsForImportResult>;
 }
 
 const defaultNormalizeImportDeps: NormalizeImportDeps = {
-  loadBrandColors,
+  loadBrandColorsResult,
 };
 
 /** normalizeImportの返り値 */
@@ -218,41 +231,97 @@ function brandIdFromPresetId(presetId: string): string | null {
   return presetId.slice(0, idx);
 }
 
+/** 降格判定の結果種別（M5レビューRound1修正2の裁定規則a〜c）:
+ *   "demote"  — a. ブランドがプリセットindexに存在しない（例: 旧AK） → 降格する
+ *   "keep"    — b. ブランドはindexに存在するが色一覧取得がネットワーク起因で失敗
+ *               → 降格せずpresetのまま維持（次回の正常なマスタ照会に委ねる）
+ *               また、ブランドがindexに実在し、presetIdも実在する場合もkeep
+ *   "skip-all" — c. index自体が取得不能 → 降格処理全体をスキップ（インポートは続行） */
+type PresetIdCheck = "demote" | "keep" | "skip-all";
+
 /**
  * palette[].presetIdがプリセットマスタ（lib/paintPresets.ts。Citadel/Vallejo/Coat d'armsの
  * 3ブランド。fetch由来のため非同期）に実在するかを判定し、実在しないsource="preset"色は
  * source="custom"・presetId=null（brandはpresetIdから読み取れないため元のbrand文字列を
  * ラベルとして保持）へ降格する。INV-14（source='preset' ⇔ presetId非null）との整合を保つ。
+ *
+ * 裁定済み降格規則（M5レビューRound1修正2）:
+ *   a. ブランドがindexに存在しない（例: 旧AK） → 降格する
+ *   b. ブランドはindexに存在するが色一覧のfetchがネットワーク起因で失敗 → 降格しない（preset維持）
+ *   c. index自体が取得不能 → 降格処理全体をスキップ（インポートは続行）
+ * この判定により、オフライン・一過性エラー時に正規preset色が不可逆的にcustomへ
+ * 巻き込まれることを防ぐ（loadBrandColors単体はfetch失敗時も空配列を返すため、
+ * その戻り値だけでは「ブランド不明」と「fetch失敗」を区別できない）。
  */
 async function demotePresetColors(
   palette: RecipeDoc["palette"],
   deps: NormalizeImportDeps,
 ): Promise<RecipeDoc["palette"]> {
-  const brandColorCache = new Map<string, Set<string>>();
+  const brandCheckCache = new Map<string, Promise<PresetIdCheck>>();
+  const brandIdSetCache = new Map<string, Set<string>>();
+  let indexUnavailable = false;
 
-  const isKnownPresetId = async (presetId: string): Promise<boolean> => {
-    const brandId = brandIdFromPresetId(presetId);
-    if (brandId === null) return false;
-
-    let ids = brandColorCache.get(brandId);
-    if (!ids) {
-      const colors = await deps.loadBrandColors(brandId);
-      ids = new Set(colors.map((c) => c.id));
-      brandColorCache.set(brandId, ids);
+  const checkBrand = (brandId: string): Promise<PresetIdCheck> => {
+    let pending = brandCheckCache.get(brandId);
+    if (!pending) {
+      pending = (async (): Promise<PresetIdCheck> => {
+        const result = await deps.loadBrandColorsResult(brandId);
+        if (result.ok) {
+          brandIdSetCache.set(brandId, new Set(result.colors.map((c) => c.id)));
+          return "keep";
+        }
+        if (result.reason === "index-unavailable") {
+          indexUnavailable = true;
+          return "skip-all";
+        }
+        if (result.reason === "unknown-brand") {
+          return "demote";
+        }
+        // fetch-failed: ブランドはindexに実在するが色一覧取得がネットワーク起因で失敗
+        return "keep";
+      })();
+      brandCheckCache.set(brandId, pending);
     }
-    return ids.has(presetId);
+    return pending;
   };
 
   const result: RecipeDoc["palette"] = [];
   for (const color of palette) {
+    if (indexUnavailable) {
+      // c. index自体が取得不能と判明した時点で以降の判定もスキップ（降格処理全体をスキップ）
+      result.push(color);
+      continue;
+    }
     if (color.source === "preset" && color.presetId !== null) {
-      const known = await isKnownPresetId(color.presetId);
-      if (!known) {
+      const brandId = brandIdFromPresetId(color.presetId);
+      if (brandId === null) {
+        result.push({ ...color, source: "custom", presetId: null });
+        continue;
+      }
+      const check = await checkBrand(brandId);
+      if (check === "skip-all") {
+        result.push(color);
+        continue;
+      }
+      if (check === "demote") {
+        result.push({ ...color, source: "custom", presetId: null });
+        continue;
+      }
+      // check === "keep": ブランドがindexに実在。fetch成功時のみ実際のpresetId実在判定を行い、
+      // fetch失敗時（色一覧が取得できていない）はb.の規則により判定を保留してpresetを維持する
+      const ids = brandIdSetCache.get(brandId);
+      if (ids && !ids.has(color.presetId)) {
         result.push({ ...color, source: "custom", presetId: null });
         continue;
       }
     }
     result.push(color);
+  }
+
+  if (indexUnavailable) {
+    // index自体が不能と判明した場合、既にresultへ積んだ分も含め元のpaletteをそのまま返す
+    // （途中まで判定済みの要素だけ降格状態が混ざるのを避け、c.の「処理全体をスキップ」を厳密に満たす）
+    return palette;
   }
   return result;
 }
@@ -376,7 +445,7 @@ export interface ImportRecipeDeps extends NormalizeImportDeps {
 }
 
 const defaultImportRecipeDeps: ImportRecipeDeps = {
-  loadBrandColors,
+  loadBrandColorsResult,
   dataUrlToBlob,
 };
 
