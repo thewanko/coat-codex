@@ -1,5 +1,6 @@
 /* ExportActionBar — デザイン仕様書§4「ActionBar」「Dialog / Modal」
-   export(PC): [印刷][PDF] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]（結合ピル・隣接固定）
+   export(PC): [印刷] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]（結合ピル・隣接固定。
+   PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）
    export(mobile, v2.3): 下部固定バーは廃止し「出力・共有」ピル1つ→ボトムシート
    （上角のみ--radius-lg、backdrop=--color-bg-backdrop、--shadow-3）に集約。
    PC/mobileはJS側(useIsMobile)でツリーを分岐する（技術計画v2.3 §3.3 ExportActionBar行）。*/

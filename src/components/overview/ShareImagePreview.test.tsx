@@ -9,6 +9,7 @@ import ShareImagePreview from "./ShareImagePreview";
 import type {
   ComposedShareImage,
   PartCandidateSpec,
+  SummaryWholeCandidateSpec,
   WholeCandidateSpec,
 } from "../../lib/sns/imageComposer";
 
@@ -34,6 +35,8 @@ function makePartImage(
 ): ComposedShareImage {
   const spec: PartCandidateSpec = {
     kind: "part",
+    title: "T",
+    partName: "P",
     overviewPhotoId: null,
     stepPhotoId,
     stepTag,
@@ -45,6 +48,22 @@ function makePartImage(
   return {
     spec,
     file: new File(["x"], `${stepPhotoId}.png`, { type: "image/png" }),
+  };
+}
+
+/** まとめカード（summary/whole）候補。写真を持たないため、プレビューは常にプレースホルダになる */
+function makeSummaryImage(): ComposedShareImage {
+  const spec: SummaryWholeCandidateSpec = {
+    kind: "summary",
+    variant: "whole",
+    title: "T",
+    progressLabel: "パーツ1・全2工程",
+    swatches: [],
+    overflowColorsLabel: null,
+  };
+  return {
+    spec,
+    file: new File(["x"], "summary.png", { type: "image/png" }),
   };
 }
 
@@ -152,5 +171,23 @@ describe("ShareImagePreview", () => {
     );
     expect(screen.getByText("STEP 1")).toBeInTheDocument();
     expect(screen.getByText("STEP 2")).toBeInTheDocument();
+  });
+
+  test("summary候補は写真を持たず、対角縞プレースホルダ様式＋「まとめ」タグで表示される", () => {
+    const images = [makeSummaryImage(), makeWholeImage("ph_1")];
+    render(
+      <ShareImagePreview
+        generating={false}
+        images={images}
+        selectedIndexes={[0, 1]}
+        onToggle={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("まとめ")).toBeInTheDocument();
+    // summary候補は写真Blob解決を試みない（photoId=null）ため、常にプレースホルダ表示になる
+    const placeholders = document.querySelectorAll(
+      `[class*="photoPlaceholder"][class*="diagonalStripes"]`,
+    );
+    expect(placeholders.length).toBeGreaterThanOrEqual(1);
   });
 });

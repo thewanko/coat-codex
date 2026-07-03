@@ -1,9 +1,10 @@
 // components/overview/ExportActionBar.tsx — 出力アクションバー
 // （技術計画v2.3 §3.3 ExportActionBar行・T28。結線T33: JSON・素MD隣接配置＋note MD。
-//   結線T40: 印刷／PDF（/recipe/:id/printへnavigate）／X・Bluesky（ShareDialog whole起点）。
+//   結線T40: 印刷（/recipe/:id/printへnavigate）／X・Bluesky（ShareDialog whole起点）。
 //
 // JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）・note MDをT33で結線する。
-// 印刷・PDFは/recipe/:id/printへnavigate（保存手順案内はPrintToolbar側=T36仕様）。
+// 印刷は/recipe/:id/printへnavigate（保存手順案内はPrintToolbar側=T36仕様。PDFボタンは
+// 印刷と挙動が同一だったため2026-07-03ユーザー決定で削除・「印刷」に統合）。
 // X・BlueskyはShareDialog（context={mode:"whole", recipe}）を対応するtargetで開く（T40）。
 // 並び順・グルーピング（菱区切り＋JSON+素MDの結合ピル）はデザイン仕様書§4「ActionBar」。
 // 結線ロジックはuseExportActions（react-refresh対応で分離）に委譲する。
@@ -71,7 +72,6 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     handlePlainMdExport,
     handleNoteMdExport,
     handlePrint,
-    handlePdf,
     handleShareX,
     handleShareBluesky,
     shareDialogOpen,
@@ -89,14 +89,6 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         onClick={handlePrint}
       >
         {t("overview.exportPrint")}
-      </button>
-      <button
-        type="button"
-        className={styles.pill}
-        disabled={recipe === null}
-        onClick={handlePdf}
-      >
-        {t("overview.exportPdf")}
       </button>
 
       <span className={styles.divider} aria-hidden="true" />
@@ -188,7 +180,6 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
     handlePlainMdExport,
     handleNoteMdExport,
     handlePrint,
-    handlePdf,
     handleShareX,
     handleShareBluesky,
   } = actions;
@@ -203,14 +194,6 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           onClick={handlePrint}
         >
           {t("overview.exportPrint")}
-        </button>
-        <button
-          type="button"
-          className={styles.sheetButton}
-          disabled={recipe === null}
-          onClick={handlePdf}
-        >
-          {t("overview.exportPdf")}
         </button>
       </div>
 

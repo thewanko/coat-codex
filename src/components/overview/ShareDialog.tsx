@@ -23,6 +23,7 @@ import {
   type ShareContext as ComposerShareContext,
 } from "../../lib/sns/imageComposer";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
+import { loadBrandColors } from "../../lib/paintPresets";
 import { resolveTechniqueLabel } from "../../lib/techniques";
 import type { SnsTarget } from "../../lib/sns/types";
 import type { RecipeDoc, Step } from "../../models/recipe";
@@ -55,6 +56,31 @@ function resolvePart(recipe: RecipeDoc, partId: string) {
   return recipe.parts.find((p) => p.id === partId) ?? null;
 }
 
+/** 技法の流れの連結時に工程数が4以上の場合、最初と最後の2件のみを残して短縮する境界値 */
+const TECHNIQUE_FLOW_FULL_LIST_LIMIT = 3;
+
+/**
+ * パーツの技法の流れ文字列を組み立てる（ユーザー決定2026-07-03: 既定テキストに技法の流れを含める）。
+ * 技法ラベルが空の工程はスキップし、有効ラベルが4件以上なら「{最初}→…→{最後}」に短縮する
+ * （3件以下は全列挙）。有効ラベルが1件もなければ空文字を返す（呼び出し側で流れ部分を省略する）。
+ */
+function buildTechniqueFlow(
+  part: { steps: Step[] },
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
+  const labels = part.steps
+    .map((step) => resolveTechniqueLabel(step.technique, t).trim())
+    .filter((label) => label !== "");
+
+  if (labels.length === 0) {
+    return "";
+  }
+  if (labels.length <= TECHNIQUE_FLOW_FULL_LIST_LIMIT) {
+    return labels.join("→");
+  }
+  return `${labels[0]}→…→${labels[labels.length - 1]}`;
+}
+
 /** 投稿テキスト既定文の組み立て（§3.4手順3。URLは含めない。#coat-codexは末尾固定） */
 function buildDefaultText(
   context: ShareDialogContext,
@@ -66,49 +92,145 @@ function buildDefaultText(
     const totalSteps =
       recipe.baseSteps.length +
       recipe.parts.reduce((sum, part) => sum + part.steps.length, 0);
-    const summary = t("share.wholeSummary", {
+    return t("share.wholeDefaultText", {
+      title: recipe.title,
       partsCount: recipe.parts.length,
       stepsCount: totalSteps,
     });
-    return t("share.wholeDefaultText", { title: recipe.title, summary });
   }
 
   const part = resolvePart(recipe, context.partId);
   const partName = part?.name ?? "";
-  const summary = t("share.partSummary", { count: part?.steps.length ?? 0 });
+  const stepsCount = part?.steps.length ?? 0;
+  const flow = part !== null ? buildTechniqueFlow(part, t) : "";
+
+  if (flow === "") {
+    return t("share.partDefaultTextNoFlow", {
+      title: recipe.title,
+      partName,
+      stepsCount,
+    });
+  }
   return t("share.partDefaultText", {
     title: recipe.title,
     partName,
-    summary,
+    flow,
+    stepsCount,
   });
 }
 
-/** 候補列挙用のCandidateResolvers（既存部品を注入して解決する） */
+/**
+ * 候補列挙用のCandidateResolvers（既存部品を注入して解決する）。
+ * techniqueLabelは.trim()した値を返す（レビューRound1 Low対応: 空白のみのラベルが
+ * buildTechniqueFlow・imageComposerのsummary工程リスト/partカード技法名へ
+ * 空白のまま流れて表示崩れ（「→   →」等）を起こすのを防ぐ）。
+ *
+ * paletteColorはbrand（recipe.palette内で同期解決可能）に加えrangeLabelを返す。
+ * rangeLabelはプリセットマスタ側の属性のため非同期解決が必要 — 呼び出し側
+ * （候補生成effect）がpresetIdごとのレンジをロード済みのMapを rangeLabelByPresetId
+ * として注入する（§3.4 SNSカード塗料表示 要件4）。マスタ未ロード・custom色・
+ * マスタfetch失敗時はMapに存在しないため自然にnull（レンジなし）になる。
+ */
+function buildCandidateResolvers(
+  recipe: RecipeDoc,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  rangeLabelByPresetId: Map<string, string>,
+) {
+  return {
+    techniqueLabel: (step: Step) =>
+      resolveTechniqueLabel(step.technique, t).trim(),
+    mixBadge: (step: Step) => formatMixBadge(step.paints, step.mix),
+    mixWarning: (step: Step) => {
+      if (isMixTotalValid(step.paints, step.mix)) {
+        return null;
+      }
+      const total = step.mix
+        ? step.mix.reduce((sum, value) => sum + value, 0)
+        : 0;
+      return t("mix.badgeWarning", { value: total });
+    },
+    stepTag: (n: number) => t("photo.stepTag", { n }),
+    paletteColor: (colorId: string) => {
+      const color = recipe.palette.find((c) => c.id === colorId);
+      if (!color) return null;
+      return {
+        name: color.name,
+        hex: color.hex,
+        brand: color.brand,
+        rangeLabel:
+          color.presetId !== null
+            ? (rangeLabelByPresetId.get(color.presetId) ?? null)
+            : null,
+      };
+    },
+    summaryProgress: (partsCount: number, totalSteps: number) =>
+      t("share.wholeSummary", {
+        partsCount,
+        stepsCount: totalSteps,
+      }),
+    overflowColorsLabel: (remaining: number) =>
+      t("share.overflowColors", { count: remaining }),
+    overflowStepsLabel: (remaining: number) =>
+      t("share.overflowSteps", { count: remaining }),
+    toolLabels: (step: Step) =>
+      step.toolIds
+        .map((toolId) => recipe.tools.find((tool) => tool.id === toolId))
+        .filter(
+          (tool): tool is RecipeDoc["tools"][number] => tool !== undefined,
+        )
+        .map((tool) => tool.name),
+  };
+}
+
+/** 空Map（rangeLabel未ロード状態）用の共有参照。renderのたびに新規Mapを作らないための定数 */
+const EMPTY_RANGE_MAP = new Map<string, string>();
+
+/**
+ * 候補列挙用のCandidateResolvers（表示用途。resolversRef経由でeffectの初期値として参照される）。
+ * rangeLabelはこの時点では常に未解決（EMPTY_RANGE_MAP）— 実際の候補生成effect内では
+ * buildRangeLabelMapの解決を待ってからbuildCandidateResolversを呼び直す（表示用途の
+ * resolversRef.currentはtext既定文組み立て等、rangeLabelを使わない用途にのみ使う）。
+ */
 function useCandidateResolvers(
   recipe: RecipeDoc,
   t: (key: string, opts?: Record<string, unknown>) => string,
 ) {
-  return useMemo(() => {
-    return {
-      techniqueLabel: (step: Step) => resolveTechniqueLabel(step.technique, t),
-      mixBadge: (step: Step) => formatMixBadge(step.paints, step.mix),
-      mixWarning: (step: Step) => {
-        if (isMixTotalValid(step.paints, step.mix)) {
-          return null;
+  return useMemo(
+    () => buildCandidateResolvers(recipe, t, EMPTY_RANGE_MAP),
+    [recipe, t],
+  );
+}
+
+/**
+ * recipe.paletteのpresetId（`<brandId>:<slug>`形式。PaintPicker.tsxの解析パターンを踏襲）
+ * が属するブランドのプリセットマスタをロードし、presetId→レンジ表示名のMapを構築する。
+ * レンジ非対応ブランド・custom色・マスタ内に該当presetIdが見つからない場合はMapに含まれない
+ * （呼び出し側でnullに丸まる）。マスタfetch失敗はloadBrandColorsが空配列へ丸めるため、
+ * 例外を投げず「そのブランド分だけレンジなし」として続行する（共有機能自体を止めない）。
+ */
+async function buildRangeLabelMap(
+  palette: RecipeDoc["palette"],
+): Promise<Map<string, string>> {
+  const presetIds = palette
+    .map((color) => color.presetId)
+    .filter((presetId): presetId is string => presetId !== null);
+
+  const brandIds = Array.from(
+    new Set(presetIds.map((presetId) => presetId.split(":")[0])),
+  ).filter((brandId): brandId is string => brandId !== undefined);
+
+  const map = new Map<string, string>();
+  await Promise.all(
+    brandIds.map(async (brandId) => {
+      const colors = await loadBrandColors(brandId);
+      for (const color of colors) {
+        if (color.range) {
+          map.set(color.id, color.range);
         }
-        const total = step.mix
-          ? step.mix.reduce((sum, value) => sum + value, 0)
-          : 0;
-        return t("mix.badgeWarning", { value: total });
-      },
-      stepTag: (n: number) => t("photo.stepTag", { n }),
-      paletteColor: (colorId: string) => {
-        const color = recipe.palette.find((c) => c.id === colorId);
-        if (!color) return null;
-        return { name: color.name, hex: color.hex };
-      },
-    };
-  }, [recipe, t]);
+      }
+    }),
+  );
+  return map;
 }
 
 function buildComposerContext(
@@ -175,10 +297,16 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
 
     let cancelled = false;
     const composerCtx = buildComposerContext(currentContext);
-    const specs = listShareCandidates(composerCtx, currentResolvers);
+    // 候補0件判定（partIdがrecipe.parts内に存在しない等）はrangeLabel解決の要否に関わらず
+    // 不変なので、先にEMPTY_RANGE_MAP版resolversで判定する（無駄なマスタfetchを避ける）。
+    const initialSpecs = listShareCandidates(composerCtx, currentResolvers);
 
-    if (specs.length === 0) {
-      // 候補0件（§3.4手順2）: 生成をスキップしA系統=テキストのみ／B系統=Intentのみへ即確定
+    if (initialSpecs.length === 0) {
+      // 候補0件（§3.4手順2）: まとめカード（kind: "summary"）が常に先頭に1枚生成される
+      // ため、写真ゼロのレシピでも通常は候補が空にならない。ここに到達するのは
+      // partモードで対象partIdがrecipe.parts内に存在しない場合のみ（imageComposer側の
+      // listShareCandidatesが空配列を返す既存挙動）。その場合は生成をスキップし
+      // A系統=テキストのみ／B系統=Intentのみへ即確定する。
       setGenerating(false);
       const canShareText =
         typeof navigator !== "undefined" &&
@@ -187,10 +315,27 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
       return;
     }
 
-    const deps = createDefaultComposerDeps(loadPhotoBlob);
+    void (async () => {
+      // ブランド・レンジ併記（§3.4 SNSカード塗料表示 要件4）: recipe.paletteのpresetIdが
+      // 属するブランドのプリセットマスタをロードし、presetId→レンジ表示名のMapを構築してから
+      // resolversに反映する。マスタfetch失敗時はbuildRangeLabelMap内部でブランド単位のエラーを
+      // 握り潰し空Mapに丸まる（＝レンジなし・brandのみで続行。共有機能自体を止めない）。
+      const rangeLabelByPresetId = await buildRangeLabelMap(
+        currentContext.recipe.palette,
+      );
+      if (cancelled) return;
 
-    void composeShareImages(specs, deps)
-      .then((result) => {
+      const resolversWithRange = buildCandidateResolvers(
+        currentContext.recipe,
+        currentT,
+        rangeLabelByPresetId,
+      );
+      const specs = listShareCandidates(composerCtx, resolversWithRange);
+
+      const deps = createDefaultComposerDeps(loadPhotoBlob);
+
+      try {
+        const result = await composeShareImages(specs, deps);
         if (cancelled) return;
         setImages(result);
         setSelectedIndexes(
@@ -212,8 +357,7 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
           typeof navigator.canShare === "function" &&
           navigator.canShare({ files: filesForCheck });
         setRoute(canShareFiles ? "a" : "b");
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) return;
         setGenerating(false);
         setGenerationFailed(true);
@@ -222,7 +366,8 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
           typeof navigator !== "undefined" &&
           typeof navigator.share === "function";
         setRoute(canShareText ? "a-text-only" : "b");
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
