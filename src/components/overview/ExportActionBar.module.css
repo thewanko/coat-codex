@@ -130,6 +130,8 @@
 /* ---- ボトムシート ---- */
 
 .sheetBackdrop {
+  /* 親.mobileRootのpointer-events: noneを打ち消す（シートは操作対象） */
+  pointer-events: auto;
   position: fixed;
   inset: 0;
   background: var(--color-bg-backdrop);
