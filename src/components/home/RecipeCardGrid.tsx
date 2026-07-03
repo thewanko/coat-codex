@@ -108,6 +108,7 @@ function RecipeCardGrid({
             recipe={recipe}
             onOpen={handleOpen}
             onDelete={handleRequestDelete}
+            onDuplicated={() => void reload()}
           />
         ))}
       </div>

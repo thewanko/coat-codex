@@ -33,6 +33,7 @@ vi.mock("../db/recipeStore", () => ({
 
 vi.mock("../lib/paintPresets", () => ({
   loadBrandIndex: vi.fn().mockResolvedValue([]),
+  loadBrandColors: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("../db/photoStore", () => ({

@@ -80,7 +80,11 @@
     "emptyTitle": "No codex yet",
     "emptyDescription": "Your data is stored only in this device's browser",
     "emptyCta": "Create your first codex",
-    "emptyImport": "Import JSON"
+    "emptyImport": "Import JSON",
+    "duplicate": "Duplicate",
+    "exportJson": "Export JSON",
+    "duplicateSuccess": "Duplicated \"{{title}}\"",
+    "duplicateFailed": "Failed to duplicate"
   },
   "setup": {
     "titleLabel": "Title",
@@ -158,7 +162,25 @@
     "markdownPaintsLabel": "Paints",
     "markdownToolsLabel": "Tools",
     "markdownHasPhotoLabel": "Photo attached",
-    "markdownEmptyStepLabel": "(Not set)"
+    "markdownEmptyStepLabel": "(Not set)",
+    "jsonSuccess": "Exported JSON file",
+    "jsonFailed": "Failed to export JSON",
+    "markdownCopySuccess": "Copied Markdown to clipboard",
+    "markdownCopyFailed": "Failed to copy to clipboard"
+  },
+  "exportPhotoChoice": {
+    "title": "Include photos?",
+    "description": "Including photos increases the file size. If excluded, photo references are kept but the actual files are not embedded.",
+    "with": "Include photos",
+    "without": "Without photos"
+  },
+  "importError": {
+    "title": "Import failed",
+    "close": "Close",
+    "dismiss": "Dismiss error dialog",
+    "toastSummary": "Import failed. See details for more information",
+    "success": "Imported \"{{title}}\"",
+    "unknownFailure": "An unknown error occurred during import"
   },
   "partReview": {
     "title": "Step Review",

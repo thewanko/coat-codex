@@ -3,12 +3,23 @@
 // 二重枠inset＋padding 9px、代表写真（overviewPhotoIds[0]）をresolvePhotoUrlで解決、
 // タイトル中央・明朝、メタ=mono「更新・工程n」。未バックアップドットは表示スロットのみ
 // 確保し、判定結線はT34（backedUpの実値供給）で行う（本タスクでは常にfalse/undefined）。
-// メニュー（⋮）は「開く」「削除」のみ（複製・JSONエクスポートの結線はT33）。
+// メニュー（⋮）は「開く」「複製」「JSONエクスポート」「削除」（T33で複製・エクスポート結線）。
+//
+// JSONエクスポート: ExportPhotoChoiceDialogで写真あり/なしを選択→exportRecipeToBlobで
+// Blob生成→downloadBlobでファイル保存→成功時にmeta.recipeExport:<recipeId>を更新（§3.5）。
+// 複製: duplicateRecipe（reassignRecipeIds＋photos複製）で新しいレシピを作成し、
+// 成功後onDuplicatedで親（RecipeCardGrid）に一覧再読み込みを依頼する。
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
+import { recordRecipeExport } from "../../lib/storageHealth";
+import { exportRecipeToBlob } from "../../lib/exporters/json";
 import type { RecipeDoc } from "../../models/recipe";
+import { useToast } from "../common/toastContext";
+import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
+import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
+import { duplicateRecipe } from "./duplicateRecipe";
 import styles from "./RecipeCard.module.css";
 
 interface RecipeCardProps {
@@ -17,6 +28,8 @@ interface RecipeCardProps {
   backedUp?: boolean;
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
+  /** 複製成功時に親（RecipeCardGrid）へ通知し、一覧の再読み込みを促す */
+  onDuplicated?: () => void;
 }
 
 function countSteps(recipe: RecipeDoc): number {
@@ -27,10 +40,18 @@ function countSteps(recipe: RecipeDoc): number {
   return recipe.baseSteps.length + partSteps;
 }
 
-function RecipeCard({ recipe, backedUp, onOpen, onDelete }: RecipeCardProps) {
+function RecipeCard({
+  recipe,
+  backedUp,
+  onOpen,
+  onDelete,
+  onDuplicated,
+}: RecipeCardProps) {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [exportChoiceOpen, setExportChoiceOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const coverPhotoId = recipe.overviewPhotoIds[0];
@@ -79,6 +100,35 @@ function RecipeCard({ recipe, backedUp, onOpen, onDelete }: RecipeCardProps) {
     onDelete(recipe.id);
   }
 
+  function handleRequestExport() {
+    setMenuOpen(false);
+    setExportChoiceOpen(true);
+  }
+
+  async function handleChooseExport(includePhotos: boolean) {
+    setExportChoiceOpen(false);
+    try {
+      const blob = await exportRecipeToBlob(recipe.id, { includePhotos });
+      downloadBlob(blob, `${sanitizeFilename(recipe.title)}.json`);
+      // §3.5: エクスポート成功時にmeta.recipeExport:<recipeId>を更新
+      await recordRecipeExport(recipe.id, new Date().toISOString());
+      toast.success(t("export.jsonSuccess"));
+    } catch {
+      toast.error(t("export.jsonFailed"));
+    }
+  }
+
+  async function handleDuplicate() {
+    setMenuOpen(false);
+    try {
+      const duplicated = await duplicateRecipe(recipe);
+      toast.success(t("home.duplicateSuccess", { title: duplicated.title }));
+      onDuplicated?.();
+    } catch {
+      toast.error(t("home.duplicateFailed"));
+    }
+  }
+
   return (
     <div className={styles.card} data-testid="recipe-card">
       <div className={styles.menuWrapper} ref={menuRef}>
@@ -101,6 +151,22 @@ function RecipeCard({ recipe, backedUp, onOpen, onDelete }: RecipeCardProps) {
               onClick={handleOpen}
             >
               {t("home.open")}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={() => void handleDuplicate()}
+            >
+              {t("home.duplicate")}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={handleRequestExport}
+            >
+              {t("home.exportJson")}
             </button>
             <button
               type="button"
@@ -133,6 +199,12 @@ function RecipeCard({ recipe, backedUp, onOpen, onDelete }: RecipeCardProps) {
       <p className={styles.meta}>
         {updatedAtLabel} ・ {stepsLabel}
       </p>
+
+      <ExportPhotoChoiceDialog
+        open={exportChoiceOpen}
+        onChoose={(includePhotos) => void handleChooseExport(includePhotos)}
+        onCancel={() => setExportChoiceOpen(false)}
+      />
     </div>
   );
 }

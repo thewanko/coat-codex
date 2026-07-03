@@ -80,7 +80,11 @@
     "emptyTitle": "まだ秘伝書がありません",
     "emptyDescription": "データはこの端末のブラウザにのみ保存されます",
     "emptyCta": "最初の秘伝書を作る",
-    "emptyImport": "JSONをインポート"
+    "emptyImport": "JSONをインポート",
+    "duplicate": "複製",
+    "exportJson": "JSONエクスポート",
+    "duplicateSuccess": "「{{title}}」を複製しました",
+    "duplicateFailed": "複製に失敗しました"
   },
   "setup": {
     "titleLabel": "タイトル",
@@ -158,7 +162,25 @@
     "markdownPaintsLabel": "塗料",
     "markdownToolsLabel": "ツール",
     "markdownHasPhotoLabel": "写真あり",
-    "markdownEmptyStepLabel": "（未設定）"
+    "markdownEmptyStepLabel": "（未設定）",
+    "jsonSuccess": "JSONファイルをエクスポートしました",
+    "jsonFailed": "JSONエクスポートに失敗しました",
+    "markdownCopySuccess": "Markdownをクリップボードにコピーしました",
+    "markdownCopyFailed": "クリップボードへのコピーに失敗しました"
+  },
+  "exportPhotoChoice": {
+    "title": "写真を含めますか？",
+    "description": "写真を含めるとファイルサイズが大きくなります。含めない場合、写真の参照は保持されますが実体は同梱されません。",
+    "with": "写真を含める",
+    "without": "写真を含めない"
+  },
+  "importError": {
+    "title": "インポートに失敗しました",
+    "close": "閉じる",
+    "dismiss": "エラーダイアログを閉じる",
+    "toastSummary": "インポートに失敗しました。詳細を確認してください",
+    "success": "「{{title}}」をインポートしました",
+    "unknownFailure": "インポート中に不明なエラーが発生しました"
   },
   "partReview": {
     "title": "工程レビュー",

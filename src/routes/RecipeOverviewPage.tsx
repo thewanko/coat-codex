@@ -131,7 +131,7 @@ function RecipeOverviewPage() {
         />
       </section>
 
-      <ExportActionBar />
+      <ExportActionBar recipe={doc} />
 
       {reviewPartId !== null && (
         <PartReviewDialog

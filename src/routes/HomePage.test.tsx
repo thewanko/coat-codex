@@ -4,6 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../i18n";
 import HomePage from "./HomePage";
+import ToastHost from "../components/common/ToastHost";
 import { listRecipes } from "../db/recipeStore";
 import type { RecipeDoc } from "../models/recipe";
 
@@ -51,7 +52,9 @@ function makeRecipe(id: string, title: string): RecipeDoc {
 function renderHome() {
   return render(
     <MemoryRouter>
-      <HomePage />
+      <ToastHost>
+        <HomePage />
+      </ToastHost>
     </MemoryRouter>,
   );
 }
@@ -77,7 +80,7 @@ describe("HomePage", () => {
     ).not.toBeInTheDocument();
   });
 
-  test("レシピ0件時、インポート導線は非活性表示（結線はT33）", async () => {
+  test("レシピ0件時、インポート導線を表示する（結線T33）", async () => {
     vi.mocked(listRecipes).mockResolvedValue([]);
 
     renderHome();
@@ -85,7 +88,7 @@ describe("HomePage", () => {
     const importButton = await screen.findByRole("button", {
       name: "JSONをインポート",
     });
-    expect(importButton).toBeDisabled();
+    expect(importButton).not.toBeDisabled();
   });
 
   test("レシピ1件以上のとき、ヘッダーに新規作成ボタンを表示する", async () => {

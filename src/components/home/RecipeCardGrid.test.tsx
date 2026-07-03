@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
 import RecipeCardGrid from "./RecipeCardGrid";
+import ToastHost from "../common/ToastHost";
 import { deleteRecipe, listRecipes } from "../../db/recipeStore";
 import { deletePhotosForRecipe } from "../../db/photoStore";
 import type { RecipeDoc } from "../../models/recipe";
@@ -52,7 +53,9 @@ function makeRecipe(id: string, title: string, updatedAt: string): RecipeDoc {
 function renderGrid() {
   return render(
     <MemoryRouter>
-      <RecipeCardGrid />
+      <ToastHost>
+        <RecipeCardGrid />
+      </ToastHost>
     </MemoryRouter>,
   );
 }
@@ -158,7 +161,9 @@ describe("RecipeCardGrid", () => {
 
     render(
       <MemoryRouter>
-        <RecipeCardGrid onCountChange={onCountChange} />
+        <ToastHost>
+          <RecipeCardGrid onCountChange={onCountChange} />
+        </ToastHost>
       </MemoryRouter>,
     );
 
