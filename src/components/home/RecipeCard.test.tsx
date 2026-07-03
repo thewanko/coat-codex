@@ -260,4 +260,36 @@ describe("RecipeCard", () => {
       });
     });
   });
+
+  test("エクスポート成功後にonExportedが当該レシピIDで呼ばれる（D-6再判定用）", async () => {
+    const blob = new Blob(["{}"], { type: "application/json" });
+    vi.mocked(exportRecipeToBlob).mockResolvedValue(blob);
+    const onExported = vi.fn();
+
+    renderCard({ onExported });
+    fireEvent.click(screen.getByLabelText("メニュー"));
+    fireEvent.click(screen.getByRole("menuitem", { name: "JSONエクスポート" }));
+    fireEvent.click(screen.getByRole("button", { name: "写真を含める" }));
+
+    await waitFor(() => {
+      expect(onExported).toHaveBeenCalledWith("rcp_1");
+    });
+  });
+
+  test("エクスポート失敗時はonExportedが呼ばれない", async () => {
+    vi.mocked(exportRecipeToBlob).mockRejectedValue(new Error("fail"));
+    const onExported = vi.fn();
+
+    renderCard({ onExported });
+    fireEvent.click(screen.getByLabelText("メニュー"));
+    fireEvent.click(screen.getByRole("menuitem", { name: "JSONエクスポート" }));
+    fireEvent.click(screen.getByRole("button", { name: "写真を含める" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("JSONエクスポートに失敗しました"),
+      ).toBeInTheDocument();
+    });
+    expect(onExported).not.toHaveBeenCalled();
+  });
 });

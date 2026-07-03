@@ -25,6 +25,7 @@ import {
   useRecipeStore,
 } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
+import { readRecipeExport } from "../lib/storageHealth";
 import type { RecipeDoc } from "../models/recipe";
 
 type RecipePart = RecipeDoc["parts"][number];
@@ -46,6 +47,19 @@ vi.mock("../db/photoStore", async () => {
   return {
     ...actual,
     resolvePhotoUrl: vi.fn().mockResolvedValue(null),
+  };
+});
+
+// ExportReminderBanner(compact)（T34）がlib/storageHealth経由でDexie(meta)を読むため、
+// fake-indexeddb非依存のこのテストではAPI非対応環境相当（undefined）にモックする。
+vi.mock("../lib/storageHealth", async () => {
+  const actual = await vi.importActual<typeof import("../lib/storageHealth")>(
+    "../lib/storageHealth",
+  );
+  return {
+    ...actual,
+    readRecipeExport: vi.fn().mockResolvedValue(undefined),
+    readReminderSnooze: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -123,6 +137,7 @@ beforeEach(() => {
   vi.mocked(saveRecipe).mockImplementation((doc: RecipeDoc) =>
     Promise.resolve(doc),
   );
+  vi.mocked(readRecipeExport).mockReset().mockResolvedValue(undefined);
   __resetRecipeStoreForTest();
 });
 
@@ -263,5 +278,32 @@ describe("RecipeOverviewPage — 戻るリンク", () => {
     });
     const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
     expect(link).toHaveAttribute("href", "/");
+  });
+});
+
+describe("RecipeOverviewPage — ExportReminderBanner(compact)（§3.5・T34）", () => {
+  test("未エクスポートのレシピはコンパクト帯を表示する", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    vi.mocked(readRecipeExport).mockResolvedValue(undefined);
+    renderPage("/recipe/rcp_1");
+
+    expect(
+      await screen.findByTestId("export-reminder-banner"),
+    ).toBeInTheDocument();
+  });
+
+  test("recipeExport:<id>がupdatedAt以降ならコンパクト帯を表示しない", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ updatedAt: "2026-07-01T00:00:00.000Z" }),
+    );
+    vi.mocked(readRecipeExport).mockResolvedValue("2026-07-02T00:00:00.000Z");
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("テストレシピ")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("export-reminder-banner"),
+    ).not.toBeInTheDocument();
   });
 });

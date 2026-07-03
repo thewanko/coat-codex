@@ -115,10 +115,13 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   };
 }
 
-function renderBar(recipe: RecipeDoc | null = null) {
+function renderBar(
+  recipe: RecipeDoc | null = null,
+  onExported?: (recipeId: string) => void,
+) {
   return render(
     <ToastHost>
-      <ExportActionBar recipe={recipe} />
+      <ExportActionBar recipe={recipe} onExported={onExported} />
     </ToastHost>,
   );
 }
@@ -255,6 +258,20 @@ describe("ExportActionBar — PC幅（従来のピル群）", () => {
       expect(
         screen.getByText("JSONエクスポートに失敗しました"),
       ).toBeInTheDocument();
+    });
+  });
+
+  test("JSONエクスポート成功後にonExportedが当該レシピIDで呼ばれる（D-6再判定用）", async () => {
+    const blob = new Blob(["{}"], { type: "application/json" });
+    vi.mocked(exportRecipeToBlob).mockResolvedValue(blob);
+    const onExported = vi.fn();
+
+    renderBar(makeRecipe(), onExported);
+    fireEvent.click(screen.getByRole("button", { name: "JSON" }));
+    fireEvent.click(screen.getByRole("button", { name: "写真を含める" }));
+
+    await waitFor(() => {
+      expect(onExported).toHaveBeenCalledWith("rcp_1");
     });
   });
 });

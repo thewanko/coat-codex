@@ -168,6 +168,21 @@
     "markdownCopySuccess": "Copied Markdown to clipboard",
     "markdownCopyFailed": "Failed to copy to clipboard"
   },
+  "storageStatus": {
+    "protectedLabel": "Data protection: On",
+    "unprotectedLabel": "Not protected — your browser may delete data automatically",
+    "safariWarning": "Your data may be deleted if you don't visit this site for 7 days. We recommend a JSON backup.",
+    "usage": "Used: {{used}} / Quota: {{quota}} (estimate)",
+    "lastExport": "Last export: {{date}}",
+    "lastExportNever": "Last export: never",
+    "volumesCount": "{{count}} VOLUMES"
+  },
+  "exportReminder": {
+    "homeMessage": "You have codices that haven't been backed up. Export a JSON backup.",
+    "overviewMessage": "This recipe hasn't been backed up yet.",
+    "exportNow": "Export now",
+    "later": "Later"
+  },
   "exportPhotoChoice": {
     "title": "Include photos?",
     "description": "Including photos increases the file size. If excluded, photo references are kept but the actual files are not embedded.",

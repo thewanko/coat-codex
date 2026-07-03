@@ -52,9 +52,10 @@ function useIsMobile(): boolean {
 
 interface ExportActionsProps {
   recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
 }
 
-function ExportActions({ recipe }: ExportActionsProps) {
+function ExportActions({ recipe, onExported }: ExportActionsProps) {
   const { t } = useTranslation();
   const {
     handleRequestJsonExport,
@@ -63,7 +64,7 @@ function ExportActions({ recipe }: ExportActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
-  } = useExportActions(recipe);
+  } = useExportActions(recipe, onExported);
 
   return (
     <>
@@ -124,9 +125,10 @@ function ExportActions({ recipe }: ExportActionsProps) {
 
 interface ExportSheetActionsProps {
   recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
 }
 
-function ExportSheetActions({ recipe }: ExportSheetActionsProps) {
+function ExportSheetActions({ recipe, onExported }: ExportSheetActionsProps) {
   const { t } = useTranslation();
   const {
     handleRequestJsonExport,
@@ -135,7 +137,7 @@ function ExportSheetActions({ recipe }: ExportSheetActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
-  } = useExportActions(recipe);
+  } = useExportActions(recipe, onExported);
 
   return (
     <>
@@ -219,9 +221,10 @@ interface ExportSheetProps {
   open: boolean;
   onClose: () => void;
   recipe: RecipeDoc | null;
+  onExported?: (recipeId: string) => void;
 }
 
-function ExportSheet({ open, onClose, recipe }: ExportSheetProps) {
+function ExportSheet({ open, onClose, recipe, onExported }: ExportSheetProps) {
   const { t } = useTranslation();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -347,7 +350,7 @@ function ExportSheet({ open, onClose, recipe }: ExportSheetProps) {
           </div>
         </div>
         <div className={styles.sheetBody}>
-          <ExportSheetActions recipe={recipe} />
+          <ExportSheetActions recipe={recipe} onExported={onExported} />
         </div>
       </div>
     </div>
@@ -357,9 +360,11 @@ function ExportSheet({ open, onClose, recipe }: ExportSheetProps) {
 interface ExportActionBarProps {
   /** JSONエクスポート・素MD・note MDの元になる編集中レシピ。未ロード時はnull（全ボタン無効） */
   recipe?: RecipeDoc | null;
+  /** JSONエクスポート成功時に呼び出し側へ通知（D-6: 未バックアップドット・リマインダー帯の再判定用） */
+  onExported?: (recipeId: string) => void;
 }
 
-function ExportActionBar({ recipe = null }: ExportActionBarProps) {
+function ExportActionBar({ recipe = null, onExported }: ExportActionBarProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -378,6 +383,7 @@ function ExportActionBar({ recipe = null }: ExportActionBarProps) {
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
           recipe={recipe}
+          onExported={onExported}
         />
       </div>
     );
@@ -385,7 +391,7 @@ function ExportActionBar({ recipe = null }: ExportActionBarProps) {
 
   return (
     <div className={styles.root} data-testid="export-action-bar">
-      <ExportActions recipe={recipe} />
+      <ExportActions recipe={recipe} onExported={onExported} />
     </div>
   );
 }

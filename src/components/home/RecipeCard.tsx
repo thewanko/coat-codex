@@ -24,12 +24,14 @@ import styles from "./RecipeCard.module.css";
 
 interface RecipeCardProps {
   recipe: RecipeDoc;
-  /** 未バックアップドットの表示要否。結線はT34（D-6）。本タスクでは渡されない想定 */
+  /** 未バックアップドットの表示要否（D-6: recipeExport:<id>が無い、またはupdatedAtより古い） */
   backedUp?: boolean;
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
   /** 複製成功時に親（RecipeCardGrid）へ通知し、一覧の再読み込みを促す */
   onDuplicated?: () => void;
+  /** JSONエクスポート成功時に親（RecipeCardGrid）へ通知し、当該カードのドット再判定を促す（D-6） */
+  onExported?: (recipeId: string) => void;
 }
 
 function countSteps(recipe: RecipeDoc): number {
@@ -46,6 +48,7 @@ function RecipeCard({
   onOpen,
   onDelete,
   onDuplicated,
+  onExported,
 }: RecipeCardProps) {
   const { t, i18n } = useTranslation();
   const toast = useToast();
@@ -113,6 +116,8 @@ function RecipeCard({
       // §3.5: エクスポート成功時にmeta.recipeExport:<recipeId>を更新
       await recordRecipeExport(recipe.id, new Date().toISOString());
       toast.success(t("export.jsonSuccess"));
+      // D-6: 当該カードのドット再判定を親に促す
+      onExported?.(recipe.id);
     } catch {
       toast.error(t("export.jsonFailed"));
     }

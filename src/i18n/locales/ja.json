@@ -168,6 +168,21 @@
     "markdownCopySuccess": "Markdownをクリップボードにコピーしました",
     "markdownCopyFailed": "クリップボードへのコピーに失敗しました"
   },
+  "storageStatus": {
+    "protectedLabel": "データ保護: 有効",
+    "unprotectedLabel": "保護なし — ブラウザにより自動削除される可能性があります",
+    "safariWarning": "7日間サイトを訪問しないとデータが削除される可能性があります。JSONバックアップを推奨します",
+    "usage": "使用中: {{used}} / 目安: {{quota}}（概算）",
+    "lastExport": "最終エクスポート: {{date}}",
+    "lastExportNever": "最終エクスポート: 未実施",
+    "volumesCount": "{{count}} VOLUMES"
+  },
+  "exportReminder": {
+    "homeMessage": "未バックアップの秘伝書があります。JSONでバックアップしましょう",
+    "overviewMessage": "このレシピはまだバックアップされていません",
+    "exportNow": "今すぐエクスポート",
+    "later": "あとで"
+  },
   "exportPhotoChoice": {
     "title": "写真を含めますか？",
     "description": "写真を含めるとファイルサイズが大きくなります。含めない場合、写真の参照は保持されますが実体は同梱されません。",

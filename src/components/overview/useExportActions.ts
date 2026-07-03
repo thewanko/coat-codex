@@ -54,6 +54,7 @@ export interface UseExportActionsResult {
 
 export function useExportActions(
   recipe: RecipeDoc | null,
+  onExported?: (recipeId: string) => void,
 ): UseExportActionsResult {
   const { t } = useTranslation();
   const toast = useToast();
@@ -78,6 +79,8 @@ export function useExportActions(
         // §3.5: エクスポート成功時にmeta.recipeExport:<recipeId>を更新
         await recordRecipeExport(recipe.id, new Date().toISOString());
         toast.success(t("export.jsonSuccess"));
+        // D-6: 当該レシピの未バックアップドット・リマインダー帯の再判定を親に促す
+        onExported?.(recipe.id);
       } catch {
         toast.error(t("export.jsonFailed"));
       }
