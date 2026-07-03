@@ -56,6 +56,12 @@ vi.mock("../../lib/sns/imageComposer", async () => {
   };
 });
 
+const loadBrandColorsMock = vi.fn();
+
+vi.mock("../../lib/paintPresets", () => ({
+  loadBrandColors: (...args: unknown[]) => loadBrandColorsMock(...args),
+}));
+
 function makeFile(name: string): File {
   return new File(["x"], name, { type: "image/png" });
 }
@@ -708,5 +714,161 @@ describe("ShareDialog — 親再レンダー時のeffect多重走行防止（レ
 
     // 生成対象（recipe.id等の一次値）は変わっていないため、再実行されないはず
     expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ShareDialog — ブランド・レンジ併記のresolver結線（§3.4 SNSカード塗料表示 要件4）", () => {
+  /** RecipeDoc.palette[]要素のfixture（paletteColorSchema準拠） */
+  function makePaletteColor(
+    overrides: Partial<RecipeDoc["palette"][number]> = {},
+  ): RecipeDoc["palette"][number] {
+    return {
+      id: "col_1",
+      source: "preset",
+      brand: "Citadel",
+      name: "Eshin Grey",
+      presetId: "citadel:eshin-grey",
+      hex: "#3C3C3C",
+      chipPhotoId: null,
+      ...overrides,
+    };
+  }
+
+  test("recipe.paletteのpresetIdが属するブランドのマスタをロードし、候補生成specにrangeLabelが反映される", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+    loadBrandColorsMock.mockResolvedValue([
+      {
+        id: "citadel:eshin-grey",
+        name: "Eshin Grey",
+        range: "Layer",
+        hex: "#3C3C3C",
+      },
+    ]);
+
+    const recipe = makeRecipe({
+      palette: [makePaletteColor()],
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              photoId: "ph_s1",
+              paints: [{ colorId: "col_1" }],
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    await waitFor(() => {
+      expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
+    });
+    // ブランドのマスタが正しいbrandIdでロードされている（presetId "citadel:eshin-grey" → "citadel"）
+    expect(loadBrandColorsMock).toHaveBeenCalledWith("citadel");
+
+    // composeShareImagesへ渡されたspecsのsummary(part)候補内でrangeLabelが解決されている
+    const specsArg = composeShareImagesMock.mock.calls[0][0] as Array<{
+      kind: string;
+      variant?: string;
+      steps?: Array<{
+        swatches: { rangeLabel: string | null; brand: string | null }[];
+      }>;
+    }>;
+    const summarySpec = specsArg.find(
+      (s) => s.kind === "summary" && s.variant === "part",
+    );
+    expect(summarySpec?.steps?.[0]?.swatches[0]).toMatchObject({
+      brand: "Citadel",
+      rangeLabel: "Layer",
+    });
+  });
+
+  test("プリセットマスタfetch失敗時はレンジなし（brandのみ）で共有機能自体は継続する", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+    // loadBrandColorsは実装上fetch失敗時に空配列へ丸めるため、そのフォールバック挙動をスタブする
+    loadBrandColorsMock.mockResolvedValue([]);
+
+    const recipe = makeRecipe({
+      palette: [makePaletteColor()],
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              photoId: "ph_s1",
+              paints: [{ colorId: "col_1" }],
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    // マスタfetch失敗（空配列）でも生成・共有導線は止まらない
+    await waitFor(() => {
+      expect(screen.getByTestId("share-primary-button")).not.toBeDisabled();
+    });
+    expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
+
+    const specsArg = composeShareImagesMock.mock.calls[0][0] as Array<{
+      kind: string;
+      variant?: string;
+      steps?: Array<{
+        swatches: { rangeLabel: string | null; brand: string | null }[];
+      }>;
+    }>;
+    const summarySpec = specsArg.find(
+      (s) => s.kind === "summary" && s.variant === "part",
+    );
+    // brandは同期解決可能なため残るが、rangeLabelはマスタ未解決のためnull
+    expect(summarySpec?.steps?.[0]?.swatches[0]).toMatchObject({
+      brand: "Citadel",
+      rangeLabel: null,
+    });
+  });
+
+  test("custom色（presetId=null）はマスタロード対象外で、brand・rangeLabelともにnullのまま", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    const recipe = makeRecipe({
+      palette: [
+        makePaletteColor({
+          id: "col_custom",
+          source: "custom",
+          brand: null,
+          name: "Water",
+          presetId: null,
+          hex: null,
+        }),
+      ],
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              photoId: "ph_s1",
+              paints: [{ colorId: "col_custom" }],
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    await waitFor(() => {
+      expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
+    });
+    // custom色はpresetIdを持たないためloadBrandColorsは呼ばれない（無駄なfetch回避）
+    expect(loadBrandColorsMock).not.toHaveBeenCalled();
   });
 });

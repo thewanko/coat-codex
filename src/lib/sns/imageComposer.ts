@@ -36,6 +36,10 @@ export interface StepLike {
   technique: { presetKey: string | null; label: string | null };
   paints: { colorId: string }[];
   mix: number[] | null;
+  /** 印刷ビュー工程行相当のリッチ化（SNSまとめカード）用。RecipeDoc.Step.toolIdsと構造的互換 */
+  toolIds: string[];
+  /** 印刷ビュー工程行相当のリッチ化用。RecipeDoc.Step.memoと構造的互換 */
+  memo: string;
 }
 
 /** 表示文字列の解決手段（i18n非依存にするための注入。呼び出し側がi18nキーで解決する） */
@@ -45,7 +49,14 @@ export interface CandidateResolvers {
   mixWarning(step: StepLike): string | null;
   /** 工程番号（1-based）→ 表示タグ文字列（例: "STEP 3"） */
   stepTag(n: number): string;
-  paletteColor(colorId: string): { name: string; hex: string | null } | null;
+  paletteColor(colorId: string): {
+    name: string;
+    hex: string | null;
+    /** ブランド名（レシピ内で同期解決可能。custom色・ブランド不明はnull） */
+    brand: string | null;
+    /** レンジ表示名（プリセットマスタ側の属性のため非同期解決が必要。未解決・custom色はnull） */
+    rangeLabel: string | null;
+  } | null;
   /**
    * まとめカード（whole）: パーツ数/全工程数の進捗文字列（例: "4パーツ・全12工程"）。
    * i18n解決込みで呼び出し側が組み立てる。
@@ -53,14 +64,22 @@ export interface CandidateResolvers {
   summaryProgress(partsCount: number, totalSteps: number): string;
   /** まとめカード: スウォッチ列が上限（12色）を超えた際の残数表示（例: "+3"） */
   overflowColorsLabel(remaining: number): string;
-  /** まとめカード（part）: 工程リストが上限（8行）を超えた際の残数表示（例: "…他4工程"） */
+  /** まとめカード（part）: 工程リストが収容上限を超えた際の残数表示（例: "…他4工程"） */
   overflowStepsLabel(remaining: number): string;
+  /** まとめカード（part）: 工程のツール名列（recipe.toolsからtoolIdsを名前解決）。ツールなしは空配列 */
+  toolLabels(step: StepLike): string[];
 }
 
 /** カードに描くスウォッチ1件分（解決済み） */
 export interface SwatchSpec {
   name: string;
   hex: string | null;
+  /**
+   * ブランド名（レシピ内で同期解決可能。custom色・ブランド不明はnull）。
+   * part写真カードの情報帯スウォッチ列で色名に併記する（whole側のパレット全色チップ列は
+   * 色名を出さないため未使用のまま素通りする＝現状の描画に影響しない）。
+   */
+  brand: string | null;
 }
 
 /** whole候補: 全体写真1枚＋タイトルの1枚絵 */
@@ -91,11 +110,38 @@ export interface PartCandidateSpec {
   swatches: SwatchSpec[];
 }
 
-/** まとめカードの工程リスト1行分（解決済み） */
+/** まとめカード工程行のスウォッチ1件分（印刷ビュー工程行の色名＋%併記に相当） */
+export interface SummaryStepSwatchSpec {
+  name: string;
+  hex: string | null;
+  /** 混合時のこの塗料の%表示（例: "25%"）。単色・percent情報なしはnull */
+  percent: string | null;
+  /** ブランド名（custom色・ブランド不明はnull） */
+  brand: string | null;
+  /** レンジ表示名（プリセットマスタ未解決・custom色はnull） */
+  rangeLabel: string | null;
+}
+
+/**
+ * まとめカードの工程リスト1行分（解決済み・印刷ビューPART節の工程行相当の情報密度）。
+ * 朱番号＋技法名＋塗料スウォッチ（色名・%併記）＋混合バッジ／警告＋ツール名＋メモを持つ。
+ */
 export interface SummaryStepRow {
   /** 工程番号（1-based）の表示タグ（例: "STEP 3"） */
   stepTag: string;
+  /** 工程番号（1-based）の朱番号表示に使う生数値 */
+  stepNumber: number;
   techniqueLabel: string;
+  /** 塗料スウォッチ（paints順・%併記）。paletteColorがnullを返した要素は除外 */
+  swatches: SummaryStepSwatchSpec[];
+  /** 混合バッジ文字列（"25% + 75% (1:3)"等）。単色・塗料0件は"" */
+  mixBadge: string;
+  /** 合計≠100警告の継承（§2.3）。警告なしはnull */
+  mixWarning: string | null;
+  /** ツール名列（recipe.toolsから解決済み）。ツールなしは空配列 */
+  toolLabels: string[];
+  /** 工程メモ（trim済み）。メモなしは"" */
+  memo: string;
 }
 
 /** まとめカード（whole）: レシピ名・パーツ数/全工程数・パレット全色スウォッチの表紙1枚絵 */
@@ -111,20 +157,20 @@ export interface SummaryWholeCandidateSpec {
   overflowColorsLabel: string | null;
 }
 
-/** まとめカード（part）: レシピ名＋パーツ名・工程リスト（最大8行）・パーツ内使用色スウォッチの表紙1枚絵 */
+/**
+ * まとめカード（part）: レシピ名＋パーツ名・工程リスト（印刷ビュー工程行相当の情報密度）の表紙1枚絵。
+ * 工程行自体に塗料スウォッチ・色名・%を持つため、下部スウォッチ一覧は廃止（2026-07-03実機フィードバック）。
+ * 工程数はstepListArea（フッタ直上まで拡大）に収まるだけ動的に収容し、収まらない分はoverflowStepsLabelへ集約する。
+ */
 export interface SummaryPartCandidateSpec {
   kind: "summary";
   variant: "part";
   title: string;
   partName: string;
-  /** 工程リスト（1-based番号＋技法ラベル。上限8行） */
+  /** 工程リスト（収容計算により動的な件数。最低1件は必ず含む） */
   steps: SummaryStepRow[];
-  /** 工程数が8を超えた場合の残数表示（resolvers.overflowStepsLabel解決済み）。超過なしはnull */
+  /** 収容上限を超えた工程数の残数表示（resolvers.overflowStepsLabel解決済み）。超過なしはnull */
   overflowStepsLabel: string | null;
-  /** パーツ内で使用される色のスウォッチ（重複除去・上限12色） */
-  swatches: SwatchSpec[];
-  /** スウォッチが12色を超えた場合の残数表示。超過なしはnull */
-  overflowColorsLabel: string | null;
 }
 
 export type SummaryCandidateSpec =
@@ -133,10 +179,74 @@ export type SummaryCandidateSpec =
 export type ShareCandidateSpec =
   SummaryCandidateSpec | WholeCandidateSpec | PartCandidateSpec;
 
+const CARD_WIDTH = 1200;
+const CARD_HEIGHT = 900;
+const MARGIN = 48;
+/** 共通ヘッダ帯の高さ（金淡の細罫＋金のオーバーライン1行分） */
+const HEADER_HEIGHT = 56;
+/** 共通フッタ帯の高さ（細罫＋"#coat-codex"1行分） */
+const FOOTER_HEIGHT = 40;
+/** タイトル行の高さ（写真つきカードは情報帯内の小見出し、summaryは表紙の主見出し） */
+const TITLE_AREA_HEIGHT = 64;
+
 /** まとめカードのスウォッチ列表示上限（超過分は「+N」に集約） */
 const SUMMARY_SWATCH_LIMIT = 12;
-/** まとめカード（part）の工程リスト表示上限（超過分は「…他N工程」に集約） */
-const SUMMARY_STEP_LIST_LIMIT = 8;
+
+/** summary(part)の工程行1行分の高さ（技法行のみ。印刷ビュー工程行の翻案） */
+const SUMMARY_STEP_ROW_HEIGHT = 44;
+/** summary(part)のメモ行の高さ（memo非空の工程のみ追加） */
+const SUMMARY_STEP_MEMO_ROW_HEIGHT = 30;
+/** summary(part)のoverflow行（「…他N工程」）の高さ */
+const SUMMARY_STEP_OVERFLOW_ROW_HEIGHT = 32;
+
+/**
+ * summary(part)の工程リスト領域（summaryStepListArea）の高さ。
+ * computeCardLayoutのsummary(part)分岐と同じ計算式（bodyTop〜contentBottom）を、
+ * レイアウト計算前の候補構築フェーズ（buildSummaryPartCandidate）でも使えるよう定数として複製する。
+ * summarySwatchAreaを廃止したため、この高さはspecの内容に依存しない固定値になる
+ * （computeCardLayoutのsummary(part)分岐を変更したら、ここも合わせて更新すること）。
+ * export: 2箇所の計算式が一致し続けることをテストで固定する（レビュー指摘L3対応。
+ * computeCardLayout(summaryPartSpec).summaryStepListArea.height と比較する）。
+ */
+export const SUMMARY_STEP_LIST_AREA_HEIGHT =
+  CARD_HEIGHT -
+  FOOTER_HEIGHT -
+  (HEADER_HEIGHT + MARGIN / 2 + TITLE_AREA_HEIGHT);
+
+/**
+ * 工程数・メモ有無からstepListAreaに収まる件数を動的に計算する（最低1件は必ず含む）。
+ * 収まらない残りがある場合はoverflow行の高さ分を予算に確保してから収容数を決める。
+ */
+function computeStepCapacity(rows: { hasMemo: boolean }[]): number {
+  if (rows.length === 0) {
+    return 0;
+  }
+
+  const rowHeight = (row: { hasMemo: boolean }) =>
+    SUMMARY_STEP_ROW_HEIGHT + (row.hasMemo ? SUMMARY_STEP_MEMO_ROW_HEIGHT : 0);
+
+  // まず全件が収まるかを確認する（overflow行の予算を取らずに済むケース）
+  const totalHeight = rows.reduce((sum, row) => sum + rowHeight(row), 0);
+  if (totalHeight <= SUMMARY_STEP_LIST_AREA_HEIGHT) {
+    return rows.length;
+  }
+
+  // 収まらない: overflow行の高さ分を予算から差し引いてから、収まるだけ詰める
+  const budget =
+    SUMMARY_STEP_LIST_AREA_HEIGHT - SUMMARY_STEP_OVERFLOW_ROW_HEIGHT;
+  let used = 0;
+  let count = 0;
+  for (const row of rows) {
+    const next = used + rowHeight(row);
+    if (next > budget) {
+      break;
+    }
+    used = next;
+    count += 1;
+  }
+  // 最低1件は必ず表示する（1件目がoverflow予算内に収まらないほど長大でも表示は保証する）
+  return Math.max(1, count);
+}
 
 /** スウォッチ配列を上限で切り詰め、超過分のoverflowラベルを解決する（resolvers注入・重複除去は呼び出し元の責務） */
 function capSwatches(
@@ -154,28 +264,6 @@ function capSwatches(
   };
 }
 
-/** パーツ配下の全工程からpaletteColorを解決し、重複除去したスウォッチ列を返す（col_missing等nullは除外） */
-function collectPartSwatches(
-  part: PartLike,
-  resolvers: CandidateResolvers,
-): SwatchSpec[] {
-  const seen = new Set<string>();
-  const swatches: SwatchSpec[] = [];
-  for (const step of part.steps) {
-    for (const paint of step.paints) {
-      if (seen.has(paint.colorId)) {
-        continue;
-      }
-      seen.add(paint.colorId);
-      const color = resolvers.paletteColor(paint.colorId);
-      if (color !== null) {
-        swatches.push(color);
-      }
-    }
-  }
-  return swatches;
-}
-
 /** whole用まとめカードのスペックを構築する（全体写真の有無を問わず常に1枚生成する「レシピの表紙」） */
 function buildSummaryWholeCandidate(
   recipe: RecipeDocLike,
@@ -185,9 +273,15 @@ function buildSummaryWholeCandidate(
     recipe.baseSteps.length +
     recipe.parts.reduce((sum, part) => sum + part.steps.length, 0);
 
-  const allSwatches = recipe.palette
+  const allSwatches: SwatchSpec[] = recipe.palette
     .map((color) => resolvers.paletteColor(color.id))
-    .filter((color): color is SwatchSpec => color !== null);
+    .filter(
+      (
+        color,
+      ): color is NonNullable<ReturnType<CandidateResolvers["paletteColor"]>> =>
+        color !== null,
+    )
+    .map((color) => ({ name: color.name, hex: color.hex, brand: color.brand }));
   const { swatches, overflowColorsLabel } = capSwatches(allSwatches, resolvers);
 
   return {
@@ -200,26 +294,67 @@ function buildSummaryWholeCandidate(
   };
 }
 
-/** part用まとめカードのスペックを構築する（写真つき工程が0件でも常に1枚生成する「パーツの表紙」） */
+/** 工程1件分をpaletteColor解決込みのSummaryStepRowへ変換する（印刷ビュー工程行相当の情報密度） */
+function buildSummaryStepRow(
+  step: StepLike,
+  index: number,
+  resolvers: CandidateResolvers,
+): SummaryStepRow {
+  const isMixed = step.paints.length >= 2;
+  const swatches: SummaryStepSwatchSpec[] = step.paints
+    .map((paint, paintIndex) => {
+      const color = resolvers.paletteColor(paint.colorId);
+      if (color === null) {
+        return null;
+      }
+      const percent =
+        isMixed && step.mix !== null && step.mix[paintIndex] !== undefined
+          ? `${step.mix[paintIndex]}%`
+          : null;
+      return {
+        name: color.name,
+        hex: color.hex,
+        percent,
+        brand: color.brand,
+        rangeLabel: color.rangeLabel,
+      };
+    })
+    .filter((swatch): swatch is SummaryStepSwatchSpec => swatch !== null);
+
+  return {
+    stepTag: resolvers.stepTag(index + 1),
+    stepNumber: index + 1,
+    techniqueLabel: resolvers.techniqueLabel(step),
+    swatches,
+    mixBadge: resolvers.mixBadge(step),
+    mixWarning: resolvers.mixWarning(step),
+    toolLabels: resolvers.toolLabels(step),
+    memo: step.memo.trim(),
+  };
+}
+
+/**
+ * part用まとめカードのスペックを構築する（写真つき工程が0件でも常に1枚生成する「パーツの表紙」）。
+ * 工程数はstepListAreaに収まるだけ動的に収容し（最低1件は必ず表示）、
+ * 収まらない残りはoverflowStepsLabelへ集約する。
+ */
 function buildSummaryPartCandidate(
   recipe: RecipeDocLike,
   part: PartLike,
   resolvers: CandidateResolvers,
 ): SummaryPartCandidateSpec {
-  const allSteps = part.steps.map((step, index): SummaryStepRow => ({
-    stepTag: resolvers.stepTag(index + 1),
-    techniqueLabel: resolvers.techniqueLabel(step),
-  }));
-  const steps = allSteps.slice(0, SUMMARY_STEP_LIST_LIMIT);
-  const overflowStepsLabel =
-    allSteps.length > SUMMARY_STEP_LIST_LIMIT
-      ? resolvers.overflowStepsLabel(allSteps.length - SUMMARY_STEP_LIST_LIMIT)
-      : null;
-
-  const { swatches, overflowColorsLabel } = capSwatches(
-    collectPartSwatches(part, resolvers),
-    resolvers,
+  const allRows = part.steps.map((step, index) =>
+    buildSummaryStepRow(step, index, resolvers),
   );
+
+  const capacity = computeStepCapacity(
+    allRows.map((row) => ({ hasMemo: row.memo !== "" })),
+  );
+  const steps = allRows.slice(0, capacity);
+  const overflowStepsLabel =
+    allRows.length > capacity
+      ? resolvers.overflowStepsLabel(allRows.length - capacity)
+      : null;
 
   return {
     kind: "summary",
@@ -228,8 +363,6 @@ function buildSummaryPartCandidate(
     partName: part.name,
     steps,
     overflowStepsLabel,
-    swatches,
-    overflowColorsLabel,
   };
 }
 
@@ -270,9 +403,20 @@ export function listShareCandidates(
     if (step.photoId === null) {
       return;
     }
-    const swatches = step.paints
+    const swatches: SwatchSpec[] = step.paints
       .map((paint) => resolvers.paletteColor(paint.colorId))
-      .filter((color): color is SwatchSpec => color !== null);
+      .filter(
+        (
+          color,
+        ): color is NonNullable<
+          ReturnType<CandidateResolvers["paletteColor"]>
+        > => color !== null,
+      )
+      .map((color) => ({
+        name: color.name,
+        hex: color.hex,
+        brand: color.brand,
+      }));
 
     candidates.push({
       kind: "part",
@@ -318,21 +462,11 @@ export interface CardLayout {
   textArea: Rect | null;
   /** part専用: スウォッチ列の描画領域。whole・swatches=0件・summaryはnull（summaryはsummarySwatchArea） */
   swatchArea: Rect | null;
-  /** summary(part)専用: 工程リスト（最大8行＋overflow行）の描画領域。whole/part・summary(whole)はnull */
+  /** summary(part)専用: 工程リスト（収容計算による動的行数＋overflow行）の描画領域。タイトル直下〜フッタ直上まで拡大。whole/part・summary(whole)はnull */
   summaryStepListArea: Rect | null;
-  /** summary専用: パレットスウォッチ列の描画領域（whole=全色／part=パーツ内使用色）。whole/partはnull */
+  /** summary(whole)専用: パレット全色スウォッチ列の描画領域。summary(part)は工程行に色が出るため廃止済み。whole/partはnull */
   summarySwatchArea: Rect | null;
 }
-
-const CARD_WIDTH = 1200;
-const CARD_HEIGHT = 900;
-const MARGIN = 48;
-/** 共通ヘッダ帯の高さ（金淡の細罫＋金のオーバーライン1行分） */
-const HEADER_HEIGHT = 56;
-/** 共通フッタ帯の高さ（細罫＋"#coat-codex"1行分） */
-const FOOTER_HEIGHT = 40;
-/** タイトル行の高さ（写真つきカードは情報帯内の小見出し、summaryは表紙の主見出し） */
-const TITLE_AREA_HEIGHT = 64;
 
 /**
  * カードレイアウト計算（純関数）。カードは1200×900（4:3）固定。
@@ -390,19 +524,14 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
       };
     }
 
-    // summary(part): タイトル直下に工程リスト、下部にスウォッチ列
-    const swatchAreaHeight = 120;
-    const summarySwatchArea: Rect = {
-      x: MARGIN,
-      y: contentBottom - swatchAreaHeight,
-      width: CARD_WIDTH - MARGIN * 2,
-      height: swatchAreaHeight,
-    };
+    // summary(part): タイトル直下からフッタ直上まで工程リストに充てる（下部スウォッチ一覧は廃止 —
+    // 工程行自体に色スウォッチ・色名・%を持つため冗長。SUMMARY_STEP_LIST_AREA_HEIGHT
+    // と同じ計算式のため、定数を変更したらそちらも合わせて更新すること）。
     const summaryStepListArea: Rect = {
       x: MARGIN,
       y: bodyTop,
       width: CARD_WIDTH - MARGIN * 2,
-      height: summarySwatchArea.y - bodyTop,
+      height: contentBottom - bodyTop,
     };
     return {
       cardWidth: CARD_WIDTH,
@@ -415,7 +544,7 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
       textArea: null,
       swatchArea: null,
       summaryStepListArea,
-      summarySwatchArea,
+      summarySwatchArea: null,
     };
   }
 
@@ -554,6 +683,38 @@ function fillTextTracked(
   }
 }
 
+/** 省略記号（末尾トリム用） */
+const ELLIPSIS = "…";
+
+/**
+ * テキストがmaxWidthに収まらない場合、末尾を「…」に置き換えて収まるまで切り詰める
+ * （ctx.measureTextで幅超過を判定。呼び出し側がctx.fontを設定済みであること）。
+ * 収まる場合はそのまま返す。1文字も入らない極小幅では"…"のみを返す。
+ * export: 純関数単体テスト対象（レビュー指摘M1対応。measureText幅0固定スタブでは
+ * トリムロジックの分岐が実質未検証だったため、実測相当スタブでの単体テストを可能にする）。
+ */
+export function truncateToWidth(
+  ctx: CanvasContextLike,
+  text: string,
+  maxWidth: number,
+): string {
+  if (ctx.measureText(text).width <= maxWidth) {
+    return text;
+  }
+  if (ctx.measureText(ELLIPSIS).width > maxWidth) {
+    return ELLIPSIS;
+  }
+
+  let truncated = text;
+  while (
+    truncated.length > 0 &&
+    ctx.measureText(`${truncated}${ELLIPSIS}`).width > maxWidth
+  ) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}${ELLIPSIS}`;
+}
+
 /** ファイル名生成（純関数）。1-basedの連番でPNG命名する（B系統の連番一括DL用） */
 export function buildFileName(index1Based: number): string {
   return `coat-codex-share-${index1Based}.png`;
@@ -667,14 +828,6 @@ function drawCardBackground(ctx: CanvasContextLike, layout: CardLayout): void {
  * 描画順序の不変条件（背景→写真→前景）を維持するため、composeShareImages内で写真描画の後に呼ぶこと。
  */
 function drawCardHeader(ctx: CanvasContextLike, layout: CardLayout): void {
-  ctx.strokeStyle = THEME_COLORS.goldSoft;
-  ctx.beginPath();
-  ctx.rect(
-    layout.headerArea.x,
-    layout.headerArea.y + layout.headerArea.height - 1,
-    layout.headerArea.width,
-    1,
-  );
   ctx.fillStyle = THEME_COLORS.goldSoft;
   ctx.fillRect(
     layout.headerArea.x,
@@ -740,7 +893,14 @@ function drawTitle(
   );
 }
 
-/** スウォッチ列を描く共通ヘルパー（whole/part/summary共通の意匠）。overflowLabelがあれば末尾に金文字で添える */
+/** part写真カードのスウォッチ列1ブロック分の幅（チップ＋色名/ブランドラベルの収容幅） */
+const PART_SWATCH_BLOCK_WIDTH = 190;
+
+/**
+ * スウォッチ列を描く共通ヘルパー（whole/part/summary共通の意匠）。overflowLabelがあれば末尾に金文字で添える。
+ * 色名（＋ブランド。あれば）をチップの右にmuted小文字で併記する（レンジはこの列の高さの都合で省略。
+ * §3.4 SNSカード塗料表示 要件3: part写真カード情報帯スウォッチ列のブランド併記）。
+ */
 function drawSwatchRow(
   ctx: CanvasContextLike,
   area: Rect,
@@ -748,18 +908,41 @@ function drawSwatchRow(
   overflowLabel: string | null,
 ): void {
   const swatchSize = 40;
-  const gap = 12;
+  const blockWidth = PART_SWATCH_BLOCK_WIDTH;
+  const labelMaxWidth = blockWidth - swatchSize - 10;
+
   swatches.forEach((swatch, index) => {
-    const x = area.x + index * (swatchSize + gap);
+    const x = area.x + index * blockWidth;
     const y = area.y;
     ctx.fillStyle = swatch.hex ?? THEME_COLORS.line;
     ctx.fillRect(x, y, swatchSize, swatchSize);
     ctx.strokeStyle = THEME_COLORS.line;
     ctx.strokeRect(x, y, swatchSize, swatchSize);
+
+    const labelX = x + swatchSize + 10;
+    ctx.fillStyle = THEME_COLORS.ink;
+    ctx.font = `400 15px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(
+      truncateToWidth(ctx, swatch.name, labelMaxWidth),
+      labelX,
+      y + swatchSize / 2 - 3,
+    );
+
+    if (swatch.brand !== null) {
+      ctx.fillStyle = THEME_COLORS.line;
+      ctx.font = `400 13px ${BODY_FONT_STACK}`;
+      ctx.fillText(
+        truncateToWidth(ctx, swatch.brand, labelMaxWidth),
+        labelX,
+        y + swatchSize / 2 + 14,
+      );
+    }
   });
 
   if (overflowLabel !== null) {
-    const x = area.x + swatches.length * (swatchSize + gap);
+    const x = area.x + swatches.length * blockWidth;
     ctx.fillStyle = THEME_COLORS.gold;
     ctx.font = `600 20px ${BODY_FONT_STACK}`;
     ctx.textAlign = "left";
@@ -846,7 +1029,193 @@ function drawSummaryWholeCard(
   }
 }
 
-/** まとめカード（summary/part）: レシピ名＋パーツ名・工程リスト（最大8行）・使用色スウォッチの表紙意匠 */
+/** summary(part)工程行内の小スウォッチの1辺サイズ（印刷ビューSwatchChip smサイズの翻案） */
+const STEP_SWATCH_SIZE = 16;
+/** stepNumber列の固定幅（右揃え。印刷ビューstepNumber列の翻案） */
+const STEP_NUMBER_COLUMN_WIDTH = 40;
+/** 技法名列の開始x（stepNumber列の直後） */
+const STEP_TECHNIQUE_COLUMN_X = STEP_NUMBER_COLUMN_WIDTH + 16;
+/** 技法名列の固定幅（この直後からスウォッチ列が始まる） */
+const STEP_TECHNIQUE_COLUMN_WIDTH = 160;
+
+/**
+ * summary(part)の工程行1行を描く（印刷ビューPART節の工程行の翻案）。
+ * 朱番号（右揃え固定幅）→技法名→塗料スウォッチ（16px＋色名＋%）→混合バッジ（警告時は朱文字併記）
+ * →ツール名（行右端に右寄せ）の順。長い色名・ツール名はtruncateToWidthで領域内にトリムする。
+ * メモがあれば技法行の下にmuted 1行トリムで描く。戻り値はこの行が占めた高さ（次行のyオフセット計算用）。
+ */
+function drawSummaryStepRow(
+  ctx: CanvasContextLike,
+  row: SummaryStepRow,
+  area: Rect,
+  rowTop: number,
+): number {
+  const baselineY = rowTop + 28;
+
+  // 朱番号（stepNumber列内で右揃え）
+  ctx.fillStyle = THEME_COLORS.accent;
+  ctx.font = `600 20px ${BODY_FONT_STACK}`;
+  ctx.textAlign = "right";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(
+    String(row.stepNumber),
+    area.x + STEP_NUMBER_COLUMN_WIDTH,
+    baselineY,
+  );
+  ctx.textAlign = "left";
+
+  // 技法名（600・墨）
+  ctx.fillStyle = THEME_COLORS.ink;
+  ctx.font = `600 20px ${BODY_FONT_STACK}`;
+  const techniqueX = area.x + STEP_TECHNIQUE_COLUMN_X;
+  ctx.fillText(
+    truncateToWidth(ctx, row.techniqueLabel, STEP_TECHNIQUE_COLUMN_WIDTH),
+    techniqueX,
+    baselineY,
+    STEP_TECHNIQUE_COLUMN_WIDTH,
+  );
+
+  // ツール名（行右端に右寄せ・muted）を先に幅計算しておき、スウォッチ/バッジ列の右限とする
+  const toolText = row.toolLabels.join("、");
+  let rightLimit = area.x + area.width;
+  if (toolText !== "") {
+    ctx.font = `400 15px ${BODY_FONT_STACK}`;
+    const toolMaxWidth = area.width * 0.22;
+    const truncatedTool = truncateToWidth(ctx, toolText, toolMaxWidth);
+    ctx.fillStyle = THEME_COLORS.line;
+    ctx.textAlign = "right";
+    ctx.fillText(truncatedTool, rightLimit, baselineY);
+    ctx.textAlign = "left";
+    rightLimit -= ctx.measureText(truncatedTool).width + 20;
+  }
+
+  // 塗料スウォッチ（16px矩形＋色名＋%）とその後の混合バッジ／警告
+  let cursorX =
+    area.x + STEP_TECHNIQUE_COLUMN_X + STEP_TECHNIQUE_COLUMN_WIDTH + 16;
+  const swatchTop = rowTop + 6;
+  const swatchStartX = cursorX;
+
+  // mixBadge・mixWarningの表示分を先にrightLimitから予約する（色名に食われてバッジ/警告が
+  // 消えないため）。実測幅を使うが、行の大半を占有しないよう上限（行幅の28%）を設ける。
+  const reserveMaxWidth = area.width * 0.28;
+  ctx.font = `400 14px ${BODY_FONT_STACK}`;
+  const mixBadgeReserve =
+    row.mixBadge !== ""
+      ? Math.min(ctx.measureText(row.mixBadge).width, reserveMaxWidth) + 12
+      : 0;
+  ctx.font = `400 13px ${BODY_FONT_STACK}`;
+  const mixWarningReserve =
+    row.mixWarning !== null
+      ? Math.min(ctx.measureText(row.mixWarning).width, reserveMaxWidth) + 12
+      : 0;
+  const swatchRightLimit = Math.max(
+    swatchStartX,
+    rightLimit - mixBadgeReserve - mixWarningReserve,
+  );
+
+  // 色ブロック（スウォッチ16px＋ギャップ6px＋色名/%＋ブランド・レンジ併記＋末尾ギャップ18px）の
+  // 固定コストを除いた残り幅を、残り色数で公平分配する（固定上限130pxを撤廃 — 単色工程では
+  // 大量に余白が余るのに早期に「…」トリムされていた問題の是正・2026-07-03ユーザー指摘）。
+  const swatchFixedCost = STEP_SWATCH_SIZE + 6 + 18;
+
+  for (let i = 0; i < row.swatches.length; i += 1) {
+    const swatch = row.swatches[i];
+    if (cursorX >= swatchRightLimit - STEP_SWATCH_SIZE) {
+      break;
+    }
+    ctx.fillStyle = swatch.hex ?? THEME_COLORS.paper;
+    ctx.fillRect(cursorX, swatchTop, STEP_SWATCH_SIZE, STEP_SWATCH_SIZE);
+    ctx.strokeStyle = THEME_COLORS.line;
+    ctx.strokeRect(cursorX, swatchTop, STEP_SWATCH_SIZE, STEP_SWATCH_SIZE);
+    cursorX += STEP_SWATCH_SIZE + 6;
+
+    const remainingColors = row.swatches.length - i;
+    const remainingWidth = swatchRightLimit - cursorX;
+    const otherBlocksFixedCost = (remainingColors - 1) * swatchFixedCost;
+    const maxSwatchWidth = Math.max(
+      0,
+      (remainingWidth - otherBlocksFixedCost) / remainingColors,
+    );
+
+    const label =
+      swatch.percent !== null
+        ? `${swatch.name} ${swatch.percent}`
+        : swatch.name;
+    ctx.fillStyle = THEME_COLORS.ink;
+    ctx.font = `400 15px ${BODY_FONT_STACK}`;
+    const available = Math.min(maxSwatchWidth, swatchRightLimit - cursorX);
+    const truncatedLabel = truncateToWidth(ctx, label, Math.max(0, available));
+    ctx.fillText(truncatedLabel, cursorX, baselineY - 5);
+    cursorX += ctx.measureText(truncatedLabel).width + 6;
+
+    // ブランド・レンジ併記（muted小サイズ）。両方nullは省略、brandのみ・両方ありの2形態
+    const meta =
+      swatch.brand !== null && swatch.rangeLabel !== null
+        ? `${swatch.brand}・${swatch.rangeLabel}`
+        : (swatch.brand ?? null);
+    if (meta !== null) {
+      ctx.fillStyle = THEME_COLORS.line;
+      ctx.font = `400 12px ${BODY_FONT_STACK}`;
+      const metaAvailable = swatchRightLimit - cursorX;
+      if (metaAvailable > 0) {
+        const truncatedMeta = truncateToWidth(ctx, meta, metaAvailable);
+        ctx.fillText(truncatedMeta, cursorX, baselineY - 5);
+        cursorX += ctx.measureText(truncatedMeta).width;
+      }
+    }
+    cursorX += 18;
+  }
+
+  // バッジ/警告は予約済みのrightLimit（swatchRightLimitを差し引く前のoriginal）まで使える
+  if (row.mixBadge !== "" && cursorX < rightLimit) {
+    ctx.font = `400 14px ${BODY_FONT_STACK}`;
+    const available = rightLimit - cursorX;
+    const truncatedBadge = truncateToWidth(
+      ctx,
+      row.mixBadge,
+      Math.max(0, available),
+    );
+    ctx.fillStyle = THEME_COLORS.goldSoft;
+    ctx.fillText(truncatedBadge, cursorX, baselineY - 5);
+    cursorX += ctx.measureText(truncatedBadge).width + 12;
+  }
+
+  if (row.mixWarning !== null && cursorX < rightLimit) {
+    ctx.font = `400 13px ${BODY_FONT_STACK}`;
+    const available = rightLimit - cursorX;
+    const truncatedWarning = truncateToWidth(
+      ctx,
+      row.mixWarning,
+      Math.max(0, available),
+    );
+    ctx.fillStyle = THEME_COLORS.accent;
+    ctx.fillText(truncatedWarning, cursorX, baselineY - 5);
+  }
+
+  let usedHeight = SUMMARY_STEP_ROW_HEIGHT;
+
+  // メモ行（memo非空時のみ・muted・1行トリム）
+  if (row.memo !== "") {
+    const memoY = rowTop + SUMMARY_STEP_ROW_HEIGHT + 8;
+    ctx.fillStyle = THEME_COLORS.line;
+    ctx.font = `400 15px ${BODY_FONT_STACK}`;
+    ctx.textAlign = "left";
+    ctx.fillText(
+      truncateToWidth(ctx, row.memo, area.width - STEP_TECHNIQUE_COLUMN_X),
+      area.x + STEP_TECHNIQUE_COLUMN_X,
+      memoY,
+    );
+    usedHeight += SUMMARY_STEP_MEMO_ROW_HEIGHT;
+  }
+
+  // 行間の細罫（印刷ビューstepRowのborder-bottom相当）
+  ctx.fillStyle = THEME_COLORS.line;
+  ctx.fillRect(area.x, rowTop + usedHeight - 4, area.width, 1);
+
+  return usedHeight;
+}
+
+/** まとめカード（summary/part）: レシピ名＋パーツ名・工程リスト（印刷ビュー工程行相当の情報密度）の表紙意匠 */
 function drawSummaryPartCard(
   ctx: CanvasContextLike,
   spec: SummaryPartCandidateSpec,
@@ -856,41 +1225,19 @@ function drawSummaryPartCard(
 
   if (layout.summaryStepListArea !== null) {
     const area = layout.summaryStepListArea;
-    const rowHeight = Math.min(
-      36,
-      area.height /
-        Math.max(spec.steps.length + (spec.overflowStepsLabel ? 1 : 0), 1),
-    );
-    spec.steps.forEach((row, index) => {
-      const y = area.y + rowHeight * index + rowHeight * 0.7;
-      ctx.fillStyle = THEME_COLORS.accent;
-      ctx.font = `600 20px ${BODY_FONT_STACK}`;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText(row.stepTag, area.x, y);
-
-      ctx.fillStyle = THEME_COLORS.ink;
-      ctx.font = `400 19px ${BODY_FONT_STACK}`;
-      ctx.fillText(row.techniqueLabel, area.x + 90, y, area.width - 90);
-    });
+    let rowTop = area.y;
+    for (const row of spec.steps) {
+      rowTop += drawSummaryStepRow(ctx, row, area, rowTop);
+    }
 
     if (spec.overflowStepsLabel !== null) {
-      const y = area.y + rowHeight * spec.steps.length + rowHeight * 0.7;
+      const y = rowTop + SUMMARY_STEP_OVERFLOW_ROW_HEIGHT * 0.6;
       ctx.fillStyle = THEME_COLORS.goldSoft;
       ctx.font = `400 18px ${BODY_FONT_STACK}`;
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(spec.overflowStepsLabel, area.x, y);
     }
-  }
-
-  if (layout.summarySwatchArea !== null) {
-    drawSwatchGrid(
-      ctx,
-      layout.summarySwatchArea,
-      spec.swatches,
-      spec.overflowColorsLabel,
-    );
   }
 }
 
