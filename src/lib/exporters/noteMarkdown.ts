@@ -1,10 +1,13 @@
 // lib/exporters/noteMarkdown.ts — note.com向けMarkdownエクスポータ（技術計画v2.2 M5 T32）
 //
-// note.comのMarkdown貼り付けインポート（見出し・太字・箇条書き・区切り線に対応）に適した
-// 読みやすい体裁で出力する。データ取得・混合バッジ・技法名解決はmarkdown.tsと同一の単一情報源
+// note.com公式ヘルプ「Markdownショートカット」が実際に変換対応する記法のみを使用する:
+// `## `大見出し／`### `小見出し／`- `箇条書き／`1. `番号付きリスト／`> `引用／```コードブロック／
+// `---`区切り線。h1(`# `)・h4以降・太字(`**`)・リンク・画像・表は変換されない（生テキスト残留）ため
+// 使用しない（2026-07-03ユーザー実機報告を受け再設計）。
+// データ取得・混合バッジ・技法名解決はmarkdown.tsと同一の単一情報源
 // （lib/mixRatio.ts formatMixBadge・lib/techniques.ts resolveTechniqueLabel）を使う。
 // 素のMarkdown（markdown.ts）との違い: 絵文字装飾・区切り線(---)・末尾ハッシュタグを付与し、
-// note.com記事としての読みやすさを優先する（箇条書きの入れ子は避け、フラットな段落主体の構成）。
+// 1工程1行の番号付きリストへ圧縮することでnote.com記事としての読みやすさを優先する。
 
 import { formatMixBadge } from "../mixRatio";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
@@ -47,8 +50,6 @@ export interface NoteMarkdownLabels {
   toolsHeading: string;
   /** 見出し「ベース工程（全体）」 */
   baseStepsHeading: string;
-  /** 見出し「パーツ」 */
-  partsHeading: string;
   /** 工程ラベル「STEP {{n}}」 */
   stepLabel: (n: number) => string;
   /** 「塗料」ラベル */
@@ -74,7 +75,6 @@ export const DEFAULT_NOTE_MARKDOWN_LABELS: NoteMarkdownLabels = {
   paletteHeading: "使用カラー",
   toolsHeading: "使用ツール",
   baseStepsHeading: "ベース工程（全体）",
-  partsHeading: "パーツ",
   stepLabel: (n) => `STEP ${n}`,
   paintsLabel: "塗料",
   toolsLabel: "ツール",
@@ -95,7 +95,6 @@ export function buildNoteMarkdownLabels(
     paletteHeading: t("setup.paletteLabel"),
     toolsHeading: t("setup.toolsLabel"),
     baseStepsHeading: t("overview.baseOverline"),
-    partsHeading: t("overview.partsHeadingJp"),
     stepLabel: (n) => t("editor.stepLabel", { n }),
     paintsLabel: t("export.markdownPaintsLabel"),
     toolsLabel: t("export.markdownToolsLabel"),
@@ -125,21 +124,20 @@ function resolveToolNames(step: Step, recipe: RecipeDoc): string[] {
   );
 }
 
-/** 1工程分のnote.com向けMarkdown行群を生成（絵文字装飾つき小見出し#### ） */
-function renderStep(
+/** 1工程分をnote.com対応記法の番号付きリスト1行へ圧縮する。
+ *  区切りは「 — 」（技法名と最初の要素の間）／「 ／ 」（要素間）。存在しない要素は区切りごと省略する。 */
+function renderStepLine(
   step: Step,
   index: number,
   recipe: RecipeDoc,
   labels: NoteMarkdownLabels,
-): string[] {
-  const lines: string[] = [];
+): string {
   const techniqueLabel = sanitizeMarkdownText(
     resolveTechniqueLabel(step.technique, labels.techniqueT),
   );
   const heading = techniqueLabel
-    ? `${labels.stepLabel(index + 1)}: ${techniqueLabel}`
+    ? `🎨 ${techniqueLabel}`
     : labels.stepLabel(index + 1);
-  lines.push(`#### 🎨 ${heading}`);
 
   const paintNames = resolvePaintNames(step, recipe);
   const badge = formatMixBadge(step.paints, step.mix);
@@ -149,56 +147,55 @@ function renderStep(
       ? ` ${labels.mixTotalWarning(total)}`
       : "";
 
+  const segments: string[] = [];
+
   if (paintNames.length > 0) {
     const paintsText = badge
       ? `${paintNames.join(" + ")} — ${badge}${totalWarning}`
       : paintNames.join(" + ");
-    lines.push(`- **${labels.paintsLabel}**: ${paintsText}`);
+    segments.push(`${labels.paintsLabel}: ${paintsText}`);
   }
 
   const toolNames = resolveToolNames(step, recipe);
   if (toolNames.length > 0) {
-    lines.push(`- **${labels.toolsLabel}**: ${toolNames.join(", ")}`);
+    segments.push(`${labels.toolsLabel}: ${toolNames.join(", ")}`);
   }
 
   if (step.memo.trim() !== "") {
-    lines.push(`- **${labels.memoLabel}**: ${sanitizeMarkdownText(step.memo)}`);
+    segments.push(`${labels.memoLabel}: ${sanitizeMarkdownText(step.memo)}`);
   }
 
   if (step.photoId !== null) {
-    lines.push(`- 📷 ${labels.hasPhotoLabel}`);
+    segments.push(`📷 ${labels.hasPhotoLabel}`);
   }
 
-  if (
-    paintNames.length === 0 &&
-    toolNames.length === 0 &&
-    step.memo.trim() === "" &&
-    step.photoId === null &&
-    !techniqueLabel
-  ) {
-    lines.push(`- ${labels.emptyStepLabel}`);
+  const number = index + 1;
+
+  if (segments.length === 0) {
+    if (!techniqueLabel) {
+      return `${number}. ${labels.emptyStepLabel}`;
+    }
+    return `${number}. ${heading}`;
   }
 
-  return lines;
+  return `${number}. ${heading} — ${segments.join(" ／ ")}`;
 }
 
-function renderSteps(
+function renderStepLines(
   steps: Step[],
   recipe: RecipeDoc,
   labels: NoteMarkdownLabels,
 ): string[] {
-  const lines: string[] = [];
-  steps.forEach((step, index) => {
-    if (index > 0) lines.push("");
-    lines.push(...renderStep(step, index, recipe, labels));
-  });
-  return lines;
+  return steps.map((step, index) =>
+    renderStepLine(step, index, recipe, labels),
+  );
 }
 
 /**
- * RecipeDocからnote.com向けMarkdown文書を生成する。
- * 構成: タイトル(h1) → 区切り線 → 使用カラー → 使用ツール → 区切り線 → ベース工程
- *       → パーツ毎の工程 → 区切り線 → ハッシュタグ
+ * RecipeDocからnote.com向けMarkdown文書を生成する。note.com公式対応記法（##・###・-・1.・---）のみ使用。
+ * 構成: タイトル(##) → 区切り線 → 使用カラー(###)・使用ツール(###) → 区切り線
+ *       → ベース工程(###見出し＋番号付きリスト1工程1行) → パーツ毎（区切り線＋###見出し＋番号付きリスト）
+ *       → 区切り線 → ハッシュタグ
  */
 export function exportRecipeToNoteMarkdown(
   recipe: RecipeDoc,
@@ -206,7 +203,7 @@ export function exportRecipeToNoteMarkdown(
 ): string {
   const lines: string[] = [];
 
-  lines.push(`# ${sanitizeMarkdownText(recipe.title)}`);
+  lines.push(`## ${sanitizeMarkdownText(recipe.title)}`);
 
   if (recipe.palette.length > 0 || recipe.tools.length > 0) {
     lines.push("");
@@ -215,7 +212,7 @@ export function exportRecipeToNoteMarkdown(
 
   if (recipe.palette.length > 0) {
     lines.push("");
-    lines.push(`## 🖌️ ${labels.paletteHeading}`);
+    lines.push(`### 🖌️ ${labels.paletteHeading}`);
     for (const color of recipe.palette) {
       const name = color.brand ? `${color.brand} ${color.name}` : color.name;
       lines.push(`- ${sanitizeMarkdownText(name)}`);
@@ -224,7 +221,7 @@ export function exportRecipeToNoteMarkdown(
 
   if (recipe.tools.length > 0) {
     lines.push("");
-    lines.push(`## 🧰 ${labels.toolsHeading}`);
+    lines.push(`### 🧰 ${labels.toolsHeading}`);
     for (const tool of recipe.tools) {
       const line = tool.note ? `${tool.name}（${tool.note}）` : tool.name;
       lines.push(`- ${sanitizeMarkdownText(line)}`);
@@ -235,25 +232,21 @@ export function exportRecipeToNoteMarkdown(
     lines.push("");
     lines.push("---");
     lines.push("");
-    lines.push(`## ${labels.baseStepsHeading}`);
+    lines.push(`### 🛡️ ${labels.baseStepsHeading}`);
     lines.push("");
-    lines.push(...renderSteps(recipe.baseSteps, recipe, labels));
+    lines.push(...renderStepLines(recipe.baseSteps, recipe, labels));
   }
 
-  if (recipe.parts.length > 0) {
+  recipe.parts.forEach((part) => {
     lines.push("");
     lines.push("---");
     lines.push("");
-    lines.push(`## ${labels.partsHeading}`);
-    recipe.parts.forEach((part) => {
+    lines.push(`### ⚔️ ${sanitizeMarkdownText(part.name)}`);
+    if (part.steps.length > 0) {
       lines.push("");
-      lines.push(`### ${sanitizeMarkdownText(part.name)}`);
-      if (part.steps.length > 0) {
-        lines.push("");
-        lines.push(...renderSteps(part.steps, recipe, labels));
-      }
-    });
-  }
+      lines.push(...renderStepLines(part.steps, recipe, labels));
+    }
+  });
 
   if (labels.hashtag !== "") {
     lines.push("");

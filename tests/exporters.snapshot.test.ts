@@ -185,7 +185,6 @@ describe("exportRecipeToNoteMarkdown", () => {
       paletteHeading: "使用カラー",
       toolsHeading: "使用ツール",
       baseStepsHeading: "ベース工程（全体）",
-      partsHeading: "パーツ",
       stepLabel: (n) => `STEP ${n}`,
       paintsLabel: "塗料",
       toolsLabel: "ツール",

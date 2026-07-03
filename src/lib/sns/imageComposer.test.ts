@@ -16,6 +16,8 @@ import {
   type ShareCandidateSpec,
   type ShareContext,
   type StepLike,
+  type SummaryPartCandidateSpec,
+  type SummaryWholeCandidateSpec,
   type WholeCandidateSpec,
 } from "./imageComposer";
 
@@ -34,6 +36,7 @@ function makeStep(overrides: Partial<StepLike> = {}): StepLike {
 function makePart(overrides: Partial<PartLike> = {}): PartLike {
   return {
     id: "part_1",
+    name: "兜",
     steps: [],
     ...overrides,
   };
@@ -44,6 +47,8 @@ function makeRecipe(overrides: Partial<RecipeDocLike> = {}): RecipeDocLike {
     title: "Space Marine Captain",
     overviewPhotoIds: [],
     parts: [],
+    baseSteps: [],
+    palette: [],
     ...overrides,
   };
 }
@@ -61,36 +66,85 @@ const resolvers: CandidateResolvers = {
     if (colorId === "col_missing") return null;
     return { name: `Color ${colorId}`, hex: "#960F0F" };
   },
+  summaryProgress: (partsCount, totalSteps) =>
+    `${partsCount}パーツ・全${totalSteps}工程`,
+  overflowColorsLabel: (remaining) => `+${remaining}`,
+  overflowStepsLabel: (remaining) => `…他${remaining}工程`,
 };
 
 // ---- listShareCandidates ----
 
 describe("listShareCandidates", () => {
-  test("whole: 全体写真0件→空配列", () => {
+  test("whole: 全体写真0件→まとめカード（summary/whole）1枚のみ（写真ゼロのレシピでも表紙は成立する）", () => {
     const ctx: ShareContext = { mode: "whole", recipe: makeRecipe() };
-    expect(listShareCandidates(ctx, resolvers)).toEqual([]);
+    const result = listShareCandidates(ctx, resolvers);
+    expect(result).toHaveLength(1);
+    expect(result[0].kind).toBe("summary");
+    expect((result[0] as SummaryWholeCandidateSpec).variant).toBe("whole");
   });
 
-  test("whole: 全体写真複数件→写真順にwhole候補", () => {
+  test("whole: 全体写真複数件→先頭にまとめカード＋写真順にwhole候補", () => {
     const recipe = makeRecipe({ overviewPhotoIds: ["ph_1", "ph_2", "ph_3"] });
     const ctx: ShareContext = { mode: "whole", recipe };
-    const result = listShareCandidates(ctx, resolvers) as WholeCandidateSpec[];
-    expect(result).toHaveLength(3);
-    expect(result.map((c) => c.photoId)).toEqual(["ph_1", "ph_2", "ph_3"]);
-    expect(result.every((c) => c.kind === "whole")).toBe(true);
-    expect(result.every((c) => c.title === "Space Marine Captain")).toBe(true);
+    const result = listShareCandidates(ctx, resolvers);
+    expect(result).toHaveLength(4);
+    expect(result[0].kind).toBe("summary");
+
+    const wholeCards = result.slice(1) as WholeCandidateSpec[];
+    expect(wholeCards.map((c) => c.photoId)).toEqual(["ph_1", "ph_2", "ph_3"]);
+    expect(wholeCards.every((c) => c.kind === "whole")).toBe(true);
+    expect(wholeCards.every((c) => c.title === "Space Marine Captain")).toBe(
+      true,
+    );
   });
 
-  test("part: 写真つき工程0件（全工程が写真なし）→空配列", () => {
+  test("whole: まとめカードはレシピ名・パーツ数/全工程数・パレット全色スウォッチを持つ", () => {
+    const recipe = makeRecipe({
+      title: "Sanguinary Guard",
+      baseSteps: [makeStep(), makeStep()],
+      parts: [
+        makePart({
+          id: "part_1",
+          steps: [makeStep(), makeStep(), makeStep()],
+        }),
+      ],
+      palette: [{ id: "col_a" }, { id: "col_b" }],
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.title).toBe("Sanguinary Guard");
+    // baseSteps 2 + parts steps 3 = 5工程、1パーツ
+    expect(summary.progressLabel).toBe("1パーツ・全5工程");
+    expect(summary.swatches).toHaveLength(2);
+    expect(summary.overflowColorsLabel).toBeNull();
+  });
+
+  test("whole: まとめカードのパレットが12色超→上限12色＋overflowColorsLabel", () => {
+    const palette = Array.from({ length: 15 }, (_, i) => ({ id: `col_${i}` }));
+    const recipe = makeRecipe({ palette });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+
+    expect(summary.swatches).toHaveLength(12);
+    expect(summary.overflowColorsLabel).toBe("+3");
+  });
+
+  test("part: 写真つき工程0件（全工程が写真なし）→まとめカード（summary/part）1枚のみ", () => {
     const part = makePart({
       steps: [makeStep({ photoId: null }), makeStep({ photoId: null })],
     });
     const recipe = makeRecipe({ parts: [part] });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    expect(listShareCandidates(ctx, resolvers)).toEqual([]);
+    const result = listShareCandidates(ctx, resolvers);
+    expect(result).toHaveLength(1);
+    expect(result[0].kind).toBe("summary");
+    expect((result[0] as SummaryPartCandidateSpec).variant).toBe("part");
   });
 
-  test("part: 写真なし工程を含む混在パーツ→写真つき工程のみ工程順に列挙", () => {
+  test("part: 写真なし工程を含む混在パーツ→先頭にまとめカード＋写真つき工程のみ工程順に列挙", () => {
     const part = makePart({
       steps: [
         makeStep({ photoId: null }), // index 0: 除外
@@ -104,25 +158,37 @@ describe("listShareCandidates", () => {
       parts: [part],
     });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    const result = listShareCandidates(ctx, resolvers) as PartCandidateSpec[];
+    const result = listShareCandidates(ctx, resolvers);
+    expect(result).toHaveLength(3);
+    expect(result[0].kind).toBe("summary");
 
-    expect(result).toHaveLength(2);
-    expect(result[0].stepPhotoId).toBe("ph_step2");
-    expect(result[0].stepTag).toBe("STEP 2");
-    expect(result[1].stepPhotoId).toBe("ph_step4");
-    expect(result[1].stepTag).toBe("STEP 4");
-    expect(result.every((c) => c.overviewPhotoId === "ph_overview")).toBe(true);
+    const partCards = result.slice(1) as PartCandidateSpec[];
+    expect(partCards).toHaveLength(2);
+    expect(partCards[0].stepPhotoId).toBe("ph_step2");
+    expect(partCards[0].stepTag).toBe("STEP 2");
+    expect(partCards[1].stepPhotoId).toBe("ph_step4");
+    expect(partCards[1].stepTag).toBe("STEP 4");
+    expect(partCards.every((c) => c.overviewPhotoId === "ph_overview")).toBe(
+      true,
+    );
+    expect(partCards.every((c) => c.title === "Space Marine Captain")).toBe(
+      true,
+    );
+    expect(partCards.every((c) => c.partName === "兜")).toBe(true);
   });
 
   test("part: 全体写真なし→overviewPhotoIdはnull", () => {
     const part = makePart({ steps: [makeStep({ photoId: "ph_1" })] });
     const recipe = makeRecipe({ overviewPhotoIds: [], parts: [part] });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    const result = listShareCandidates(ctx, resolvers) as PartCandidateSpec[];
-    expect(result[0].overviewPhotoId).toBeNull();
+    const result = listShareCandidates(ctx, resolvers) as [
+      SummaryPartCandidateSpec,
+      PartCandidateSpec,
+    ];
+    expect(result[1].overviewPhotoId).toBeNull();
   });
 
-  test("part: 存在しないpartId→空配列", () => {
+  test("part: 存在しないpartId→空配列（まとめカードも生成されない）", () => {
     const recipe = makeRecipe({
       parts: [
         makePart({ id: "part_1", steps: [makeStep({ photoId: "ph_1" })] }),
@@ -145,8 +211,11 @@ describe("listShareCandidates", () => {
     const part = makePart({ steps: [step] });
     const recipe = makeRecipe({ parts: [part] });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    const result = listShareCandidates(ctx, resolvers) as PartCandidateSpec[];
-    expect(result[0].mixWarning).toBe("合計が100%になっていません");
+    const result = listShareCandidates(ctx, resolvers) as [
+      SummaryPartCandidateSpec,
+      PartCandidateSpec,
+    ];
+    expect(result[1].mixWarning).toBe("合計が100%になっていません");
   });
 
   test("part: 合計100（警告なし）はmixWarning=null", () => {
@@ -158,8 +227,11 @@ describe("listShareCandidates", () => {
     const part = makePart({ steps: [step] });
     const recipe = makeRecipe({ parts: [part] });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    const result = listShareCandidates(ctx, resolvers) as PartCandidateSpec[];
-    expect(result[0].mixWarning).toBeNull();
+    const result = listShareCandidates(ctx, resolvers) as [
+      SummaryPartCandidateSpec,
+      PartCandidateSpec,
+    ];
+    expect(result[1].mixWarning).toBeNull();
   });
 
   test("part: paletteColorがnullを返す塗料はswatchesから除外される", () => {
@@ -171,9 +243,71 @@ describe("listShareCandidates", () => {
     const part = makePart({ steps: [step] });
     const recipe = makeRecipe({ parts: [part] });
     const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
-    const result = listShareCandidates(ctx, resolvers) as PartCandidateSpec[];
-    expect(result[0].swatches).toHaveLength(1);
-    expect(result[0].swatches[0].name).toBe("Color col_a");
+    const result = listShareCandidates(ctx, resolvers) as [
+      SummaryPartCandidateSpec,
+      PartCandidateSpec,
+    ];
+    expect(result[1].swatches).toHaveLength(1);
+    expect(result[1].swatches[0].name).toBe("Color col_a");
+  });
+
+  test("part: まとめカードはレシピ名＋パーツ名・工程リスト（番号＋技法）・パーツ内使用色スウォッチを持つ", () => {
+    const part = makePart({
+      id: "part_1",
+      name: "盾",
+      steps: [
+        makeStep({ paints: [{ colorId: "col_a" }] }),
+        makeStep({ paints: [{ colorId: "col_b" }] }),
+      ],
+    });
+    const recipe = makeRecipe({ title: "Space Marine Captain", parts: [part] });
+    const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryPartCandidateSpec;
+
+    expect(summary.title).toBe("Space Marine Captain");
+    expect(summary.partName).toBe("盾");
+    expect(summary.steps).toHaveLength(2);
+    expect(summary.steps[0]).toEqual({
+      stepTag: "STEP 1",
+      techniqueLabel: "basecoat",
+    });
+    expect(summary.steps[1].stepTag).toBe("STEP 2");
+    expect(summary.overflowStepsLabel).toBeNull();
+    expect(summary.swatches.map((s) => s.name)).toEqual([
+      "Color col_a",
+      "Color col_b",
+    ]);
+    expect(summary.overflowColorsLabel).toBeNull();
+  });
+
+  test("part: まとめカードの工程リストが8超→上限8行＋overflowStepsLabel", () => {
+    const steps = Array.from({ length: 11 }, () => makeStep());
+    const part = makePart({ id: "part_1", steps });
+    const recipe = makeRecipe({ parts: [part] });
+    const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryPartCandidateSpec;
+
+    expect(summary.steps).toHaveLength(8);
+    expect(summary.steps[7].stepTag).toBe("STEP 8");
+    expect(summary.overflowStepsLabel).toBe("…他3工程");
+  });
+
+  test("part: まとめカードのスウォッチは重複除去され、12色超で上限12色＋overflowColorsLabel", () => {
+    const steps = Array.from({ length: 15 }, (_, i) => [
+      makeStep({ paints: [{ colorId: `col_${i}` }] }),
+      makeStep({ paints: [{ colorId: `col_${i}` }] }), // 直後の工程で同色を再利用（重複除去の検証）
+    ]).flat();
+    const part = makePart({ id: "part_1", steps });
+    const recipe = makeRecipe({ parts: [part] });
+    const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryPartCandidateSpec;
+
+    // 15色中重複除去後も15色（col_missingなし）→上限12＋overflow「+3」
+    expect(summary.swatches).toHaveLength(12);
+    expect(summary.overflowColorsLabel).toBe("+3");
   });
 });
 
@@ -211,23 +345,51 @@ describe("computeCardLayout", () => {
     expect(layout.cardWidth / layout.cardHeight).toBeCloseTo(4 / 3, 5);
   });
 
-  test("whole: mainPhotoとtextAreaがカード内に収まり重ならない", () => {
+  test("全カード共通: headerArea/footerAreaがカード内に収まり、mainPhoto等と重ならない", () => {
     const spec: WholeCandidateSpec = {
       kind: "whole",
       photoId: "ph_1",
       title: "Title",
     };
     const layout = computeCardLayout(spec);
-    assertWithinCard(layout.mainPhoto, layout);
-    assertWithinCard(layout.textArea, layout);
-    expect(rectsOverlap(layout.mainPhoto, layout.textArea)).toBe(false);
-    expect(layout.insetPhoto).toBeNull();
-    expect(layout.swatchArea).toBeNull();
+    assertWithinCard(layout.headerArea, layout);
+    assertWithinCard(layout.footerArea, layout);
+    expect(rectsOverlap(layout.headerArea, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.headerArea, layout.mainPhoto!)).toBe(false);
+    expect(rectsOverlap(layout.footerArea, layout.textArea!)).toBe(false);
   });
 
-  test("part: 全要素（mainPhoto/insetPhoto/textArea/swatchArea）がカード内・相互不重複", () => {
+  test("whole: mainPhoto/titleArea/textAreaがカード内に収まり相互不重複", () => {
+    const spec: WholeCandidateSpec = {
+      kind: "whole",
+      photoId: "ph_1",
+      title: "Title",
+    };
+    const layout = computeCardLayout(spec);
+    assertWithinCard(layout.mainPhoto!, layout);
+    assertWithinCard(layout.titleArea, layout);
+    assertWithinCard(layout.textArea!, layout);
+    expect(rectsOverlap(layout.mainPhoto!, layout.titleArea)).toBe(false);
+    expect(rectsOverlap(layout.titleArea, layout.textArea!)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.textArea!)).toBe(false);
+    expect(layout.insetPhoto).toBeNull();
+    expect(layout.swatchArea).toBeNull();
+    expect(layout.summaryStepListArea).toBeNull();
+    expect(layout.summarySwatchArea).toBeNull();
+
+    // レビューRound1 Medium対応: footerArea/headerAreaとの非重複を全カード種で対称に検算する
+    expect(rectsOverlap(layout.titleArea, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.textArea!, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.headerArea)).toBe(false);
+    expect(rectsOverlap(layout.titleArea, layout.headerArea)).toBe(false);
+  });
+
+  test("part: 全要素（mainPhoto/insetPhoto/titleArea/textArea/swatchArea）がカード内・相互不重複", () => {
     const spec: PartCandidateSpec = {
       kind: "part",
+      title: "Recipe Title",
+      partName: "Helmet",
       overviewPhotoId: "ph_overview",
       stepPhotoId: "ph_step",
       stepTag: "STEP 1",
@@ -241,23 +403,35 @@ describe("computeCardLayout", () => {
     };
     const layout = computeCardLayout(spec);
 
-    assertWithinCard(layout.mainPhoto, layout);
+    assertWithinCard(layout.mainPhoto!, layout);
     expect(layout.insetPhoto).not.toBeNull();
     assertWithinCard(layout.insetPhoto!, layout);
-    assertWithinCard(layout.textArea, layout);
+    assertWithinCard(layout.titleArea, layout);
+    assertWithinCard(layout.textArea!, layout);
     expect(layout.swatchArea).not.toBeNull();
     assertWithinCard(layout.swatchArea!, layout);
 
     // insetPhotoはmainPhoto領域の内側に配置される（重なりは許容: インセットは主写真の上に乗る想定）
-    // textAreaとswatchAreaは情報帯内であり、互いに重ならないこと・mainPhotoと重ならないことを検算
-    expect(rectsOverlap(layout.textArea, layout.swatchArea!)).toBe(false);
-    expect(rectsOverlap(layout.mainPhoto, layout.textArea)).toBe(false);
-    expect(rectsOverlap(layout.mainPhoto, layout.swatchArea!)).toBe(false);
+    // titleArea/textArea/swatchAreaは情報帯内であり、互いに重ならないこと・mainPhotoと重ならないことを検算
+    expect(rectsOverlap(layout.titleArea, layout.textArea!)).toBe(false);
+    expect(rectsOverlap(layout.textArea!, layout.swatchArea!)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.titleArea)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.textArea!)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.swatchArea!)).toBe(false);
+
+    // レビューRound1 High対応の回帰防止: 情報帯（titleArea/textArea/swatchArea）が
+    // footerAreaと重ならないこと・mainPhotoがheaderAreaと重ならないことを検算する
+    expect(rectsOverlap(layout.titleArea, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.textArea!, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.swatchArea!, layout.footerArea)).toBe(false);
+    expect(rectsOverlap(layout.mainPhoto!, layout.headerArea)).toBe(false);
   });
 
   test("part: overviewPhotoId=null→insetPhoto=null", () => {
     const spec: PartCandidateSpec = {
       kind: "part",
+      title: "Recipe Title",
+      partName: "Helmet",
       overviewPhotoId: null,
       stepPhotoId: "ph_step",
       stepTag: "STEP 1",
@@ -269,11 +443,17 @@ describe("computeCardLayout", () => {
     const layout = computeCardLayout(spec);
     expect(layout.insetPhoto).toBeNull();
     expect(layout.swatchArea).toBeNull();
+
+    // swatchArea=nullでtextAreaが下端まで拡張されるケース（レビューRound1 High指摘の
+    // 実際の食い込みが最も起きやすい形）でも、textAreaがfooterAreaと重ならないことを検算する
+    expect(rectsOverlap(layout.textArea!, layout.footerArea)).toBe(false);
   });
 
   test("part: swatches=0件→swatchArea=null、textAreaがその分拡張される", () => {
     const withSwatches: PartCandidateSpec = {
       kind: "part",
+      title: "Recipe Title",
+      partName: "Helmet",
       overviewPhotoId: null,
       stepPhotoId: "ph_step",
       stepTag: "STEP 1",
@@ -291,9 +471,126 @@ describe("computeCardLayout", () => {
     const layoutWithout = computeCardLayout(withoutSwatches);
 
     expect(layoutWithout.swatchArea).toBeNull();
-    expect(layoutWithout.textArea.height).toBeGreaterThan(
-      layoutWith.textArea.height,
+    expect(layoutWithout.textArea!.height).toBeGreaterThan(
+      layoutWith.textArea!.height,
     );
+  });
+
+  test("summary(whole): titleArea/summarySwatchAreaがカード内・相互不重複。mainPhoto/textArea/swatchAreaはnull（写真を載せない）", () => {
+    const spec: SummaryWholeCandidateSpec = {
+      kind: "summary",
+      variant: "whole",
+      title: "Title",
+      progressLabel: "3パーツ・全10工程",
+      swatches: [
+        { name: "A", hex: "#960F0F" },
+        { name: "B", hex: "#123456" },
+      ],
+      overflowColorsLabel: null,
+    };
+    const layout = computeCardLayout(spec);
+
+    expect(layout.mainPhoto).toBeNull();
+    expect(layout.insetPhoto).toBeNull();
+    expect(layout.textArea).toBeNull();
+    expect(layout.swatchArea).toBeNull();
+    expect(layout.summaryStepListArea).toBeNull();
+
+    assertWithinCard(layout.headerArea, layout);
+    assertWithinCard(layout.footerArea, layout);
+    assertWithinCard(layout.titleArea, layout);
+    expect(layout.summarySwatchArea).not.toBeNull();
+    assertWithinCard(layout.summarySwatchArea!, layout);
+    expect(rectsOverlap(layout.titleArea, layout.summarySwatchArea!)).toBe(
+      false,
+    );
+    expect(rectsOverlap(layout.headerArea, layout.titleArea)).toBe(false);
+    expect(rectsOverlap(layout.footerArea, layout.summarySwatchArea!)).toBe(
+      false,
+    );
+  });
+
+  test("summary(part): titleArea/summaryStepListArea/summarySwatchAreaがカード内・相互不重複", () => {
+    const spec: SummaryPartCandidateSpec = {
+      kind: "summary",
+      variant: "part",
+      title: "Title",
+      partName: "Helmet",
+      steps: [
+        { stepTag: "STEP 1", techniqueLabel: "basecoat" },
+        { stepTag: "STEP 2", techniqueLabel: "wash" },
+      ],
+      overflowStepsLabel: null,
+      swatches: [{ name: "A", hex: "#960F0F" }],
+      overflowColorsLabel: null,
+    };
+    const layout = computeCardLayout(spec);
+
+    expect(layout.mainPhoto).toBeNull();
+    expect(layout.insetPhoto).toBeNull();
+    expect(layout.textArea).toBeNull();
+    expect(layout.swatchArea).toBeNull();
+
+    assertWithinCard(layout.headerArea, layout);
+    assertWithinCard(layout.footerArea, layout);
+    assertWithinCard(layout.titleArea, layout);
+    expect(layout.summaryStepListArea).not.toBeNull();
+    assertWithinCard(layout.summaryStepListArea!, layout);
+    expect(layout.summarySwatchArea).not.toBeNull();
+    assertWithinCard(layout.summarySwatchArea!, layout);
+
+    expect(rectsOverlap(layout.titleArea, layout.summaryStepListArea!)).toBe(
+      false,
+    );
+    expect(
+      rectsOverlap(layout.summaryStepListArea!, layout.summarySwatchArea!),
+    ).toBe(false);
+    expect(rectsOverlap(layout.headerArea, layout.titleArea)).toBe(false);
+    expect(rectsOverlap(layout.footerArea, layout.summarySwatchArea!)).toBe(
+      false,
+    );
+  });
+
+  test("summary(part): 8行ちょうど＋overflow行で、最終行（overflow行）のbaselineがsummaryStepListArea内に収まる", () => {
+    // drawSummaryPartCard（imageComposer.ts）のrowHeight/baseline計算式をレイアウト側から検算する。
+    // rowHeight = min(36, area.height / (steps.length + (overflowLabel ? 1 : 0)))
+    // 注: 実装側の Math.max(..., 1) 保護（工程0件時の除算回避）はこのテスト式では省略。
+    //     分母を実装と揃えていることが前提のため、上限定数や式を変えたら要追随。
+    // overflow行のbaseline y = area.y + rowHeight * steps.length + rowHeight * 0.7
+    // レビューRound1 Medium対応: 8行ちょうど＋overflow行という最も密なケースで
+    // 最終行のbaselineがarea外（summarySwatchArea・footerAreaへの食い込み）にならないことを固定する。
+    const steps = Array.from({ length: 8 }, (_, i) => ({
+      stepTag: `STEP ${i + 1}`,
+      techniqueLabel: `technique_${i + 1}`,
+    }));
+    const spec: SummaryPartCandidateSpec = {
+      kind: "summary",
+      variant: "part",
+      title: "Title",
+      partName: "Helmet",
+      steps,
+      overflowStepsLabel: "…他3工程",
+      swatches: [{ name: "A", hex: "#960F0F" }],
+      overflowColorsLabel: null,
+    };
+    const layout = computeCardLayout(spec);
+    const area = layout.summaryStepListArea!;
+
+    const rowHeight = Math.min(36, area.height / (steps.length + 1));
+    const overflowBaselineY =
+      area.y + rowHeight * steps.length + rowHeight * 0.7;
+
+    // baseline自体がarea内（下端未満）に収まること。テキストの実描画は
+    // baselineから上方向に伸びるため、フォントサイズ分の余白がなくとも
+    // baselineがarea下端を超えていないことが「footerAreaへ食い込まない」ための必要条件になる
+    expect(overflowBaselineY).toBeLessThanOrEqual(area.y + area.height);
+    expect(overflowBaselineY).toBeGreaterThanOrEqual(area.y);
+
+    // area自体がsummarySwatchArea・footerAreaと重ならないことは前テストで検算済みのため、
+    // baselineがarea内に収まっていれば描画位置がfooterArea/summarySwatchAreaへ
+    // 食い込まないことが連鎖的に保証される
+    expect(rectsOverlap(area, layout.summarySwatchArea!)).toBe(false);
+    expect(rectsOverlap(area, layout.footerArea)).toBe(false);
   });
 });
 
@@ -404,6 +701,8 @@ describe("composeShareImages", () => {
     const specs: ShareCandidateSpec[] = [
       {
         kind: "part",
+        title: "Recipe Title",
+        partName: "Helmet",
         overviewPhotoId: "ph_overview",
         stepPhotoId: "ph_step",
         stepTag: "STEP 1",
@@ -550,6 +849,8 @@ describe("composeShareImages", () => {
     const specs: ShareCandidateSpec[] = [
       {
         kind: "part",
+        title: "Recipe Title",
+        partName: "Helmet",
         overviewPhotoId: null, // インセットなし → mainPhotoはプレースホルダfillRectで描画される
         stepPhotoId: "ph_step",
         stepTag: "STEP 1",
@@ -589,6 +890,8 @@ describe("composeShareImages", () => {
     const specs: ShareCandidateSpec[] = [
       {
         kind: "part",
+        title: "Recipe Title",
+        partName: "Helmet",
         overviewPhotoId: null,
         stepPhotoId: "ph_missing",
         stepTag: "STEP 1",
@@ -650,5 +953,127 @@ describe("composeShareImages", () => {
     expect(results).toHaveLength(1);
     expect(results[0].spec).toBe(specs[1]);
     expect(results[0].file.name).toBe("coat-codex-share-1.png");
+  });
+
+  test("意匠配線: 共通ヘッダ罫（金淡）・フッタ罫・タイトルfillTextが全カード種別で呼ばれる（whole/part/summary）", async () => {
+    const specs: ShareCandidateSpec[] = [
+      { kind: "whole", photoId: "ph_1", title: "Whole Title" },
+      {
+        kind: "part",
+        title: "Part Recipe",
+        partName: "Helmet",
+        overviewPhotoId: null,
+        stepPhotoId: "ph_step",
+        stepTag: "STEP 1",
+        techniqueLabel: "basecoat",
+        mixBadge: "",
+        mixWarning: null,
+        swatches: [],
+      },
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Summary Title",
+        progressLabel: "1パーツ・全2工程",
+        swatches: [{ name: "A", hex: "#960F0F" }],
+        overflowColorsLabel: null,
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    const results = await composeShareImages(specs, deps);
+    expect(results).toHaveLength(3);
+
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const fillTextCalls = fillTextMock.mock.calls.map((call) => call[0]);
+
+    // ヘッダのオーバーライン文字は1文字ずつfillTextされる（letter-spacing風の実装）ため、
+    // 連結した文字列がヘッダ文言に含まれることで配線を確認する
+    const overlineChars = fillTextCalls.filter((text) =>
+      "COAT CODEX — PAINT RECIPE".includes(text as string),
+    );
+    expect(overlineChars.length).toBeGreaterThan(0);
+
+    // フッタの"#coat-codex"は1回のfillTextで描かれる
+    expect(fillTextCalls).toContain("#coat-codex");
+
+    // タイトル（レシピ名）が描かれている
+    expect(fillTextCalls).toContain("Whole Title");
+    expect(fillTextCalls).toContain("Summary Title");
+    expect(
+      fillTextCalls.some((t) => (t as string).includes("Part Recipe")),
+    ).toBe(true);
+
+    // フッタの罫線・ヘッダの金淡罫は fillRect で描く実装
+    expect(ctx.fillRect).toHaveBeenCalled();
+  });
+
+  test("summary候補: 写真を載せない（drawImage・写真プレースホルダfillRectが呼ばれない）が、カード自体は生成される", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "part",
+        title: "Recipe",
+        partName: "Helmet",
+        steps: [{ stepTag: "STEP 1", techniqueLabel: "basecoat" }],
+        overflowStepsLabel: null,
+        swatches: [{ name: "A", hex: "#960F0F" }],
+        overflowColorsLabel: "+2",
+      },
+    ];
+    const ctx = makeSpyContext();
+    const loadPhoto = vi.fn(
+      async () => new Blob(["photo"], { type: "image/png" }),
+    );
+    const deps: ComposerDeps = {
+      loadPhoto,
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    const results = await composeShareImages(specs, deps);
+
+    expect(results).toHaveLength(1);
+    expect(loadPhoto).not.toHaveBeenCalled();
+    expect(ctx.drawImage).not.toHaveBeenCalled();
+    // 工程リスト・overflow・スウォッチのfillTextが呼ばれている（配線確認）
+    const fillTextMock = ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+    const fillTextCalls = fillTextMock.mock.calls.map((call) => call[0]);
+    expect(fillTextCalls).toContain("STEP 1");
+    expect(fillTextCalls).toContain("basecoat");
+    expect(fillTextCalls).toContain("+2");
+  });
+
+  test("背景の全面fillRectはsummaryカードでも最初に呼ばれる（背景→前景の不変条件はsummaryでも維持）", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "summary",
+        variant: "whole",
+        title: "Recipe",
+        progressLabel: "1パーツ・全1工程",
+        swatches: [],
+        overflowColorsLabel: null,
+      },
+    ];
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => null),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(async () => ({}) as CanvasImageSource),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const fillRectMock = ctx.fillRect as unknown as ReturnType<typeof vi.fn>;
+    const backgroundCallIndex = fillRectMock.mock.calls.findIndex(
+      (call) =>
+        call[0] === 0 && call[1] === 0 && call[2] === 1200 && call[3] === 900,
+    );
+    expect(backgroundCallIndex).toBe(0);
   });
 });

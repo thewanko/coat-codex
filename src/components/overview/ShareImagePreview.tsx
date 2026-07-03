@@ -26,13 +26,20 @@ interface ShareImagePreviewProps {
   onToggle: (index: number) => void;
 }
 
-/** 候補カード1枚分のカバー写真（wholeはphotoId、partはstepPhotoId）を解決して表示する */
-function CandidatePhoto({ photoId }: { photoId: string }) {
+/**
+ * 候補カード1枚分のカバー写真（wholeはphotoId、partはstepPhotoId）を解決して表示する。
+ * photoId=null（summaryカードは写真を持たない）は常に対角縞プレースホルダ様式で表示する。
+ */
+function CandidatePhoto({ photoId }: { photoId: string | null }) {
   const [url, setUrl] = useState<string | null>(null);
 
   // resolvePhotoUrlが返すobjectURLはここでrevokeしない: photoStore側の共有キャッシュ
   // （複数コンポーネントから同一photoIdが参照されうる）にライフサイクル管理を委ねる設計のため。
   useEffect(() => {
+    if (photoId === null) {
+      setUrl(null);
+      return;
+    }
     let cancelled = false;
     void resolvePhotoUrl(photoId).then((resolved) => {
       if (!cancelled) {
@@ -55,14 +62,25 @@ function CandidatePhoto({ photoId }: { photoId: string }) {
   return <img className={styles.photoImg} src={url} alt="" />;
 }
 
-function candidateTag(image: ComposedShareImage, index: number): string {
+function candidateTag(
+  image: ComposedShareImage,
+  index: number,
+  t: (key: string) => string,
+): string {
+  if (image.spec.kind === "summary") {
+    return t("share.summaryTag");
+  }
   if (image.spec.kind === "part") {
     return image.spec.stepTag;
   }
   return index === 0 ? "COVER" : "";
 }
 
-function candidatePhotoId(image: ComposedShareImage): string {
+/** summaryカードのphotoIdはnull（写真を持たない）。呼び出し側でnull分岐しプレースホルダを描く */
+function candidatePhotoId(image: ComposedShareImage): string | null {
+  if (image.spec.kind === "summary") {
+    return null;
+  }
   return image.spec.kind === "whole"
     ? image.spec.photoId
     : image.spec.stepPhotoId;
@@ -111,7 +129,7 @@ function ShareImagePreview({
           const selected = selectedSet.has(index);
           const disabled =
             !selected && selectedIndexes.length >= SHARE_IMAGE_MAX_SELECTION;
-          const tag = candidateTag(image, index);
+          const tag = candidateTag(image, index, t);
           return (
             <label
               key={index}

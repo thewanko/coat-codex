@@ -224,8 +224,14 @@ describe("ShareDialog — A系統/B系統の分岐（canShareモック切替）"
 });
 
 describe("ShareDialog — 候補0件でのテキストのみ共有切替", () => {
-  test("全体写真なし・navigator.share対応 → テキストのみで共有ボタン", async () => {
-    vi.stubGlobal("navigator", { share: vi.fn() });
+  // まとめカード（kind: "summary"）が常に先頭に1枚生成されるため、写真ゼロのレシピでも
+  // listShareCandidatesの結果は空配列にならない（imageComposer.ts実装済み挙動）。
+  // 「候補0件」経路（generating段階でcomposeShareImages自体を呼ばずルート確定）が
+  // 実際に発生するのは、partモードで対象partIdがrecipe.parts内に存在しない場合のみ。
+
+  test("全体写真なし → summaryカードが生成されA系統（画像付き）で共有できる", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
 
     renderDialog({
       mode: "whole",
@@ -235,12 +241,16 @@ describe("ShareDialog — 候補0件でのテキストのみ共有切替", () =>
     await waitFor(() => {
       expect(screen.getByTestId("share-primary-button")).toBeInTheDocument();
     });
-    expect(screen.getByText("テキストのみで共有")).toBeInTheDocument();
-    expect(composeShareImagesMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("共有シートで投稿（画像付き）"),
+    ).toBeInTheDocument();
+    // 候補0件経路は通らない = 空配列判定でのcomposeShareImagesスキップは発生しない
+    expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
   });
 
-  test("写真つき工程なし・navigator.share非対応 → B系統IntentのみでDLは非活性", async () => {
+  test("写真つき工程なし → summaryカードのみ生成されB系統で共有できる（DLも活性）", async () => {
     vi.stubGlobal("navigator", {});
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
 
     const recipe = makeRecipe({
       parts: [
@@ -253,8 +263,24 @@ describe("ShareDialog — 候補0件でのテキストのみ共有切替", () =>
       expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
     });
     expect(screen.getByTestId("share-intent-button")).not.toBeDisabled();
-    // 候補0件のためDLボタンはdisabledのまま（§3.4手順2: B系統をIntentのみに切替）
-    expect(screen.getByTestId("share-download-button")).toBeDisabled();
+    // summaryカード1枚は生成される（写真つき工程がなくても候補は空にならない）ためDLは活性
+    expect(screen.getByTestId("share-download-button")).not.toBeDisabled();
+  });
+
+  test("partモードで対象partIdが存在しない → 候補0件経路（generation skip）でテキストのみ共有", async () => {
+    vi.stubGlobal("navigator", { share: vi.fn() });
+
+    const recipe = makeRecipe({
+      parts: [{ id: "part_1", name: "頭部", steps: [] }],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_missing" });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("share-primary-button")).toBeInTheDocument();
+    });
+    expect(screen.getByText("テキストのみで共有")).toBeInTheDocument();
+    // listShareCandidatesが空配列を返す（存在しないpartId）ため生成自体が呼ばれない
+    expect(composeShareImagesMock).not.toHaveBeenCalled();
   });
 });
 
@@ -344,10 +370,12 @@ describe("ShareDialog — テキスト既定文", () => {
     expect(textarea.value).toContain("#coat-codex");
   });
 
-  test("part: タイトル＋パーツ名＋工程サマリ＋#coat-codex", async () => {
+  test("part: タイトル＋パーツ名＋技法の流れ（3件以下は全列挙）＋全工程数＋#coat-codex", async () => {
     vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
     composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
 
+    // part_1.steps はデフォルトで2工程とも technique.presetKey: "basecoat"
+    // （ラベル「ベースコート」）のため、技法の流れは「ベースコート→ベースコート」（2件、全列挙）
     const recipe = makeRecipe();
     renderDialog({ mode: "part", recipe, partId: "part_1" });
 
@@ -360,9 +388,135 @@ describe("ShareDialog — テキスト既定文", () => {
     const textarea = screen.getByTestId(
       "share-text-textarea",
     ) as HTMLTextAreaElement;
-    expect(textarea.value).toContain("頭部");
-    expect(textarea.value).toContain("工程2");
-    expect(textarea.value).toContain("#coat-codex");
+    expect(textarea.value).toBe(
+      "宵闇の騎士 - 頭部の塗装レシピ。ベースコート→ベースコート、全2工程。#coat-codex",
+    );
+  });
+
+  test("part: 工程が4以上のとき技法の流れは「最初→…→最後」に短縮される", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    const recipe = makeRecipe({
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              technique: { presetKey: "prime", label: null },
+            }),
+            makeStep({
+              id: "s2",
+              technique: { presetKey: "basecoat", label: null },
+            }),
+            makeStep({
+              id: "s3",
+              technique: { presetKey: "wash", label: null },
+            }),
+            makeStep({
+              id: "s4",
+              technique: { presetKey: "edge-highlight", label: null },
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    await waitFor(() => {
+      const textarea = screen.getByTestId(
+        "share-text-textarea",
+      ) as HTMLTextAreaElement;
+      expect(textarea.value).toContain("宵闇の騎士");
+    });
+    const textarea = screen.getByTestId(
+      "share-text-textarea",
+    ) as HTMLTextAreaElement;
+    expect(textarea.value).toBe(
+      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→…→エッジハイライト、全4工程。#coat-codex",
+    );
+  });
+
+  test("part: 全工程の技法ラベルが空のとき、流れ部分を省略して全工程数のみ表示する", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    const recipe = makeRecipe({
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              technique: { presetKey: null, label: null },
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    await waitFor(() => {
+      const textarea = screen.getByTestId(
+        "share-text-textarea",
+      ) as HTMLTextAreaElement;
+      expect(textarea.value).toContain("宵闇の騎士");
+    });
+    const textarea = screen.getByTestId(
+      "share-text-textarea",
+    ) as HTMLTextAreaElement;
+    expect(textarea.value).toBe(
+      "宵闇の騎士 - 頭部の塗装レシピ。全1工程。#coat-codex",
+    );
+  });
+
+  test("part: 空白のみの技法ラベルは流れから除外される（レビューRound1 Low対応: 「→   →」防止）", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    const recipe = makeRecipe({
+      parts: [
+        {
+          id: "part_1",
+          name: "頭部",
+          steps: [
+            makeStep({
+              id: "s1",
+              technique: { presetKey: "prime", label: null },
+            }),
+            makeStep({
+              // presetKeyがnull・labelが空白のみ → resolveTechniqueLabelはlabelをそのまま
+              // 返すため、trimしなければ「プライマー→   →ウォッシュ」のように空白ラベルが
+              // 流れに混入してしまう
+              id: "s2",
+              technique: { presetKey: null, label: "   " },
+            }),
+            makeStep({
+              id: "s3",
+              technique: { presetKey: "wash", label: null },
+            }),
+          ],
+        },
+      ],
+    });
+    renderDialog({ mode: "part", recipe, partId: "part_1" });
+
+    await waitFor(() => {
+      const textarea = screen.getByTestId(
+        "share-text-textarea",
+      ) as HTMLTextAreaElement;
+      expect(textarea.value).toContain("宵闇の騎士");
+    });
+    const textarea = screen.getByTestId(
+      "share-text-textarea",
+    ) as HTMLTextAreaElement;
+    // 空白のみラベルの工程は除外され、有効な2件（プライマー・ウォッシュ）のみが「→」で連結される
+    expect(textarea.value).toBe(
+      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→ウォッシュ、全3工程。#coat-codex",
+    );
   });
 });
 

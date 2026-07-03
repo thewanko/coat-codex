@@ -1,5 +1,5 @@
 // components/overview/useExportActions.ts — ExportActionBarのJSON/素MD/note MD/
-// 印刷/PDF/X/Bluesky結線ロジック（技術計画v2.3 §3.3 ExportActionBar行・§3.4・§3.5・T33・T40）
+// 印刷/X/Bluesky結線ロジック（技術計画v2.3 §3.3 ExportActionBar行・§3.4・§3.5・T33・T40）
 //
 // PC版（ExportActions）・mobile版（ExportSheetActions）の両方から共用するフック。
 // react-refresh/only-export-components対応のためコンポーネントファイルから分離する
@@ -10,7 +10,8 @@
 // 素MD・note MD: exportRecipeToMarkdown/exportRecipeToNoteMarkdown（buildMarkdownLabels/
 //       buildNoteMarkdownLabelsでi18n注入）をnavigator.clipboard.writeTextでコピーし、
 //       非対応・失敗時はファイルDLへフォールバックする。
-// 印刷・PDF: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。T36仕様）。
+// 印刷: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。
+//       T36仕様。PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）。
 // X・Bluesky: ShareDialogをmode="whole"・対応するtargetで開く（T40・§3.4手順1）。
 
 import { useState } from "react";
@@ -60,8 +61,6 @@ export interface UseExportActionsResult {
   handleNoteMdExport: () => void;
   /** 印刷ボタンのonClick（/recipe/:id/printへnavigate） */
   handlePrint: () => void;
-  /** PDFボタンのonClick（同じく/recipe/:id/printへnavigate。保存手順案内はPrintToolbar側） */
-  handlePdf: () => void;
   /** Xボタンのonclick（ShareDialogをwholeコンテキスト・target=xで開く） */
   handleShareX: () => void;
   /** Blueskyボタンのonclick（ShareDialogをwholeコンテキスト・target=blueskyで開く） */
@@ -164,11 +163,6 @@ export function useExportActions(
     navigate(`/recipe/${recipe.id}/print`);
   }
 
-  function handlePdf() {
-    if (!recipe) return;
-    navigate(`/recipe/${recipe.id}/print`);
-  }
-
   function handleShareX() {
     if (!recipe) return;
     setShareTargetKey("x");
@@ -204,7 +198,6 @@ export function useExportActions(
     handlePlainMdExport,
     handleNoteMdExport,
     handlePrint,
-    handlePdf,
     handleShareX,
     handleShareBluesky,
     shareDialogOpen: shareTargetKey !== null,

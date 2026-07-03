@@ -55,6 +55,31 @@ function resolvePart(recipe: RecipeDoc, partId: string) {
   return recipe.parts.find((p) => p.id === partId) ?? null;
 }
 
+/** 技法の流れの連結時に工程数が4以上の場合、最初と最後の2件のみを残して短縮する境界値 */
+const TECHNIQUE_FLOW_FULL_LIST_LIMIT = 3;
+
+/**
+ * パーツの技法の流れ文字列を組み立てる（ユーザー決定2026-07-03: 既定テキストに技法の流れを含める）。
+ * 技法ラベルが空の工程はスキップし、有効ラベルが4件以上なら「{最初}→…→{最後}」に短縮する
+ * （3件以下は全列挙）。有効ラベルが1件もなければ空文字を返す（呼び出し側で流れ部分を省略する）。
+ */
+function buildTechniqueFlow(
+  part: { steps: Step[] },
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
+  const labels = part.steps
+    .map((step) => resolveTechniqueLabel(step.technique, t).trim())
+    .filter((label) => label !== "");
+
+  if (labels.length === 0) {
+    return "";
+  }
+  if (labels.length <= TECHNIQUE_FLOW_FULL_LIST_LIMIT) {
+    return labels.join("→");
+  }
+  return `${labels[0]}→…→${labels[labels.length - 1]}`;
+}
+
 /** 投稿テキスト既定文の組み立て（§3.4手順3。URLは含めない。#coat-codexは末尾固定） */
 function buildDefaultText(
   context: ShareDialogContext,
@@ -66,31 +91,47 @@ function buildDefaultText(
     const totalSteps =
       recipe.baseSteps.length +
       recipe.parts.reduce((sum, part) => sum + part.steps.length, 0);
-    const summary = t("share.wholeSummary", {
+    return t("share.wholeDefaultText", {
+      title: recipe.title,
       partsCount: recipe.parts.length,
       stepsCount: totalSteps,
     });
-    return t("share.wholeDefaultText", { title: recipe.title, summary });
   }
 
   const part = resolvePart(recipe, context.partId);
   const partName = part?.name ?? "";
-  const summary = t("share.partSummary", { count: part?.steps.length ?? 0 });
+  const stepsCount = part?.steps.length ?? 0;
+  const flow = part !== null ? buildTechniqueFlow(part, t) : "";
+
+  if (flow === "") {
+    return t("share.partDefaultTextNoFlow", {
+      title: recipe.title,
+      partName,
+      stepsCount,
+    });
+  }
   return t("share.partDefaultText", {
     title: recipe.title,
     partName,
-    summary,
+    flow,
+    stepsCount,
   });
 }
 
-/** 候補列挙用のCandidateResolvers（既存部品を注入して解決する） */
+/**
+ * 候補列挙用のCandidateResolvers（既存部品を注入して解決する）。
+ * techniqueLabelは.trim()した値を返す（レビューRound1 Low対応: 空白のみのラベルが
+ * buildTechniqueFlow・imageComposerのsummary工程リスト/partカード技法名へ
+ * 空白のまま流れて表示崩れ（「→   →」等）を起こすのを防ぐ）。
+ */
 function useCandidateResolvers(
   recipe: RecipeDoc,
   t: (key: string, opts?: Record<string, unknown>) => string,
 ) {
   return useMemo(() => {
     return {
-      techniqueLabel: (step: Step) => resolveTechniqueLabel(step.technique, t),
+      techniqueLabel: (step: Step) =>
+        resolveTechniqueLabel(step.technique, t).trim(),
       mixBadge: (step: Step) => formatMixBadge(step.paints, step.mix),
       mixWarning: (step: Step) => {
         if (isMixTotalValid(step.paints, step.mix)) {
@@ -107,6 +148,15 @@ function useCandidateResolvers(
         if (!color) return null;
         return { name: color.name, hex: color.hex };
       },
+      summaryProgress: (partsCount: number, totalSteps: number) =>
+        t("share.wholeSummary", {
+          partsCount,
+          stepsCount: totalSteps,
+        }),
+      overflowColorsLabel: (remaining: number) =>
+        t("share.overflowColors", { count: remaining }),
+      overflowStepsLabel: (remaining: number) =>
+        t("share.overflowSteps", { count: remaining }),
     };
   }, [recipe, t]);
 }
@@ -178,7 +228,11 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
     const specs = listShareCandidates(composerCtx, currentResolvers);
 
     if (specs.length === 0) {
-      // 候補0件（§3.4手順2）: 生成をスキップしA系統=テキストのみ／B系統=Intentのみへ即確定
+      // 候補0件（§3.4手順2）: まとめカード（kind: "summary"）が常に先頭に1枚生成される
+      // ため、写真ゼロのレシピでも通常は候補が空にならない。ここに到達するのは
+      // partモードで対象partIdがrecipe.parts内に存在しない場合のみ（imageComposer側の
+      // listShareCandidatesが空配列を返す既存挙動）。その場合は生成をスキップし
+      // A系統=テキストのみ／B系統=Intentのみへ即確定する。
       setGenerating(false);
       const canShareText =
         typeof navigator !== "undefined" &&
