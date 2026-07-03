@@ -527,18 +527,33 @@ export async function importRecipe(
   // 4. 正規化
   const { recipe, photos } = await normalizeImport(fullResult.data, deps);
 
-  // 5. Dexie rwトランザクション書き込み（失敗時ロールバック）
+  // 4.5 dataUrl→Blob変換はtxの外（前）で完了させる。deps.dataUrlToBlob（本番実装はfetch）は
+  // Dexie管理外のPromiseであり、tx内でawaitするとDexieがtxを自動コミット・失効させ、続く
+  // db.photos.bulkAddがTransactionInactiveError（"Transaction has already completed or
+  // failed"）になる（Dexieはtxコールバック内で発行されたDexie操作のPromiseチェーンのみを
+  // 追跡できるため）。ここでの失敗はDB書き込み前に発生するため、部分書き込みは起こらない。
+  const records: PhotoRecord[] = [];
+  try {
+    for (const photo of photos) {
+      records.push({
+        id: photo.id,
+        recipeId: recipe.id,
+        blob: await deps.dataUrlToBlob(photo.dataUrl),
+        createdAt: new Date().toISOString(),
+      });
+    }
+  } catch (err) {
+    return failure(
+      "transaction-failed",
+      err instanceof Error ? err.message : "インポートの保存に失敗しました",
+    );
+  }
+
+  // 5. Dexie rwトランザクション書き込み（失敗時ロールバック）。
+  // コールバック内は純Dexie操作のみ（Dexie管理外のPromiseをawaitしない）。
   try {
     await db.transaction("rw", db.recipes, db.photos, async () => {
-      if (photos.length > 0) {
-        const records: PhotoRecord[] = await Promise.all(
-          photos.map(async (photo) => ({
-            id: photo.id,
-            recipeId: recipe.id,
-            blob: await deps.dataUrlToBlob(photo.dataUrl),
-            createdAt: new Date().toISOString(),
-          })),
-        );
+      if (records.length > 0) {
         await db.photos.bulkAdd(records);
       }
       await db.recipes.add(recipe);
