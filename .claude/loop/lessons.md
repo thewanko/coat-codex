@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-05 partreview-onclose worktree運用でselfcheckのgitコマンドが本体リポジトリ側で実行され「差分なし・コミット済み」の事実誤認報告 [BAD]
+
+- 事象: worktree（.claude/worktrees/stoic-wing-64b1df）での小修正ループで、selfcheckが「git status clean・差分なし・成果物はコミット済み（HEAD=ae51780）」と報告した。しかしae51780はworktreeに存在しない本体リポジトリ側のコミットで、selfcheckのgitコマンドは委譲プロンプトに作業ディレクトリを絶対パスで明記していたにもかかわらず本体リポジトリ側で実行されていた。セッションが`git -C <worktree絶対パス>`で1次確認し、worktreeには期待どおりの未コミット差分（2ファイル・+13/-1）が実在することを直接確認して裁定した。lint/prettier/禁止パターンGrepの結果も本体側の可能性があるが、implが同ゲートをworktree内でexit 0報告済みだったため二重化で吸収された
+- 原因: subagentのシェルは委譲プロンプトの文言でなく自身の起動時cwdや`cd`の成否に依存する。git worktreeは本体と履歴を共有するためコマンドが「成功して違う答えを返す」（エラーにならず誤ったHEAD・cleanなstatusが返る）分、通常のパス間違いより検出しにくい
+- 一般化ルール (次ループの指示文としてそのまま使える形で): worktree運用でsubagentへgit確認を委譲するときは、コマンド列を`git -C <worktree絶対パス> status`の形で`-C`付きで指定し、確認項目に「HEADが期待コミット（委譲時に明記）と一致するか」を含める。subagentの報告が「差分なし・クリーン」等の否定結果で設計前提（未コミット差分があるはず）と矛盾したら、修正着手前にセッションが同じコマンドを直接実行して裁定する
+- 反映先: loop prompt（selfcheck/review委譲プロンプトのgitコマンド指定形式）
+- 発生回数: 1 回目
+
 ## 2026-07-04 print-preview transform-origin:centerの中央配置前提がoverflow時のmargin:auto=0で崩れた（右端切れ） [BAD]
 
 - 事象: FB-Dの印刷プレビューモバイル縮小（`--print-scale`注入）で、`.scaleInner`の`transform-origin: top center`が「紙面は中央配置済み」を前提にしていたが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0に解決されて左寄せになり、中央origin縮小で紙面が右へずれ右端が切れていた（620pxで68px）。FB-D出口検証は「縮小が適用されたこと」を確認したが「縮小後の紙面が全幅に収まること（右端の座標）」を確認せず、ユーザーiPhone実機（T43③確認中）で発覚
