@@ -7,8 +7,22 @@
 
 import "../../i18n";
 import { useState } from "react";
-import { beforeAll, describe, expect, test, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import i18next from "../../i18n";
 import MarkdownCopyFallbackDialog from "./MarkdownCopyFallbackDialog";
 
@@ -117,6 +131,81 @@ describe("MarkdownCopyFallbackDialog — propトグル形態", () => {
 
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("MarkdownCopyFallbackDialog — 全文をコピーボタン（2026-07-04 FB-H）", () => {
+  let execCommandMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    execCommandMock = vi.fn().mockReturnValue(true);
+    document.execCommand =
+      execCommandMock as unknown as Document["execCommand"];
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  test("押下でexecCommand('copy')が呼ばれ、ラベルが「コピーしました ✓」に切り替わる", async () => {
+    render(
+      <MarkdownCopyFallbackDialog
+        open
+        markdown="# 全文コピー対象"
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "全文をコピー" }));
+
+    expect(execCommandMock).toHaveBeenCalledWith("copy");
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "コピーしました ✓" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("✓ラベルは約2秒後に「全文をコピー」へ戻る", async () => {
+    vi.useFakeTimers();
+    render(
+      <MarkdownCopyFallbackDialog
+        open
+        markdown="# 全文コピー対象"
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "全文をコピー" }));
+    expect(
+      screen.getByRole("button", { name: "コピーしました ✓" }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(
+      screen.getByRole("button", { name: "全文をコピー" }),
+    ).toBeInTheDocument();
+  });
+
+  test("execCommandがfalseを返した場合はラベルを切り替えない", () => {
+    execCommandMock.mockReturnValue(false);
+    render(
+      <MarkdownCopyFallbackDialog
+        open
+        markdown="# 全文コピー対象"
+        onClose={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "全文をコピー" }));
+
+    expect(
+      screen.queryByRole("button", { name: "コピーしました ✓" }),
+    ).not.toBeInTheDocument();
   });
 });
 

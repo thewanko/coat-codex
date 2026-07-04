@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: T43④実機FBループ FB-A〜G 全7件完了 → PR待ち。残=ユーザーiPhone実機再確認＋T43③実印刷)
+最終更新: 2026-07-04 (loop: FB-H noteMDクリップボードiOS堅牢化 → PR #18待ち。残=ユーザーiPhone実機再確認＋T43③実印刷)
 
 ## 完了
+
+- 2026-07-04: **FB-H noteMDクリップボードiOS堅牢化**（PR #18: fix/note-md-clipboard-ios） — PR #17マージ後のユーザーiPhone実機で「note MDタップで何も起きない」再発（✓もダイアログも出ない）。原因=iOS Safariの`clipboard.writeText`はPromiseが**解決も拒否もせずハング**し得る（previewは即拒否＋合成clickにactivationがなく原理的に再現不能=lessons新entry）。対応=多段コピーチェーン: ①writeTextに1500msタイムアウト（敗者タイマーclear）②失敗時execCommand(copy)自動試行（legacyCopy.ts新設）③最後に全文ダイアログ＋**「全文をコピー」ボタン新設**（新タップ=新activationで最も確実）④同期例外ガード。どの経路でも必ず可視フィードバックへ到達。レビューR1 PASS(L3・L1タイマー=glue適用)。ハング再現テスト=never-settling Promiseスタブ。計974テスト。**最終確認はユーザーiPhone実機必須**
 
 - 2026-07-04: **T43④実機FBループ（FB-A〜G・ユーザーiPhone実機テスト起点7件）**（PR: impl/t43-mobile-feedback・4 Wave構成） — ①**FB-A**: X/Bluesky 2ボタン→「SNSに投稿/共有」1ボタン統合（3起点）＋ShareDialog内X/Bluesky切替タブ（role=tablist・矢印キー円環・roving tabindex・カウンタ280↔300/Intent URL追従・テキスト/選択保持）＋一括DL廃止→候補カード個別保存ボタン（iOS「ダウンロードを停止しますか？」根治・44px不可視ヒット領域）②**FB-B**: PartCardモバイル3段組（名前フル幅/使用カラースウォッチ最大8+N=resolveSwatchHexes純関数/工程数+レビュー行。配合バッジはモバイル非表示・PC不変）③**FB-C**: OverviewHeader「全体写真を変更/追加」→OverviewPhotoDialog新設（PhotoUploader再利用・autosave反映）＋Setup注記「完成画像はあとからアップロード・変更できます」④**FB-D**: 印刷プレビューのモバイル自動スケール（computePrintScale純関数・--print-scale注入・@media printは不変=実印刷無影響）⑤**FB-E**: noteMDコピー一本化＋「コピーしました✓」2秒表示＋失敗時MarkdownCopyFallbackDialog（エラートースト廃止=二重通知＆残存トーストのタップ遮蔽解消）⑥**FB-F**: 素MDを印刷ビュー同構造へ全面改訂（summaryLine・PALETTE hex・PART Iローマ数字・番号付き工程行）＋.mdファイルDL直行化⑦**FB-G**: 「出力・共有」ボタンfixed→sticky（フッター商標と重ならない）＋pointer-events:none/.overlayRoot撤去の構造簡素化＋onCloseフォーカス奪取バグ修正。**レビュー4 Wave×最大2ラウンド全PASS**（最終 C0/H0/M0）。**実機ヒットテスト規律がレビュー不可視の5件を検出**（BASEレビューボタン27.5px潰れ・フォールバックダイアログのpe:none継承素通し・z序列100<200逆転・エラートースト残存によるタップ遮蔽・onCloseインライン関数のフォーカス奪取）→全て同ループ内解消。月次上限切断2回（レビュー1・impl1）は既存ルール（成果物ゼロ→同一プロンプト再委譲）で回収。計960テスト
 
@@ -36,11 +38,11 @@
 
 ## 進行中
 
-- T43④実機FBループ: コード完了・PR作成済み（impl/t43-mobile-feedback）。マージ＝ユーザー作業
+- FB-H: コード完了・PR #18作成済み（fix/note-md-clipboard-ios）。マージ＝ユーザー作業（PR #17=T43④FBループはマージ済み）
 
 ## 次の候補 (優先順)
 
-1. **ユーザー作業（公開前）**: ①T43④FBループのPRマージ→**iPhone実機での再確認**（SNS投稿1ボタン・個別保存・パーツカード3段・印刷縮小表示・素MD DL・noteMDコピー・sticky出力ボタン・全体写真変更）②T43③実印刷ダイアログ（Chrome/Safari印刷プレビュー・PDF保存）③Web Share A系統実機（canShare成立環境での共有シート）
+1. **ユーザー作業（公開前）**: ①PR #18マージ→**iPhone実機でnote MD再確認**（期待: 即✓ or 最大1.5秒後にダイアログ＋「全文をコピー」。「何も起きない」は構造的に解消済みのはず）②T43④の他項目のiPhone再確認（SNS投稿1ボタン・個別保存・パーツカード3段・印刷縮小表示・素MD DL・sticky出力ボタン・全体写真変更)③T43③実印刷ダイアログ（Chrome/Safari印刷プレビュー・PDF保存）④Web Share A系統実機（canShare成立環境での共有シート）
 2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)

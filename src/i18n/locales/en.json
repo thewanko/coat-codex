@@ -174,8 +174,10 @@
     "markdownDownloadSuccess": "Downloaded .md file",
     "markdownDownloadFailed": "Failed to download .md file",
     "noteMdCopiedLabel": "Copied ✓",
+    "noteMdGenerateFailed": "Failed to generate note MD",
     "noteMdCopyFallbackTitle": "Couldn't copy automatically",
     "noteMdCopyFallbackDescription": "Select the text below to copy it manually",
+    "noteMdCopyFallbackCopy": "Copy full text",
     "noteMdCopyFallbackClose": "Close"
   },
   "storageStatus": {
