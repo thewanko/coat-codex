@@ -14,6 +14,14 @@
 //       navigator.clipboard.writeTextでコピーする一本化（DLフォールバックは廃止。2026-07-04
 //       FB-E）。成功時はnoteMdCopied状態を約2秒立てフィードバック用に返す。非対応・失敗時は
 //       fallbackMarkdown/fallbackDialogOpenを立て、呼び出し側が手動コピー用ダイアログを開く。
+//       2026-07-04 FB-H: iOS Safari実機で「タップしても無反応」報告。原因は
+//       navigator.clipboard.writeTextのPromiseが解決も拒否もせずハングするWebKit既知挙動。
+//       これに対し堅牢化チェーンを導入: (1) writeTextをタイムアウト付きにする
+//       （NOTE_MD_COPY_TIMEOUT_MS経過で失敗扱い） → (2) タイムアウト/失敗時、フォールバック
+//       ダイアログを出す前にdocument.execCommand("copy")（legacyCopy.ts）を試す →
+//       (3) それも失敗した場合のみMarkdownCopyFallbackDialogを開く。加えてhandleNoteMdExport
+//       全体をtry/catchし、markdown生成含む想定外の同期例外時もtoast.errorで確実にフィード
+//       バックする（無反応を防ぐ最終防波堤）。
 // 印刷: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。
 //       T36仕様。PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）。
 // SNS共有: ShareDialogをmode="whole"で開く（T40・§3.4手順1。2026-07-04 FB-A: X/Bluesky
@@ -33,6 +41,7 @@ import {
 } from "../../lib/exporters/noteMarkdown";
 import { recordRecipeExport } from "../../lib/storageHealth";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
+import { copyTextLegacy } from "../common/legacyCopy";
 import { useToast } from "../common/toastContext";
 import type { RecipeDoc } from "../../models/recipe";
 import type { ShareDialogContext } from "./ShareDialog";
@@ -40,16 +49,31 @@ import type { ShareDialogContext } from "./ShareDialog";
 /** noteMdCopiedのフィードバック表示時間（ms）。約2秒でリセットする */
 const NOTE_MD_COPIED_RESET_MS = 2000;
 
+/** navigator.clipboard.writeTextのハング（iOS Safari既知挙動）を失敗扱いにするタイムアウト */
+const NOTE_MD_COPY_TIMEOUT_MS = 1500;
+
+/**
+ * navigator.clipboard.writeTextをタイムアウト付きで試す。iOS Safariではこの
+ * Promiseが解決も拒否もせずハングすることがあるため、タイムアウトで失敗扱いにして
+ * 呼び出し側のフォールバック（execCommand方式）へ進める。writeTextが後から解決しても
+ * クリップボードに文字列が入るだけで実害はない。
+ */
 async function copyTextToClipboard(text: string): Promise<boolean> {
   if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
     return false;
   }
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
+  const writeTextPromise = navigator.clipboard
+    .writeText(text)
+    .then(() => true)
+    .catch(() => false);
+  let timerId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    timerId = setTimeout(() => resolve(false), NOTE_MD_COPY_TIMEOUT_MS);
+  });
+  // 敗者タイマーを残さない（成功パスで1.5秒タイマーが生き残るのを防ぐ）
+  return Promise.race([writeTextPromise, timeoutPromise]).finally(() =>
+    clearTimeout(timerId),
+  );
 }
 
 export interface UseExportActionsResult {
@@ -150,30 +174,56 @@ export function useExportActions(
     }
   }
 
+  function markNoteMdCopied() {
+    toast.success(t("export.markdownCopySuccess"));
+    setNoteMdCopied(true);
+    if (copiedResetTimerRef.current !== null) {
+      clearTimeout(copiedResetTimerRef.current);
+    }
+    copiedResetTimerRef.current = setTimeout(() => {
+      setNoteMdCopied(false);
+      copiedResetTimerRef.current = null;
+    }, NOTE_MD_COPIED_RESET_MS);
+  }
+
   function handleNoteMdExport() {
     if (!recipe) return;
-    const markdown = exportRecipeToNoteMarkdown(
-      recipe,
-      buildNoteMarkdownLabels(t),
-    );
-    void (async () => {
-      const copied = await copyTextToClipboard(markdown);
-      if (copied) {
-        toast.success(t("export.markdownCopySuccess"));
-        setNoteMdCopied(true);
-        if (copiedResetTimerRef.current !== null) {
-          clearTimeout(copiedResetTimerRef.current);
+    try {
+      const markdown = exportRecipeToNoteMarkdown(
+        recipe,
+        buildNoteMarkdownLabels(t),
+      );
+      void (async () => {
+        try {
+          const copied = await copyTextToClipboard(markdown);
+          if (copied) {
+            markNoteMdCopied();
+            return;
+          }
+          // writeTextが失敗/タイムアウトした場合、フォールバックダイアログを出す前に
+          // execCommand("copy")方式（旧方式）を試す。まだ直近のタップのtransient
+          // activationが有効な時間帯であるため、iOSでも成功しうる。
+          if (copyTextLegacy(markdown)) {
+            markNoteMdCopied();
+            return;
+          }
+          // 失敗フィードバックはフォールバックダイアログ自身が担う。エラートーストを併発すると
+          // 二重通知になる上、手動✕まで残存するトースト(z:1000)がモバイルで下のUIのタップを塞ぐ
+          setNoteMdFallbackMarkdown(markdown);
+        } catch (error) {
+          console.error(
+            "note MDコピー処理で予期しない例外が発生しました",
+            error,
+          );
+          setNoteMdFallbackMarkdown(markdown);
         }
-        copiedResetTimerRef.current = setTimeout(() => {
-          setNoteMdCopied(false);
-          copiedResetTimerRef.current = null;
-        }, NOTE_MD_COPIED_RESET_MS);
-        return;
-      }
-      // 失敗フィードバックはフォールバックダイアログ自身が担う。エラートーストを併発すると
-      // 二重通知になる上、手動✕まで残存するトースト(z:1000)がモバイルで下のUIのタップを塞ぐ
-      setNoteMdFallbackMarkdown(markdown);
-    })();
+      })();
+    } catch (error) {
+      // markdown生成自体が失敗した場合は表示するmarkdown本文がないため、
+      // フォールバックダイアログではなくエラートーストで通知する。
+      console.error("note MDの生成に失敗しました", error);
+      toast.error(t("export.noteMdGenerateFailed"));
+    }
   }
 
   function handleCloseNoteMdFallback() {

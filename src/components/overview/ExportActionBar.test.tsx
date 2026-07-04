@@ -26,6 +26,7 @@ import {
   vi,
 } from "vitest";
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -309,6 +310,98 @@ describe("ExportActionBar — PC幅（従来のピル群）", () => {
       "markdown-copy-fallback-textarea",
     ) as HTMLTextAreaElement;
     expect(textarea.value).toContain("#coat-codex");
+  });
+
+  // 2026-07-04 FB-H: iOS Safari実機で「note MDタップしても無反応」報告への対応。
+  // writeTextが解決も拒否もせずハングする既知のWebKit挙動を再現するため、
+  // 「実装と同じ非同期タイミング」を守ったスタブ（即時resolveしないPromise）を使う
+  // （CLAUDE.md実機検証の規律）。
+  describe("note MDコピー堅牢化チェーン（FB-H）", () => {
+    let execCommandMock: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      execCommandMock = vi.fn().mockReturnValue(true);
+      document.execCommand =
+        execCommandMock as unknown as Document["execCommand"];
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+      // jsdomはexecCommandを実装していない（本来存在しない）。テスト間の漏れを防ぐため
+      // 明示的に削除して元の状態へ戻す。
+      delete (document as { execCommand?: unknown }).execCommand;
+    });
+
+    test("writeTextがハング（永遠にpending）した場合、タイムアウト後にexecCommandへフォールバックし成功フィードバックを出す", async () => {
+      // 意図的に解決も拒否もしないPromiseでiOS Safariのハング挙動を再現する
+      const writeText = vi.fn().mockReturnValue(new Promise<void>(() => {}));
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      renderBar(makeRecipe({ title: "テストレシピ" }));
+      fireEvent.click(screen.getByRole("button", { name: "note MD" }));
+
+      expect(writeText).toHaveBeenCalledTimes(1);
+      // タイムアウト（NOTE_MD_COPY_TIMEOUT_MS=1500ms）経過前はまだフォールバックしない
+      expect(execCommandMock).not.toHaveBeenCalled();
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      expect(execCommandMock).toHaveBeenCalledWith("copy");
+      expect(
+        screen.getByRole("button", { name: "コピーしました ✓" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("markdown-copy-fallback-backdrop"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("writeTextが拒否され、execCommandも失敗した場合はフォールバックダイアログが開く", async () => {
+      const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+      Object.assign(navigator, { clipboard: { writeText } });
+      execCommandMock.mockReturnValue(false);
+
+      renderBar(makeRecipe({ title: "テストレシピ" }));
+      fireEvent.click(screen.getByRole("button", { name: "note MD" }));
+
+      // writeTextのreject（マイクロタスク）をactでflushする。fakeTimers環境では
+      // findByTestId/waitForのreal-time pollingがfakeなsetIntervalと衝突しハングするため使わない。
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      const dialog = screen.getByTestId("markdown-copy-fallback-backdrop");
+      expect(dialog).toBeInTheDocument();
+      expect(execCommandMock).toHaveBeenCalledWith("copy");
+      const textarea = screen.getByTestId(
+        "markdown-copy-fallback-textarea",
+      ) as HTMLTextAreaElement;
+      expect(textarea.value).toContain("#coat-codex");
+    });
+
+    test("writeText成功時は既存経路どおりexecCommandを呼ばずに成功フィードバックを出す（リグレッションなし）", async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+
+      renderBar(makeRecipe({ title: "テストレシピ" }));
+      fireEvent.click(screen.getByRole("button", { name: "note MD" }));
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(
+        screen.getByRole("button", { name: "コピーしました ✓" }),
+      ).toBeInTheDocument();
+      expect(execCommandMock).not.toHaveBeenCalled();
+    });
   });
 
   test("JSONエクスポート失敗時はエラートーストを表示する", async () => {

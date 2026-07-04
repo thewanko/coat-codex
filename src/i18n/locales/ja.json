@@ -174,8 +174,10 @@
     "markdownDownloadSuccess": ".mdファイルをダウンロードしました",
     "markdownDownloadFailed": ".mdファイルのダウンロードに失敗しました",
     "noteMdCopiedLabel": "コピーしました ✓",
+    "noteMdGenerateFailed": "note MDの生成に失敗しました",
     "noteMdCopyFallbackTitle": "自動コピーできませんでした",
     "noteMdCopyFallbackDescription": "下のテキストを選択してコピーしてください",
+    "noteMdCopyFallbackCopy": "全文をコピー",
     "noteMdCopyFallbackClose": "閉じる"
   },
   "storageStatus": {
