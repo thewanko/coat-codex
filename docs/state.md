@@ -3,11 +3,12 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: M8後半 T45 完了。M8残=T44/T46・任意T47は残置継続)
+最終更新: 2026-07-04 (loop: M8後半 T45 完了・並行セッションのM8前半 T44/T46と合流 → **M8コードタスク全完了**〔任意T47は見送り裁定〕。残=コード外チェックリスト=ユーザー作業)
 
 ## 完了
 
 - 2026-07-04: **M8後半: T45 PaintSlotスロット固有安定key**（PR: impl/m8-t45-paintslot-key） — `key={paint.colorId}`をUI専用安定id（`useRef<string[]>`・非永続・add/removeで同期・外部length変化は末尾append/truncate）へ置換し、colorId変化（pending→確定・色変更・palette再利用解決）での再マウントを排除。**M4レビューR1指摘5「blurクリック1回吸われ＋中断編集の孤児palette生成」を解消**。MixState/スキーマ/PaintSlot.tsx/重複ガード/palette再利用は不変。テスト3件追加（DOMノード同一性・add/remove跨ぎ整合・外部length変化追従）。Opusレビュー R1 PASS（C0/H0/M0/L2。L1=StepCard陳腐化コメント→セッションglue修正、L2=末尾truncate方式の将来リスク→現行到達不能〔stripは永続スナップショット専用でライブstateへ書き戻しなし〕対応不要）。**実機検証**: 実イベント順序（mousedown→blur確定→click）で1クリック目の到達＋ハンドラ発火＋スロット追加成立、色変更/pending→確定の両クラスでsameNode維持、value再同期（確定名保持）・swatch反映・toastなし。検証データは復元済み。**T47は見送り裁定**（任意Low・限定条件・「将来のカラー数UX調整時に一括対応」の既存申し送りを維持）。計869テスト
+- 2026-07-04: **M8前半: T44 ネストルート化＋T46 フォーカストラップ＋封蝋ロゴ実画像化＋faviconキャッシュバスト**（PR: impl/m8-t44-t46） — ①**T44**: `/recipe/:id`親ルート化＋`part/base`（先）/`part/:partId`子ルート・Overview側`<Outlet/>`（早期return経路にも素通し）・背面`.root`へ`inert`（aria-hidden不採用: Tab/SR迂回を一括遮断）・PC幅のみbodyスクロール固定（matchMedia 768px・change追従・前値復元）。**レビューR1 FAIL(H2)**: 親子同時マウントで子のload effectが`doc:null`リセット→背面が一瞬notFoundフラッシュ＋相互スタブで統合経路未テスト → **loadオーナーを親に一本化**（子のload effect削除）＋実親×実子の統合テスト新設（notFound非表示・loadRecipe 1回・開→閉→開・直接URL）②**T46**: `useFocusTrap`新設（Tab/Shift+Tab循環・Escape・初期/復帰フォーカス）→5ダイアログへ適用・個別Escapeリスナー完全削除・ConfirmDialogは初期フォーカスをキャンセル側へ。**実機検証が「復帰フォーカスが条件付きマウント（PartReviewDialog/ShareDialog=閉でアンマウント）で不発火」の実バグを検出**（unitはpropトグルのみで代表性不足）→ open時effectクロージャcapture＋cleanup復帰方式へ修正・実機で復帰成立を再確認 ③**封蝋ロゴ実画像化**（ユーザー決定「両方」）: 原本docs/design/coat-codex_logo.png（1254px・無改変維持）→src/assets/seal-logo.png（128px）生成。ヘッダCSS封蝋→`<img>`34px・フッターに18px追加・デザイン仕様書4箇所改訂（封蝋モノグラム行/AppFooter節/§7アセット表/使用箇所上限3→4箇所）④**favicon**: 結線・実体・本番配信は正常でブラウザのfavicon専用キャッシュが原因と特定→`?v=2`クエリでキャッシュバスト（PR #14マージ済み・ユーザー実施）。レビューR2 PASS(M1=仕様書上限行改訂漏れ→セッション修正/L2)→R3 PASS(L1=StrictMode順序依存・コメント明文化済みで対応不要)。実機検証: PC幅パネル背面透け表示・inert遮断（elementFromPoint=backdrop）・close全復元・モバイル375pxフルページ・Tab循環/Escape/復帰フォーカス・ロゴ4倍ズーム実ピクセル目視。計885テスト
 - 2026-07-03: **M7後半: T42 レスポンシブ最終調整＋T43 通しQA**（PR: impl/m7-t42-t43） — ①**T42意匠2件**（dc.html準拠に採用裁定）: Homeを「ヘッダ行ボタン」から「ヒーロー（LIBRARY→YOUR CODEX→和文gloss→金飾り罫→VOLUMES）＋中央寄せ独立ボタン行」へ移設・モバイル縦積み／Setup ImportJsonSectionを「または」ディバイダ＋破線カード（PC）/コンパクト破線ボタン（モバイル）へ意匠化（機能不変）。app.title削除（YOUR CODEXが後継）②**モバイルタッチ44px化を横断適用**（実機ヒットテストで検出: 工程/パーツ↑↓32px・写真✕24px・各種✕/menu28px・addButton40px等を44px化。視覚拡大 or 不可視ヒット領域拡張）。**StepPhotoTile✕は祖先overflow:hiddenで外向き拡張がクリップされる罠を実機検出→内向き拡張（top:0;right:0;left/bottom負値）へ差し戻し修正**③**VOLUMES英語複数形化**（volumesCount_one/_other・i18n.test.tsの一致/網羅/デッド検出を複数形サフィックス許容へ最小修正）④**T43通しQA**: dev実機で①往復②本番URL⑤persist拒否⑥Quota⑦削除ガード⑧presetId降格⑨D-8⑩D-6ドット⑪工程写真3出力⑫≠100警告継承（合成画像の⚠計90%を実ピクセル目視）を確認しREADME追記。③印刷ダイアログ・④Web Share A系統はユーザー実機依頼事項として整理。Opus UIレビューR1 PASS（C0/H0/M0/L2。L2=StepPhotoTileコメントはレビュアー誤検出〔480px縮小media実在〕で対応不要、L1=VOLUMES複数形は対応）。計866テスト
 - 2026-07-03: **M7前半: T41 i18n棚卸し＋共有カードFB対応＋favicon結線**（PR: impl/m7-t41-share-feedback） — ①**T41**: i18n機械チェックテスト新設（ja/en再帰キー完全一致・静的抽出キー網羅・techniques.*動的名前空間の閉包・デッドキー逆方向検出・言語永続化）・未使用5キー削除（partReview.share等）。R1 PASS(M2/L3)→修正→R2 PASS(L0)。裁定: レンジ表記は小文字キー維持（表示名変換見送り）②**FB-1 写真cover配置**（ユーザー実機FB「横伸ばし」）: drawPhotoがコメントに反し5引数drawImage引き伸ばしだった実在バグ。computeCoverSourceRect純関数＋9引数化＋naturalSize不能時は5引数全面描画フォールバック ③**FB-2/3 summary(whole)目次化**（ユーザー指示「パーツ：工程数と使用カラーの一覧ぐらいでいい」）: パーツ構成（ベース先頭・0工程スキップ・上限8行＋…他Nパーツ）＋使用カラー3列グリッド（**色名＋ブランド併記**・上限12色＋N）・実行数ベース上詰め。R1(L3)→R2(L0)→**実機実ピクセル目視がdesign乖離2点（色名なし・8行固定の中央空白）をレビューPASS後に検出**→FB-3→R3 PASS(L1申し送り) ④**favicon**: ユーザー支給封蝋ロゴPNG（docs/design/coat-codex_logo.png原本）→48px/180px配信層＋index.html結線（M4/M7申し送り解消）。実機検証: 黒狼実データ（ユーザー指定のObsidian vault版）UI経由インポート・目次/工程/写真カード実ピクセル・0工程スキップ・brand nullスキップ・全ヒットテスト。計862テスト
 
@@ -33,13 +34,12 @@
 
 ## 進行中
 
-- **M8 公開前仕上げ**: T45完了（2026-07-04・上記）。残=T44・T46（＋任意T47は残置裁定済み）
+- (なし。**M8コードタスク T44/T45/T46 全完了**〔T44/T46=PR #15マージ済み・T45=PR #16〕。T47は見送り裁定=任意Low・限定条件・「将来のカラー数UX調整時に一括対応」を維持)
 
 ## 次の候補 (優先順)
 
-1. **M8残り（計画§4.2）**: T44 PCパネル背面Overview（ネストルート+Outlet）／T46 全ダイアログ共通フォーカストラップ。**T44とT46は成果物が重ならず並列委譲可**。~~T45~~（2026-07-04完了）・T47は見送り裁定（任意Low・限定条件。「将来のカラー数UX調整時に一括対応」を維持）
-2. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
-3. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
+1. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
+2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
 
@@ -55,6 +55,7 @@
 
 ## 申し送り (次セッションの自分へ)
 
+- **M8前半の残Low（全PASS済み・対応任意）**: ①AppFooter.test.tsxの`getByAltText("")`は「空altのimgがフッター内に1つ」前提の脆いセレクタ（R2 L2。将来装飾img追加時に`querySelector("img[aria-hidden]")`等へ）②useFocusTrapの2 effect定義順（capture→初期フォーカス）はStrictMode二重mountでの正しさに寄与する順序依存（R3 L1。コメント明文化済み・入れ替え禁止）③inert付与はuseEffectのため直接URL初回ペイントに未適用の1フレームが理論上あり（R2 L3・Skeletonのみで実害なし）④favicon `?v=2`は再発時に`?v=3`へ上げるだけでよい
 - **M7前半の残Low＋検証環境**: ①summary(whole)使用カラーの「+N」は「13色以上かつ12色目の色名が極端に長い」限定条件で12色目ラベル末尾と視覚干渉しうる（R3 Low・幾何は静的検算済み・機能無影響。最小修正=12色目のみlabelMaxWidthを+N実測幅ぶん縮める分岐）②T41裁定: レンジ表記は小文字キー維持（表示名変換はユーザー反応待ち）③印刷パレット行スウォッチ16pxは**デザイン仕様書§6「16px（工程行）」に適合と確定**（M6申し送りの「dc.html規定30×30」は誤記。対応不要）④検証用データ: previewのIndexedDBに黒狼実データ（ユーザー指定 Obsidian vault の黒狼2.json＝毎回ユーザーが `@` で添付）と合成「黒狼検証」（0工程パーツ・混合色・brand null・**マスタ外presetId・70/30 MIX工程**入り）をインポート済み。JSON原本は node_modules/.verify-tmp/（gitignore内・再生成可能）⑤summary(whole)「+N」視覚干渉（①）はM7で未対応のまま残置（限定条件・機能無影響。将来のカラー数UX調整時に一括対応推奨）
 - **共有カードv2系の残Low申し送り（全PASS済み・対応任意）**: ①まとめカード工程行のブランド・レンジ併記は幅分配の予約対象外のため、色名が極端に長い行では併記側が「…」化する非対称あり（優先度「色名＞併記」はユーザー要望どおりの意図的設計）②工程数が少ないレシピではまとめカード下部に余白が残る（行間の均等配分調整はユーザー反応を見てM7で判断）③レンジ表記は小文字キーのまま（RangeFilterの既存表示方式と一貫。表示名変換の導入はM7 T41と同時判断）
 - **M6残Low申し送り（全PASS済み・対応任意、多くはM7で自然回収）**: ①印刷パレット行スウォッチが16px（dc.html規定は30×30。hexテキスト併記で可読性担保。**T42レスポンシブ最終調整と同時に判断**）②ShareImagePreviewの候補カード表示は元写真サムネで、共有・DLされる実体（1200×900合成PNG）と見た目が異なる（機能は正・「合成後プレビュー」化はM7判断）③選択0枚時のB系統DLボタンが活性のまま（押してもno-opで無害）④全ダイアログ共通のフォーカストラップなし（次の候補3に独立タスク化済み）⑤ビューポート767px境界を跨ぐリサイズで共有中のダイアログ状態が失われる（分岐別ツリーの本質的挙動・稀）⑥ShareDialogを開いたまま背後でrecipeが更新されても候補は再生成されない（recipe.id依存・導線上起きにくい）⑦`partReview.share`キーが未使用のまま残置（**T41 i18n棚卸しで回収**）

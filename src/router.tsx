@@ -13,13 +13,18 @@ function AppRouter() {
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/recipe/:id/setup" element={<RecipeSetupPage />} />
-        <Route path="/recipe/:id" element={<RecipeOverviewPage />} />
-        {/* /part/base must be defined before /part/:partId (see 技術計画 v2.2 §3.1) */}
-        <Route
-          path="/recipe/:id/part/base"
-          element={<PartEditorPage isBaseMode />}
-        />
-        <Route path="/recipe/:id/part/:partId" element={<PartEditorPage />} />
+        {/*
+          /recipe/:id is the parent route rendering RecipeOverviewPage, with
+          part/base and part/:partId nested as child routes rendered via
+          <Outlet /> inside RecipeOverviewPage. On PC width (>=768px) the
+          child route renders as a slide-in panel over the Overview; on
+          mobile it renders as a full page (see 技術計画 v2.2 §3.1, T44).
+        */}
+        <Route path="/recipe/:id" element={<RecipeOverviewPage />}>
+          {/* /part/base must be defined before /part/:partId (see 技術計画 v2.2 §3.1) */}
+          <Route path="part/base" element={<PartEditorPage isBaseMode />} />
+          <Route path="part/:partId" element={<PartEditorPage />} />
+        </Route>
         <Route path="/recipe/:id/print" element={<PrintViewPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

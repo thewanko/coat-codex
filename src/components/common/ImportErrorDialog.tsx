@@ -6,9 +6,10 @@
 // 「error-detail は mono でzodエラー列挙」。ConfirmDialog（confirmバリアント）と同じ
 // Esc・backdropクリックで閉じる・role="dialog" aria-modal・フォーカス管理の慣行に従う。
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { ImportIssue } from "../../lib/importRecipe";
+import { useFocusTrap } from "./useFocusTrap";
 import styles from "./ImportErrorDialog.module.css";
 
 interface ImportErrorDialogProps {
@@ -40,23 +41,15 @@ function ImportErrorDialog({
   onClose,
 }: ImportErrorDialogProps) {
   const { t } = useTranslation();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    closeButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  useFocusTrap({
+    containerRef: dialogRef,
+    open,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   if (!open) {
     return null;
@@ -69,6 +62,7 @@ function ImportErrorDialog({
       data-testid="import-error-dialog-backdrop"
     >
       <div
+        ref={dialogRef}
         className={styles.dialog}
         role="dialog"
         aria-modal="true"

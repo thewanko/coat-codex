@@ -6,8 +6,9 @@
 // 専用の小ダイアログ。JSONエクスポート実行時に「写真を含める/含めない」を選択させる
 // （ExportActionBar・RecipeCardメニューの両方から共用）。
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useFocusTrap } from "./useFocusTrap";
 import styles from "./ExportPhotoChoiceDialog.module.css";
 
 interface ExportPhotoChoiceDialogProps {
@@ -22,23 +23,15 @@ function ExportPhotoChoiceDialog({
   onCancel,
 }: ExportPhotoChoiceDialogProps) {
   const { t } = useTranslation();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const includeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    includeButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onCancel();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onCancel]);
+  useFocusTrap({
+    containerRef: dialogRef,
+    open,
+    onClose: onCancel,
+    initialFocusRef: includeButtonRef,
+  });
 
   if (!open) {
     return null;
@@ -51,6 +44,7 @@ function ExportPhotoChoiceDialog({
       data-testid="export-photo-choice-backdrop"
     >
       <div
+        ref={dialogRef}
         className={styles.dialog}
         role="dialog"
         aria-modal="true"

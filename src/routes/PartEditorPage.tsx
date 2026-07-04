@@ -16,6 +16,12 @@
 // 閉じるボタン）は`/recipe/:id`へnavigateする。
 //
 // onSaveError（StorageQuotaError等）はuseEffectで購読しトースト表示する（useToast.error）。
+//
+// load呼び出しについて（M8 T44レビューRound1 #1）: ネスト化により本コンポーネントは
+// 親RecipeOverviewPageと同時マウントされる。loadのオーナーは親に一本化し、本コンポーネントは
+// mount時のload呼び出しを持たない（ストアのdoc/isLoading/loadErrorを購読するのみ）。
+// 子側でloadを呼ぶと、パネルを開くたびdoc:nullリセット（ストアload冒頭のset）が走り、
+// 背面Overviewが一瞬notFound表示にフラッシュし、in-flight autosaveも強制flushされてしまう。
 
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -64,15 +70,8 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
   const doc = useRecipeStore((state) => state.doc);
   const isLoading = useRecipeStore((state) => state.isLoading);
   const loadError = useRecipeStore((state) => state.loadError);
-  const load = useRecipeStore((state) => state.load);
   const updateRecipe = useRecipeStore((state) => state.updateRecipe);
   const onSaveError = useRecipeStore((state) => state.onSaveError);
-
-  useEffect(() => {
-    if (id) {
-      void load(id);
-    }
-  }, [id, load]);
 
   useEffect(() => {
     return onSaveError((event) => {
