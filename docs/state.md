@@ -38,7 +38,7 @@
 
 ## 次の候補 (優先順)
 
-1. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
+1. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機の2点のみ（contact@coat-codex.com受信転送=**設定済み** 2026-07-04ユーザー確認・空Worker削除=**当面見送り** 2026-07-04ユーザー裁定）
 2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
@@ -64,10 +64,10 @@
 - **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
 - **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで
 - **M4レビューLow申し送り**: `color-mix()`をRecipeCard.module.cssで初導入（Baseline 2023、Safari 16.2+が実質のブラウザ下限に）／写真表示系のobjectURL未revokeはphotoStore共有キャッシュ設計と整合した意図的挙動／pagehideのflushAutosaveはbest-effort（非同期完了非保証）
-- **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。**受信転送の設定（Cloudflare Email Routing等）が公開前に必要=ユーザー作業**。商用要素追加前は専門家レビュー推奨の注記あり
+- **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。受信転送は**設定済み**（2026-07-04ユーザー確認）。商用要素追加前は専門家レビュー推奨の注記あり
 - ~~M4結線の必須事項3点~~（M4で充足済み: ①ストアのstripStepPending ②updater参照同一性（テストでtoBe検証） ③PaletteEditor未使用削除UI。④は実機確認の上M5送り②へ）
 - ToastHost: successの自動消滅タイマーがclearTimeout管理されていない（レビューLow）。手動閉じUI追加時に対応（M5以降）
 - favicon: vite.svg参照は削除済み。正式には封蝋logo.svg（デザイン仕様書§7=唯一のSVG供給アセット）を作成してindex.htmlへ結線（M4/M7）
 - i18n永続化キーは独自の `coat-codex:lang`。LanguageDetector導入時は標準`i18nextLng`との整合に注意（レビューLow）
 - devサーバープレビューは .claude/launch.json の `coat-codex-dev`（port 5173）
-- **Worker側 `coat-codex` の削除はペンディング**（2026-07-02: ダッシュボードに削除項目が表示されない事象。ただし**Git接続は解除済み**のため失敗ビルドは発生せず実害なし。空のWorkerが残っているだけ。気が向いたら `npx wrangler login` 後に `npx wrangler delete --name coat-codex` でも消せる）
+- **Worker側 `coat-codex` の削除は当面見送り**（2026-07-04ユーザー裁定。Git接続解除済みで実害なし。消す場合は `npx wrangler login` 後に `npx wrangler delete --name coat-codex`）
