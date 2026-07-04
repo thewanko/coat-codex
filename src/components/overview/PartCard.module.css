@@ -1,4 +1,11 @@
 /* PartCard — パーツカード（デザイン仕様書§4 Card・§8-A step-photo） */
+/*
+ * モバイル3段組化（2026-07-04・ユーザー実機フィードバック対応）: DOM構造はPC/モバイル共通。
+ * `.body`の子（name・swatchRow・badgeRow・stepsCount）とbody外のreviewButtonをモバイルの
+ * `@media (max-width: 767px)`のみ`.card`をgridコンテナ化してgrid-areaで再配置する
+ * （`.body`自体はモバイルでdisplay:contentsにして透過し、直接の子をcardのgridに参加させる）。
+ * PC幅（既定）はgrid宣言を持たず、既存のflexレイアウトを完全に維持する。
+ */
 
 .card {
   display: flex;
@@ -80,18 +87,18 @@
 .body {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.titleRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "name stepsCount"
+    "badge badge";
   align-items: baseline;
-  gap: var(--space-2);
+  row-gap: var(--space-1);
+  column-gap: var(--space-2);
 }
 
 .name {
+  grid-area: name;
   font-family: var(--font-family-display), var(--font-family-body);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-md);
@@ -100,7 +107,31 @@
   white-space: nowrap;
 }
 
+/* swatchRow（使用カラーの四角スウォッチ・モバイル2段目）はPCでは非表示 */
+.swatchRow {
+  display: none;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.swatchChip {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-line);
+  flex: none;
+}
+
+.swatchOverflow {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
 .stepsCount {
+  grid-area: stepsCount;
   font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
   color: var(--color-ink-muted);
@@ -108,6 +139,7 @@
 }
 
 .badgeRow {
+  grid-area: badge;
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
@@ -157,4 +189,75 @@
 .reviewButton:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+/*
+ * モバイル3段組（<768px）: `.card`をgridコンテナ化し、`.body`は`display:contents`で透過して
+ * 直接の子（name/swatchRow/badgeRow/stepsCount）を`.card`のgridに直接参加させる。これにより
+ * 本来`.body`の外にあるreviewButtonともgrid-areaで同じ行（footer）に配置できる。
+ * 1段目=name、2段目=swatchRow、3段目=stepsCount+reviewButton。badgeRow（混合バッジ・
+ * ≠100警告）はモバイルでは非表示（ユーザー指定）。order・thumb・chevronは左列/右列に維持する。
+ */
+@media (max-width: 767px) {
+  .card {
+    display: grid;
+    grid-template-columns: 22px 52px 1fr auto auto;
+    grid-template-areas:
+      "order thumb name name name"
+      "order thumb swatch swatch swatch"
+      "order thumb stepsCount reviewButton chevron";
+    align-items: center;
+    row-gap: var(--space-1);
+  }
+
+  .order {
+    grid-area: order;
+  }
+
+  .thumb {
+    grid-area: thumb;
+    align-self: start;
+  }
+
+  /* 写真ロード中はSkeleton(variant=photo)が.thumbの代わりに.cardの直接の子として
+     描画される（PartCard.tsx）。別CSS Moduleのため属性セレクタでgrid配置を明示する */
+  .card > [data-variant="photo"] {
+    grid-area: thumb;
+    align-self: start;
+  }
+
+  .body {
+    display: contents;
+  }
+
+  .name {
+    grid-area: name;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .swatchRow {
+    grid-area: swatch;
+    display: flex;
+  }
+
+  .badgeRow {
+    display: none;
+  }
+
+  .stepsCount {
+    grid-area: stepsCount;
+  }
+
+  .reviewButton {
+    grid-area: reviewButton;
+    justify-self: end;
+    /* T42モバイルタッチ規律: grid行のstretch任せだと行が縮むカード（BASE等）で
+       28px程度まで潰れるため、ボタン自身に44pxを保証する */
+    min-height: var(--size-touch-target);
+  }
+
+  .chevron {
+    grid-area: chevron;
+  }
 }

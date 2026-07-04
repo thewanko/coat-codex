@@ -32,6 +32,7 @@ import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
 import OverviewHeader from "../components/overview/OverviewHeader";
+import OverviewPhotoDialog from "../components/overview/OverviewPhotoDialog";
 import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
 import PartCard from "../components/overview/PartCard";
 import PartCardList from "../components/overview/PartCardList";
@@ -96,6 +97,8 @@ function RecipeOverviewPage() {
   // レビュー対象。BASE_PART_ID("base")の場合はBASEカードのレビュー（PartReviewDialogの
   // baseモード=partId:null相当）。実パーツはparts[].id（"base"予約語のため衝突しない）。
   const [reviewTarget, setReviewTarget] = useState<string | null>(null);
+  // FB-C 2026-07-04: 全体写真の後日変更ダイアログ開閉状態
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   // §3.5コンパクト帯: 当該レシピの未バックアップ判定に必要な状態（recipeExport:<id>とスヌーズ期限）
   const [exportedAt, setExportedAt] = useState<string | undefined>(undefined);
   const [snoozedUntil, setSnoozedUntil] = useState<string | undefined>(
@@ -204,6 +207,10 @@ function RecipeOverviewPage() {
     setReminderRefreshToken((token) => token + 1);
   }
 
+  function handleOverviewPhotosChange(overviewPhotoIds: string[]) {
+    updateRecipe((current) => ({ ...current, overviewPhotoIds }));
+  }
+
   // §3.5コンパクト帯の表示条件: 当該レシピが未バックアップ、かつスヌーズ中でない
   const showReminderCompact = shouldShowExportReminder({
     updatedAt: doc.updatedAt,
@@ -242,6 +249,7 @@ function RecipeOverviewPage() {
 
         <OverviewHeader
           representativePhotoId={doc.overviewPhotoIds[0] ?? null}
+          onChangePhoto={() => setPhotoDialogOpen(true)}
         />
 
         <OverviewPhotoStrip photoIds={doc.overviewPhotoIds} />
@@ -260,6 +268,7 @@ function RecipeOverviewPage() {
           ) : (
             <PartCard
               part={basePart}
+              palette={doc.palette}
               onOpen={handleOpenBase}
               onReview={handleReviewBase}
             />
@@ -270,6 +279,7 @@ function RecipeOverviewPage() {
           <h2 className={styles.partsHeading}>{t("overview.partsHeading")}</h2>
           <PartCardList
             parts={doc.parts}
+            palette={doc.palette}
             onOpen={handleOpenPart}
             onReview={handleReviewPart}
             onReorder={handleReorderParts}
@@ -277,6 +287,10 @@ function RecipeOverviewPage() {
           />
         </section>
 
+        {/* 2026-07-04 FB-G: モバイルの「出力・共有」ボタンはposition: stickyのため
+            コンテンツ末尾（＋パーツを追加ボタンの下）に配置する。fixed時代に必要だった
+            .root側のpadding-bottom（--actionbar-height分の余白確保）はsticky化で
+            不要になったため撤去済み（RecipeOverviewPage.module.css）。 */}
         <ExportActionBar recipe={doc} onExported={handleReminderChanged} />
 
         {reviewTarget !== null && (
@@ -285,6 +299,16 @@ function RecipeOverviewPage() {
             partId={reviewTarget === BASE_PART_ID ? null : reviewTarget}
             open={reviewTarget !== null}
             onClose={() => setReviewTarget(null)}
+          />
+        )}
+
+        {photoDialogOpen && (
+          <OverviewPhotoDialog
+            open={photoDialogOpen}
+            recipeId={doc.id}
+            value={doc.overviewPhotoIds}
+            onChange={handleOverviewPhotosChange}
+            onClose={() => setPhotoDialogOpen(false)}
           />
         )}
       </div>

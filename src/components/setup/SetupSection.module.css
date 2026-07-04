@@ -18,3 +18,9 @@
   font-size: var(--font-size-md);
   color: var(--color-ink);
 }
+
+.note {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}

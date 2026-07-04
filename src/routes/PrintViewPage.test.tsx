@@ -344,3 +344,50 @@ describe("PrintViewPage — PrintRecipeSheetのレンダリング", () => {
     expect(screen.getByText("fig. 1 — 完成状態")).toBeInTheDocument();
   });
 });
+
+describe("PrintViewPage — モバイル自動スケールラッパーの配線", () => {
+  test("紙面ラッパーが利用可能幅に応じてscaleを反映するCSSカスタムプロパティを持つ", async () => {
+    const doc = makeDoc({ title: "宵闇の騎士" });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+
+    const clientWidthSpy = vi
+      .spyOn(Element.prototype, "clientWidth", "get")
+      .mockReturnValue(375);
+
+    renderPage("/recipe/rcp_1/print");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("print-recipe-sheet")).toBeInTheDocument();
+    });
+
+    const sheet = screen.getByTestId("print-recipe-sheet");
+    const scaleWrapper = sheet.parentElement?.parentElement;
+    expect(scaleWrapper).not.toBeNull();
+    const style = (scaleWrapper as HTMLElement).style;
+    expect(style.getPropertyValue("--print-scale")).toBe(String(375 / 794));
+
+    clientWidthSpy.mockRestore();
+  });
+
+  test("利用可能幅が紙面幅以上のときはscale=1（縮小しない）", async () => {
+    const doc = makeDoc({ title: "宵闇の騎士" });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+
+    const clientWidthSpy = vi
+      .spyOn(Element.prototype, "clientWidth", "get")
+      .mockReturnValue(1024);
+
+    renderPage("/recipe/rcp_1/print");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("print-recipe-sheet")).toBeInTheDocument();
+    });
+
+    const sheet = screen.getByTestId("print-recipe-sheet");
+    const scaleWrapper = sheet.parentElement?.parentElement;
+    const style = (scaleWrapper as HTMLElement).style;
+    expect(style.getPropertyValue("--print-scale")).toBe("1");
+
+    clientWidthSpy.mockRestore();
+  });
+});

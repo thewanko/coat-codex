@@ -5,7 +5,8 @@
 // JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）・note MDをT33で結線する。
 // 印刷は/recipe/:id/printへnavigate（保存手順案内はPrintToolbar側=T36仕様。PDFボタンは
 // 印刷と挙動が同一だったため2026-07-03ユーザー決定で削除・「印刷」に統合）。
-// X・BlueskyはShareDialog（context={mode:"whole", recipe}）を対応するtargetで開く（T40）。
+// SNS共有はShareDialog（context={mode:"whole", recipe}）を開く（T40。2026-07-04 FB-A:
+// X/Bluesky2ボタンを「SNSに投稿」1ボタンへ統合し、target選択はShareDialog内部のタブへ移した）。
 // 並び順・グルーピング（菱区切り＋JSON+素MDの結合ピル）はデザイン仕様書§4「ActionBar」。
 // 結線ロジックはuseExportActions（react-refresh対応で分離）に委譲する。
 //
@@ -14,11 +15,12 @@
 // タップでボトムシート（デザイン仕様書§4「Dialog / Modal」: モバイルはボトムシート化可、
 // 上角のみradius）を開く。PC幅(≥768px)は従来のピル群のまま変更しない。
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { RecipeDoc } from "../../models/recipe";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
+import MarkdownCopyFallbackDialog from "../common/MarkdownCopyFallbackDialog";
 import ShareDialog from "./ShareDialog";
 import styles from "./ExportActionBar.module.css";
 import { shouldCloseFromDrag } from "./exportSheetDrag";
@@ -71,12 +73,14 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    noteMdCopied,
+    noteMdFallbackOpen,
+    noteMdFallbackMarkdown,
+    handleCloseNoteMdFallback,
     handlePrint,
-    handleShareX,
-    handleShareBluesky,
+    handleShareSns,
     shareDialogOpen,
     shareDialogContext,
-    shareDialogTarget,
     handleCloseShareDialog,
   } = useExportActions(recipe, onExported);
 
@@ -97,17 +101,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         type="button"
         className={styles.pill}
         disabled={recipe === null}
-        onClick={handleShareX}
+        onClick={handleShareSns}
       >
-        {t("overview.exportX")}
-      </button>
-      <button
-        type="button"
-        className={styles.pill}
-        disabled={recipe === null}
-        onClick={handleShareBluesky}
-      >
-        {t("overview.exportBluesky")}
+        {t("export.shareSns")}
       </button>
       <button
         type="button"
@@ -115,7 +111,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         disabled={recipe === null}
         onClick={handleNoteMdExport}
       >
-        {t("overview.exportNoteMd")}
+        {noteMdCopied
+          ? t("export.noteMdCopiedLabel")
+          : t("overview.exportNoteMd")}
       </button>
 
       <span className={styles.divider} aria-hidden="true" />
@@ -146,16 +144,21 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         onCancel={handleCancelJsonExport}
       />
 
-      {shareDialogOpen &&
-        shareDialogContext !== null &&
-        shareDialogTarget !== null && (
-          <ShareDialog
-            open={shareDialogOpen}
-            onClose={handleCloseShareDialog}
-            context={shareDialogContext}
-            target={shareDialogTarget}
-          />
-        )}
+      {noteMdFallbackOpen && noteMdFallbackMarkdown !== null && (
+        <MarkdownCopyFallbackDialog
+          open={noteMdFallbackOpen}
+          markdown={noteMdFallbackMarkdown}
+          onClose={handleCloseNoteMdFallback}
+        />
+      )}
+
+      {shareDialogOpen && shareDialogContext !== null && (
+        <ShareDialog
+          open={shareDialogOpen}
+          onClose={handleCloseShareDialog}
+          context={shareDialogContext}
+        />
+      )}
     </>
   );
 }
@@ -165,11 +168,12 @@ interface ExportSheetActionsProps {
   actions: UseExportActionsResult;
 }
 
-// ShareDialog関連の状態・ダイアログ本体はここではレンダーしない（ExportActionBarの
-// mobile分岐側でExportSheetと兄弟としてリフトアップ済み。レビューRound1 Medium-1対応:
-// .sheetはtransition: transform／ドラッグ中のstyle.transform／開閉アニメーションを持ち、
-// transformが非noneの間は子孫のposition: fixed要素の基準がbodyでなく.sheetになってしまう
-// ため、ShareDialog（backdrop=position: fixed）を.sheetの子孫に置かない）。
+// ShareDialog・note MDフォールバックダイアログ関連の状態・ダイアログ本体はここではレンダー
+// しない（ExportActionBarのmobile分岐側でExportSheetと兄弟としてリフトアップ済み。
+// レビューRound1 Medium-1対応: .sheetはtransition: transform／ドラッグ中のstyle.transform／
+// 開閉アニメーションを持ち、transformが非noneの間は子孫のposition: fixed要素の基準がbodyでなく
+// .sheetになってしまうため、ShareDialog・MarkdownCopyFallbackDialog（いずれもbackdrop=
+// position: fixed）を.sheetの子孫に置かない）。
 function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
   const { t } = useTranslation();
   const {
@@ -179,9 +183,9 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    noteMdCopied,
     handlePrint,
-    handleShareX,
-    handleShareBluesky,
+    handleShareSns,
   } = actions;
 
   return (
@@ -208,17 +212,9 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           type="button"
           className={styles.sheetButton}
           disabled={recipe === null}
-          onClick={handleShareX}
+          onClick={handleShareSns}
         >
-          {t("overview.exportX")}
-        </button>
-        <button
-          type="button"
-          className={styles.sheetButton}
-          disabled={recipe === null}
-          onClick={handleShareBluesky}
-        >
-          {t("overview.exportBluesky")}
+          {t("export.shareSns")}
         </button>
       </div>
 
@@ -235,7 +231,9 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           disabled={recipe === null}
           onClick={handleNoteMdExport}
         >
-          {t("overview.exportNoteMd")}
+          {noteMdCopied
+            ? t("export.noteMdCopiedLabel")
+            : t("overview.exportNoteMd")}
         </button>
       </div>
 
@@ -425,10 +423,19 @@ interface MobileExportRootProps {
 // 閉じた瞬間にShareDialogの状態も失われてしまう。ここに置くことで、ユーザーが
 // ShareDialogを開いたままシートを閉じてもShareDialogは独立して開いたまま残る
 // （意図した挙動。ExportActionBar.test.tsxで固定）。
+// 2026-07-04 FB-G: .mobileRootはposition: fixed→stickyへ変更（フッター重なり対策）に
+// 伴い、fixed全幅化対策だったpointer-events: noneと.overlayRootラッパー（打ち消し用）を
+// 撤去した。ShareDialog・MarkdownCopyFallbackDialogは引き続きExportSheetの外（兄弟）で
+// レンダーする（transform祖先回避の理由は変わらず有効）。
 function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const actions = useExportActions(recipe, onExported);
+  // ExportSheetのフォーカスeffect（deps: [open, onClose]）がonClose参照の変化のたびに
+  // 再実行され、シート表示中に無関係な状態変化（他ダイアログの開閉等）が起きるたびに
+  // ✕ボタンへフォーカスが奪われるバグの修正（2026-07-04 FB-G申し送り）。useCallbackで
+  // onClose自体の参照を安定させ、effect再実行の引き金を絶つ。
+  const handleCloseSheet = useCallback(() => setSheetOpen(false), []);
 
   return (
     <div className={styles.mobileRoot} data-testid="export-action-bar">
@@ -441,21 +448,24 @@ function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
       </button>
       <ExportSheet
         open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        onClose={handleCloseSheet}
         recipe={recipe}
         actions={actions}
       />
-      {actions.shareDialogOpen &&
-        actions.shareDialogContext !== null &&
-        actions.shareDialogTarget !== null && (
-          <div className={styles.shareDialogRoot}>
-            <ShareDialog
-              open={actions.shareDialogOpen}
-              onClose={actions.handleCloseShareDialog}
-              context={actions.shareDialogContext}
-              target={actions.shareDialogTarget}
-            />
-          </div>
+      {actions.shareDialogOpen && actions.shareDialogContext !== null && (
+        <ShareDialog
+          open={actions.shareDialogOpen}
+          onClose={actions.handleCloseShareDialog}
+          context={actions.shareDialogContext}
+        />
+      )}
+      {actions.noteMdFallbackOpen &&
+        actions.noteMdFallbackMarkdown !== null && (
+          <MarkdownCopyFallbackDialog
+            open={actions.noteMdFallbackOpen}
+            markdown={actions.noteMdFallbackMarkdown}
+            onClose={actions.handleCloseNoteMdFallback}
+          />
         )}
     </div>
   );

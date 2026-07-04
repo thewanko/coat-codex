@@ -3,71 +3,123 @@
 exports[`exportRecipeToMarkdown > M5修正3: title行頭#・memo内改行はサニタイズされ構造を壊さない（スナップショット） 1`] = `
 "#  # 悪意ある 改行タイトル
 
-## 使用カラー
-- Citadel Mephiston Red
-- Citadel White Scar
+全1工程・0パーツ ・ 2026-07-02
+
+## PALETTE — 使用カラー
+- Mephiston Red（Citadel） ・ #960F0F
+- White Scar（Citadel） ・ #F0F0F0
 - 自家調合ブラック
 
-## 使用ツール
+## TOOLS — 使用ツール
 - 筆（面相筆）
 - マスキングテープ
 
-## ベース工程（全体）
+## BASE — ベース工程（全体）
 
-### STEP 1:  - 偽の箇条書き技法
-- メモ: 1行目のメモ ## 偽の見出し - 偽の箇条書き
+1.  - 偽の箇条書き技法
+   - メモ: 1行目のメモ ## 偽の見出し - 偽の箇条書き
 "
 `;
 
 exports[`exportRecipeToMarkdown > 代表フィクスチャのスナップショット 1`] = `
 "# Space Marine Captain
 
-## 使用カラー
-- Citadel Mephiston Red
-- Citadel White Scar
+全7工程・2パーツ ・ 2026-07-02
+
+## PALETTE — 使用カラー
+- Mephiston Red（Citadel） ・ #960F0F
+- White Scar（Citadel） ・ #F0F0F0
 - 自家調合ブラック
 
-## 使用ツール
+## TOOLS — 使用ツール
 - 筆（面相筆）
 - マスキングテープ
 
-## ベース工程（全体）
+## BASE — ベース工程（全体）
 
-### STEP 1: ベースコート
-- 塗料: Citadel Mephiston Red + Citadel White Scar — 60% + 40% (3:2)
-- ツール: 筆
-- メモ: 2度塗りでムラを消す
-- 写真あり
+1. ベースコート
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 60% + 40% (3:2)
+   - ツール: 筆
+   - メモ: 2度塗りでムラを消す
+   - 写真あり
 
-### STEP 2: ドライブラシ
-- 塗料: Citadel Mephiston Red
-- ツール: 筆
-- メモ: エッジに軽くドライブラシ
-- 写真あり
+2. ドライブラシ
+   - 塗料: Citadel Mephiston Red (#960F0F)
+   - ツール: 筆
+   - メモ: エッジに軽くドライブラシ
+   - 写真あり
 
-## パーツ
+## PART I — 頭部（2工程）
 
-### 頭部
+1. レイヤー
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 55% + 45%
 
-#### STEP 1: レイヤー
-- 塗料: Citadel Mephiston Red + Citadel White Scar — 55% + 45%
+2. オリジナルウェザリング
+   - 塗料: 自家調合ブラック
+   - メモ: 自作技法のメモ
 
-#### STEP 2: オリジナルウェザリング
-- 塗料: 自家調合ブラック
-- メモ: 自作技法のメモ
+## PART II — 胴体（3工程）
 
-### 胴体
+1. ウォッシュ
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 60% + 50% ⚠ 計 110%
+   - ツール: 筆
+   - メモ: 合計オーバーの警告表示を確認する工程
 
-#### STEP 1: ウォッシュ
-- 塗料: Citadel Mephiston Red + Citadel White Scar — 60% + 50% ⚠ 計 110%
-- ツール: 筆
-- メモ: 合計オーバーの警告表示を確認する工程
+2. マスキング
+   - ツール: マスキングテープ
 
-#### STEP 2: マスキング
-- ツール: マスキングテープ
+3. （未設定）
+"
+`;
 
-#### STEP 3
-- （未設定）
+exports[`exportRecipeToMarkdown > 本番i18n経路（buildMarkdownLabels(i18next.t)注入） > 代表フィクスチャのスナップショット（本番i18n経路） 1`] = `
+"# Space Marine Captain
+
+全7工程・2パーツ ・ 2026-07-02
+
+## PALETTE — 使用カラー
+- Mephiston Red（Citadel） ・ #960F0F
+- White Scar（Citadel） ・ #F0F0F0
+- 自家調合ブラック
+
+## TOOLS — 使用ツール
+- 筆（面相筆）
+- マスキングテープ
+
+## BASE — ベース工程（全体）
+
+1. ベースコート
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 60% + 40% (3:2)
+   - ツール: 筆
+   - メモ: 2度塗りでムラを消す
+   - 写真あり
+
+2. ドライブラシ
+   - 塗料: Citadel Mephiston Red (#960F0F)
+   - ツール: 筆
+   - メモ: エッジに軽くドライブラシ
+   - 写真あり
+
+## PART I — 頭部（工程 2）
+
+1. レイヤー
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 55% + 45%
+
+2. オリジナルウェザリング
+   - 塗料: 自家調合ブラック
+   - メモ: 自作技法のメモ
+
+## PART II — 胴体（工程 3）
+
+1. ウォッシュ
+   - 塗料: Citadel Mephiston Red (#960F0F) + Citadel White Scar (#F0F0F0) — 60% + 50% ⚠ 計 110%
+   - ツール: 筆
+   - メモ: 合計オーバーの警告表示を確認する工程
+
+2. マスキング
+   - ツール: マスキングテープ
+
+3. （未設定）
 "
 `;
 

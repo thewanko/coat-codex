@@ -1,10 +1,13 @@
-// lib/exporters/markdown.ts — 素のMarkdownエクスポータ（技術計画v2.2 M5 T32）
+// lib/exporters/markdown.ts — 素のMarkdownエクスポータ（技術計画v2.2 M5 T32・2026-07-04 FB-F改訂）
 //
-// RecipeDoc（models/recipe.ts §2.1）から人間可読なMarkdown文書を生成する純関数。
+// RecipeDocから人間可読なMarkdown文書を、印刷ビュー（components/print/PrintRecipeSheet.tsx）と
+// 同一の情報構造で生成する純関数。構造の正はPrintRecipeSheet.tsx（本ファイルは変更禁止・参照のみ）。
 // 混合バッジは lib/mixRatio.ts の formatMixBadge をそのまま使用する（単一情報源。§2.3「バッジ表記の正」）。
 // 技法名の解決は lib/techniques.ts の resolveTechniqueLabel に委譲する。
-// i18n（ja.json/en.json）は本タスクでは編集しないため、固定文言はラベルテーブル（MarkdownLabels）
-// として呼び出し側から注入する。i18n未実装時のフォールバック文言をデフォルト値として持つ。
+// i18n（ja.json/en.json）は固定文言をラベルテーブル（MarkdownLabels）として呼び出し側から注入する。
+// i18n未実装時のフォールバック文言をデフォルト値として持つ。
+//
+// noteMarkdown.ts（note.com向け）とは別実装・別仕様のため変更禁止（本タスクのスコープ外）。
 
 import { formatMixBadge } from "../mixRatio";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
@@ -41,19 +44,55 @@ function defaultTechniqueT(key: string): string {
   return key;
 }
 
+const ROMAN_NUMERALS = [
+  "I",
+  "II",
+  "III",
+  "IV",
+  "V",
+  "VI",
+  "VII",
+  "VIII",
+  "IX",
+  "X",
+  "XI",
+  "XII",
+  "XIII",
+  "XIV",
+  "XV",
+] as const;
+
+/** 1始まりのパーツ順序をローマ数字表記へ（15超は算用数字にフォールバック）。
+ *  PrintRecipeSheet.tsx の toRoman と同一規則（印刷ビューと同一のパーツ見出し表記にするための
+ *  小さな純関数。PrintRecipeSheet.tsx はRead専用＝変更禁止のためexportで共有せずここに複製する）。 */
+function toRoman(order: number): string {
+  return ROMAN_NUMERALS[order - 1] ?? String(order);
+}
+
 /** Markdown出力の固定文言ラベルテーブル。i18n解決済み文字列を呼び出し側（UI層）から注入する。
  *  省略時はja既定文言にフォールバックする（テスト・CLI等i18n非経由の呼び出しを許容するため）。 */
 export interface MarkdownLabels {
-  /** 見出し「使用カラー」 */
+  /** 概要行テンプレート「全N工程・Nパーツ ・ 更新日」。区切りを一系統に統一するため
+   *  工程・パーツ・日付の3値をまとめて1つの文言として持つ（レビューM2対応。
+   *  以前はtotalMeta（印刷ヘッダのtotalMeta相当）に日付を別途連結していたため
+   *  DEFAULTとi18n注入版で区切りの出方が異なっていた） */
+  summaryLine: (steps: number, parts: number, date: string) => string;
+  /** 見出し「PALETTE — 使用カラー」の英語overline部分 */
   paletteHeading: string;
-  /** 見出し「使用ツール」 */
+  /** 見出し「PALETTE — 使用カラー」の日本語gloss部分 */
+  paletteHeadingJp: string;
+  /** 見出し「TOOLS — 使用ツール」の英語overline部分 */
   toolsHeading: string;
-  /** 見出し「ベース工程（全体）」 */
-  baseStepsHeading: string;
-  /** 見出し「パーツ」 */
-  partsHeading: string;
-  /** 工程ラベル「STEP {{n}}」（nを埋め込んだ完成形を呼び出し側で生成するテンプレート関数） */
-  stepLabel: (n: number) => string;
+  /** 見出し「TOOLS — 使用ツール」の日本語gloss部分 */
+  toolsHeadingJp: string;
+  /** 見出し「BASE — ベース工程（全体）」の英語overline部分 */
+  baseHeading: string;
+  /** 見出し「BASE — ベース工程（全体）」の日本語gloss部分 */
+  baseHeadingJp: string;
+  /** パーツ見出しテンプレート「PART {{roman}}」 */
+  partHeading: (roman: string) => string;
+  /** パーツ見出しの工程数メタ「{{count}} steps」 */
+  stepsMeta: (count: number) => string;
   /** 「塗料」ラベル（工程内の塗料一覧見出し） */
   paintsLabel: string;
   /** 「ツール」ラベル（工程内の使用ツール） */
@@ -73,11 +112,16 @@ export interface MarkdownLabels {
 
 /** i18n未接続時（テスト等）の既定ラベル。ja.jsonの既存文言（mix.badgeWarning等）と表記を揃える */
 export const DEFAULT_MARKDOWN_LABELS: MarkdownLabels = {
-  paletteHeading: "使用カラー",
-  toolsHeading: "使用ツール",
-  baseStepsHeading: "ベース工程（全体）",
-  partsHeading: "パーツ",
-  stepLabel: (n) => `STEP ${n}`,
+  summaryLine: (steps, parts, date) =>
+    `全${steps}工程・${parts}パーツ ・ ${date}`,
+  paletteHeading: "PALETTE",
+  paletteHeadingJp: "使用カラー",
+  toolsHeading: "TOOLS",
+  toolsHeadingJp: "使用ツール",
+  baseHeading: "BASE",
+  baseHeadingJp: "ベース工程（全体）",
+  partHeading: (roman) => `PART ${roman}`,
+  stepsMeta: (count) => `${count}工程`,
   paintsLabel: "塗料",
   toolsLabel: "ツール",
   memoLabel: "メモ",
@@ -88,17 +132,21 @@ export const DEFAULT_MARKDOWN_LABELS: MarkdownLabels = {
 };
 
 /** i18nの t 関数（react-i18next互換シグネチャ）から MarkdownLabels を構築するヘルパー。
- *  UI層（ExportActionBar等）はこれを使ってラベルテーブルを注入できる。
- *  必要なi18nキー一覧は本タスクの報告を参照（このタスクではja.json/en.jsonの編集を行わない）。 */
+ *  UI層（ExportActionBar等）はこれを使ってラベルテーブルを注入できる。 */
 export function buildMarkdownLabels(
   t: (key: string, options?: Record<string, unknown>) => string,
 ): MarkdownLabels {
   return {
-    paletteHeading: t("setup.paletteLabel"),
-    toolsHeading: t("setup.toolsLabel"),
-    baseStepsHeading: t("overview.baseOverline"),
-    partsHeading: t("overview.partsHeadingJp"),
-    stepLabel: (n) => t("editor.stepLabel", { n }),
+    summaryLine: (steps, parts, date) =>
+      t("export.markdownSummaryLine", { steps, parts, date }),
+    paletteHeading: t("print.paletteHeading"),
+    paletteHeadingJp: t("print.paletteHeadingJp"),
+    toolsHeading: t("print.toolsHeading"),
+    toolsHeadingJp: t("print.toolsHeadingJp"),
+    baseHeading: t("print.baseHeading"),
+    baseHeadingJp: t("print.baseHeadingJp"),
+    partHeading: (roman) => t("print.partHeading", { roman }),
+    stepsMeta: (count) => t("print.stepsMeta", { count }),
     paintsLabel: t("export.markdownPaintsLabel"),
     toolsLabel: t("export.markdownToolsLabel"),
     memoLabel: t("editor.memoLabel"),
@@ -109,13 +157,15 @@ export function buildMarkdownLabels(
   };
 }
 
-function resolvePaintNames(step: Step, recipe: RecipeDoc): string[] {
+function resolvePaintFragments(step: Step, recipe: RecipeDoc): string[] {
   const paletteById = new Map(recipe.palette.map((c) => [c.id, c]));
   return step.paints.map((p) => {
     const color = paletteById.get(p.colorId);
     if (!color) return p.colorId;
     const name = color.brand ? `${color.brand} ${color.name}` : color.name;
-    return sanitizeMarkdownText(name);
+    const hex = color.hex ?? "";
+    const label = hex ? `${name} (${hex})` : name;
+    return sanitizeMarkdownText(label);
   });
 }
 
@@ -126,10 +176,11 @@ function resolveToolNames(step: Step, recipe: RecipeDoc): string[] {
   );
 }
 
-/** 1工程分のMarkdown行群を生成（見出しレベルは呼び出し側の文脈に合わせ固定=###） */
+/** 1工程分のMarkdown行群を生成（番号付きリストの1項目。印刷の工程行と同一情報構造）。
+ *  numberは1始まりの表示用工程番号。継続行は3スペースインデントの箇条書きにする。 */
 function renderStep(
   step: Step,
-  index: number,
+  number: number,
   recipe: RecipeDoc,
   labels: MarkdownLabels,
 ): string[] {
@@ -137,12 +188,8 @@ function renderStep(
   const techniqueLabel = sanitizeMarkdownText(
     resolveTechniqueLabel(step.technique, labels.techniqueT),
   );
-  const heading = techniqueLabel
-    ? `${labels.stepLabel(index + 1)}: ${techniqueLabel}`
-    : labels.stepLabel(index + 1);
-  lines.push(`### ${heading}`);
 
-  const paintNames = resolvePaintNames(step, recipe);
+  const paintFragments = resolvePaintFragments(step, recipe);
   const badge = formatMixBadge(step.paints, step.mix);
   const total = step.mix?.reduce((sum, v) => sum + v, 0) ?? 0;
   const totalWarning =
@@ -150,34 +197,27 @@ function renderStep(
       ? ` ${labels.mixTotalWarning(total)}`
       : "";
 
-  if (paintNames.length > 0) {
+  const heading = techniqueLabel || labels.emptyStepLabel;
+  lines.push(`${number}. ${heading}`);
+
+  if (paintFragments.length > 0) {
     const paintsText = badge
-      ? `${paintNames.join(" + ")} — ${badge}${totalWarning}`
-      : paintNames.join(" + ");
-    lines.push(`- ${labels.paintsLabel}: ${paintsText}`);
+      ? `${paintFragments.join(" + ")} — ${badge}${totalWarning}`
+      : paintFragments.join(" + ");
+    lines.push(`   - ${labels.paintsLabel}: ${paintsText}`);
   }
 
   const toolNames = resolveToolNames(step, recipe);
   if (toolNames.length > 0) {
-    lines.push(`- ${labels.toolsLabel}: ${toolNames.join(", ")}`);
+    lines.push(`   - ${labels.toolsLabel}: ${toolNames.join(", ")}`);
   }
 
   if (step.memo.trim() !== "") {
-    lines.push(`- ${labels.memoLabel}: ${sanitizeMarkdownText(step.memo)}`);
+    lines.push(`   - ${labels.memoLabel}: ${sanitizeMarkdownText(step.memo)}`);
   }
 
   if (step.photoId !== null) {
-    lines.push(`- ${labels.hasPhotoLabel}`);
-  }
-
-  if (
-    paintNames.length === 0 &&
-    toolNames.length === 0 &&
-    step.memo.trim() === "" &&
-    step.photoId === null &&
-    !techniqueLabel
-  ) {
-    lines.push(`- ${labels.emptyStepLabel}`);
+    lines.push(`   - ${labels.hasPhotoLabel}`);
   }
 
   return lines;
@@ -191,65 +231,73 @@ function renderSteps(
   const lines: string[] = [];
   steps.forEach((step, index) => {
     if (index > 0) lines.push("");
-    lines.push(...renderStep(step, index, recipe, labels));
+    lines.push(...renderStep(step, index + 1, recipe, labels));
   });
   return lines;
 }
 
 /**
- * RecipeDocから素のMarkdown文書を生成する。
- * 構成: タイトル(h1) → 使用カラー → 使用ツール → ベース工程 → パーツ毎の工程
+ * RecipeDocから素のMarkdown文書を生成する（印刷ビューと同一の情報構造）。
+ * 構成: タイトル(h1)＋概要行 → PALETTE（使用カラー） → TOOLS（使用ツール）
+ *       → BASE（ベース工程、番号付きリスト） → PART I〜（パーツ毎、番号付きリスト）
  */
 export function exportRecipeToMarkdown(
   recipe: RecipeDoc,
   labels: MarkdownLabels = DEFAULT_MARKDOWN_LABELS,
 ): string {
   const lines: string[] = [];
+  const totalStepCount =
+    recipe.baseSteps.length +
+    recipe.parts.reduce((sum, part) => sum + part.steps.length, 0);
+  const dateLabel = recipe.updatedAt.slice(0, 10);
 
   lines.push(`# ${sanitizeMarkdownText(recipe.title)}`);
+  lines.push("");
+  lines.push(
+    labels.summaryLine(totalStepCount, recipe.parts.length, dateLabel),
+  );
 
   if (recipe.palette.length > 0) {
     lines.push("");
-    lines.push(`## ${labels.paletteHeading}`);
+    lines.push(`## ${labels.paletteHeading} — ${labels.paletteHeadingJp}`);
     for (const color of recipe.palette) {
-      const name = color.brand ? `${color.brand} ${color.name}` : color.name;
-      lines.push(`- ${sanitizeMarkdownText(name)}`);
+      const brandText = color.brand ? sanitizeMarkdownText(color.brand) : "";
+      const nameText = sanitizeMarkdownText(color.name);
+      const hexSuffix = color.hex ? ` ・ ${color.hex}` : "";
+      const label = brandText ? `${nameText}（${brandText}）` : nameText;
+      lines.push(`- ${label}${hexSuffix}`);
     }
   }
 
   if (recipe.tools.length > 0) {
     lines.push("");
-    lines.push(`## ${labels.toolsHeading}`);
+    lines.push(`## ${labels.toolsHeading} — ${labels.toolsHeadingJp}`);
     for (const tool of recipe.tools) {
-      const line = tool.note ? `${tool.name}（${tool.note}）` : tool.name;
-      lines.push(`- ${sanitizeMarkdownText(line)}`);
+      const nameText = sanitizeMarkdownText(tool.name);
+      const noteText = tool.note ? sanitizeMarkdownText(tool.note) : "";
+      const line = noteText ? `${nameText}（${noteText}）` : nameText;
+      lines.push(`- ${line}`);
     }
   }
 
   if (recipe.baseSteps.length > 0) {
     lines.push("");
-    lines.push(`## ${labels.baseStepsHeading}`);
+    lines.push(`## ${labels.baseHeading} — ${labels.baseHeadingJp}`);
     lines.push("");
     lines.push(...renderSteps(recipe.baseSteps, recipe, labels));
   }
 
-  if (recipe.parts.length > 0) {
+  recipe.parts.forEach((part, partIndex) => {
     lines.push("");
-    lines.push(`## ${labels.partsHeading}`);
-    recipe.parts.forEach((part) => {
+    const roman = toRoman(partIndex + 1);
+    lines.push(
+      `## ${labels.partHeading(roman)} — ${sanitizeMarkdownText(part.name)}（${labels.stepsMeta(part.steps.length)}）`,
+    );
+    if (part.steps.length > 0) {
       lines.push("");
-      lines.push(`### ${sanitizeMarkdownText(part.name)}`);
-      if (part.steps.length > 0) {
-        lines.push("");
-        lines.push(...renderSteps(part.steps, recipe, labels).map(bumpHeading));
-      }
-    });
-  }
+      lines.push(...renderSteps(part.steps, recipe, labels));
+    }
+  });
 
   return lines.join("\n") + "\n";
-}
-
-/** パーツ配下の工程見出しはパーツ見出し(###)の下に来るため1段下げる（###→####） */
-function bumpHeading(line: string): string {
-  return line.startsWith("### ") ? `#${line}` : line;
 }

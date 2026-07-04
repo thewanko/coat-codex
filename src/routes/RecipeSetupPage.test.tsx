@@ -104,6 +104,17 @@ describe("RecipeSetupPage", () => {
     expect(screen.getByText("make codex!")).toBeInTheDocument();
   });
 
+  test("全体写真セクションに後日アップロード/変更が可能な旨の注記が表示される（FB-C）", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("完成画像はあとからアップロード・変更できます"),
+      ).toBeInTheDocument();
+    });
+  });
+
   test("レシピが存在しない場合（loadRecipeがnullを返す）はnot found表示になる", async () => {
     vi.mocked(loadRecipe).mockResolvedValue(null);
     renderPage("rcp_missing");

@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: M8後半 T45 完了・並行セッションのM8前半 T44/T46と合流 → **M8コードタスク全完了**〔任意T47は見送り裁定〕。残=コード外チェックリスト=ユーザー作業)
+最終更新: 2026-07-04 (loop: T43④実機FBループ FB-A〜G 全7件完了 → PR待ち。残=ユーザーiPhone実機再確認＋T43③実印刷)
 
 ## 完了
+
+- 2026-07-04: **T43④実機FBループ（FB-A〜G・ユーザーiPhone実機テスト起点7件）**（PR: impl/t43-mobile-feedback・4 Wave構成） — ①**FB-A**: X/Bluesky 2ボタン→「SNSに投稿/共有」1ボタン統合（3起点）＋ShareDialog内X/Bluesky切替タブ（role=tablist・矢印キー円環・roving tabindex・カウンタ280↔300/Intent URL追従・テキスト/選択保持）＋一括DL廃止→候補カード個別保存ボタン（iOS「ダウンロードを停止しますか？」根治・44px不可視ヒット領域）②**FB-B**: PartCardモバイル3段組（名前フル幅/使用カラースウォッチ最大8+N=resolveSwatchHexes純関数/工程数+レビュー行。配合バッジはモバイル非表示・PC不変）③**FB-C**: OverviewHeader「全体写真を変更/追加」→OverviewPhotoDialog新設（PhotoUploader再利用・autosave反映）＋Setup注記「完成画像はあとからアップロード・変更できます」④**FB-D**: 印刷プレビューのモバイル自動スケール（computePrintScale純関数・--print-scale注入・@media printは不変=実印刷無影響）⑤**FB-E**: noteMDコピー一本化＋「コピーしました✓」2秒表示＋失敗時MarkdownCopyFallbackDialog（エラートースト廃止=二重通知＆残存トーストのタップ遮蔽解消）⑥**FB-F**: 素MDを印刷ビュー同構造へ全面改訂（summaryLine・PALETTE hex・PART Iローマ数字・番号付き工程行）＋.mdファイルDL直行化⑦**FB-G**: 「出力・共有」ボタンfixed→sticky（フッター商標と重ならない）＋pointer-events:none/.overlayRoot撤去の構造簡素化＋onCloseフォーカス奪取バグ修正。**レビュー4 Wave×最大2ラウンド全PASS**（最終 C0/H0/M0）。**実機ヒットテスト規律がレビュー不可視の5件を検出**（BASEレビューボタン27.5px潰れ・フォールバックダイアログのpe:none継承素通し・z序列100<200逆転・エラートースト残存によるタップ遮蔽・onCloseインライン関数のフォーカス奪取）→全て同ループ内解消。月次上限切断2回（レビュー1・impl1）は既存ルール（成果物ゼロ→同一プロンプト再委譲）で回収。計960テスト
 
 - 2026-07-04: **M8後半: T45 PaintSlotスロット固有安定key**（PR: impl/m8-t45-paintslot-key） — `key={paint.colorId}`をUI専用安定id（`useRef<string[]>`・非永続・add/removeで同期・外部length変化は末尾append/truncate）へ置換し、colorId変化（pending→確定・色変更・palette再利用解決）での再マウントを排除。**M4レビューR1指摘5「blurクリック1回吸われ＋中断編集の孤児palette生成」を解消**。MixState/スキーマ/PaintSlot.tsx/重複ガード/palette再利用は不変。テスト3件追加（DOMノード同一性・add/remove跨ぎ整合・外部length変化追従）。Opusレビュー R1 PASS（C0/H0/M0/L2。L1=StepCard陳腐化コメント→セッションglue修正、L2=末尾truncate方式の将来リスク→現行到達不能〔stripは永続スナップショット専用でライブstateへ書き戻しなし〕対応不要）。**実機検証**: 実イベント順序（mousedown→blur確定→click）で1クリック目の到達＋ハンドラ発火＋スロット追加成立、色変更/pending→確定の両クラスでsameNode維持、value再同期（確定名保持）・swatch反映・toastなし。検証データは復元済み。**T47は見送り裁定**（任意Low・限定条件・「将来のカラー数UX調整時に一括対応」の既存申し送りを維持）。計869テスト
 - 2026-07-04: **M8前半: T44 ネストルート化＋T46 フォーカストラップ＋封蝋ロゴ実画像化＋faviconキャッシュバスト**（PR: impl/m8-t44-t46） — ①**T44**: `/recipe/:id`親ルート化＋`part/base`（先）/`part/:partId`子ルート・Overview側`<Outlet/>`（早期return経路にも素通し）・背面`.root`へ`inert`（aria-hidden不採用: Tab/SR迂回を一括遮断）・PC幅のみbodyスクロール固定（matchMedia 768px・change追従・前値復元）。**レビューR1 FAIL(H2)**: 親子同時マウントで子のload effectが`doc:null`リセット→背面が一瞬notFoundフラッシュ＋相互スタブで統合経路未テスト → **loadオーナーを親に一本化**（子のload effect削除）＋実親×実子の統合テスト新設（notFound非表示・loadRecipe 1回・開→閉→開・直接URL）②**T46**: `useFocusTrap`新設（Tab/Shift+Tab循環・Escape・初期/復帰フォーカス）→5ダイアログへ適用・個別Escapeリスナー完全削除・ConfirmDialogは初期フォーカスをキャンセル側へ。**実機検証が「復帰フォーカスが条件付きマウント（PartReviewDialog/ShareDialog=閉でアンマウント）で不発火」の実バグを検出**（unitはpropトグルのみで代表性不足）→ open時effectクロージャcapture＋cleanup復帰方式へ修正・実機で復帰成立を再確認 ③**封蝋ロゴ実画像化**（ユーザー決定「両方」）: 原本docs/design/coat-codex_logo.png（1254px・無改変維持）→src/assets/seal-logo.png（128px）生成。ヘッダCSS封蝋→`<img>`34px・フッターに18px追加・デザイン仕様書4箇所改訂（封蝋モノグラム行/AppFooter節/§7アセット表/使用箇所上限3→4箇所）④**favicon**: 結線・実体・本番配信は正常でブラウザのfavicon専用キャッシュが原因と特定→`?v=2`クエリでキャッシュバスト（PR #14マージ済み・ユーザー実施）。レビューR2 PASS(M1=仕様書上限行改訂漏れ→セッション修正/L2)→R3 PASS(L1=StrictMode順序依存・コメント明文化済みで対応不要)。実機検証: PC幅パネル背面透け表示・inert遮断（elementFromPoint=backdrop）・close全復元・モバイル375pxフルページ・Tab循環/Escape/復帰フォーカス・ロゴ4倍ズーム実ピクセル目視。計885テスト
@@ -34,11 +36,11 @@
 
 ## 進行中
 
-- (なし。**M8コードタスク T44/T45/T46 全完了**〔T44/T46=PR #15マージ済み・T45=PR #16〕。T47は見送り裁定=任意Low・限定条件・「将来のカラー数UX調整時に一括対応」を維持)
+- T43④実機FBループ: コード完了・PR作成済み（impl/t43-mobile-feedback）。マージ＝ユーザー作業
 
 ## 次の候補 (優先順)
 
-1. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
+1. **ユーザー作業（公開前）**: ①T43④FBループのPRマージ→**iPhone実機での再確認**（SNS投稿1ボタン・個別保存・パーツカード3段・印刷縮小表示・素MD DL・noteMDコピー・sticky出力ボタン・全体写真変更）②T43③実印刷ダイアログ（Chrome/Safari印刷プレビュー・PDF保存）③Web Share A系統実機（canShare成立環境での共有シート）
 2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
@@ -64,10 +66,10 @@
 - **M5送り①（M4レビューR1指摘2・Medium）**: PC幅のPartEditorパネル背面にOverviewが描画されず無地（§3.1は「/recipe/:id 上のパネル」）。機能・データは正常。対応はネストルート＋`<Outlet>`化（router.tsx構造変更）— 影響範囲が広いため独立タスクで
 - **M5送り②（M4レビューR1指摘5・必須事項④）**: PaintSlotのkey={colorId}×blurクリック吸われ（実機再現済み: 1クリック吸われ＋中断編集がpalette孤児を生成。確定データ損失なし・孤児はSetupの未使用削除で回収可）。対応はPaintSlot/PaintSlotList（M3確定物）へのスロット固有安定key導入 — M3リグレッション面が開くため独立タスクで
 - **M4レビューLow申し送り**: `color-mix()`をRecipeCard.module.cssで初導入（Baseline 2023、Safari 16.2+が実質のブラウザ下限に）／写真表示系のobjectURL未revokeはphotoStore共有キャッシュ設計と整合した意図的挙動／pagehideのflushAutosaveはbest-effort（非同期完了非保証）
-- **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。**受信転送の設定（Cloudflare Email Routing等）が公開前に必要=ユーザー作業**。商用要素追加前は専門家レビュー推奨の注記あり
+- **商標表記**（docs/legal/coat-codex_商標表記.md、2026-07-02ユーザー納品）: T35でTermsPage長文＋AppFooter短文として実装。連絡先=**contact@coat-codex.com**確定済み。受信転送は**設定済み**（2026-07-04ユーザー確認）。商用要素追加前は専門家レビュー推奨の注記あり
 - ~~M4結線の必須事項3点~~（M4で充足済み: ①ストアのstripStepPending ②updater参照同一性（テストでtoBe検証） ③PaletteEditor未使用削除UI。④は実機確認の上M5送り②へ）
 - ToastHost: successの自動消滅タイマーがclearTimeout管理されていない（レビューLow）。手動閉じUI追加時に対応（M5以降）
 - favicon: vite.svg参照は削除済み。正式には封蝋logo.svg（デザイン仕様書§7=唯一のSVG供給アセット）を作成してindex.htmlへ結線（M4/M7）
 - i18n永続化キーは独自の `coat-codex:lang`。LanguageDetector導入時は標準`i18nextLng`との整合に注意（レビューLow）
 - devサーバープレビューは .claude/launch.json の `coat-codex-dev`（port 5173）
-- **Worker側 `coat-codex` の削除はペンディング**（2026-07-02: ダッシュボードに削除項目が表示されない事象。ただし**Git接続は解除済み**のため失敗ビルドは発生せず実害なし。空のWorkerが残っているだけ。気が向いたら `npx wrangler login` 後に `npx wrangler delete --name coat-codex` でも消せる）
+- **Worker側 `coat-codex` の削除は当面見送り**（2026-07-04ユーザー裁定。Git接続解除済みで実害なし。消す場合は `npx wrangler login` 後に `npx wrangler delete --name coat-codex`）
