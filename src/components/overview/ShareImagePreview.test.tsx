@@ -79,6 +79,7 @@ describe("ShareImagePreview", () => {
         images={[]}
         selectedIndexes={[]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     expect(screen.getAllByTestId("share-image-placeholder")).toHaveLength(4);
@@ -92,6 +93,7 @@ describe("ShareImagePreview", () => {
         images={[]}
         selectedIndexes={[]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     expect(screen.getByText("共有できる画像がありません")).toBeInTheDocument();
@@ -110,6 +112,7 @@ describe("ShareImagePreview", () => {
         images={images}
         selectedIndexes={[0, 1, 2, 3]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     const cards = screen.getAllByTestId("share-image-card");
@@ -136,6 +139,7 @@ describe("ShareImagePreview", () => {
         images={images}
         selectedIndexes={[0, 1, 2, 3]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     const checkboxes = screen.getAllByRole("checkbox");
@@ -153,6 +157,7 @@ describe("ShareImagePreview", () => {
         images={images}
         selectedIndexes={[0]}
         onToggle={onToggle}
+        onDownload={vi.fn()}
       />,
     );
     const checkboxes = screen.getAllByRole("checkbox");
@@ -171,6 +176,7 @@ describe("ShareImagePreview", () => {
         images={images}
         selectedIndexes={[0, 1]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     expect(screen.getByText("STEP 1")).toBeInTheDocument();
@@ -185,6 +191,7 @@ describe("ShareImagePreview", () => {
         images={images}
         selectedIndexes={[0, 1]}
         onToggle={vi.fn()}
+        onDownload={vi.fn()}
       />,
     );
     expect(screen.getByText("まとめ")).toBeInTheDocument();
@@ -193,5 +200,53 @@ describe("ShareImagePreview", () => {
       `[class*="photoPlaceholder"][class*="diagonalStripes"]`,
     );
     expect(placeholders.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("ShareImagePreview — 個別保存ボタン（FB-A: 一括DLから個別保存への移行）", () => {
+  test("各カードに個別保存ボタンが表示され、選択チェックとは独立に活性である", () => {
+    const images = [
+      makeWholeImage("ph_1"),
+      makeWholeImage("ph_2"),
+      makeWholeImage("ph_3"),
+      makeWholeImage("ph_4"),
+      makeWholeImage("ph_5"),
+    ];
+    render(
+      <ShareImagePreview
+        generating={false}
+        images={images}
+        selectedIndexes={[0, 1, 2, 3]}
+        onToggle={vi.fn()}
+        onDownload={vi.fn()}
+      />,
+    );
+    const downloadButtons = screen.getAllByTestId(
+      "share-image-download-button",
+    );
+    expect(downloadButtons).toHaveLength(5);
+    // 5枚目は選択チェックがdisabledでも保存ボタンはdisabledでない（選択と独立）
+    expect(downloadButtons[4]).not.toBeDisabled();
+  });
+
+  test("保存ボタン押下でonDownloadが該当indexで呼ばれ、onToggleは呼ばれない", () => {
+    const images = [makeWholeImage("ph_1"), makeWholeImage("ph_2")];
+    const onDownload = vi.fn();
+    const onToggle = vi.fn();
+    render(
+      <ShareImagePreview
+        generating={false}
+        images={images}
+        selectedIndexes={[0, 1]}
+        onToggle={onToggle}
+        onDownload={onDownload}
+      />,
+    );
+    const downloadButtons = screen.getAllByTestId(
+      "share-image-download-button",
+    );
+    fireEvent.click(downloadButtons[1]);
+    expect(onDownload).toHaveBeenCalledWith(1);
+    expect(onToggle).not.toHaveBeenCalled();
   });
 });

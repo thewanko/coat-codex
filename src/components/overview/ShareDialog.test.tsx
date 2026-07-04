@@ -21,7 +21,6 @@ import ToastHost from "../common/ToastHost";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
 import type { ComposedShareImage } from "../../lib/sns/imageComposer";
 import type { RecipeDoc, Step } from "../../models/recipe";
-import type { SnsTarget } from "../../lib/sns/types";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -117,30 +116,10 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   };
 }
 
-function makeTarget(overrides: Partial<SnsTarget> = {}): SnsTarget {
-  return {
-    key: "x",
-    label: "X",
-    buildIntentUrl: (text) =>
-      `https://x.com/intent/post?text=${encodeURIComponent(text)}`,
-    countText: (text) => ({
-      count: text.length,
-      limit: 280,
-      over: text.length > 280,
-    }),
-    trimToLimit: (text) => text.slice(0, 280),
-    ...overrides,
-  };
-}
-
-function renderDialog(
-  context: ShareDialogContext,
-  target: SnsTarget = makeTarget(),
-  onClose = vi.fn(),
-) {
+function renderDialog(context: ShareDialogContext, onClose = vi.fn()) {
   return render(
     <ToastHost>
-      <ShareDialog open context={context} target={target} onClose={onClose} />
+      <ShareDialog open context={context} onClose={onClose} />
     </ToastHost>,
   );
 }
@@ -192,12 +171,13 @@ describe("ShareDialog — A系統/B系統の分岐（canShareモック切替）"
     expect(
       screen.getByText("共有シートで投稿（画像付き）"),
     ).toBeInTheDocument();
+    // FB-A: 個別保存ボタンは選択チェックとは独立にA系統でも常時表示される
     expect(
-      screen.queryByTestId("share-download-button"),
-    ).not.toBeInTheDocument();
+      screen.getAllByTestId("share-image-download-button").length,
+    ).toBeGreaterThan(0);
   });
 
-  test("canShare不成立 → B系統のDL＋Intentボタンを表示", async () => {
+  test("canShare不成立 → B系統の個別保存＋Intentボタンを表示", async () => {
     vi.stubGlobal("navigator", {
       canShare: () => false,
       share: vi.fn(),
@@ -207,9 +187,11 @@ describe("ShareDialog — A系統/B系統の分岐（canShareモック切替）"
     renderDialog({ mode: "whole", recipe: makeRecipe() });
 
     await waitFor(() => {
-      expect(screen.getByTestId("share-download-button")).toBeInTheDocument();
+      expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
+    expect(
+      screen.getAllByTestId("share-image-download-button").length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getByText(
         "Intent URLは画像添付不可のため、開いた投稿画面にダウンロードした画像を手動で添付してください",
@@ -224,7 +206,7 @@ describe("ShareDialog — A系統/B系統の分岐（canShareモック切替）"
     renderDialog({ mode: "whole", recipe: makeRecipe() });
 
     await waitFor(() => {
-      expect(screen.getByTestId("share-download-button")).toBeInTheDocument();
+      expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
     });
   });
 });
@@ -269,8 +251,11 @@ describe("ShareDialog — 候補0件でのテキストのみ共有切替", () =>
       expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
     });
     expect(screen.getByTestId("share-intent-button")).not.toBeDisabled();
-    // summaryカード1枚は生成される（写真つき工程がなくても候補は空にならない）ためDLは活性
-    expect(screen.getByTestId("share-download-button")).not.toBeDisabled();
+    // summaryカード1枚は生成される（写真つき工程がなくても候補は空にならない）ため
+    // 個別保存ボタンが表示される（選択チェックとは独立に常時表示・disabledを持たない）
+    expect(
+      screen.getByTestId("share-image-download-button"),
+    ).toBeInTheDocument();
   });
 
   test("partモードで対象partIdが存在しない → 候補0件経路（generation skip）でテキストのみ共有", async () => {
@@ -568,9 +553,7 @@ describe("ShareDialog — navigator.shareのspy挙動", () => {
 
     // AbortErrorはB系統フォールバックを起こさない = 主ボタンが引き続き表示される
     expect(screen.getByTestId("share-primary-button")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("share-download-button"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("share-intent-button")).not.toBeInTheDocument();
   });
 
   test("NotAllowedError等の失敗でB系統UIへフォールバックする", async () => {
@@ -593,7 +576,9 @@ describe("ShareDialog — navigator.shareのspy挙動", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("share-download-button")).toBeInTheDocument();
+      expect(
+        screen.getAllByTestId("share-image-download-button").length,
+      ).toBeGreaterThan(0);
     });
   });
 
@@ -608,12 +593,12 @@ describe("ShareDialog — navigator.shareのspy挙動", () => {
     });
     fireEvent.click(screen.getByText("うまく共有できない場合 ›"));
 
-    expect(screen.getByTestId("share-download-button")).toBeInTheDocument();
+    expect(screen.getByTestId("share-intent-button")).toBeInTheDocument();
   });
 });
 
-describe("ShareDialog — 一括DLのrevoke順序（レビューRound1 Medium対応）", () => {
-  test("anchor.click()の後、revokeObjectURLが呼ばれる（同期直後ではない）", async () => {
+describe("ShareDialog — 個別DLのrevoke順序（FB-A: 旧一括DLから個別保存ボタンへ移行）", () => {
+  test("保存ボタン押下後、anchor.click()の後にrevokeObjectURLが呼ばれる（同期直後ではない）", async () => {
     vi.stubGlobal("navigator", { canShare: () => false, share: vi.fn() });
     composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
 
@@ -639,11 +624,13 @@ describe("ShareDialog — 一括DLのrevoke順序（レビューRound1 Medium対
     renderDialog({ mode: "whole", recipe: makeRecipe() });
 
     await waitFor(() => {
-      expect(screen.getByTestId("share-download-button")).not.toBeDisabled();
+      expect(
+        screen.getByTestId("share-image-download-button"),
+      ).toBeInTheDocument();
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByTestId("share-download-button"));
+      fireEvent.click(screen.getByTestId("share-image-download-button"));
       // clickの同期直後（マイクロタスク経過時点）ではrevokeがまだ呼ばれていないことを確認する
       await Promise.resolve();
       expect(events).toEqual(["click"]);
@@ -654,6 +641,26 @@ describe("ShareDialog — 一括DLのrevoke順序（レビューRound1 Medium対
 
     expect(events).toEqual(["click", "revoke"]);
     clickSpy.mockRestore();
+  });
+
+  test("保存ボタン押下は選択チェックボックスをトグルしない（親labelへのクリックバブル防止）", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    renderDialog({ mode: "whole", recipe: makeRecipe() });
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("share-image-download-button"),
+      ).toBeInTheDocument();
+    });
+
+    const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
+    expect(checkbox.checked).toBe(true);
+
+    fireEvent.click(screen.getByTestId("share-image-download-button"));
+
+    expect(checkbox.checked).toBe(true);
   });
 });
 
@@ -688,7 +695,6 @@ describe("ShareDialog — 親再レンダー時のeffect多重走行防止（レ
           open
           // contextは毎レンダー新規オブジェクト（親がインライン生成する典型ケース）
           context={{ mode: "whole", recipe }}
-          target={makeTarget()}
           onClose={vi.fn()}
         />
       </ToastHost>
@@ -870,5 +876,114 @@ describe("ShareDialog — ブランド・レンジ併記のresolver結線（§3.
     });
     // custom色はpresetIdを持たないためloadBrandColorsは呼ばれない（無駄なfetch回避）
     expect(loadBrandColorsMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("ShareDialog — SNS切替タブ（FB-A: target propの内部state化）", () => {
+  test("既定はXタブが選択され、カウンタ上限280・Intent URLがx.com系", async () => {
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+    vi.stubGlobal("navigator", { canShare: () => false, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    renderDialog({ mode: "whole", recipe: makeRecipe() });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "X" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+    });
+    expect(screen.getByRole("tab", { name: "Bluesky" })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+    expect(screen.getByTestId("share-text-counter")).toHaveTextContent("/ 280");
+
+    fireEvent.click(screen.getByTestId("share-intent-button"));
+    expect(openSpy).toHaveBeenCalledWith(
+      expect.stringContaining("https://x.com/intent/post"),
+      "_blank",
+      "noopener,noreferrer",
+    );
+  });
+
+  test("Blueskyタブへ切替でカウンタ上限が300になり、Intent URLがbsky.app系に変わる", async () => {
+    const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+    vi.stubGlobal("navigator", { canShare: () => false, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    renderDialog({ mode: "whole", recipe: makeRecipe() });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "Bluesky" })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("tab", { name: "Bluesky" }));
+
+    expect(screen.getByRole("tab", { name: "Bluesky" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByTestId("share-text-counter")).toHaveTextContent("/ 300");
+
+    fireEvent.click(screen.getByTestId("share-intent-button"));
+    expect(openSpy).toHaveBeenCalledWith(
+      expect.stringContaining("https://bsky.app/intent/compose"),
+      "_blank",
+      "noopener,noreferrer",
+    );
+  });
+
+  test("ArrowRightキーでXタブからBlueskyタブへ切替・focusも移動する（矢印キーナビゲーション）", async () => {
+    vi.stubGlobal("navigator", { canShare: () => false, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
+
+    renderDialog({ mode: "whole", recipe: makeRecipe() });
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "X" })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+    });
+
+    const tablist = screen.getByRole("tablist");
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+
+    const blueskyTab = screen.getByRole("tab", { name: "Bluesky" });
+    expect(blueskyTab).toHaveAttribute("aria-selected", "true");
+    expect(blueskyTab).toHaveFocus();
+    expect(screen.getByTestId("share-text-counter")).toHaveTextContent("/ 300");
+  });
+
+  test("タブ切替後もテキスト編集内容・画像選択は保持され、候補は再生成されない", async () => {
+    vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
+    composeShareImagesMock.mockResolvedValue(makeComposedImages(2));
+
+    renderDialog({ mode: "whole", recipe: makeRecipe() });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("share-primary-button")).not.toBeDisabled();
+    });
+    expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
+
+    const textarea = screen.getByTestId(
+      "share-text-textarea",
+    ) as HTMLTextAreaElement;
+    fireEvent.change(textarea, { target: { value: "編集済みテキスト" } });
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[0]);
+    expect(screen.getByTestId("share-image-selection-count")).toHaveTextContent(
+      "1 / 4",
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Bluesky" }));
+
+    expect(textarea.value).toBe("編集済みテキスト");
+    expect(screen.getByTestId("share-image-selection-count")).toHaveTextContent(
+      "1 / 4",
+    );
+    // 候補生成（composeShareImages）はタブ切替では再実行されない
+    expect(composeShareImagesMock).toHaveBeenCalledTimes(1);
   });
 });

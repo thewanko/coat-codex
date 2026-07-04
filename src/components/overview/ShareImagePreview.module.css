@@ -101,6 +101,40 @@
   padding: 2px 5px;
 }
 
+/* 個別保存ボタン（FB-A）: カード右下に配置し、右上のチェックボックス・左上のタグと
+   ヒット領域が重ならないようにする。視覚サイズは20pxの小アイコンボタンだが、
+   ::beforeで44px相当の不可視ヒット領域を確保する（デザイン仕様書§a11y モバイル44px規律）。
+   親.cardがoverflow:hiddenのため、bottom/rightは12pxで内寄せする
+   （12px余白 + 20pxボタン + 12px::before拡張 = 44pxがカード内に完全に収まり、
+   overflow:hiddenによる右・下方向のクリップが発生しない）。 */
+.downloadButton {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--color-gold);
+  color: var(--color-bg-raised);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  .downloadButton::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+  }
+}
+
 .selectionCount {
   font:
     9px "JetBrains Mono",

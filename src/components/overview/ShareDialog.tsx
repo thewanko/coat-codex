@@ -11,6 +11,18 @@
 //
 // A系統失敗時（NotAllowedError等）はフォールバックフラグを立てB系統UIを表示する。
 // 副導線「うまく共有できない場合」リンクは常設し、押下で同様にB系統UIへ切り替える。
+//
+// FB-A（2026-07-04 iPhone実機フィードバック）: 起点ボタンをSNS横断の「SNSに投稿」1つへ統合し、
+// X/Bluesky選択はこのダイアログ内部のタブ（見出し直下・role="tablist"）に移した。
+// target propは廃止し、targetKey stateで内部管理する（既定=snsTargets先頭=X）。
+// targetは候補生成（テキスト既定文・画像候補）に影響しない値のため、open時の生成用effectの
+// 依存には含めない（targetKeyのリセットのみそのeffect内で行う）。タブ切替時は文字数カウンタ
+// （ShareTextEditorのtarget prop経由）とB系統のIntent URLが追従するが、生成済みのテキスト
+// 編集内容・画像選択（selectedIndexes）はそのまま保持する（候補の再生成はしない）。
+//
+// FB-A: 合成画像の一括DL（旧handleDownloadImages・50ms間隔の連続anchor.click()）は
+// iOS Safariで2件目以降に「進行中のDLを停止しますか」ダイアログが出て操作が破綻するため廃止し、
+// 各候補カードに個別「保存」ボタン（1タップ=1ファイルDL。handleDownloadSingleImage）を設けた。
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,7 +37,7 @@ import {
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { loadBrandColors } from "../../lib/paintPresets";
 import { resolveTechniqueLabel } from "../../lib/techniques";
-import type { SnsTarget } from "../../lib/sns/types";
+import { snsTargets } from "../../lib/sns/types";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import { useToast } from "../common/toastContext";
 import { useFocusTrap } from "../common/useFocusTrap";
@@ -43,8 +55,10 @@ interface ShareDialogProps {
   open: boolean;
   onClose: () => void;
   context: ShareDialogContext;
-  target: SnsTarget;
 }
+
+/** 既定選択のSNS（snsTargets先頭="x"）。target propの廃止に伴いダイアログ内部stateで管理する */
+const DEFAULT_TARGET_KEY = snsTargets[0]?.key ?? "x";
 
 /** db.photosから直接Blobを読む（objectURL変換はimageComposer内部で行うためBlob本体を返す） */
 async function loadPhotoBlob(photoId: string): Promise<Blob | null> {
@@ -254,7 +268,7 @@ function buildComposerContext(
 
 type ShareRoute = "pending" | "a" | "b" | "a-text-only";
 
-function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
+function ShareDialog({ open, onClose, context }: ShareDialogProps) {
   const { t } = useTranslation();
   const toast = useToast();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -263,10 +277,18 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
   const [generating, setGenerating] = useState(true);
   const [images, setImages] = useState<ComposedShareImage[]>([]);
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
-  const [generationFailed, setGenerationFailed] = useState(false);
   const [route, setRoute] = useState<ShareRoute>("pending");
   const [fallbackToB, setFallbackToB] = useState(false);
   const [text, setText] = useState("");
+  // SNS切替タブの選択state（target propの廃止に伴う内部state化。既定=X）。
+  // targetは候補生成に影響しない（生成はtarget非依存）ため、生成用effectの依存には含めない。
+  const [targetKey, setTargetKey] = useState(DEFAULT_TARGET_KEY);
+  const target =
+    snsTargets.find((candidate) => candidate.key === targetKey) ??
+    snsTargets[0];
+  // SNS切替タブ（role="tablist"）の矢印キーナビゲーション用（WAI-ARIA tabsパターン）。
+  // 移動先タブへのfocus()移動に使う（snsTargetsとindexが対応）。
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const resolvers = useCandidateResolvers(context.recipe, t);
 
@@ -302,9 +324,9 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
     setGenerating(true);
     setImages([]);
     setSelectedIndexes([]);
-    setGenerationFailed(false);
     setRoute("pending");
     setFallbackToB(false);
+    setTargetKey(DEFAULT_TARGET_KEY);
 
     let cancelled = false;
     const composerCtx = buildComposerContext(currentContext);
@@ -355,7 +377,6 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
         setGenerating(false);
 
         if (result.length === 0) {
-          setGenerationFailed(true);
           setRoute("b");
           return;
         }
@@ -371,7 +392,6 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
       } catch {
         if (cancelled) return;
         setGenerating(false);
-        setGenerationFailed(true);
         currentToast.error(currentT("share.generationFailed"));
         const canShareText =
           typeof navigator !== "undefined" &&
@@ -441,22 +461,22 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
     }
   }
 
-  async function handleDownloadImages() {
-    const selected = selectedIndexes.map((index) => images[index]);
-    for (const image of selected) {
-      const url = URL.createObjectURL(image.file);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = image.file.name;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      // 複数DLがブラウザにブロックされないよう、逐次実行の合間に1マクロタスク譲る
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      // click()直後の同期revokeはSafariでDL開始前にBlobが失効し失敗することがあるため、
-      // 上記の待機（次マクロタスク以降）を経てからrevokeする
-      URL.revokeObjectURL(url);
-    }
+  /**
+   * 個別DL（FB-A: iOS Safariが連続DLで「進行中のDLを停止しますか」ダイアログを出す問題への
+   * 対応。1タップ=1ファイルのみDLする）。旧一括DL（handleDownloadImages。削除済み）と同じ
+   * anchor+objectURL方式・Safari対応のrevoke遅延パターン（click()直後の同期revokeはDL開始前に
+   * Blobが失効し失敗することがあるため、1マクロタスク後にrevokeする）を単一画像に適用する。
+   */
+  async function handleDownloadSingleImage(image: ComposedShareImage) {
+    const url = URL.createObjectURL(image.file);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = image.file.name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    URL.revokeObjectURL(url);
   }
 
   function handleOpenIntent() {
@@ -473,8 +493,6 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
     generating ||
     (effectiveRoute === "a" &&
       (images.length === 0 || selectedIndexes.length === 0));
-  const downloadDisabled =
-    generating || images.length === 0 || generationFailed;
 
   return (
     <div
@@ -494,7 +512,7 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
           <span className={styles.headerText}>
             <span className={styles.overline}>{t("share.overline")}</span>
             <h2 id="share-dialog-title" className={styles.title}>
-              {t(headingKey, { target: target.label })}
+              {t(headingKey)}
             </h2>
           </span>
           <button
@@ -509,12 +527,58 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
         </div>
 
         <div className={styles.body}>
+          <div
+            className={styles.targetTabs}
+            role="tablist"
+            aria-label={t("share.targetTabsLabel")}
+            onKeyDown={(event) => {
+              if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                return;
+              }
+              event.preventDefault();
+              const currentIndex = snsTargets.findIndex(
+                (candidate) => candidate.key === targetKey,
+              );
+              const delta = event.key === "ArrowRight" ? 1 : -1;
+              const nextIndex =
+                (currentIndex + delta + snsTargets.length) % snsTargets.length;
+              const nextTarget = snsTargets[nextIndex];
+              if (!nextTarget) {
+                return;
+              }
+              setTargetKey(nextTarget.key);
+              tabRefs.current[nextIndex]?.focus();
+            }}
+          >
+            {snsTargets.map((candidate, index) => (
+              <button
+                key={candidate.key}
+                ref={(element) => {
+                  tabRefs.current[index] = element;
+                }}
+                type="button"
+                role="tab"
+                aria-selected={candidate.key === targetKey}
+                tabIndex={candidate.key === targetKey ? 0 : -1}
+                className={`${styles.targetTab} ${
+                  candidate.key === targetKey ? styles.targetTabActive : ""
+                }`}
+                onClick={() => setTargetKey(candidate.key)}
+              >
+                {candidate.label}
+              </button>
+            ))}
+          </div>
+
           {hasCandidates && (
             <ShareImagePreview
               generating={generating}
               images={images}
               selectedIndexes={selectedIndexes}
               onToggle={handleToggleImage}
+              onDownload={(index) =>
+                void handleDownloadSingleImage(images[index])
+              }
             />
           )}
 
@@ -573,16 +637,6 @@ function ShareDialog({ open, onClose, context, target }: ShareDialogProps) {
                   <li>{t("share.step3Attach")}</li>
                 </ol>
               </div>
-
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                disabled={downloadDisabled}
-                onClick={() => void handleDownloadImages()}
-                data-testid="share-download-button"
-              >
-                {t("share.downloadImages")}
-              </button>
 
               <button
                 type="button"

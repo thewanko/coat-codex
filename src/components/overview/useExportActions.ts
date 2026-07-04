@@ -16,7 +16,8 @@
 //       fallbackMarkdown/fallbackDialogOpenを立て、呼び出し側が手動コピー用ダイアログを開く。
 // 印刷: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。
 //       T36仕様。PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）。
-// X・Bluesky: ShareDialogをmode="whole"・対応するtargetで開く（T40・§3.4手順1）。
+// SNS共有: ShareDialogをmode="whole"で開く（T40・§3.4手順1。2026-07-04 FB-A: X/Bluesky
+//       2ボタンを「SNSに投稿」1ボタンへ統合し、target選択の責務はShareDialog内部へ移した）。
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,7 +32,6 @@ import {
   exportRecipeToNoteMarkdown,
 } from "../../lib/exporters/noteMarkdown";
 import { recordRecipeExport } from "../../lib/storageHealth";
-import { snsTargets, type SnsTarget } from "../../lib/sns/types";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
 import { useToast } from "../common/toastContext";
 import type { RecipeDoc } from "../../models/recipe";
@@ -39,9 +39,6 @@ import type { ShareDialogContext } from "./ShareDialog";
 
 /** noteMdCopiedのフィードバック表示時間（ms）。約2秒でリセットする */
 const NOTE_MD_COPIED_RESET_MS = 2000;
-
-const X_TARGET = snsTargets.find((target) => target.key === "x");
-const BLUESKY_TARGET = snsTargets.find((target) => target.key === "bluesky");
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
   if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
@@ -76,16 +73,13 @@ export interface UseExportActionsResult {
   handleCloseNoteMdFallback: () => void;
   /** 印刷ボタンのonClick（/recipe/:id/printへnavigate） */
   handlePrint: () => void;
-  /** Xボタンのonclick（ShareDialogをwholeコンテキスト・target=xで開く） */
-  handleShareX: () => void;
-  /** Blueskyボタンのonclick（ShareDialogをwholeコンテキスト・target=blueskyで開く） */
-  handleShareBluesky: () => void;
+  /** 「SNSに投稿」ボタンのonClick（ShareDialogをwholeコンテキストで開く。X/Bluesky選択は
+   * ShareDialog内部のタブに委ねる。2026-07-04 FB-A: 旧handleShareX/handleShareBlueskyを統合） */
+  handleShareSns: () => void;
   /** ShareDialogのopen状態 */
   shareDialogOpen: boolean;
   /** ShareDialogのcontext（openがfalseの間はnull。参照安定化は不要。理由はshareDialogContext定義部コメント参照） */
   shareDialogContext: ShareDialogContext | null;
-  /** ShareDialogのtarget（openがfalseの間はnull） */
-  shareDialogTarget: SnsTarget | null;
   handleCloseShareDialog: () => void;
 }
 
@@ -97,9 +91,7 @@ export function useExportActions(
   const toast = useToast();
   const navigate = useNavigate();
   const [exportChoiceOpen, setExportChoiceOpen] = useState(false);
-  const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
-    null,
-  );
+  const [shareOpen, setShareOpen] = useState(false);
   const [noteMdCopied, setNoteMdCopied] = useState(false);
   const [noteMdFallbackMarkdown, setNoteMdFallbackMarkdown] = useState<
     string | null
@@ -193,32 +185,20 @@ export function useExportActions(
     navigate(`/recipe/${recipe.id}/print`);
   }
 
-  function handleShareX() {
+  function handleShareSns() {
     if (!recipe) return;
-    setShareTargetKey("x");
-  }
-
-  function handleShareBluesky() {
-    if (!recipe) return;
-    setShareTargetKey("bluesky");
+    setShareOpen(true);
   }
 
   function handleCloseShareDialog() {
-    setShareTargetKey(null);
+    setShareOpen(false);
   }
 
   // ShareDialogのeffectはopen/mode/recipe.id/partIdなど一次値にのみ依存し、
   // context自体の参照安定性には依存しない（ShareDialog.tsx側のrefパターン・
   // PartReviewDialogの結線と同趣旨）。そのため参照安定化のためのuseMemoは不要。
   const shareDialogContext: ShareDialogContext | null =
-    !recipe || shareTargetKey === null ? null : { mode: "whole", recipe };
-
-  const shareDialogTarget: SnsTarget | null =
-    shareTargetKey === "x"
-      ? (X_TARGET ?? null)
-      : shareTargetKey === "bluesky"
-        ? (BLUESKY_TARGET ?? null)
-        : null;
+    !recipe || !shareOpen ? null : { mode: "whole", recipe };
 
   return {
     handleRequestJsonExport,
@@ -232,11 +212,9 @@ export function useExportActions(
     noteMdFallbackMarkdown,
     handleCloseNoteMdFallback,
     handlePrint,
-    handleShareX,
-    handleShareBluesky,
-    shareDialogOpen: shareTargetKey !== null,
+    handleShareSns,
+    shareDialogOpen: shareOpen,
     shareDialogContext,
-    shareDialogTarget,
     handleCloseShareDialog,
   };
 }

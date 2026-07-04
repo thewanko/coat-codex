@@ -8,6 +8,13 @@
 //
 // 選択変更は生成済みFileの組み替えのみで、composeShareImagesの再実行はしない
 // （呼び出し側=ShareDialogがtransient activation維持のため既に保持済みのFile[]を扱う）。
+//
+// FB-A（2026-07-04 iPhone実機フィードバック）: 各カードに個別「保存」ボタンを追加する
+// （1タップ=1ファイルDL。旧一括DLボタンはShareDialog側で廃止済み）。選択チェックとは独立に
+// A系統・B系統いずれでも常時表示する。タップ領域は選択チェックボックス（右上）と重ならないよう
+// 保存ボタンを右下に配置し、モバイル44px規律（デザイン仕様書§a11y）を満たすため視覚サイズより
+// 大きい不可視ヒット領域（::beforeパターン、ShareDialog.module.cssの.closeButton等と同趣旨）を
+// 確保する。
 
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -24,6 +31,8 @@ interface ShareImagePreviewProps {
   /** 選択中のindex（imagesに対するindex）集合。呼び出し側で既定=先頭4枚を設定する */
   selectedIndexes: number[];
   onToggle: (index: number) => void;
+  /** 個別「保存」ボタン押下時（imagesに対するindex指定。1タップ=1ファイルDL） */
+  onDownload: (index: number) => void;
 }
 
 /**
@@ -91,6 +100,7 @@ function ShareImagePreview({
   images,
   selectedIndexes,
   onToggle,
+  onDownload,
 }: ShareImagePreviewProps) {
   const { t } = useTranslation();
   const selectedSet = new Set(selectedIndexes);
@@ -149,6 +159,21 @@ function ShareImagePreview({
                 <CandidatePhoto photoId={candidatePhotoId(image)} />
                 {tag && <span className={styles.tag}>{tag}</span>}
               </span>
+              <button
+                type="button"
+                className={styles.downloadButton}
+                data-testid="share-image-download-button"
+                aria-label={t("share.downloadImage", { index: index + 1 })}
+                onClick={(event) => {
+                  // 親<label>へのクリックバブルでチェックボックスがトグルされるのを防ぐ
+                  // （保存操作と選択トグルは独立した操作のため）
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onDownload(index);
+                }}
+              >
+                <span aria-hidden="true">⭳</span>
+              </button>
             </label>
           );
         })}

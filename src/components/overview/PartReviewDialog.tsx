@@ -4,10 +4,9 @@
 // PartCardの「工程レビュー」ボタンから開く読み取り専用ビュー。工程番号・技法名
 // （resolveTechniqueLabel）・塗料行（SwatchChip sm＋名前＋formatMixBadgeバッジ）・
 // ツール名・メモ・工程写真（resolvePhotoUrl解決。欠損時はプレースホルダ縞）を表示する。
-// フッタに「このパーツを編集」（/recipe/:id/part/:partIdへLink）と共有ボタン（X/Bluesky
-// の2ボタン）を置く。ShareDialogがtarget固定設計（ヘッダ「Xに共有」等）のため、
-// パーツ共有の起点はここでは単一ボタンではなくX用・Bluesky用の2ボタンに分ける
-// （T40セッション裁定）。押下でShareDialogをmode="part"・対応するtargetで開く。
+// フッタに「このパーツを編集」（/recipe/:id/part/:partIdへLink）と共有ボタン（「SNSに共有」
+// 1ボタン）を置く。押下でShareDialogをmode="part"で開く（X/Bluesky選択はShareDialog内部の
+// タブに委ねる。2026-07-04 FB-A: 旧X用・Bluesky用2ボタン構成を統合）。
 //
 // 表示形態: モバイル(<768px)はフルスクリーンシート（下から・全高）、PC(≥768px)は中央モーダル
 // （max-width 640px。デザイン仕様書§4「Dialog / Modal」）。Esc・backdropクリック・✕で閉じる。
@@ -35,16 +34,12 @@ import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { resolveTechniqueLabel } from "../../lib/techniques";
-import { snsTargets } from "../../lib/sns/types";
 import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
 import type { RecipeDoc, Step } from "../../models/recipe";
 import styles from "./PartReviewDialog.module.css";
-
-const X_TARGET = snsTargets.find((target) => target.key === "x");
-const BLUESKY_TARGET = snsTargets.find((target) => target.key === "bluesky");
 
 type PaletteColor = RecipeDoc["palette"][number];
 type Tool = RecipeDoc["tools"][number];
@@ -194,9 +189,7 @@ function PartReviewDialog({
   const editHref = isBaseMode
     ? `/recipe/${recipe.id}/part/base`
     : `/recipe/${recipe.id}/part/${part?.id}`;
-  const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
-    null,
-  );
+  const [shareOpen, setShareOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -210,7 +203,7 @@ function PartReviewDialog({
   // ダイアログを閉じ直したら共有ダイアログの選択状態もリセットする
   useEffect(() => {
     if (!open) {
-      setShareTargetKey(null);
+      setShareOpen(false);
     }
   }, [open]);
 
@@ -219,15 +212,9 @@ function PartReviewDialog({
   }
 
   const shareDialogContext: ShareDialogContext | null =
-    !isBaseMode && part !== null && shareTargetKey !== null
+    !isBaseMode && part !== null && shareOpen
       ? { mode: "part", recipe, partId: part.id }
       : null;
-  const shareDialogTarget =
-    shareTargetKey === "x"
-      ? (X_TARGET ?? null)
-      : shareTargetKey === "bluesky"
-        ? (BLUESKY_TARGET ?? null)
-        : null;
 
   return (
     <>
@@ -290,16 +277,9 @@ function PartReviewDialog({
                 <button
                   type="button"
                   className={styles.shareButton}
-                  onClick={() => setShareTargetKey("x")}
+                  onClick={() => setShareOpen(true)}
                 >
-                  {t("partReview.shareX")}
-                </button>
-                <button
-                  type="button"
-                  className={styles.shareButton}
-                  onClick={() => setShareTargetKey("bluesky")}
-                >
-                  {t("partReview.shareBluesky")}
+                  {t("partReview.shareSns")}
                 </button>
               </span>
             )}
@@ -307,12 +287,11 @@ function PartReviewDialog({
         </div>
       </div>
 
-      {shareDialogContext !== null && shareDialogTarget !== null && (
+      {shareDialogContext !== null && (
         <ShareDialog
           open
-          onClose={() => setShareTargetKey(null)}
+          onClose={() => setShareOpen(false)}
           context={shareDialogContext}
-          target={shareDialogTarget}
         />
       )}
     </>

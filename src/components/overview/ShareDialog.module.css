@@ -100,6 +100,42 @@
   overflow-y: auto;
 }
 
+/* SNS切替タブ（FB-A）: Badge/Chipのpill意匠（デザイン仕様書§4「Badge / Chip」technique準拠）
+   に倣ったセグメントコントロール。既定選択=X（snsTargets先頭）。 */
+.targetTabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.targetTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  background: var(--color-bg-raised);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-full);
+  font:
+    600 12px "Inter",
+    "Noto Sans JP",
+    sans-serif;
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .targetTab {
+    height: var(--size-touch-target);
+  }
+}
+
+.targetTabActive {
+  background: var(--color-gold);
+  color: var(--color-bg-raised);
+  border-color: var(--color-gold);
+}
+
 .routeA {
   display: flex;
   flex-direction: column;

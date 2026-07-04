@@ -5,7 +5,8 @@
 // JSONエクスポート・素のMarkdownエクスポート（要件どおり隣接配置）・note MDをT33で結線する。
 // 印刷は/recipe/:id/printへnavigate（保存手順案内はPrintToolbar側=T36仕様。PDFボタンは
 // 印刷と挙動が同一だったため2026-07-03ユーザー決定で削除・「印刷」に統合）。
-// X・BlueskyはShareDialog（context={mode:"whole", recipe}）を対応するtargetで開く（T40）。
+// SNS共有はShareDialog（context={mode:"whole", recipe}）を開く（T40。2026-07-04 FB-A:
+// X/Bluesky2ボタンを「SNSに投稿」1ボタンへ統合し、target選択はShareDialog内部のタブへ移した）。
 // 並び順・グルーピング（菱区切り＋JSON+素MDの結合ピル）はデザイン仕様書§4「ActionBar」。
 // 結線ロジックはuseExportActions（react-refresh対応で分離）に委譲する。
 //
@@ -77,11 +78,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     noteMdFallbackMarkdown,
     handleCloseNoteMdFallback,
     handlePrint,
-    handleShareX,
-    handleShareBluesky,
+    handleShareSns,
     shareDialogOpen,
     shareDialogContext,
-    shareDialogTarget,
     handleCloseShareDialog,
   } = useExportActions(recipe, onExported);
 
@@ -102,17 +101,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         type="button"
         className={styles.pill}
         disabled={recipe === null}
-        onClick={handleShareX}
+        onClick={handleShareSns}
       >
-        {t("overview.exportX")}
-      </button>
-      <button
-        type="button"
-        className={styles.pill}
-        disabled={recipe === null}
-        onClick={handleShareBluesky}
-      >
-        {t("overview.exportBluesky")}
+        {t("export.shareSns")}
       </button>
       <button
         type="button"
@@ -161,16 +152,13 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         />
       )}
 
-      {shareDialogOpen &&
-        shareDialogContext !== null &&
-        shareDialogTarget !== null && (
-          <ShareDialog
-            open={shareDialogOpen}
-            onClose={handleCloseShareDialog}
-            context={shareDialogContext}
-            target={shareDialogTarget}
-          />
-        )}
+      {shareDialogOpen && shareDialogContext !== null && (
+        <ShareDialog
+          open={shareDialogOpen}
+          onClose={handleCloseShareDialog}
+          context={shareDialogContext}
+        />
+      )}
     </>
   );
 }
@@ -197,8 +185,7 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
     handleNoteMdExport,
     noteMdCopied,
     handlePrint,
-    handleShareX,
-    handleShareBluesky,
+    handleShareSns,
   } = actions;
 
   return (
@@ -225,17 +212,9 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           type="button"
           className={styles.sheetButton}
           disabled={recipe === null}
-          onClick={handleShareX}
+          onClick={handleShareSns}
         >
-          {t("overview.exportX")}
-        </button>
-        <button
-          type="button"
-          className={styles.sheetButton}
-          disabled={recipe === null}
-          onClick={handleShareBluesky}
-        >
-          {t("overview.exportBluesky")}
+          {t("export.shareSns")}
         </button>
       </div>
 
@@ -464,18 +443,15 @@ function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
         recipe={recipe}
         actions={actions}
       />
-      {actions.shareDialogOpen &&
-        actions.shareDialogContext !== null &&
-        actions.shareDialogTarget !== null && (
-          <div className={styles.overlayRoot}>
-            <ShareDialog
-              open={actions.shareDialogOpen}
-              onClose={actions.handleCloseShareDialog}
-              context={actions.shareDialogContext}
-              target={actions.shareDialogTarget}
-            />
-          </div>
-        )}
+      {actions.shareDialogOpen && actions.shareDialogContext !== null && (
+        <div className={styles.overlayRoot}>
+          <ShareDialog
+            open={actions.shareDialogOpen}
+            onClose={actions.handleCloseShareDialog}
+            context={actions.shareDialogContext}
+          />
+        </div>
+      )}
       {actions.noteMdFallbackOpen &&
         actions.noteMdFallbackMarkdown !== null && (
           <div className={styles.overlayRoot}>

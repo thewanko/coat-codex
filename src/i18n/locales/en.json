@@ -151,14 +151,13 @@
     "emptyPartsDescription": "Add a part to record its steps, paints, and mix ratios.",
     "photoStripAllCount": "{{count}} total",
     "exportPrint": "Print",
-    "exportX": "X",
-    "exportBluesky": "Bluesky",
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
     "exportPlainMd": "Plain MD"
   },
   "export": {
     "menuButton": "Export & Share",
+    "shareSns": "Share to SNS",
     "markdownPaintsLabel": "Paints",
     "markdownToolsLabel": "Tools",
     "markdownHasPhotoLabel": "Photo attached",
@@ -207,14 +206,14 @@
   "partReview": {
     "open": "Review steps",
     "edit": "Edit this part",
-    "shareX": "Share on X",
-    "shareBluesky": "Share on Bluesky",
+    "shareSns": "Share to SNS",
     "noSteps": "No steps yet"
   },
   "share": {
     "overline": "SHARE",
-    "titleWhole": "Share to {{target}}",
-    "titlePart": "Share to {{target}}",
+    "titleWhole": "Share to SNS",
+    "titlePart": "Share to SNS",
+    "targetTabsLabel": "Choose SNS to post to",
     "wholeSummary": "{{partsCount}} parts ・ {{stepsCount}} steps total",
     "wholeDefaultText": "Just finished painting {{title}}. A recipe with {{partsCount}} parts and {{stepsCount}} steps total. #coat-codex",
     "partDefaultText": "{{title}} - {{partName}} paint recipe. {{flow}}, {{stepsCount}} steps total. #coat-codex",
@@ -239,10 +238,10 @@
     "shareTextOnly": "Share text only",
     "troubleLink": "Having trouble sharing? ›",
     "manualStepsHeading": "MANUAL STEPS",
-    "step1Download": "① Download the images",
+    "step1Download": "① Download each image using its save button",
     "step2OpenIntent": "② Open the post screen",
     "step3Attach": "③ Attach the images manually",
-    "downloadImages": "Download composed images",
+    "downloadImage": "Save image {{index}}",
     "openIntent": "Open {{target}} post screen",
     "intentNotice": "Intent URLs can't attach images automatically — please attach the downloaded images manually on the post screen that opens"
   },
