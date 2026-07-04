@@ -3,13 +3,13 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: PartReviewDialog編集LinkのonClose未呼び修正)
+最終更新: 2026-07-05 (loop: PartReviewDialog編集LinkのonClose未呼び修正 → PR #22)
 
 ## 完了
 
-- 2026-07-05: **PartReviewDialog編集LinkのonClose未呼び修正**（PR #20レビューM2残件・worktree stoic-wing-64b1df） — 「このパーツを編集」Linkが onClose を呼ばずに遷移するため RecipeOverviewPage の reviewTarget が残存し、モバイルではダイアログが `.panelOpen` の display:none 配下に隠れたままブラウザバックで再出現していた。修正=Link に `onClick={onClose}` 追加の1行（遷移は Link のまま・preventDefault なし）＋回帰テスト1件（編集Linkクリックで onClose 1回）。レビューR1 PASS（C0/H0/M0/L0。base モードも同一 Link で解消・useFocusTrap 復帰は document.contains ガードで無干渉を確認済み）。実機検証: 375px/1280px 両幅で編集Linkヒットテスト→実座標クリック→遷移時ダイアログ消滅→ブラウザバック後の非再出現＋Overview 操作可を確認。4ゲート exit 0・計980テスト
+- 2026-07-05: **PartReviewDialog編集LinkのonClose未呼び修正**（PR #22: claude/stoic-wing-64b1df。PR #20レビューM2残件） — 「このパーツを編集」Linkが onClose を呼ばずに遷移するため RecipeOverviewPage の reviewTarget が残存し、モバイルではダイアログが `.panelOpen` の display:none 配下に隠れたままブラウザバックで再出現していた。修正=Link に `onClick={onClose}` 追加の1行（遷移は Link のまま・preventDefault なし）＋回帰テスト1件（編集Linkクリックで onClose 1回）。レビューR1 PASS（C0/H0/M0/L0。base モードも同一 Link で解消・useFocusTrap 復帰は document.contains ガードで無干渉を確認済み）。実機検証: 375px/1280px 両幅で編集Linkヒットテスト→実座標クリック→遷移時ダイアログ消滅→ブラウザバック後の非再出現＋Overview 操作可を確認。4ゲート exit 0・計980テスト
 
-- 2026-07-04: **印刷プレビューのモバイル右端切れ修正**（PR #21: fix/print-preview-mobile-clip） — ユーザーiPhone実機報告（T43③確認中）。原因=`.scaleInner`の`transform-origin: top center`が「紙面事前中央配置」前提だが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0解決→左寄せ→中央origin縮小で右へずれ右端切れ（620pxで68px・FB-D導入時から常時）。修正=`top left`へ1行変更（縮小時794×scale=利用可能幅ぴったり・等倍時はmargin:auto中央配置が生き広幅不変・@media printはtransform:noneのまま無影響）。前例（M6 z-index glue）に倣い検証起因1行修正としてセッションglue適用。実機検証: 375px/620px完全収容＋右端視認可・1280px等倍中央。FB-D出口検証が「縮小の適用」のみ見て「右端の収まり」を見ていなかった=検証の深さ不足の再発。計979テスト
+- 2026-07-04: **印刷プレビューのモバイル右端切れ修正**（PR #21: fix/print-preview-mobile-clip） — ユーザーiPhone実機報告（T43③確認中）。原因=`.scaleInner`の`transform-origin: top center`が「紙面事前中央配置」前提だが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0解決→左寄せ→中央origin縮小で右へずれ右端切れ（620pxで68px・FB-D導入時から常時）。修正=`top left`へ1行変更（縮小時794×scale=利用可能幅ぴったり・等倍時はmargin:auto中央配置が生き広幅不変・@media printはtransform:noneのまま無影響）。前例（M6 z-index glue）に倣い検証起因1行修正としてセッションglue適用。実機検証: 375px/620px完全収容＋右端視認可・1280px等倍中央。FB-D出口検証が「縮小の適用」のみ見て「右端の収まり」を見ていなかった=検証の深さ不足の再発。計979テスト。**PR #21マージ済み・ユーザー実機で解消確認済み（2026-07-04）。T43①②も同日ユーザー実機でOK確認済み**
 
 - 2026-07-04: **モバイルパーツ編集フルページ化リグレッション修正**（PR #20: fix/mobile-part-editor-fullpage） — ユーザー報告「スマホでパーツを追加を押すとフローを経ずに追加されレシピ操作不能」。原因=**T44ネストルート化のリグレッション**: モバイル幅ではPartEditorPageの`position:fixed`が効かず（≥768pxのみ）通常フローでOverviewの下（画面外）に描画、Overview側`inert`は幅無条件のため可視領域が全タップ不能に（パーツカードタップ・BASE編集も同経路で全滅）。修正=①パネルルート開時に`.root`へ`panelOpen`クラス付与（早期return全4分岐含む）＋`@media(max-width:767px)`のみ`display:none`（§3.1フルページ復元・PC不変）②スクロール先頭化＋閉時復元（**退避はnavigate前のハンドラ内**。display:noneコミット後はscrollYが0へクランプされeffect内退避は常に0になる罠を実機検証が検出→ref方式へ修正）。レビューR1 PASS(M2/L3)→修正→同一レビュアーR2 PASS(L1残置=Forward再入の稀な位置ズレ)。実機検証: 375px開閉ヒットテスト全通過・スクロール530→0→530復元・PC幅1280px不変確認。**残件別タスク化: PartReviewDialogの編集LinkがonClose未呼び（レビューM2・チップ起票済み）**。計979テスト。**PR #20マージ済み・ユーザースマホ実機で解消確認済み（2026-07-04。マージ直後の再発報告は旧バンドルのブラウザキャッシュが原因で、再読み込みで解消）**
 
@@ -48,7 +48,7 @@
 
 ## 次の候補 (優先順)
 
-1. **ユーザー作業（公開前）**: ①PR #18マージ→**iPhone実機でnote MD再確認**（期待: 即✓ or 最大1.5秒後にダイアログ＋「全文をコピー」。「何も起きない」は構造的に解消済みのはず）②T43④の他項目のiPhone再確認（SNS投稿1ボタン・個別保存・パーツカード3段・印刷縮小表示・素MD DL・sticky出力ボタン・全体写真変更)③T43③実印刷ダイアログ（Chrome/Safari印刷プレビュー・PDF保存）④Web Share A系統実機（canShare成立環境での共有シート）
+1. **ユーザー作業（公開前・残2件）**: ③T43③実印刷ダイアログ（Chrome/Safari印刷プレビューで背景色・改ページ・PDF保存。※画面上の縮小プレビュー右端切れはPR #21で解消済み）④Web Share A系統実機（iPhone Safari「SNSに投稿/共有」→共有ボタンでOS共有シート＋画像添付が出ればA系統成功。手順ガイド画面ならB系統フォールバック）。※①PR #18 note MD・②T43④他項目は2026-07-04ユーザー実機でOK確認済み
 2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
