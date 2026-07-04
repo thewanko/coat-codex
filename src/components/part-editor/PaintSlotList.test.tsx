@@ -11,6 +11,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
 import PaintSlotList from "./PaintSlotList";
 import ToastHost from "../common/ToastHost";
+import { PENDING_COLOR_PREFIX } from "../../lib/pendingPaints";
 import type { MixState } from "../../lib/mixRatio";
 import type { PaletteColor } from "../../models/recipe";
 
@@ -142,7 +143,7 @@ function renderList(
   onChange = vi.fn(),
   onAddColor = vi.fn(),
 ) {
-  render(
+  const { rerender } = render(
     <ToastHost>
       <PaintSlotList
         state={state}
@@ -153,7 +154,7 @@ function renderList(
       />
     </ToastHost>,
   );
-  return { onChange, onAddColor };
+  return { onChange, onAddColor, rerender };
 }
 
 describe("PaintSlotList — スロット追加/削除", () => {
@@ -315,6 +316,189 @@ describe("PaintSlotList — colorId重複防止", () => {
       { colorId: "col_red" },
       { colorId: "col_blue" },
     ]);
+  });
+});
+
+describe("PaintSlotList — スロット固有安定key（T45）", () => {
+  test("色確定でcolorIdが変わってもスロットのDOM要素は再マウントされない（未確定draftが残る）", () => {
+    const state = makeState(
+      [{ colorId: "col_pending_1" }, { colorId: "col_pending_2" }],
+      [50, 50],
+    );
+    let currentState = state;
+    const onChange = vi.fn((next: MixState) => {
+      currentState = next;
+    });
+    const onAddColor = vi.fn();
+
+    const { rerender } = render(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={[]}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={onAddColor}
+        />
+      </ToastHost>,
+    );
+
+    const percentInputsBefore = screen.getAllByRole("spinbutton");
+    const slotRootBefore = screen.getByTestId("paint-slot-0");
+    // %入力へ未確定のdraftを入れる（blurせず確定しない）
+    fireEvent.change(percentInputsBefore[0], { target: { value: "77" } });
+
+    // スロット0で色を確定 -> colorIdが変わる
+    const pickBlueButtons = screen.getAllByText("pick-blue");
+    fireEvent.click(pickBlueButtons[0]);
+
+    rerender(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={[]}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={onAddColor}
+        />
+      </ToastHost>,
+    );
+
+    const slotRootAfter = screen.getByTestId("paint-slot-0");
+    // 同一DOMノードが保持されている（アンマウント/再マウントされていない）
+    expect(slotRootAfter).toBe(slotRootBefore);
+    // 未確定draftも保持されている（PaintSlot内部stateが維持されている証跡）
+    const percentInputsAfter = screen.getAllByRole("spinbutton");
+    expect(percentInputsAfter[0]).toHaveValue(77);
+  });
+
+  test("add→removeを跨いでも残存スロットが正しいcolor/percentを表示し続ける", () => {
+    const state = makeState(
+      [{ colorId: "col_a" }, { colorId: "col_b" }],
+      [60, 40],
+    );
+    let currentState = state;
+    const onChange = vi.fn((next: MixState) => {
+      currentState = next;
+    });
+    const palette: PaletteColor[] = [
+      {
+        id: "col_a",
+        source: "custom",
+        brand: null,
+        name: "ColorA",
+        presetId: null,
+        hex: "#111111",
+        chipPhotoId: null,
+      },
+      {
+        id: "col_b",
+        source: "custom",
+        brand: null,
+        name: "ColorB",
+        presetId: null,
+        hex: "#222222",
+        chipPhotoId: null,
+      },
+    ];
+
+    const { rerender } = render(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={palette}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={vi.fn()}
+        />
+      </ToastHost>,
+    );
+
+    // 追加
+    fireEvent.click(screen.getByText("＋塗料を追加"));
+    rerender(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={palette}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={vi.fn()}
+        />
+      </ToastHost>,
+    );
+    expect(currentState.paints).toHaveLength(3);
+
+    // スロット0（col_a）を削除
+    const removeButtons = screen.getAllByRole("button", { name: /削除/ });
+    fireEvent.click(removeButtons[0]);
+    rerender(
+      <ToastHost>
+        <PaintSlotList
+          state={currentState}
+          palette={palette}
+          recipeId="rcp_1"
+          onChange={onChange}
+          onAddColor={vi.fn()}
+        />
+      </ToastHost>,
+    );
+
+    // 残存スロットはcol_b, 新規スロットの順で、正しいpercent/colorを表示する
+    expect(currentState.paints).toEqual([
+      { colorId: "col_b" },
+      { colorId: expect.stringContaining(PENDING_COLOR_PREFIX) as string },
+    ]);
+    // 残存スロット0はcol_bのhex（#222222）を表示し続ける
+    const chipFrame = screen.getAllByTestId("swatch-chip-frame")[0];
+    expect(chipFrame.firstChild).toHaveStyle({ backgroundColor: "#222222" });
+  });
+
+  test("外部要因でpaints lengthが変わってもクラッシュせずスロット数が追従する", () => {
+    const initial = makeState(
+      [{ colorId: "col_a" }, { colorId: "col_b" }],
+      [60, 40],
+    );
+    const { rerender } = renderList(initial);
+
+    expect(screen.getAllByTestId(/paint-slot-/)).toHaveLength(2);
+
+    // 親側の要因でpaints lengthが3件に増える（addPaintSlot経由ではない直接差し替え）
+    const grown = makeState(
+      [{ colorId: "col_a" }, { colorId: "col_b" }, { colorId: "col_c" }],
+      [40, 30, 30],
+    );
+    expect(() =>
+      rerender(
+        <ToastHost>
+          <PaintSlotList
+            state={grown}
+            palette={[]}
+            recipeId="rcp_1"
+            onChange={vi.fn()}
+            onAddColor={vi.fn()}
+          />
+        </ToastHost>,
+      ),
+    ).not.toThrow();
+    expect(screen.getAllByTestId(/paint-slot-/)).toHaveLength(3);
+
+    // 更に1件に減る
+    const shrunk = makeState([{ colorId: "col_a" }], null);
+    expect(() =>
+      rerender(
+        <ToastHost>
+          <PaintSlotList
+            state={shrunk}
+            palette={[]}
+            recipeId="rcp_1"
+            onChange={vi.fn()}
+            onAddColor={vi.fn()}
+          />
+        </ToastHost>,
+      ),
+    ).not.toThrow();
+    expect(screen.getAllByTestId(/paint-slot-/)).toHaveLength(1);
   });
 });
 

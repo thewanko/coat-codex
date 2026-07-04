@@ -23,6 +23,7 @@
 // pendingスロット（未確定の一時プレースホルダcolorId）の判定はlib/pendingPaints.tsの
 // PENDING_COLOR_PREFIXを単一情報源とする。autosave手前でのstrip適用はM4の結線タスクの責務。
 
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { PaletteColor } from "../../models/recipe";
 import {
@@ -57,6 +58,24 @@ function PaintSlotList({
   const { t } = useTranslation();
   const toast = useToast();
 
+  // スロットのReact key用UI専用安定id（永続化しない・MixState/recipeスキーマに非依存）。
+  // colorId変更（PaintPicker確定・palette再利用解決）によるkey変化 -> アンマウント/再マウント
+  // （M4レビューR1指摘5）を避けるため、state.paintsのindexに対応する安定idを別管理する。
+  // 並べ替え機能は存在しないためindex対応で整合が取れる。
+  const slotIdsRef = useRef<string[]>([]);
+  if (slotIdsRef.current.length !== state.paints.length) {
+    // 外部要因（親からのstate差し替え等）でlengthが食い違った場合は末尾append/truncateで整合させる。
+    if (slotIdsRef.current.length < state.paints.length) {
+      const additional = Array.from(
+        { length: state.paints.length - slotIdsRef.current.length },
+        () => crypto.randomUUID(),
+      );
+      slotIdsRef.current = [...slotIdsRef.current, ...additional];
+    } else {
+      slotIdsRef.current = slotIdsRef.current.slice(0, state.paints.length);
+    }
+  }
+
   const paletteById = new Map(palette.map((color) => [color.id, color]));
   const showPercent = state.paints.length > 1;
   const atMax = state.paints.length >= MAX_PAINTS;
@@ -68,10 +87,12 @@ function PaintSlotList({
     // ユーザーがPaintPickerで色を確定した時点でcolorIdを持つ。
     // addPaintSlotはcolorIdを要求するため、確定前は一意な仮IDを発行する。
     const placeholderId = `${PENDING_COLOR_PREFIX}${crypto.randomUUID()}`;
+    slotIdsRef.current = [...slotIdsRef.current, crypto.randomUUID()];
     onChange(addPaintSlot(state, placeholderId));
   }
 
   function handleRemoveSlot(index: number) {
+    slotIdsRef.current = slotIdsRef.current.filter((_, i) => i !== index);
     onChange(removePaintSlot(state, index));
   }
 
@@ -125,7 +146,7 @@ function PaintSlotList({
       <div className={styles.slots}>
         {state.paints.map((paint, index) => (
           <PaintSlot
-            key={paint.colorId}
+            key={slotIdsRef.current[index]}
             index={index}
             recipeId={recipeId}
             color={paletteById.get(paint.colorId)}

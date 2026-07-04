@@ -3,10 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-03 (loop: M7後半 T42/T43 完了 → M7=全タスク完了)
+最終更新: 2026-07-04 (loop: M8後半 T45 完了。M8残=T44/T46・任意T47は残置継続)
 
 ## 完了
 
+- 2026-07-04: **M8後半: T45 PaintSlotスロット固有安定key**（PR: impl/m8-t45-paintslot-key） — `key={paint.colorId}`をUI専用安定id（`useRef<string[]>`・非永続・add/removeで同期・外部length変化は末尾append/truncate）へ置換し、colorId変化（pending→確定・色変更・palette再利用解決）での再マウントを排除。**M4レビューR1指摘5「blurクリック1回吸われ＋中断編集の孤児palette生成」を解消**。MixState/スキーマ/PaintSlot.tsx/重複ガード/palette再利用は不変。テスト3件追加（DOMノード同一性・add/remove跨ぎ整合・外部length変化追従）。Opusレビュー R1 PASS（C0/H0/M0/L2。L1=StepCard陳腐化コメント→セッションglue修正、L2=末尾truncate方式の将来リスク→現行到達不能〔stripは永続スナップショット専用でライブstateへ書き戻しなし〕対応不要）。**実機検証**: 実イベント順序（mousedown→blur確定→click）で1クリック目の到達＋ハンドラ発火＋スロット追加成立、色変更/pending→確定の両クラスでsameNode維持、value再同期（確定名保持）・swatch反映・toastなし。検証データは復元済み。**T47は見送り裁定**（任意Low・限定条件・「将来のカラー数UX調整時に一括対応」の既存申し送りを維持）。計869テスト
 - 2026-07-03: **M7後半: T42 レスポンシブ最終調整＋T43 通しQA**（PR: impl/m7-t42-t43） — ①**T42意匠2件**（dc.html準拠に採用裁定）: Homeを「ヘッダ行ボタン」から「ヒーロー（LIBRARY→YOUR CODEX→和文gloss→金飾り罫→VOLUMES）＋中央寄せ独立ボタン行」へ移設・モバイル縦積み／Setup ImportJsonSectionを「または」ディバイダ＋破線カード（PC）/コンパクト破線ボタン（モバイル）へ意匠化（機能不変）。app.title削除（YOUR CODEXが後継）②**モバイルタッチ44px化を横断適用**（実機ヒットテストで検出: 工程/パーツ↑↓32px・写真✕24px・各種✕/menu28px・addButton40px等を44px化。視覚拡大 or 不可視ヒット領域拡張）。**StepPhotoTile✕は祖先overflow:hiddenで外向き拡張がクリップされる罠を実機検出→内向き拡張（top:0;right:0;left/bottom負値）へ差し戻し修正**③**VOLUMES英語複数形化**（volumesCount_one/_other・i18n.test.tsの一致/網羅/デッド検出を複数形サフィックス許容へ最小修正）④**T43通しQA**: dev実機で①往復②本番URL⑤persist拒否⑥Quota⑦削除ガード⑧presetId降格⑨D-8⑩D-6ドット⑪工程写真3出力⑫≠100警告継承（合成画像の⚠計90%を実ピクセル目視）を確認しREADME追記。③印刷ダイアログ・④Web Share A系統はユーザー実機依頼事項として整理。Opus UIレビューR1 PASS（C0/H0/M0/L2。L2=StepPhotoTileコメントはレビュアー誤検出〔480px縮小media実在〕で対応不要、L1=VOLUMES複数形は対応）。計866テスト
 - 2026-07-03: **M7前半: T41 i18n棚卸し＋共有カードFB対応＋favicon結線**（PR: impl/m7-t41-share-feedback） — ①**T41**: i18n機械チェックテスト新設（ja/en再帰キー完全一致・静的抽出キー網羅・techniques.*動的名前空間の閉包・デッドキー逆方向検出・言語永続化）・未使用5キー削除（partReview.share等）。R1 PASS(M2/L3)→修正→R2 PASS(L0)。裁定: レンジ表記は小文字キー維持（表示名変換見送り）②**FB-1 写真cover配置**（ユーザー実機FB「横伸ばし」）: drawPhotoがコメントに反し5引数drawImage引き伸ばしだった実在バグ。computeCoverSourceRect純関数＋9引数化＋naturalSize不能時は5引数全面描画フォールバック ③**FB-2/3 summary(whole)目次化**（ユーザー指示「パーツ：工程数と使用カラーの一覧ぐらいでいい」）: パーツ構成（ベース先頭・0工程スキップ・上限8行＋…他Nパーツ）＋使用カラー3列グリッド（**色名＋ブランド併記**・上限12色＋N）・実行数ベース上詰め。R1(L3)→R2(L0)→**実機実ピクセル目視がdesign乖離2点（色名なし・8行固定の中央空白）をレビューPASS後に検出**→FB-3→R3 PASS(L1申し送り) ④**favicon**: ユーザー支給封蝋ロゴPNG（docs/design/coat-codex_logo.png原本）→48px/180px配信層＋index.html結線（M4/M7申し送り解消）。実機検証: 黒狼実データ（ユーザー指定のObsidian vault版）UI経由インポート・目次/工程/写真カード実ピクセル・0工程スキップ・brand nullスキップ・全ヒットテスト。計862テスト
 
@@ -32,11 +33,11 @@
 
 ## 進行中
 
-- (なし。**M0〜M7全マイルストーン完走**〔PR #13マージ済み 2026-07-03〕。次はM8=公開前仕上げ)
+- **M8 公開前仕上げ**: T45完了（2026-07-04・上記）。残=T44・T46（＋任意T47は残置裁定済み）
 
 ## 次の候補 (優先順)
 
-1. **M8 公開前仕上げ（計画§4.2に2026-07-03新設。T44〜T47＋コード外チェックリスト）**: T44 PCパネル背面Overview（ネストルート+Outlet）／T45 PaintSlot安定key（**M3確定物変更=単独ループ・実機スパイク・M3観点再レビュー必須**）／T46 全ダイアログ共通フォーカストラップ／T47 任意Low（+N視覚干渉）。T44とT46は成果物が重ならず並列委譲可、T45は単独で
+1. **M8残り（計画§4.2）**: T44 PCパネル背面Overview（ネストルート+Outlet）／T46 全ダイアログ共通フォーカストラップ。**T44とT46は成果物が重ならず並列委譲可**。~~T45~~（2026-07-04完了）・T47は見送り裁定（任意Low・限定条件。「将来のカラー数UX調整時に一括対応」を維持）
 2. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
 3. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
