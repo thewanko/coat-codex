@@ -32,7 +32,11 @@
   color: var(--color-ink-muted);
 }
 
-.dividerLabel:lang(en) {
+.dividerLabel:lang(en),
+.dividerLabel:lang(fr),
+.dividerLabel:lang(de),
+.dividerLabel:lang(it),
+.dividerLabel:lang(es) {
   letter-spacing: normal;
   text-indent: 0;
 }

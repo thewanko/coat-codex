@@ -951,7 +951,7 @@ pages_build_output_dir = "dist"
 
 ## 7. 将来拡張（バックログ。v1スコープ外）
 
-- **多言語対応の拡張（2026-07-03ユーザー要望）**: 対象言語は**Warhammer（Games Workshop）の主要展開言語に合わせる** — 現行のja/enに加え、**フランス語・ドイツ語・イタリア語・スペイン語**（Warhammer Community公開言語準拠。中国語簡体は需要を見て検討）。設計メモ:
+- **多言語対応の拡張（2026-07-03ユーザー要望）**: **実装済み（2026-07-05・fr/de/it/es対応）**。着手時判断の記録: 翻訳=機械翻訳（Sonnet impl）＋opusレビュー校正／glossは各言語訳（en前例踏襲。terms.*とfooter.trademarkNoticeの法的文面のみ英語流用=ユーザー裁定）／切替UI=カスタムドロップダウン（ユーザー裁定）／和文gloss用トラッキング解除の`:lang(en)`特例は5言語列挙式へ拡張（中国語追加時はトラッキング要否を再判断）。対象言語は**Warhammer（Games Workshop）の主要展開言語に合わせる** — 現行のja/enに加え、**フランス語・ドイツ語・イタリア語・スペイン語**（Warhammer Community公開言語準拠。中国語簡体は需要を見て検討）。設計メモ:
   - i18n基盤（react-i18next・全文言のキー分離）は対応済みのため、拡張作業は `locales/{fr,de,it,es}.json` の追加が中心
   - `LanguageSwitcher`はja/enの2セグメント→**6言語ではドロップダウン or メニュー化**が必要（デザイン改訂1点）
   - EN見出し（EB Garamondのdisplay・"YOUR CODEX"等）は**i18n対象外の意匠**（デザイン仕様書§2）で全言語共通。差し替わるのはgloss側 — ja以外の第3言語でglossをどう扱うか（各言語訳 or 非表示）はデザイン判断

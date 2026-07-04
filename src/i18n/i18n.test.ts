@@ -1,19 +1,26 @@
-// i18n/i18n.test.ts — i18n全キー棚卸しの機械チェック（技術計画v2.2 §4.2 T41）
+// i18n/i18n.test.ts — i18n全キー棚卸しの機械チェック（技術計画v2.2 §4.2 T41・§7 6言語化）
 //
-// (a)(b) ja.json/en.jsonのキー集合完全一致・空文字列翻訳ゼロ
+// (a)(b) 全6ロケール(ja/en/fr/de/it/es)のキー集合完全一致・空文字列翻訳ゼロ（enを基準に双方向比較）
 // (c)(d) ソースコードから静的t()呼び出し・キー文字列リテラル代入（messageKey等）を機械抽出し、
 //        ja.jsonへの存在を検証。動的名前空間（techniques.<presetKey>）は名前空間単位で
-//        ja/en双方の存在・一致を検証する（(d)は想定外の動的名前空間出現も検出する閉包アサーション付き）
+//        全6ロケールの存在・一致を検証する（(d)は想定外の動的名前空間出現も検出する閉包アサーション付き）
 // (e) 仕様名指しキー（recipe.untitledTitle・mix.totalWarning・工程写真UI文言）の存在
 // (f) 逆方向チェック: ja.jsonの全キーが「静的抽出キー ∪ techniques.*」に含まれる
 //     （＝デッドキー検出。(c)は使用キー⊆ja.jsonの片方向のみのため、未使用キーの
 //     再混入は(f)がなければ検出できない）
+// 追加: fr/de/it/es のterms.*（法的文面）はen.jsonと一字一句一致する（ユーザー裁定: 英語流用）。
+//       storageStatus.volumesCount_one/_otherは全ロケールでenと一致する（意匠キー据え置き）。
 // 言語切替永続化: coat-codex:lang（src/i18n/index.ts）の書き込み・復元
 
 import { describe, expect, test, beforeEach, afterEach, vi } from "vitest";
 import ja from "./locales/ja.json";
 import en from "./locales/en.json";
+import fr from "./locales/fr.json";
+import de from "./locales/de.json";
+import it from "./locales/it.json";
+import es from "./locales/es.json";
 import { TECHNIQUE_PRESET_KEYS } from "../lib/techniques";
+import type { SupportedLang } from "./index";
 
 type JsonRecord = { [key: string]: JsonRecord | string };
 
@@ -45,6 +52,19 @@ function flattenWithValues(obj: JsonRecord, prefix = ""): [string, string][] {
 
 const jaKeys = new Set(flatten(ja as unknown as JsonRecord));
 const enKeys = new Set(flatten(en as unknown as JsonRecord));
+
+// 全6ロケール横断チェック用（enを基準に各ロケールと双方向比較する）。
+// ja/enの既存比較（jaKeys/enKeys由来）は(c)(f)で引き続き使用するため据え置く。
+const NON_EN_LOCALES: {
+  code: Exclude<SupportedLang, "en">;
+  data: JsonRecord;
+}[] = [
+  { code: "ja", data: ja as unknown as JsonRecord },
+  { code: "fr", data: fr as unknown as JsonRecord },
+  { code: "de", data: de as unknown as JsonRecord },
+  { code: "it", data: it as unknown as JsonRecord },
+  { code: "es", data: es as unknown as JsonRecord },
+];
 
 // i18nextの複数形サフィックス（CLDR plural categories）。`t()`呼び出し側は
 // count渡し時にベースキー（例: `volumesCount`）のみを参照し、i18nextが実行時に
@@ -144,22 +164,28 @@ for (const content of sourceFileContents.values()) {
 }
 
 describe("i18n key inventory (T41)", () => {
-  test("(a) ja.json/en.jsonのキー集合が完全一致する（欠落ゼロ・双方向、複数形サフィックス差は許容）", () => {
-    const jaMissingInEn = [...jaBaseKeys].filter((k) => !enBaseKeys.has(k));
-    const enMissingInJa = [...enBaseKeys].filter((k) => !jaBaseKeys.has(k));
-    expect(jaMissingInEn).toEqual([]);
-    expect(enMissingInJa).toEqual([]);
+  test("(a) 全6ロケールのキー集合が完全一致する（欠落ゼロ・双方向、複数形サフィックス差は許容）", () => {
+    for (const { code, data } of NON_EN_LOCALES) {
+      const localeBaseKeys = toBaseKeySet(flatten(data));
+      const missingInLocale = [...enBaseKeys].filter(
+        (k) => !localeBaseKeys.has(k),
+      );
+      const missingInEn = [...localeBaseKeys].filter((k) => !enBaseKeys.has(k));
+      expect(missingInLocale, `en→${code} missing`).toEqual([]);
+      expect(missingInEn, `${code}→en missing`).toEqual([]);
+    }
   });
 
-  test("(b) 空文字列の翻訳値が存在しない（ja/en両方）", () => {
-    const jaEmpty = flattenWithValues(ja as unknown as JsonRecord).filter(
-      ([, value]) => value === "",
-    );
+  test("(b) 空文字列の翻訳値が存在しない（全6ロケール）", () => {
     const enEmpty = flattenWithValues(en as unknown as JsonRecord).filter(
       ([, value]) => value === "",
     );
-    expect(jaEmpty).toEqual([]);
     expect(enEmpty).toEqual([]);
+
+    for (const { code, data } of NON_EN_LOCALES) {
+      const empty = flattenWithValues(data).filter(([, value]) => value === "");
+      expect(empty, `${code} has empty values`).toEqual([]);
+    }
   });
 
   test("(c) ソースコードで静的参照される全キーがja.jsonに存在する（複数形はベースキーで判定）", () => {
@@ -177,7 +203,7 @@ describe("i18n key inventory (T41)", () => {
     expect(missing).toEqual([]);
   });
 
-  test("(d) 動的名前空間 techniques.* はja/en双方に存在し、キー集合が一致する", () => {
+  test("(d) 動的名前空間 techniques.* は全6ロケールに存在し、キー集合が一致する", () => {
     // ソースから実際にtechniques.${...}形式のテンプレートリテラルが検出されることを確認
     expect(allDynamicNamespaces.has("techniques")).toBe(true);
 
@@ -186,16 +212,23 @@ describe("i18n key inventory (T41)", () => {
     // このリストと本テストの検証ロジックを更新すること。
     expect([...allDynamicNamespaces].sort()).toEqual(["techniques"]);
 
-    const jaTechniqueKeys = new Set(Object.keys(ja.techniques));
     const enTechniqueKeys = new Set(Object.keys(en.techniques));
-
-    expect([...jaTechniqueKeys].sort()).toEqual([...enTechniqueKeys].sort());
-
-    // 実際に参照されうるpresetKey（lib/techniques.ts TECHNIQUE_PRESET_KEYS）が
-    // ja/en双方のtechniques名前空間に過不足なく存在すること
     const presetKeySet = new Set<string>(TECHNIQUE_PRESET_KEYS);
-    expect([...jaTechniqueKeys].sort()).toEqual([...presetKeySet].sort());
     expect([...enTechniqueKeys].sort()).toEqual([...presetKeySet].sort());
+
+    const localeTechniques: Record<string, object> = {
+      ja: ja.techniques,
+      fr: fr.techniques,
+      de: de.techniques,
+      it: it.techniques,
+      es: es.techniques,
+    };
+    for (const [code, techniques] of Object.entries(localeTechniques)) {
+      const keys = new Set(Object.keys(techniques));
+      expect([...keys].sort(), `${code}.techniques`).toEqual(
+        [...presetKeySet].sort(),
+      );
+    }
   });
 
   test("(f) ja.jsonの全キーは到達可能である（静的抽出キー ∪ 動的名前空間techniques.*配下、逆方向: デッドキー検出。複数形はベースキーで判定）", () => {
@@ -244,6 +277,56 @@ describe("i18n key inventory (T41)", () => {
       expect(enKeys.has(key), `en.json missing ${key}`).toBe(true);
     }
   });
+
+  test("fr/de/it/esのterms.*全19キーはen.jsonと一字一句一致する（ユーザー裁定: 法的文面は英語流用）", () => {
+    const enTermsEntries = flattenWithValues(
+      en.terms as unknown as JsonRecord,
+      "terms",
+    );
+    expect(enTermsEntries).toHaveLength(19);
+
+    const nonEnTermsLocales: { code: string; data: JsonRecord }[] = [
+      { code: "fr", data: fr.terms as unknown as JsonRecord },
+      { code: "de", data: de.terms as unknown as JsonRecord },
+      { code: "it", data: it.terms as unknown as JsonRecord },
+      { code: "es", data: es.terms as unknown as JsonRecord },
+    ];
+
+    for (const { code, data } of nonEnTermsLocales) {
+      const entries = flattenWithValues(data, "terms");
+      expect(entries, `${code}.terms key set`).toEqual(enTermsEntries);
+    }
+  });
+
+  test("storageStatus.volumesCount_one/_otherは全ロケールでenと一致する（意匠キー据え置き）", () => {
+    const enVolumes = {
+      one: en.storageStatus.volumesCount_one,
+      other: en.storageStatus.volumesCount_other,
+    };
+
+    const otherLocales: {
+      code: string;
+      storageStatus: Record<string, string>;
+    }[] = [
+      { code: "fr", storageStatus: fr.storageStatus },
+      { code: "de", storageStatus: de.storageStatus },
+      { code: "it", storageStatus: it.storageStatus },
+      { code: "es", storageStatus: es.storageStatus },
+    ];
+
+    for (const { code, storageStatus } of otherLocales) {
+      expect(storageStatus.volumesCount_one, `${code} volumesCount_one`).toBe(
+        enVolumes.one,
+      );
+      expect(
+        storageStatus.volumesCount_other,
+        `${code} volumesCount_other`,
+      ).toBe(enVolumes.other);
+    }
+
+    // jaはvolumesCount_one非保持（既存の複数形カテゴリ差異許容仕様）が、_otherはenと一致すること
+    expect(ja.storageStatus.volumesCount_other).toBe(enVolumes.other);
+  });
 });
 
 describe("i18n language persistence (coat-codex:lang)", () => {
@@ -280,8 +363,23 @@ describe("i18n language persistence (coat-codex:lang)", () => {
   });
 
   test("localStorageの値が不正な言語コードの場合はja（既定）にフォールバックする", async () => {
-    window.localStorage.setItem(LANG_STORAGE_KEY, "fr");
+    window.localStorage.setItem(LANG_STORAGE_KEY, "zz");
     const { default: i18next } = await import("./index");
     expect(i18next.language).toBe("ja");
+  });
+
+  test("localStorageが「fr」の場合はfrで初期化復元する（frは正規言語）", async () => {
+    window.localStorage.setItem(LANG_STORAGE_KEY, "fr");
+    const { default: i18next } = await import("./index");
+    expect(i18next.language).toBe("fr");
+  });
+
+  test("6言語すべてchangeLanguageで永続化される", async () => {
+    const { default: i18next } = await import("./index");
+    const codes: SupportedLang[] = ["ja", "en", "fr", "de", "it", "es"];
+    for (const code of codes) {
+      await i18next.changeLanguage(code);
+      expect(window.localStorage.getItem(LANG_STORAGE_KEY)).toBe(code);
+    }
   });
 });

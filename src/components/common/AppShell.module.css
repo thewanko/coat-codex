@@ -62,7 +62,11 @@
   white-space: nowrap;
 }
 
-.tagline:lang(en) {
+.tagline:lang(en),
+.tagline:lang(fr),
+.tagline:lang(de),
+.tagline:lang(it),
+.tagline:lang(es) {
   letter-spacing: normal;
   text-indent: 0;
 }
