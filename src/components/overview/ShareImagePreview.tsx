@@ -172,7 +172,9 @@ function ShareImagePreview({
                   onDownload(index);
                 }}
               >
-                <span aria-hidden="true">⭳</span>
+                {/* U+2193の素の下矢印を使う（装飾グリフU+2B73はiOSフォント未収録で
+                    豆腐/バーガー状の代替表示になる実機報告あり 2026-07-04） */}
+                <span aria-hidden="true">↓</span>
               </button>
             </label>
           );
