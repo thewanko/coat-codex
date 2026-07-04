@@ -95,6 +95,35 @@ vi.mock("../components/overview/PartCardList", () => ({
 
 import { loadRecipe, saveRecipe } from "../db/recipeStore";
 
+type MatchMediaListener = (event: MediaQueryListEvent) => void;
+
+// mockMatchMedia: window.matchMedia("(min-width: 768px)")をmatches固定でスタブする
+// 共有ヘルパ（PC/モバイル判定・bodyスクロールロックのchange購読テストで共用。
+// review L4: 従来は2つのdescribeで重複定義されていたためファイルスコープへ集約）。
+function mockMatchMedia(matches: boolean) {
+  const listeners = new Set<MatchMediaListener>();
+  const mql: Partial<MediaQueryList> = {
+    matches,
+    media: "(min-width: 768px)",
+    addEventListener: (
+      _type: string,
+      listener: EventListenerOrEventListenerObject,
+    ) => {
+      listeners.add(listener as MatchMediaListener);
+    },
+    removeEventListener: (
+      _type: string,
+      listener: EventListenerOrEventListenerObject,
+    ) => {
+      listeners.delete(listener as MatchMediaListener);
+    },
+  };
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn().mockImplementation(() => mql as MediaQueryList),
+  );
+}
+
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
     schemaVersion: 1,
@@ -368,32 +397,6 @@ describe("RecipeOverviewPage — 戻るリンク", () => {
 });
 
 describe("RecipeOverviewPage — bodyスクロール固定の前値復元（M8 T44レビューRound1 #3）", () => {
-  type Listener = (event: MediaQueryListEvent) => void;
-
-  function mockMatchMedia(matches: boolean) {
-    const listeners = new Set<Listener>();
-    const mql: Partial<MediaQueryList> = {
-      matches,
-      media: "(min-width: 768px)",
-      addEventListener: (
-        _type: string,
-        listener: EventListenerOrEventListenerObject,
-      ) => {
-        listeners.add(listener as Listener);
-      },
-      removeEventListener: (
-        _type: string,
-        listener: EventListenerOrEventListenerObject,
-      ) => {
-        listeners.delete(listener as Listener);
-      },
-    };
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn().mockImplementation(() => mql as MediaQueryList),
-    );
-  }
-
   afterEach(() => {
     vi.unstubAllGlobals();
     document.body.style.overflow = "";
@@ -415,6 +418,107 @@ describe("RecipeOverviewPage — bodyスクロール固定の前値復元（M8 T
     unmount();
 
     expect(document.body.style.overflow).toBe("scroll");
+  });
+});
+
+describe("RecipeOverviewPage — panelOpenクラス付与とモバイルのスクロール位置対応（フルページ化バグ修正）", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    // review L3: window.scrollYはObject.definePropertyで上書きしたスタブのため、
+    // 他テストへの汚染を防ぐためテスト後に元のプロパティ（jsdomデフォルト）へ戻す。
+    delete (window as { scrollY?: number }).scrollY;
+  });
+
+  test("子ルート表示中は背面Overviewの.rootにpanelOpenクラスが付与され、閉じると外れる", async () => {
+    mockMatchMedia(true);
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    renderPage("/recipe/rcp_1/part/part_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("パーツ編集画面")).toBeInTheDocument();
+    });
+    expect(document.querySelector('[class*="panelOpen"]')).toBeInTheDocument();
+  });
+
+  test("子ルートを開いていない状態ではpanelOpenクラスが付与されない", async () => {
+    mockMatchMedia(true);
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("テストレシピ")).toBeInTheDocument();
+    });
+    expect(
+      document.querySelector('[class*="panelOpen"]'),
+    ).not.toBeInTheDocument();
+  });
+
+  test("isLoading分岐でも子ルート表示中はpanelOpenクラスが付与される", async () => {
+    mockMatchMedia(true);
+    vi.mocked(loadRecipe).mockImplementation(() => new Promise(() => {}));
+    renderPage("/recipe/rcp_1/part/part_1");
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[class*="panelOpen"]'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("モバイル（matches:false）でパネルを開くとscrollTo(0, 0)が呼ばれ、閉じると退避位置へ復元される", async () => {
+    // #1修正（実機検証で検出）: scrollYの退避はパネルを開くクリックハンドラ内
+    // （navigate直前＝DOM変更前）で行うため、直接URLアクセス（初回マウント）ではなく
+    // Overview表示中にopen-part-1をクリックしてパネルを開く手順で検証する必要がある
+    // （effect実行時点で読むと`.panelOpen{display:none}`適用後でscrollYが0にクランプ
+    // 済みのため、退避値が常に0になり閉時復元がno-opになる不具合の再発防止）。
+    mockMatchMedia(false);
+    const scrollToSpy = vi
+      .spyOn(window, "scrollTo")
+      .mockImplementation(() => {});
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    const { unmount } = renderPage("/recipe/rcp_1");
+
+    await screen.findByTestId("part-card-list-stub");
+    Object.defineProperty(window, "scrollY", {
+      value: 240,
+      configurable: true,
+    });
+    fireEvent.click(screen.getByText("open-part-1"));
+
+    await waitFor(() => {
+      expect(screen.getByText("パーツ編集画面")).toBeInTheDocument();
+    });
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 0);
+
+    unmount();
+
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 240);
+    scrollToSpy.mockRestore();
+  });
+
+  test("PC（matches:true）ではパネル開閉でscrollToが呼ばれない", async () => {
+    mockMatchMedia(true);
+    const scrollToSpy = vi
+      .spyOn(window, "scrollTo")
+      .mockImplementation(() => {});
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    const { unmount } = renderPage("/recipe/rcp_1/part/part_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("パーツ編集画面")).toBeInTheDocument();
+    });
+    expect(scrollToSpy).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(scrollToSpy).not.toHaveBeenCalled();
+    scrollToSpy.mockRestore();
   });
 });
 
