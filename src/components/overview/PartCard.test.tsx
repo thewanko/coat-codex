@@ -5,8 +5,9 @@ import "../../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "../../models/recipe";
 import PartCard from "./PartCard";
+import { resolveSwatchHexes } from "./partSwatch";
 
 type RecipePart = RecipeDoc["parts"][number];
 
@@ -34,6 +35,20 @@ function makePart(overrides: Partial<RecipePart> & { id: string }): RecipePart {
   return {
     name: "パーツ",
     steps: [],
+    ...overrides,
+  };
+}
+
+function makeColor(
+  overrides: Partial<PaletteColor> & { id: string },
+): PaletteColor {
+  return {
+    source: "custom",
+    brand: null,
+    name: "色",
+    presetId: null,
+    hex: "#000000",
+    chipPhotoId: null,
     ...overrides,
   };
 }
@@ -208,5 +223,138 @@ describe("PartCard — order省略（BASEカード用途）", () => {
     ).not.toBeInTheDocument();
     expect(card).toBeInTheDocument();
     expect(screen.getByText("ベース工程（全体）")).toBeInTheDocument();
+  });
+});
+
+describe("resolveSwatchHexes — モバイル2段目スウォッチ解決（純関数）", () => {
+  test("0色: 工程にpaintsがなければ空配列・overflow 0を返す", () => {
+    const steps = [makeStep({ id: "stp_1" })];
+    expect(resolveSwatchHexes(steps, [])).toEqual({
+      hexes: [],
+      overflowCount: 0,
+    });
+  });
+
+  test("重複除去: 複数工程に同じcolorIdが出現しても初出のみ1件にまとめる", () => {
+    const steps = [
+      makeStep({ id: "stp_1", paints: [{ colorId: "col_a" }] }),
+      makeStep({
+        id: "stp_2",
+        paints: [{ colorId: "col_a" }, { colorId: "col_b" }],
+      }),
+    ];
+    const palette = [
+      makeColor({ id: "col_a", hex: "#111111" }),
+      makeColor({ id: "col_b", hex: "#222222" }),
+    ];
+    expect(resolveSwatchHexes(steps, palette)).toEqual({
+      hexes: ["#111111", "#222222"],
+      overflowCount: 0,
+    });
+  });
+
+  test("8色ちょうど: 上限8件は全て表示しoverflowCountは0", () => {
+    const steps = [
+      makeStep({
+        id: "stp_1",
+        paints: Array.from({ length: 8 }, (_, i) => ({
+          colorId: `col_${i}`,
+        })),
+      }),
+    ];
+    const palette = Array.from({ length: 8 }, (_, i) =>
+      makeColor({ id: `col_${i}`, hex: `#00000${i}` }),
+    );
+    const result = resolveSwatchHexes(steps, palette);
+    expect(result.hexes).toHaveLength(8);
+    expect(result.overflowCount).toBe(0);
+  });
+
+  test("9色: 9件目以降は表示せずoverflowCountに繰り込む", () => {
+    const steps = [
+      makeStep({
+        id: "stp_1",
+        paints: Array.from({ length: 9 }, (_, i) => ({
+          colorId: `col_${i}`,
+        })),
+      }),
+    ];
+    const palette = Array.from({ length: 9 }, (_, i) =>
+      makeColor({ id: `col_${i}`, hex: `#00000${i}` }),
+    );
+    const result = resolveSwatchHexes(steps, palette);
+    expect(result.hexes).toHaveLength(8);
+    expect(result.overflowCount).toBe(1);
+  });
+
+  test("palette不在混在: paletteに存在しないcolorId・hexがnullのcolorIdはスキップして数えない", () => {
+    const steps = [
+      makeStep({
+        id: "stp_1",
+        paints: [
+          { colorId: "col_missing" },
+          { colorId: "col_a" },
+          { colorId: "col_null_hex" },
+        ],
+      }),
+    ];
+    const palette = [
+      makeColor({ id: "col_a", hex: "#333333" }),
+      makeColor({ id: "col_null_hex", hex: null }),
+    ];
+    expect(resolveSwatchHexes(steps, palette)).toEqual({
+      hexes: ["#333333"],
+      overflowCount: 0,
+    });
+  });
+});
+
+describe("PartCard — モバイル2段目スウォッチ表示", () => {
+  test("paletteから解決できる色があればswatch-rowを描画する", () => {
+    const part = makePart({
+      id: "part_1",
+      steps: [
+        makeStep({ id: "stp_1", paints: [{ colorId: "col_a" }], mix: null }),
+      ],
+    });
+    const palette = [makeColor({ id: "col_a", hex: "#445566" })];
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        palette={palette}
+        onOpen={vi.fn()}
+        onReview={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("part-swatch-row")).toBeInTheDocument();
+  });
+
+  test("使用色0件（工程なし等）ではswatch-rowを描画しない", () => {
+    const part = makePart({ id: "part_1", steps: [] });
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        palette={[]}
+        onOpen={vi.fn()}
+        onReview={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId("part-swatch-row")).not.toBeInTheDocument();
+  });
+
+  test("palette prop省略時もクラッシュせずswatch-rowを描画しない（既存呼び出し互換）", () => {
+    const part = makePart({
+      id: "part_1",
+      steps: [makeStep({ id: "stp_1", paints: [{ colorId: "col_a" }] })],
+    });
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
+
+    expect(screen.queryByTestId("part-swatch-row")).not.toBeInTheDocument();
   });
 });

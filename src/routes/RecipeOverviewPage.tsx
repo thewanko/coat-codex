@@ -260,6 +260,7 @@ function RecipeOverviewPage() {
           ) : (
             <PartCard
               part={basePart}
+              palette={doc.palette}
               onOpen={handleOpenBase}
               onReview={handleReviewBase}
             />
@@ -270,6 +271,7 @@ function RecipeOverviewPage() {
           <h2 className={styles.partsHeading}>{t("overview.partsHeading")}</h2>
           <PartCardList
             parts={doc.parts}
+            palette={doc.palette}
             onOpen={handleOpenPart}
             onReview={handleReviewPart}
             onReorder={handleReorderParts}

@@ -34,6 +34,7 @@ export type RecipePart = RecipeDoc["parts"][number];
 
 interface PartCardListProps {
   parts: RecipePart[];
+  palette: RecipeDoc["palette"];
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
   onReorder: (nextParts: RecipePart[]) => void;
@@ -45,6 +46,7 @@ interface SortablePartCardProps {
   order: number;
   index: number;
   total: number;
+  palette: RecipeDoc["palette"];
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
   onMoveUp: () => void;
@@ -56,6 +58,7 @@ function SortablePartCard({
   order,
   index,
   total,
+  palette,
   onOpen,
   onReview,
   onMoveUp,
@@ -112,6 +115,7 @@ function SortablePartCard({
         <PartCard
           part={part}
           order={order}
+          palette={palette}
           onOpen={onOpen}
           onReview={onReview}
         />
@@ -122,6 +126,7 @@ function SortablePartCard({
 
 function PartCardList({
   parts,
+  palette,
   onOpen,
   onReview,
   onReorder,
@@ -190,6 +195,7 @@ function PartCardList({
                 order={index + 1}
                 index={index}
                 total={parts.length}
+                palette={palette}
                 onOpen={onOpen}
                 onReview={onReview}
                 onMoveUp={() => moveItem(index, -1)}

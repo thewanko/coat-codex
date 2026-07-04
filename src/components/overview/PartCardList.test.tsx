@@ -44,6 +44,7 @@ function renderList(
   render(
     <PartCardList
       parts={parts}
+      palette={[]}
       onOpen={onOpen}
       onReview={onReview}
       onReorder={onReorder}

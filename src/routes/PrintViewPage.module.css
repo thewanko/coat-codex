@@ -13,9 +13,36 @@
   text-align: center;
 }
 
+/* モバイル自動スケール（実機フィードバック対応）: 紙面(794px固定)をビューポート幅に
+   合わせて縮小表示するラッパー。倍率はPrintViewPage.tsxがJSで算出しCSSカスタム
+   プロパティ --print-scale として注入する（Safari非互換のcalc(vw/px)除算は使わない）。
+   ラッパーのheightはtransform: scaleがレイアウトサイズを変えないためJS側で実測補正する。 */
+.scaleWrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.scaleInner {
+  /* flow-root: 子.sheetの上下margin(32px)がmargin相殺でscrollHeight計測から漏れ、
+     ラッパー高さが約64px×倍率だけ不足して紙面下端が切れるのを防ぐ（BFC化で相殺停止） */
+  display: flow-root;
+  transform: scale(var(--print-scale, 1));
+  transform-origin: top center;
+}
+
 @media print {
   .root {
     min-height: 0;
     background: #ffffff;
+  }
+
+  .scaleWrapper {
+    width: auto;
+    height: auto !important;
+    overflow: visible;
+  }
+
+  .scaleInner {
+    transform: none;
   }
 }

@@ -21,6 +21,12 @@
 //
 // 2026-07-03: order propを省略可能にした（BASEカード=RecipeOverviewPage直下の合成part表示で
 // 番号セルを出さないため。SortableContext外で使う場合に対応。他の意匠・ロジックは不変）。
+//
+// 2026-07-04: モバイル幅（<768px）3段組化（ユーザー実機フィードバック対応）。1段目=名前フル幅、
+// 2段目=使用カラーの四角スウォッチ横並び（partSwatch.tsのresolveSwatchHexes参照）、3段目=工程数＋
+// 工程レビューボタン。混合バッジ・警告バッジはモバイルではCSS非表示（DOM構造は共通のまま）。
+// PC幅は現状レイアウトを変更しない。paletteは新規propで受け取る。スウォッチ解決ロジックは
+// react-refresh/only-export-components対応のためpartSwatch.tsへ分離（exportSheetDrag.tsに倣う）。
 
 import { useEffect, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
@@ -29,6 +35,7 @@ import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import Skeleton from "../common/Skeleton";
 import type { RecipeDoc, Step } from "../../models/recipe";
+import { resolveSwatchHexes } from "./partSwatch";
 import styles from "./PartCard.module.css";
 
 export type RecipePart = RecipeDoc["parts"][number];
@@ -36,6 +43,7 @@ export type RecipePart = RecipeDoc["parts"][number];
 interface PartCardProps {
   part: RecipePart;
   order?: number;
+  palette?: RecipeDoc["palette"];
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
 }
@@ -55,13 +63,21 @@ function findThumbStep(steps: Step[]): ThumbStepInfo | null {
   return null;
 }
 
-function PartCard({ part, order, onOpen, onReview }: PartCardProps) {
+function PartCard({
+  part,
+  order,
+  palette = [],
+  onOpen,
+  onReview,
+}: PartCardProps) {
   const { t } = useTranslation();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoLoading, setPhotoLoading] = useState(false);
 
   const thumbInfo = findThumbStep(part.steps);
   const thumbPhotoId = thumbInfo?.step.photoId ?? null;
+  const { hexes: swatchHexes, overflowCount: swatchOverflowCount } =
+    resolveSwatchHexes(part.steps, palette);
 
   useEffect(() => {
     if (!thumbPhotoId) {
@@ -141,12 +157,24 @@ function PartCard({ part, order, onOpen, onReview }: PartCardProps) {
       )}
 
       <span className={styles.body}>
-        <span className={styles.titleRow}>
-          <span className={styles.name}>{part.name}</span>
-          <span className={styles.stepsCount}>
-            {t("overview.partStepsCount", { count: part.steps.length })}
+        <span className={styles.name}>{part.name}</span>
+        {swatchHexes.length > 0 && (
+          <span className={styles.swatchRow} data-testid="part-swatch-row">
+            {swatchHexes.map((hex, index) => (
+              <span
+                key={`${hex}-${index}`}
+                className={styles.swatchChip}
+                style={{ backgroundColor: hex }}
+                aria-hidden="true"
+              />
+            ))}
+            {swatchOverflowCount > 0 && (
+              <span className={styles.swatchOverflow}>
+                +{swatchOverflowCount}
+              </span>
+            )}
           </span>
-        </span>
+        )}
         {(badgeText || showTotalWarning) && (
           <span className={styles.badgeRow}>
             {badgeText && <span className={styles.mixBadge}>{badgeText}</span>}
@@ -157,6 +185,9 @@ function PartCard({ part, order, onOpen, onReview }: PartCardProps) {
             )}
           </span>
         )}
+        <span className={styles.stepsCount}>
+          {t("overview.partStepsCount", { count: part.steps.length })}
+        </span>
       </span>
 
       <button
