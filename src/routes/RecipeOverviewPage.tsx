@@ -59,6 +59,12 @@ function RecipeOverviewPage() {
   // （backdropはマウス操作をカバーするが、inertがないとTab移動等で背面要素に届いてしまう）。
   const isPanelOpen = useMatch("/recipe/:id/part/*") !== null;
   const contentRef = useRef<HTMLDivElement | null>(null);
+  // パネルを開くnavigate直前のscrollYを退避するref（DOM変更前に読む必要がある。下記
+  // スクロールeffect参照）。直接URLアクセスでの初回マウント時は初期値0のままでよい
+  // （その場合は閉じてもscrollTo(0, 0)になるだけで実害なし)。
+  // 退避の更新はハンドラ経由の開経路（handleOpenPart/handleOpenBase/handleAddPart）のみ。
+  // ブラウザForward等クリックを伴わない再入では前回値のまま復元される（稀・位置ズレのみ）。
+  const scrollYBeforePanelRef = useRef(0);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -72,6 +78,10 @@ function RecipeOverviewPage() {
     }
     // セット前の値を退避し、クリーンアップで無条件上書きせず復元する
     // （M8 T44レビューRound1 #3。他機能がbody.style.overflowを操作している場合の巻き戻り防止）。
+    // 本effectはmatchMediaのchangeを購読し、リサイズによるPC/モバイル切替に追従する。
+    // 一方、下記のモバイル用スクロール位置effectは開時のモバイル判定を固定し追従しない。
+    // 両者の目的が異なる（前者はロック状態の一貫性維持、後者はスクロール退避元の一意性
+    // 確保）ための意図的な非対称であり、統一する必要はない。
     const previousOverflow = document.body.style.overflow;
     const mediaQuery = window.matchMedia("(min-width: 768px)");
     function applyBodyScrollLock() {
@@ -84,6 +94,33 @@ function RecipeOverviewPage() {
     return () => {
       mediaQuery.removeEventListener("change", applyBodyScrollLock);
       document.body.style.overflow = previousOverflow;
+    };
+  }, [isPanelOpen]);
+
+  useEffect(() => {
+    if (!isPanelOpen || typeof window.matchMedia !== "function") {
+      return;
+    }
+    // モバイル（<768px）はパネルではなくフルページ差し替えのため、背面Overviewの
+    // スクロール位置が残っているとパネルが途中位置から開いて見える不具合を防ぐ
+    // （§3.1「モバイル＝フルページ」）。開時に先頭へ寄せ、閉時に退避位置へ戻す。
+    // モバイル判定は開時の幅で固定する（CSS側の`.panelOpen{display:none}`は現在幅に
+    // 追従する非対称な設計）。PC幅で開いた後にモバイル幅へリサイズしてから閉じた場合は
+    // 退避位置へ復元しないが、復元先のOverviewはモバイル幅では非表示のため実害はない。
+    // なお、直上のbody scroll lock effectはmatchMediaのchangeを購読して追従するのに対し、
+    // 本effectは追従しない。これは意図的な非対称であり、「統一しよう」として本effectに
+    // change購読を足す修正はしないこと。
+    const isMobile = !window.matchMedia("(min-width: 768px)").matches;
+    if (!isMobile) {
+      return;
+    }
+    // scrollYの退避はここではなく、パネルを開く各ハンドラ（handleOpenPart等）でnavigate
+    // 直前に行う。ここで読むと、このeffect実行時点で`.panelOpen{display:none}`が既に
+    // DOMへコミット済みで文書高が縮み、window.scrollYが0へクランプされた後になるため
+    // （実機検証で確認済み: 開前819.5→この時点で0）。
+    window.scrollTo(0, 0);
+    return () => {
+      window.scrollTo(0, scrollYBeforePanelRef.current);
     };
   }, [isPanelOpen]);
 
@@ -142,10 +179,14 @@ function RecipeOverviewPage() {
   // 対象に含める（M8 T44レビューRound1 #4）。#1修正により通常のパネル開閉ではloadが親でしか
   // 走らずisLoadingへ落ちる主経路は消えるが、初回ロードや直接URLアクセス直後は依然この分岐を
   // 通るため、防御としてOutlet（パネル）とは兄弟関係に保ったまま対応する。
+  const rootClassName = isPanelOpen
+    ? `${styles.root} ${styles.panelOpen}`
+    : styles.root;
+
   if (isLoading) {
     return (
       <>
-        <div className={styles.root} ref={contentRef}>
+        <div className={rootClassName} ref={contentRef}>
           <Skeleton variant="card" />
         </div>
         <Outlet />
@@ -156,7 +197,7 @@ function RecipeOverviewPage() {
   if (loadError !== null) {
     return (
       <>
-        <div className={styles.root} ref={contentRef}>
+        <div className={rootClassName} ref={contentRef}>
           <p className={styles.error}>{t("setup.loadError")}</p>
         </div>
         <Outlet />
@@ -167,7 +208,7 @@ function RecipeOverviewPage() {
   if (doc === null) {
     return (
       <>
-        <div className={styles.root} ref={contentRef}>
+        <div className={rootClassName} ref={contentRef}>
           <p className={styles.error}>{t("setup.notFound")}</p>
         </div>
         <Outlet />
@@ -176,6 +217,7 @@ function RecipeOverviewPage() {
   }
 
   function handleOpenPart(partId: string) {
+    scrollYBeforePanelRef.current = window.scrollY;
     navigate(`/recipe/${id}/part/${partId}`);
   }
 
@@ -184,6 +226,7 @@ function RecipeOverviewPage() {
   }
 
   function handleOpenBase() {
+    scrollYBeforePanelRef.current = window.scrollY;
     navigate(`/recipe/${id}/part/base`);
   }
 
@@ -200,6 +243,7 @@ function RecipeOverviewPage() {
       ...current,
       parts: [...current.parts, part],
     }));
+    scrollYBeforePanelRef.current = window.scrollY;
     navigate(`/recipe/${id}/part/${part.id}`);
   }
 
@@ -233,7 +277,7 @@ function RecipeOverviewPage() {
   // inertが誤ってパネル自身を無効化しないようにする（§3.1・T44）。
   return (
     <>
-      <div className={styles.root} ref={contentRef}>
+      <div className={rootClassName} ref={contentRef}>
         <BackLink to="/" label={t("nav.backToLibrary")} />
 
         <h1 className={styles.title}>{doc.title}</h1>
