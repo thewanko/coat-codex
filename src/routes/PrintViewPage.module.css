@@ -27,7 +27,11 @@
      ラッパー高さが約64px×倍率だけ不足して紙面下端が切れるのを防ぐ（BFC化で相殺停止） */
   display: flow-root;
   transform: scale(var(--print-scale, 1));
-  transform-origin: top center;
+  /* origin は top left にする（top center は不可）: 縮小が必要な幅では .sheet(794px固定)が
+     親より広く margin:auto が0に解決されて左寄せになるため、中央origin だと左右均等に
+     縮んで右端がはみ出す（例: 620px幅で右68px切れ）。左origin なら 794×scale=利用可能幅
+     ちょうどに収まる。等倍(scale=1)時は transform が実質無効で margin:auto の中央配置が生きる */
+  transform-origin: top left;
 }
 
 @media print {
