@@ -3,11 +3,13 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: 多言語対応 fr/de/it/es → PR作成)
+最終更新: 2026-07-05 (loop: 多言語対応 fr/de/it/es → PR #23)
 
 ## 完了
 
-- 2026-07-05: **多言語対応 fr/de/it/es（計画§7バックログ・v1後初タスク）**（PR: impl/i18n-fr-de-it-es） — ①`locales/{fr,de,it,es}.json` 新規4ファイル（各252キー・en同一構造。翻訳=Sonnet impl並列2委譲＋opusレビュー校正。**意匠キーはja/en値一致=据え置きの機械ルール**で全言語共通維持・techniques.*は各言語のミニチュアペイント標準用語・**terms.* 19キーとfooter.trademarkNoticeは英語流用**=法的文面のユーザー裁定）②LanguageSwitcher 2セグメント→**カスタムドロップダウン**（ユーザー裁定。listbox パターン・roving focus・↑↓円環・Escape/外側クリック/確定の3閉経路すべてでトリガーへフォーカス復帰・z:10でヘッダー文脈内完結）③i18n.test.ts全6ロケール一般化（「fr=不正コード」テストを"zz"へ・terms英語逐語一致とvolumesCount据え置きの固定化アサーション新設）④vite.config.tsにvitest exclude `**/.claude/**` 追加（**残骸worktreeの二重テスト実行を発見・修正**。stoic-wing worktreeは進行中チップの作業ツリーのため削除せず）。レビューR1 PASS(M1=fr/de STEPタグ翻訳逸脱/L2)→glue修正→R2 PASS(L1=sed置換が導入したfrエリジオン崩れ`de l'STEP`→`du STEP`修正)→**出口実機検証が静的レビュー不可視の実バグ2件を検出**: (a)和文glossトラッキング解除の`:lang(en)`特例が新4言語未カバー→**ドイツ語375pxでヘッダー471pxへ膨張**（Grep横断で3ファイル`:lang`5言語列挙化: AppShell tagline/HomePage heroGloss/ImportJsonSection dividerLabel）(b)it/es app.tagline未翻訳（en文面コピー）→R3 PASS(**C0/H0/M0/L0**・翻訳漏れ横断再検査で残存なし確認)。実機検証: 375/768/1280×ドロップダウン全ヒットテスト・6言語切替（gloss/複数形/documentElement.lang/リロード永続化）・fr Terms英語文面・ドイツ語Home/Overview/印刷ビュー（黒狼実データ・スクリーンショット証跡）。計983テスト。**ユーザー実機確認待ち**
+- 2026-07-05: **多言語対応 fr/de/it/es（計画§7バックログ・v1後初タスク）**（PR #23: impl/i18n-fr-de-it-es） — ①`locales/{fr,de,it,es}.json` 新規4ファイル（各252キー・en同一構造。翻訳=Sonnet impl並列2委譲＋opusレビュー校正。**意匠キーはja/en値一致=据え置きの機械ルール**で全言語共通維持・techniques.*は各言語のミニチュアペイント標準用語・**terms.* 19キーとfooter.trademarkNoticeは英語流用**=法的文面のユーザー裁定）②LanguageSwitcher 2セグメント→**カスタムドロップダウン**（ユーザー裁定。listbox パターン・roving focus・↑↓円環・Escape/外側クリック/確定の3閉経路すべてでトリガーへフォーカス復帰・z:10でヘッダー文脈内完結）③i18n.test.ts全6ロケール一般化（「fr=不正コード」テストを"zz"へ・terms英語逐語一致とvolumesCount据え置きの固定化アサーション新設）④vite.config.tsにvitest exclude `**/.claude/**` 追加（**残骸worktreeの二重テスト実行を発見・修正**。stoic-wing worktreeは進行中チップの作業ツリーのため削除せず）。レビューR1 PASS(M1=fr/de STEPタグ翻訳逸脱/L2)→glue修正→R2 PASS(L1=sed置換が導入したfrエリジオン崩れ`de l'STEP`→`du STEP`修正)→**出口実機検証が静的レビュー不可視の実バグ2件を検出**: (a)和文glossトラッキング解除の`:lang(en)`特例が新4言語未カバー→**ドイツ語375pxでヘッダー471pxへ膨張**（Grep横断で3ファイル`:lang`5言語列挙化: AppShell tagline/HomePage heroGloss/ImportJsonSection dividerLabel）(b)it/es app.tagline未翻訳（en文面コピー）→R3 PASS(**C0/H0/M0/L0**・翻訳漏れ横断再検査で残存なし確認)。実機検証: 375/768/1280×ドロップダウン全ヒットテスト・6言語切替（gloss/複数形/documentElement.lang/リロード永続化）・fr Terms英語文面・ドイツ語Home/Overview/印刷ビュー（黒狼実データ・スクリーンショット証跡）。計983テスト。**ユーザー実機確認待ち**
+
+- 2026-07-05: **PartReviewDialog編集LinkのonClose未呼び修正**（PR #22: claude/stoic-wing-64b1df。PR #20レビューM2残件） — 「このパーツを編集」Linkが onClose を呼ばずに遷移するため RecipeOverviewPage の reviewTarget が残存し、モバイルではダイアログが `.panelOpen` の display:none 配下に隠れたままブラウザバックで再出現していた。修正=Link に `onClick={onClose}` 追加の1行（遷移は Link のまま・preventDefault なし）＋回帰テスト1件（編集Linkクリックで onClose 1回）。レビューR1 PASS（C0/H0/M0/L0。base モードも同一 Link で解消・useFocusTrap 復帰は document.contains ガードで無干渉を確認済み）。実機検証: 375px/1280px 両幅で編集Linkヒットテスト→実座標クリック→遷移時ダイアログ消滅→ブラウザバック後の非再出現＋Overview 操作可を確認。4ゲート exit 0・計980テスト
 
 - 2026-07-04: **印刷プレビューのモバイル右端切れ修正**（PR #21: fix/print-preview-mobile-clip） — ユーザーiPhone実機報告（T43③確認中）。原因=`.scaleInner`の`transform-origin: top center`が「紙面事前中央配置」前提だが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0解決→左寄せ→中央origin縮小で右へずれ右端切れ（620pxで68px・FB-D導入時から常時）。修正=`top left`へ1行変更（縮小時794×scale=利用可能幅ぴったり・等倍時はmargin:auto中央配置が生き広幅不変・@media printはtransform:noneのまま無影響）。前例（M6 z-index glue）に倣い検証起因1行修正としてセッションglue適用。実機検証: 375px/620px完全収容＋右端視認可・1280px等倍中央。FB-D出口検証が「縮小の適用」のみ見て「右端の収まり」を見ていなかった=検証の深さ不足の再発。計979テスト。**PR #21マージ済み・ユーザー実機で解消確認済み（2026-07-04）。T43①②も同日ユーザー実機でOK確認済み**
 
@@ -44,7 +46,7 @@
 
 ## 進行中
 
-- PartReviewDialog編集LinkのonClose未呼び（レビューM2）: セッションチップとして別タスク起票済み（未着手）
+- なし（PartReviewDialog編集LinkのonClose未呼びは2026-07-05修正完了・上記「完了」参照）
 
 ## 次の候補 (優先順)
 

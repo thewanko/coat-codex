@@ -269,7 +269,7 @@ function PartReviewDialog({
           </div>
 
           <div className={styles.footer}>
-            <Link to={editHref} className={styles.editLink}>
+            <Link to={editHref} className={styles.editLink} onClick={onClose}>
               {t("partReview.edit")}
             </Link>
             {!isBaseMode && (
