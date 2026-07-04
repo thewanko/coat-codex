@@ -5,9 +5,14 @@
 // バッジ書式（§2.3）自体の単体検証は src/lib/mixRatio.test.ts の責務とし、ここでは
 // 出力ドキュメント全体の構造（見出し・箇条書き・警告併記・写真有無・自由入力技法等）を検証する。
 
-import { describe, expect, test } from "vitest";
+import "../src/i18n";
+import { beforeAll, describe, expect, test } from "vitest";
+import i18next from "../src/i18n";
 import { recipeDocSchema } from "../src/models/recipe";
-import { exportRecipeToMarkdown } from "../src/lib/exporters/markdown";
+import {
+  buildMarkdownLabels,
+  exportRecipeToMarkdown,
+} from "../src/lib/exporters/markdown";
 import { exportRecipeToNoteMarkdown } from "../src/lib/exporters/noteMarkdown";
 import {
   createFixtureRecipe,
@@ -20,6 +25,10 @@ import {
   stepSingleColor,
 } from "./fixtures/recipe";
 
+beforeAll(() => {
+  void i18next.changeLanguage("ja");
+});
+
 describe("フィクスチャの妥当性", () => {
   test("createFixtureRecipe()はrecipeDocSchemaを通過する（不変条件を満たす）", () => {
     const result = recipeDocSchema.safeParse(createFixtureRecipe());
@@ -31,6 +40,33 @@ describe("exportRecipeToMarkdown", () => {
   test("代表フィクスチャのスナップショット", () => {
     const recipe = createFixtureRecipe();
     expect(exportRecipeToMarkdown(recipe)).toMatchSnapshot();
+  });
+
+  test("印刷ビュー同構造: 概要行（全N工程・Nパーツ ・ 更新日）を含む（2026-07-04 FB-F）", () => {
+    const recipe = createFixtureRecipe();
+    const output = exportRecipeToMarkdown(recipe);
+    expect(output).toContain("全7工程・2パーツ ・ 2026-07-02");
+  });
+
+  test("印刷ビュー同構造: PALETTE見出し配下は色名・ブランド・hexで構成される", () => {
+    const recipe = createFixtureRecipe();
+    const output = exportRecipeToMarkdown(recipe);
+    expect(output).toContain("## PALETTE — 使用カラー");
+    expect(output).toContain("- Mephiston Red（Citadel） ・ #960F0F");
+  });
+
+  test("印刷ビュー同構造: PARTはローマ数字見出し（PART I・PART II）で構成される", () => {
+    const recipe = createFixtureRecipe();
+    const output = exportRecipeToMarkdown(recipe);
+    expect(output).toContain("## PART I — 頭部（2工程）");
+    expect(output).toContain("## PART II — 胴体（3工程）");
+  });
+
+  test("印刷ビュー同構造: 工程は番号付きリストで構成される", () => {
+    const recipe = createFixtureRecipe();
+    const output = exportRecipeToMarkdown(recipe);
+    expect(output).toContain("1. ベースコート");
+    expect(output).toContain("2. ドライブラシ");
   });
 
   test("混色・合計100・約分可能はformatMixBadgeの比率併記書式を含む", () => {
@@ -138,7 +174,30 @@ describe("exportRecipeToMarkdown", () => {
     const recipe = createFixtureRecipe();
     const output = exportRecipeToMarkdown(recipe);
     expect(output).toContain("# Space Marine Captain");
-    expect(output).toContain("- Citadel Mephiston Red");
+    expect(output).toContain("Citadel Mephiston Red (#960F0F)");
+  });
+
+  // レビューM1対応: DEFAULT_MARKDOWN_LABELS（i18n非経由）のみのテストは本番のi18n経路
+  // （UI層がbuildMarkdownLabels(t)で注入する経路）を検証できていなかった。
+  // buildMarkdownLabels(i18next.t)（ja初期化済み）を注入し、ユーザーが実際に受け取る
+  // MD出力を固定する。
+  describe("本番i18n経路（buildMarkdownLabels(i18next.t)注入）", () => {
+    test("代表フィクスチャのスナップショット（本番i18n経路）", () => {
+      const recipe = createFixtureRecipe();
+      expect(
+        exportRecipeToMarkdown(recipe, buildMarkdownLabels(i18next.t)),
+      ).toMatchSnapshot();
+    });
+
+    test("概要行・見出し・工程行がDEFAULT_MARKDOWN_LABELSと同一形で出力される（stepsMetaの語順はprint.stepsMeta既定・スコープ外）", () => {
+      const recipe = createFixtureRecipe();
+      const output = exportRecipeToMarkdown(recipe, buildMarkdownLabels(i18next.t));
+      expect(output).toContain("全7工程・2パーツ ・ 2026-07-02");
+      expect(output).toContain("## PALETTE — 使用カラー");
+      expect(output).toContain("- Mephiston Red（Citadel） ・ #960F0F");
+      expect(output).toContain("## PART I — 頭部（工程 2）");
+      expect(output).toContain("1. ベースコート");
+    });
   });
 });
 

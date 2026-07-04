@@ -7,14 +7,18 @@
 //
 // JSON: ExportPhotoChoiceDialogで写真あり/なし選択→exportRecipeToBlob→downloadBlob→
 //       成功時にmeta.recipeExport:<recipeId>を更新（§3.5）。
-// 素MD・note MD: exportRecipeToMarkdown/exportRecipeToNoteMarkdown（buildMarkdownLabels/
-//       buildNoteMarkdownLabelsでi18n注入）をnavigator.clipboard.writeTextでコピーし、
-//       非対応・失敗時はファイルDLへフォールバックする。
+// 素MD: exportRecipeToMarkdown（buildMarkdownLabelsでi18n注入）を直接downloadBlobで
+//       .mdファイルとしてDLする（2026-07-04 FB-F: iPhone実機で「クリップボードコピーが
+//       動作していないように見える」フィードバックを受け、クリップボード経路を廃止）。
+// note MD: exportRecipeToNoteMarkdown（buildNoteMarkdownLabelsでi18n注入）を
+//       navigator.clipboard.writeTextでコピーする一本化（DLフォールバックは廃止。2026-07-04
+//       FB-E）。成功時はnoteMdCopied状態を約2秒立てフィードバック用に返す。非対応・失敗時は
+//       fallbackMarkdown/fallbackDialogOpenを立て、呼び出し側が手動コピー用ダイアログを開く。
 // 印刷: /recipe/:id/printへnavigate（保存手順の案内はPrintViewPage側のPrintToolbarが担う。
 //       T36仕様。PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）。
 // X・Bluesky: ShareDialogをmode="whole"・対応するtargetで開く（T40・§3.4手順1）。
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
@@ -32,6 +36,9 @@ import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
 import { useToast } from "../common/toastContext";
 import type { RecipeDoc } from "../../models/recipe";
 import type { ShareDialogContext } from "./ShareDialog";
+
+/** noteMdCopiedのフィードバック表示時間（ms）。約2秒でリセットする */
+const NOTE_MD_COPIED_RESET_MS = 2000;
 
 const X_TARGET = snsTargets.find((target) => target.key === "x");
 const BLUESKY_TARGET = snsTargets.find((target) => target.key === "bluesky");
@@ -55,10 +62,18 @@ export interface UseExportActionsResult {
   exportChoiceOpen: boolean;
   handleChooseJsonExport: (includePhotos: boolean) => void;
   handleCancelJsonExport: () => void;
-  /** 素MDエクスポートボタンのonClick */
+  /** 素MDエクスポートボタンのonClick（.mdファイルへ直接DL） */
   handlePlainMdExport: () => void;
-  /** note MDエクスポートボタンのonClick */
+  /** note MDエクスポートボタンのonClick（クリップボードコピー） */
   handleNoteMdExport: () => void;
+  /** note MDコピー成功直後 約2秒間true（ボタンラベルの「コピーしました ✓」切替用） */
+  noteMdCopied: boolean;
+  /** クリップボードコピー不能時の手動コピーフォールバックダイアログのopen状態 */
+  noteMdFallbackOpen: boolean;
+  /** フォールバックダイアログに表示するnote MD全文（openがfalseの間はnull） */
+  noteMdFallbackMarkdown: string | null;
+  /** フォールバックダイアログを閉じる */
+  handleCloseNoteMdFallback: () => void;
   /** 印刷ボタンのonClick（/recipe/:id/printへnavigate） */
   handlePrint: () => void;
   /** Xボタンのonclick（ShareDialogをwholeコンテキスト・target=xで開く） */
@@ -85,6 +100,22 @@ export function useExportActions(
   const [shareTargetKey, setShareTargetKey] = useState<"x" | "bluesky" | null>(
     null,
   );
+  const [noteMdCopied, setNoteMdCopied] = useState(false);
+  const [noteMdFallbackMarkdown, setNoteMdFallbackMarkdown] = useState<
+    string | null
+  >(null);
+  const copiedResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  // アンマウント時にタイマーを確実にクリアする（cleanup管理）
+  useEffect(() => {
+    return () => {
+      if (copiedResetTimerRef.current !== null) {
+        clearTimeout(copiedResetTimerRef.current);
+      }
+    };
+  }, []);
 
   function handleRequestJsonExport() {
     if (!recipe) return;
@@ -116,22 +147,15 @@ export function useExportActions(
   function handlePlainMdExport() {
     if (!recipe) return;
     const markdown = exportRecipeToMarkdown(recipe, buildMarkdownLabels(t));
-    void (async () => {
-      const copied = await copyTextToClipboard(markdown);
-      if (copied) {
-        toast.success(t("export.markdownCopySuccess"));
-        return;
-      }
-      try {
-        downloadBlob(
-          new Blob([markdown], { type: "text/markdown" }),
-          `${sanitizeFilename(recipe.title)}.md`,
-        );
-        toast.success(t("export.markdownCopySuccess"));
-      } catch {
-        toast.error(t("export.markdownCopyFailed"));
-      }
-    })();
+    try {
+      downloadBlob(
+        new Blob([markdown], { type: "text/markdown" }),
+        `${sanitizeFilename(recipe.title)}.md`,
+      );
+      toast.success(t("export.markdownDownloadSuccess"));
+    } catch {
+      toast.error(t("export.markdownDownloadFailed"));
+    }
   }
 
   function handleNoteMdExport() {
@@ -144,18 +168,24 @@ export function useExportActions(
       const copied = await copyTextToClipboard(markdown);
       if (copied) {
         toast.success(t("export.markdownCopySuccess"));
+        setNoteMdCopied(true);
+        if (copiedResetTimerRef.current !== null) {
+          clearTimeout(copiedResetTimerRef.current);
+        }
+        copiedResetTimerRef.current = setTimeout(() => {
+          setNoteMdCopied(false);
+          copiedResetTimerRef.current = null;
+        }, NOTE_MD_COPIED_RESET_MS);
         return;
       }
-      try {
-        downloadBlob(
-          new Blob([markdown], { type: "text/markdown" }),
-          `${sanitizeFilename(recipe.title)}-note.md`,
-        );
-        toast.success(t("export.markdownCopySuccess"));
-      } catch {
-        toast.error(t("export.markdownCopyFailed"));
-      }
+      // 失敗フィードバックはフォールバックダイアログ自身が担う。エラートーストを併発すると
+      // 二重通知になる上、手動✕まで残存するトースト(z:1000)がモバイルで下のUIのタップを塞ぐ
+      setNoteMdFallbackMarkdown(markdown);
     })();
+  }
+
+  function handleCloseNoteMdFallback() {
+    setNoteMdFallbackMarkdown(null);
   }
 
   function handlePrint() {
@@ -197,6 +227,10 @@ export function useExportActions(
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    noteMdCopied,
+    noteMdFallbackOpen: noteMdFallbackMarkdown !== null,
+    noteMdFallbackMarkdown,
+    handleCloseNoteMdFallback,
     handlePrint,
     handleShareX,
     handleShareBluesky,

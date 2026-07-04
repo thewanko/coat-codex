@@ -19,6 +19,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { RecipeDoc } from "../../models/recipe";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
+import MarkdownCopyFallbackDialog from "../common/MarkdownCopyFallbackDialog";
 import ShareDialog from "./ShareDialog";
 import styles from "./ExportActionBar.module.css";
 import { shouldCloseFromDrag } from "./exportSheetDrag";
@@ -71,6 +72,10 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    noteMdCopied,
+    noteMdFallbackOpen,
+    noteMdFallbackMarkdown,
+    handleCloseNoteMdFallback,
     handlePrint,
     handleShareX,
     handleShareBluesky,
@@ -115,7 +120,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         disabled={recipe === null}
         onClick={handleNoteMdExport}
       >
-        {t("overview.exportNoteMd")}
+        {noteMdCopied
+          ? t("export.noteMdCopiedLabel")
+          : t("overview.exportNoteMd")}
       </button>
 
       <span className={styles.divider} aria-hidden="true" />
@@ -146,6 +153,14 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         onCancel={handleCancelJsonExport}
       />
 
+      {noteMdFallbackOpen && noteMdFallbackMarkdown !== null && (
+        <MarkdownCopyFallbackDialog
+          open={noteMdFallbackOpen}
+          markdown={noteMdFallbackMarkdown}
+          onClose={handleCloseNoteMdFallback}
+        />
+      )}
+
       {shareDialogOpen &&
         shareDialogContext !== null &&
         shareDialogTarget !== null && (
@@ -165,11 +180,12 @@ interface ExportSheetActionsProps {
   actions: UseExportActionsResult;
 }
 
-// ShareDialog関連の状態・ダイアログ本体はここではレンダーしない（ExportActionBarの
-// mobile分岐側でExportSheetと兄弟としてリフトアップ済み。レビューRound1 Medium-1対応:
-// .sheetはtransition: transform／ドラッグ中のstyle.transform／開閉アニメーションを持ち、
-// transformが非noneの間は子孫のposition: fixed要素の基準がbodyでなく.sheetになってしまう
-// ため、ShareDialog（backdrop=position: fixed）を.sheetの子孫に置かない）。
+// ShareDialog・note MDフォールバックダイアログ関連の状態・ダイアログ本体はここではレンダー
+// しない（ExportActionBarのmobile分岐側でExportSheetと兄弟としてリフトアップ済み。
+// レビューRound1 Medium-1対応: .sheetはtransition: transform／ドラッグ中のstyle.transform／
+// 開閉アニメーションを持ち、transformが非noneの間は子孫のposition: fixed要素の基準がbodyでなく
+// .sheetになってしまうため、ShareDialog・MarkdownCopyFallbackDialog（いずれもbackdrop=
+// position: fixed）を.sheetの子孫に置かない）。
 function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
   const { t } = useTranslation();
   const {
@@ -179,6 +195,7 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
     handleCancelJsonExport,
     handlePlainMdExport,
     handleNoteMdExport,
+    noteMdCopied,
     handlePrint,
     handleShareX,
     handleShareBluesky,
@@ -235,7 +252,9 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           disabled={recipe === null}
           onClick={handleNoteMdExport}
         >
-          {t("overview.exportNoteMd")}
+          {noteMdCopied
+            ? t("export.noteMdCopiedLabel")
+            : t("overview.exportNoteMd")}
         </button>
       </div>
 
@@ -448,12 +467,22 @@ function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
       {actions.shareDialogOpen &&
         actions.shareDialogContext !== null &&
         actions.shareDialogTarget !== null && (
-          <div className={styles.shareDialogRoot}>
+          <div className={styles.overlayRoot}>
             <ShareDialog
               open={actions.shareDialogOpen}
               onClose={actions.handleCloseShareDialog}
               context={actions.shareDialogContext}
               target={actions.shareDialogTarget}
+            />
+          </div>
+        )}
+      {actions.noteMdFallbackOpen &&
+        actions.noteMdFallbackMarkdown !== null && (
+          <div className={styles.overlayRoot}>
+            <MarkdownCopyFallbackDialog
+              open={actions.noteMdFallbackOpen}
+              markdown={actions.noteMdFallbackMarkdown}
+              onClose={actions.handleCloseNoteMdFallback}
             />
           </div>
         )}

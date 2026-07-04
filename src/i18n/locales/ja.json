@@ -141,7 +141,6 @@
     "baseCardName": "ベース工程（全体）",
     "addBaseStep": "＋ ベース工程を追加",
     "partsHeading": "PARTS",
-    "partsHeadingJp": "パーツ",
     "partStepsCount": "工程 {{count}}",
     "addPart": "＋ パーツを追加",
     "newPartName": "新しいパーツ",
@@ -164,10 +163,16 @@
     "markdownToolsLabel": "ツール",
     "markdownHasPhotoLabel": "写真あり",
     "markdownEmptyStepLabel": "（未設定）",
+    "markdownSummaryLine": "全{{steps}}工程・{{parts}}パーツ ・ {{date}}",
     "jsonSuccess": "JSONファイルをエクスポートしました",
     "jsonFailed": "JSONエクスポートに失敗しました",
     "markdownCopySuccess": "Markdownをクリップボードにコピーしました",
-    "markdownCopyFailed": "クリップボードへのコピーに失敗しました"
+    "markdownDownloadSuccess": ".mdファイルをダウンロードしました",
+    "markdownDownloadFailed": ".mdファイルのダウンロードに失敗しました",
+    "noteMdCopiedLabel": "コピーしました ✓",
+    "noteMdCopyFallbackTitle": "自動コピーできませんでした",
+    "noteMdCopyFallbackDescription": "下のテキストを選択してコピーしてください",
+    "noteMdCopyFallbackClose": "閉じる"
   },
   "storageStatus": {
     "protectedLabel": "データ保護: 有効",
@@ -250,6 +255,7 @@
     "paletteHeading": "PALETTE",
     "paletteHeadingJp": "使用カラー",
     "toolsHeading": "TOOLS",
+    "toolsHeadingJp": "使用ツール",
     "baseHeading": "BASE",
     "baseHeadingJp": "ベース工程（全体）",
     "partHeading": "PART {{roman}}",

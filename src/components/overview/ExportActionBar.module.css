@@ -128,12 +128,13 @@
   box-shadow: var(--shadow-2), var(--focus-ring);
 }
 
-/* ShareDialog（レビューRound1 Medium-1対応でExportSheet外・.mobileRootの兄弟としてリフト
-   アップ）は.mobileRootのpointer-events: noneを継承してしまうため、ここで打ち消す。
-   .mobileRoot自体はtransform/transitionを持たないためcontaining blockはinitial containing
-   block（viewport）のままで、ShareDialogのbackdrop（position: fixed）はここに置いても
-   位置・サイズが破綻しない。 */
-.shareDialogRoot {
+/* ShareDialog・MarkdownCopyFallbackDialog（いずれもExportSheet外・.mobileRootの兄弟として
+   リフトアップ済み。ShareDialogはレビューRound1 Medium-1対応、MarkdownCopyFallbackDialogは
+   実機検証で背後要素へのタップ素通しが確認され同方式に統一）は.mobileRootのpointer-events:
+   noneを継承してしまうため、ここで打ち消す。.mobileRoot自体はtransform/transitionを持たない
+   ためcontaining blockはinitial containing block（viewport）のままで、各ダイアログの
+   backdrop（position: fixed）はここに置いても位置・サイズが破綻しない。 */
+.overlayRoot {
   pointer-events: auto;
 }
 

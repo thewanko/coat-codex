@@ -141,7 +141,6 @@
     "baseCardName": "Base steps (overall)",
     "addBaseStep": "+ Add base steps",
     "partsHeading": "PARTS",
-    "partsHeadingJp": "Parts",
     "partStepsCount": "{{count}} steps",
     "addPart": "+ Add part",
     "newPartName": "New part",
@@ -164,10 +163,16 @@
     "markdownToolsLabel": "Tools",
     "markdownHasPhotoLabel": "Photo attached",
     "markdownEmptyStepLabel": "(Not set)",
+    "markdownSummaryLine": "{{steps}} steps total ・ {{parts}} parts ・ {{date}}",
     "jsonSuccess": "Exported JSON file",
     "jsonFailed": "Failed to export JSON",
     "markdownCopySuccess": "Copied Markdown to clipboard",
-    "markdownCopyFailed": "Failed to copy to clipboard"
+    "markdownDownloadSuccess": "Downloaded .md file",
+    "markdownDownloadFailed": "Failed to download .md file",
+    "noteMdCopiedLabel": "Copied ✓",
+    "noteMdCopyFallbackTitle": "Couldn't copy automatically",
+    "noteMdCopyFallbackDescription": "Select the text below to copy it manually",
+    "noteMdCopyFallbackClose": "Close"
   },
   "storageStatus": {
     "protectedLabel": "Data protection: On",
@@ -251,6 +256,7 @@
     "paletteHeading": "PALETTE",
     "paletteHeadingJp": "Colors used",
     "toolsHeading": "TOOLS",
+    "toolsHeadingJp": "Tools used",
     "baseHeading": "BASE",
     "baseHeadingJp": "Base steps (whole model)",
     "partHeading": "PART {{roman}}",

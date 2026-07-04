@@ -1,0 +1,81 @@
+/* MarkdownCopyFallbackDialog — Dialog/Modal（デザイン仕様書§4）
+   backdrop --color-bg-backdrop。本体 --color-bg / radius 10px / --shadow-3。
+   ConfirmDialog.module.cssの意匠を踏襲し、全文コピー用のtextareaを追加する */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  /* モバイルのExportSheet（sheetBackdrop z:200）より前面に出す必要がある。
+     ConfirmDialogの100のままだとシート越しの起動時にタップが全てシートに吸われる
+     （M6 ShareDialogのz:300と同じ理由・同じ値に揃える） */
+  z-index: 300;
+}
+
+.dialog {
+  background: var(--color-bg);
+  border-radius: 10px;
+  box-shadow: var(--shadow-3);
+  padding: var(--space-5);
+  max-width: 480px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-gold-soft);
+}
+
+.description {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 200px;
+  box-sizing: border-box;
+  padding: var(--space-3);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-raised);
+  color: var(--color-ink);
+  font-family: var(--font-family-mono, monospace);
+  font-size: var(--font-size-xs);
+  resize: vertical;
+  margin: 0 0 var(--space-4);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close {
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
