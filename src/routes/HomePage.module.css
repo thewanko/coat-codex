@@ -48,7 +48,11 @@
   color: var(--color-ink-muted);
 }
 
-.heroGloss:lang(en) {
+.heroGloss:lang(en),
+.heroGloss:lang(fr),
+.heroGloss:lang(de),
+.heroGloss:lang(it),
+.heroGloss:lang(es) {
   letter-spacing: normal;
   text-indent: 0;
 }

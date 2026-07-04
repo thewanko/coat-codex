@@ -2,20 +2,32 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import ja from "./locales/ja.json";
 import en from "./locales/en.json";
+import fr from "./locales/fr.json";
+import de from "./locales/de.json";
+import it from "./locales/it.json";
+import es from "./locales/es.json";
 
 export const LANG_STORAGE_KEY = "coat-codex:lang";
 
-export type SupportedLang = "ja" | "en";
+export type SupportedLang = "ja" | "en" | "fr" | "de" | "it" | "es";
+
+const SUPPORTED_LANGS: SupportedLang[] = ["ja", "en", "fr", "de", "it", "es"];
 
 function readStoredLang(): SupportedLang {
   const stored = window.localStorage.getItem(LANG_STORAGE_KEY);
-  return stored === "ja" || stored === "en" ? stored : "ja";
+  return (SUPPORTED_LANGS as string[]).includes(stored ?? "")
+    ? (stored as SupportedLang)
+    : "ja";
 }
 
 void i18next.use(initReactI18next).init({
   resources: {
     ja: { translation: ja },
     en: { translation: en },
+    fr: { translation: fr },
+    de: { translation: de },
+    it: { translation: it },
+    es: { translation: es },
   },
   lng: readStoredLang(),
   fallbackLng: "ja",

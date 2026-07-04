@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: 印刷プレビュー右端切れ修正 → PR #21マージ済み・ユーザー実機確認済み)
+最終更新: 2026-07-05 (loop: 多言語対応 fr/de/it/es → PR作成)
 
 ## 完了
+
+- 2026-07-05: **多言語対応 fr/de/it/es（計画§7バックログ・v1後初タスク）**（PR: impl/i18n-fr-de-it-es） — ①`locales/{fr,de,it,es}.json` 新規4ファイル（各252キー・en同一構造。翻訳=Sonnet impl並列2委譲＋opusレビュー校正。**意匠キーはja/en値一致=据え置きの機械ルール**で全言語共通維持・techniques.*は各言語のミニチュアペイント標準用語・**terms.* 19キーとfooter.trademarkNoticeは英語流用**=法的文面のユーザー裁定）②LanguageSwitcher 2セグメント→**カスタムドロップダウン**（ユーザー裁定。listbox パターン・roving focus・↑↓円環・Escape/外側クリック/確定の3閉経路すべてでトリガーへフォーカス復帰・z:10でヘッダー文脈内完結）③i18n.test.ts全6ロケール一般化（「fr=不正コード」テストを"zz"へ・terms英語逐語一致とvolumesCount据え置きの固定化アサーション新設）④vite.config.tsにvitest exclude `**/.claude/**` 追加（**残骸worktreeの二重テスト実行を発見・修正**。stoic-wing worktreeは進行中チップの作業ツリーのため削除せず）。レビューR1 PASS(M1=fr/de STEPタグ翻訳逸脱/L2)→glue修正→R2 PASS(L1=sed置換が導入したfrエリジオン崩れ`de l'STEP`→`du STEP`修正)→**出口実機検証が静的レビュー不可視の実バグ2件を検出**: (a)和文glossトラッキング解除の`:lang(en)`特例が新4言語未カバー→**ドイツ語375pxでヘッダー471pxへ膨張**（Grep横断で3ファイル`:lang`5言語列挙化: AppShell tagline/HomePage heroGloss/ImportJsonSection dividerLabel）(b)it/es app.tagline未翻訳（en文面コピー）→R3 PASS(**C0/H0/M0/L0**・翻訳漏れ横断再検査で残存なし確認)。実機検証: 375/768/1280×ドロップダウン全ヒットテスト・6言語切替（gloss/複数形/documentElement.lang/リロード永続化）・fr Terms英語文面・ドイツ語Home/Overview/印刷ビュー（黒狼実データ・スクリーンショット証跡）。計983テスト。**ユーザー実機確認待ち**
 
 - 2026-07-04: **印刷プレビューのモバイル右端切れ修正**（PR #21: fix/print-preview-mobile-clip） — ユーザーiPhone実機報告（T43③確認中）。原因=`.scaleInner`の`transform-origin: top center`が「紙面事前中央配置」前提だが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0解決→左寄せ→中央origin縮小で右へずれ右端切れ（620pxで68px・FB-D導入時から常時）。修正=`top left`へ1行変更（縮小時794×scale=利用可能幅ぴったり・等倍時はmargin:auto中央配置が生き広幅不変・@media printはtransform:noneのまま無影響）。前例（M6 z-index glue）に倣い検証起因1行修正としてセッションglue適用。実機検証: 375px/620px完全収容＋右端視認可・1280px等倍中央。FB-D出口検証が「縮小の適用」のみ見て「右端の収まり」を見ていなかった=検証の深さ不足の再発。計979テスト。**PR #21マージ済み・ユーザー実機で解消確認済み（2026-07-04）。T43①②も同日ユーザー実機でOK確認済み**
 
@@ -47,7 +49,8 @@
 ## 次の候補 (優先順)
 
 1. **ユーザー作業（公開前・残2件）**: ③T43③実印刷ダイアログ（Chrome/Safari印刷プレビューで背景色・改ページ・PDF保存。※画面上の縮小プレビュー右端切れはPR #21で解消済み）④Web Share A系統実機（iPhone Safari「SNSに投稿/共有」→共有ボタンでOS共有シート＋画像添付が出ればA系統成功。手順ガイド画面ならB系統フォールバック）。※①PR #18 note MD・②T43④他項目は2026-07-04ユーザー実機でOK確認済み
-2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
+2. 多言語対応PR（impl/i18n-fr-de-it-es）のユーザー実機確認（特にiPhone: ドロップダウン操作・各言語表示）
+3. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）。多言語対応は2026-07-05実装済み
 
 ## 決定事項 (変更には理由が要る)
 

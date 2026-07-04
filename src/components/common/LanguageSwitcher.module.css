@@ -1,15 +1,16 @@
 .switcher {
+  position: relative;
   display: inline-flex;
-  border: 1px solid var(--color-gold-soft);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  background: var(--color-bg-raised);
 }
 
-.segment {
+.trigger {
   appearance: none;
-  border: none;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-raised);
   color: var(--color-ink-muted);
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-medium);
@@ -20,19 +21,67 @@
 }
 
 @media (pointer: coarse) {
-  .segment {
+  .trigger {
     height: var(--size-touch-target);
   }
 }
 
-.segment:focus-visible {
+.trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.chevron {
+  font-size: var(--font-size-xs);
+  line-height: 1;
+}
+
+.listbox {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-raised);
+  box-shadow: var(--shadow-3);
+  padding: var(--space-2) 0;
+  /* focus-ring（box-shadow外側3px）をクリップしないためhiddenにしない。
+     角丸との接触は縦paddingで回避済み */
+  overflow: visible;
+}
+
+.option {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-muted);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  height: 36px;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .option {
+    height: var(--size-touch-target);
+  }
+}
+
+.option:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
   position: relative;
   z-index: 1;
 }
 
-.segmentActive {
+.optionSelected {
   background: var(--color-accent);
   color: var(--color-accent-contrast);
   font-weight: var(--font-weight-bold);
