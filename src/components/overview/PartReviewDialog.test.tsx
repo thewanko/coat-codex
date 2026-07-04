@@ -182,6 +182,18 @@ describe("PartReviewDialog — 編集リンク・共有ボタン", () => {
       screen.getByRole("button", { name: "SNSに共有" }),
     ).not.toBeDisabled();
   });
+
+  test("「このパーツを編集」リンククリックでonCloseが呼ばれる（state残存バグ修正）", () => {
+    const recipe = makeRecipe({
+      id: "rcp_1",
+      parts: [makePart({ id: "part_1", name: "腕" })],
+    });
+
+    const { onClose } = renderDialog(recipe, "part_1");
+
+    fireEvent.click(screen.getByRole("link", { name: "このパーツを編集" }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("PartReviewDialog — 共有ボタン押下でShareDialogを開く", () => {

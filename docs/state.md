@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: 印刷プレビュー右端切れ修正 → PR #21待ち)
+最終更新: 2026-07-05 (loop: PartReviewDialog編集LinkのonClose未呼び修正)
 
 ## 完了
+
+- 2026-07-05: **PartReviewDialog編集LinkのonClose未呼び修正**（PR #20レビューM2残件・worktree stoic-wing-64b1df） — 「このパーツを編集」Linkが onClose を呼ばずに遷移するため RecipeOverviewPage の reviewTarget が残存し、モバイルではダイアログが `.panelOpen` の display:none 配下に隠れたままブラウザバックで再出現していた。修正=Link に `onClick={onClose}` 追加の1行（遷移は Link のまま・preventDefault なし）＋回帰テスト1件（編集Linkクリックで onClose 1回）。レビューR1 PASS（C0/H0/M0/L0。base モードも同一 Link で解消・useFocusTrap 復帰は document.contains ガードで無干渉を確認済み）。実機検証: 375px/1280px 両幅で編集Linkヒットテスト→実座標クリック→遷移時ダイアログ消滅→ブラウザバック後の非再出現＋Overview 操作可を確認。4ゲート exit 0・計980テスト
 
 - 2026-07-04: **印刷プレビューのモバイル右端切れ修正**（PR #21: fix/print-preview-mobile-clip） — ユーザーiPhone実機報告（T43③確認中）。原因=`.scaleInner`の`transform-origin: top center`が「紙面事前中央配置」前提だが、縮小が必要な幅では`.sheet`(794px固定)が親より広く`margin:auto`が0解決→左寄せ→中央origin縮小で右へずれ右端切れ（620pxで68px・FB-D導入時から常時）。修正=`top left`へ1行変更（縮小時794×scale=利用可能幅ぴったり・等倍時はmargin:auto中央配置が生き広幅不変・@media printはtransform:noneのまま無影響）。前例（M6 z-index glue）に倣い検証起因1行修正としてセッションglue適用。実機検証: 375px/620px完全収容＋右端視認可・1280px等倍中央。FB-D出口検証が「縮小の適用」のみ見て「右端の収まり」を見ていなかった=検証の深さ不足の再発。計979テスト
 
@@ -42,7 +44,7 @@
 
 ## 進行中
 
-- PartReviewDialog編集LinkのonClose未呼び（レビューM2）: セッションチップとして別タスク起票済み（未着手）
+- なし（PartReviewDialog編集LinkのonClose未呼びは2026-07-05修正完了・上記「完了」参照）
 
 ## 次の候補 (優先順)
 
