@@ -14,9 +14,9 @@
 // 工程削除は既存ConfirmDialogの流儀（PhotoUploader/StepPhotoTileと同様、確定はここで行い、
 // onDeleteは削除確定後にのみ呼ぶ）を踏襲する。
 //
-// PaintSlot（PaintSlotList内部）はkey={colorId}でblur確定時に1回だけクリックが吸われる既知UX事項
-// （M3レビューRound3 Low）があるため、StepCard側ではstate.paints/mixの参照や配列順を不要に
-// 作り変えず、PaintSlotListへ渡すstateはStep.paints/mixから素直に導出するだけに留める
+// PaintSlot（PaintSlotList内部）はUI専用の安定スロットkey（slotIdsRef・T45）で再マウントを
+// 回避している。StepCard側ではstate.paints/mixの参照や配列順を不要に作り変えず、
+// PaintSlotListへ渡すstateはStep.paints/mixから素直に導出するだけに留める
 // （余計なkey付け替え・再マウントを誘発しない）。
 
 import { useState } from "react";

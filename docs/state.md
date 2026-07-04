@@ -3,10 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-04 (loop: M8前半 T44/T46＋封蝋ロゴ実画像化 完了)
+最終更新: 2026-07-04 (loop: M8後半 T45 完了・並行セッションのM8前半 T44/T46と合流 → **M8コードタスク全完了**〔任意T47は見送り裁定〕。残=コード外チェックリスト=ユーザー作業)
 
 ## 完了
 
+- 2026-07-04: **M8後半: T45 PaintSlotスロット固有安定key**（PR: impl/m8-t45-paintslot-key） — `key={paint.colorId}`をUI専用安定id（`useRef<string[]>`・非永続・add/removeで同期・外部length変化は末尾append/truncate）へ置換し、colorId変化（pending→確定・色変更・palette再利用解決）での再マウントを排除。**M4レビューR1指摘5「blurクリック1回吸われ＋中断編集の孤児palette生成」を解消**。MixState/スキーマ/PaintSlot.tsx/重複ガード/palette再利用は不変。テスト3件追加（DOMノード同一性・add/remove跨ぎ整合・外部length変化追従）。Opusレビュー R1 PASS（C0/H0/M0/L2。L1=StepCard陳腐化コメント→セッションglue修正、L2=末尾truncate方式の将来リスク→現行到達不能〔stripは永続スナップショット専用でライブstateへ書き戻しなし〕対応不要）。**実機検証**: 実イベント順序（mousedown→blur確定→click）で1クリック目の到達＋ハンドラ発火＋スロット追加成立、色変更/pending→確定の両クラスでsameNode維持、value再同期（確定名保持）・swatch反映・toastなし。検証データは復元済み。**T47は見送り裁定**（任意Low・限定条件・「将来のカラー数UX調整時に一括対応」の既存申し送りを維持）。計869テスト
 - 2026-07-04: **M8前半: T44 ネストルート化＋T46 フォーカストラップ＋封蝋ロゴ実画像化＋faviconキャッシュバスト**（PR: impl/m8-t44-t46） — ①**T44**: `/recipe/:id`親ルート化＋`part/base`（先）/`part/:partId`子ルート・Overview側`<Outlet/>`（早期return経路にも素通し）・背面`.root`へ`inert`（aria-hidden不採用: Tab/SR迂回を一括遮断）・PC幅のみbodyスクロール固定（matchMedia 768px・change追従・前値復元）。**レビューR1 FAIL(H2)**: 親子同時マウントで子のload effectが`doc:null`リセット→背面が一瞬notFoundフラッシュ＋相互スタブで統合経路未テスト → **loadオーナーを親に一本化**（子のload effect削除）＋実親×実子の統合テスト新設（notFound非表示・loadRecipe 1回・開→閉→開・直接URL）②**T46**: `useFocusTrap`新設（Tab/Shift+Tab循環・Escape・初期/復帰フォーカス）→5ダイアログへ適用・個別Escapeリスナー完全削除・ConfirmDialogは初期フォーカスをキャンセル側へ。**実機検証が「復帰フォーカスが条件付きマウント（PartReviewDialog/ShareDialog=閉でアンマウント）で不発火」の実バグを検出**（unitはpropトグルのみで代表性不足）→ open時effectクロージャcapture＋cleanup復帰方式へ修正・実機で復帰成立を再確認 ③**封蝋ロゴ実画像化**（ユーザー決定「両方」）: 原本docs/design/coat-codex_logo.png（1254px・無改変維持）→src/assets/seal-logo.png（128px）生成。ヘッダCSS封蝋→`<img>`34px・フッターに18px追加・デザイン仕様書4箇所改訂（封蝋モノグラム行/AppFooter節/§7アセット表/使用箇所上限3→4箇所）④**favicon**: 結線・実体・本番配信は正常でブラウザのfavicon専用キャッシュが原因と特定→`?v=2`クエリでキャッシュバスト（PR #14マージ済み・ユーザー実施）。レビューR2 PASS(M1=仕様書上限行改訂漏れ→セッション修正/L2)→R3 PASS(L1=StrictMode順序依存・コメント明文化済みで対応不要)。実機検証: PC幅パネル背面透け表示・inert遮断（elementFromPoint=backdrop）・close全復元・モバイル375pxフルページ・Tab循環/Escape/復帰フォーカス・ロゴ4倍ズーム実ピクセル目視。計885テスト
 - 2026-07-03: **M7後半: T42 レスポンシブ最終調整＋T43 通しQA**（PR: impl/m7-t42-t43） — ①**T42意匠2件**（dc.html準拠に採用裁定）: Homeを「ヘッダ行ボタン」から「ヒーロー（LIBRARY→YOUR CODEX→和文gloss→金飾り罫→VOLUMES）＋中央寄せ独立ボタン行」へ移設・モバイル縦積み／Setup ImportJsonSectionを「または」ディバイダ＋破線カード（PC）/コンパクト破線ボタン（モバイル）へ意匠化（機能不変）。app.title削除（YOUR CODEXが後継）②**モバイルタッチ44px化を横断適用**（実機ヒットテストで検出: 工程/パーツ↑↓32px・写真✕24px・各種✕/menu28px・addButton40px等を44px化。視覚拡大 or 不可視ヒット領域拡張）。**StepPhotoTile✕は祖先overflow:hiddenで外向き拡張がクリップされる罠を実機検出→内向き拡張（top:0;right:0;left/bottom負値）へ差し戻し修正**③**VOLUMES英語複数形化**（volumesCount_one/_other・i18n.test.tsの一致/網羅/デッド検出を複数形サフィックス許容へ最小修正）④**T43通しQA**: dev実機で①往復②本番URL⑤persist拒否⑥Quota⑦削除ガード⑧presetId降格⑨D-8⑩D-6ドット⑪工程写真3出力⑫≠100警告継承（合成画像の⚠計90%を実ピクセル目視）を確認しREADME追記。③印刷ダイアログ・④Web Share A系統はユーザー実機依頼事項として整理。Opus UIレビューR1 PASS（C0/H0/M0/L2。L2=StepPhotoTileコメントはレビュアー誤検出〔480px縮小media実在〕で対応不要、L1=VOLUMES複数形は対応）。計866テスト
 - 2026-07-03: **M7前半: T41 i18n棚卸し＋共有カードFB対応＋favicon結線**（PR: impl/m7-t41-share-feedback） — ①**T41**: i18n機械チェックテスト新設（ja/en再帰キー完全一致・静的抽出キー網羅・techniques.*動的名前空間の閉包・デッドキー逆方向検出・言語永続化）・未使用5キー削除（partReview.share等）。R1 PASS(M2/L3)→修正→R2 PASS(L0)。裁定: レンジ表記は小文字キー維持（表示名変換見送り）②**FB-1 写真cover配置**（ユーザー実機FB「横伸ばし」）: drawPhotoがコメントに反し5引数drawImage引き伸ばしだった実在バグ。computeCoverSourceRect純関数＋9引数化＋naturalSize不能時は5引数全面描画フォールバック ③**FB-2/3 summary(whole)目次化**（ユーザー指示「パーツ：工程数と使用カラーの一覧ぐらいでいい」）: パーツ構成（ベース先頭・0工程スキップ・上限8行＋…他Nパーツ）＋使用カラー3列グリッド（**色名＋ブランド併記**・上限12色＋N）・実行数ベース上詰め。R1(L3)→R2(L0)→**実機実ピクセル目視がdesign乖離2点（色名なし・8行固定の中央空白）をレビューPASS後に検出**→FB-3→R3 PASS(L1申し送り) ④**favicon**: ユーザー支給封蝋ロゴPNG（docs/design/coat-codex_logo.png原本）→48px/180px配信層＋index.html結線（M4/M7申し送り解消）。実機検証: 黒狼実データ（ユーザー指定のObsidian vault版）UI経由インポート・目次/工程/写真カード実ピクセル・0工程スキップ・brand nullスキップ・全ヒットテスト。計862テスト
@@ -33,13 +34,12 @@
 
 ## 進行中
 
-- **M8 公開前仕上げ**: T44/T46完了（レビューR3 PASS・実機検証済み）。残り=T45（単独ループ）・T47（任意Low）・コード外チェックリスト
+- (なし。**M8コードタスク T44/T45/T46 全完了**〔T44/T46=PR #15マージ済み・T45=PR #16〕。T47は見送り裁定=任意Low・限定条件・「将来のカラー数UX調整時に一括対応」を維持)
 
 ## 次の候補 (優先順)
 
-1. **M8残り**: T45 PaintSlot安定key（**M3確定物変更=単独ループ・実機スパイク・M3観点再レビュー必須**）／T47 任意Low（+N視覚干渉。§4.2）
-2. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
-3. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
+1. **ユーザー作業（公開前・M8コード外チェックリスト）**: T43③実印刷ダイアログ・T43④Web Share A系統実機・contact@coat-codex.com受信転送（Cloudflare Email Routing）・（任意）空Worker削除
+2. （v1後のバックログ・計画§7）多言語対応（fr/de/it/es）／生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
 
