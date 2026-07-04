@@ -17,9 +17,13 @@ import styles from "./OverviewHeader.module.css";
 
 interface OverviewHeaderProps {
   representativePhotoId: string | null;
+  onChangePhoto: () => void;
 }
 
-function OverviewHeader({ representativePhotoId }: OverviewHeaderProps) {
+function OverviewHeader({
+  representativePhotoId,
+  onChangePhoto,
+}: OverviewHeaderProps) {
   const { t } = useTranslation();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoLoading, setPhotoLoading] = useState(false);
@@ -64,6 +68,15 @@ function OverviewHeader({ representativePhotoId }: OverviewHeaderProps) {
           <span className={styles.photoPlaceholder} aria-hidden="true" />
         )}
       </div>
+      <button
+        type="button"
+        className={styles.changePhotoButton}
+        onClick={onChangePhoto}
+      >
+        {representativePhotoId
+          ? t("overview.changePhoto")
+          : t("overview.addPhoto")}
+      </button>
     </div>
   );
 }

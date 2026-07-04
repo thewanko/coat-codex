@@ -23,6 +23,7 @@ function OverviewPhotoUploader({
   return (
     <section className={styles.section}>
       <h2 className={styles.heading}>{t("setup.photosLabel")}</h2>
+      <p className={styles.note}>{t("setup.photosNote")}</p>
       <PhotoUploader recipeId={recipeId} value={value} onChange={onChange} />
     </section>
   );

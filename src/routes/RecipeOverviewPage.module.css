@@ -76,9 +76,3 @@
   color: var(--color-danger);
   font-size: var(--font-size-md);
 }
-
-@media (max-width: 767px) {
-  .root {
-    padding-bottom: calc(var(--actionbar-height) + var(--space-5));
-  }
-}

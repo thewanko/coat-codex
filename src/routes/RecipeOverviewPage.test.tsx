@@ -418,6 +418,81 @@ describe("RecipeOverviewPage — bodyスクロール固定の前値復元（M8 T
   });
 });
 
+describe("RecipeOverviewPage — モバイル「出力・共有」ボタンのレンダー位置（2026-07-04 FB-G sticky化）", () => {
+  // position: fixed→stickyへの変更に伴い、ExportActionBar（モバイル分岐）はページ最下部で
+  // フッターと重ならないよう、コンテンツ末尾（＋パーツを追加を含むPartCardListの後）に
+  // 配置される必要がある。sticky自体のジオメトリはjsdomで検証不能なため、DOM順序
+  // （compareDocumentPosition）で固定する。
+  test("export-action-barはpart-card-list-stub（＋パーツを追加を含む）より後にレンダーされる", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ parts: [{ id: "part_1", name: "腕", steps: [] }] }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    const partList = await screen.findByTestId("part-card-list-stub");
+    const actionBar = screen.getByTestId("export-action-bar");
+
+    // partListから見てactionBarが後続（DOCUMENT_POSITION_FOLLOWING = 4）に位置すること
+    expect(
+      partList.compareDocumentPosition(actionBar) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+});
+
+describe("RecipeOverviewPage — 全体写真の後日変更ダイアログ（2026-07-04 FB-C）", () => {
+  test("写真0枚のレシピでは「全体写真を追加」ボタンを表示する", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc({ overviewPhotoIds: [] }));
+    renderPage("/recipe/rcp_1");
+
+    expect(
+      await screen.findByRole("button", { name: "全体写真を追加" }),
+    ).toBeInTheDocument();
+  });
+
+  test("写真ありのレシピでは「全体写真を変更」ボタンを表示する", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ overviewPhotoIds: ["pht_1"] }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    expect(
+      await screen.findByRole("button", { name: "全体写真を変更" }),
+    ).toBeInTheDocument();
+  });
+
+  test("ボタン押下でOverviewPhotoDialogが開く", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ overviewPhotoIds: ["pht_1"] }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    const button = await screen.findByRole("button", {
+      name: "全体写真を変更",
+    });
+    fireEvent.click(button);
+
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("全体写真")).toBeInTheDocument();
+  });
+
+  test("ダイアログを閉じるボタンで非表示になる", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ overviewPhotoIds: ["pht_1"] }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "全体写真を変更" }),
+    );
+    await screen.findByRole("dialog");
+
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
 describe("RecipeOverviewPage — ExportReminderBanner(compact)（§3.5・T34）", () => {
   test("未エクスポートのレシピはコンパクト帯を表示する", async () => {
     vi.mocked(loadRecipe).mockResolvedValue(makeDoc());

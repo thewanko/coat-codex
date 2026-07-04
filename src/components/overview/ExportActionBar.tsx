@@ -15,7 +15,7 @@
 // タップでボトムシート（デザイン仕様書§4「Dialog / Modal」: モバイルはボトムシート化可、
 // 上角のみradius）を開く。PC幅(≥768px)は従来のピル群のまま変更しない。
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { RecipeDoc } from "../../models/recipe";
@@ -423,10 +423,19 @@ interface MobileExportRootProps {
 // 閉じた瞬間にShareDialogの状態も失われてしまう。ここに置くことで、ユーザーが
 // ShareDialogを開いたままシートを閉じてもShareDialogは独立して開いたまま残る
 // （意図した挙動。ExportActionBar.test.tsxで固定）。
+// 2026-07-04 FB-G: .mobileRootはposition: fixed→stickyへ変更（フッター重なり対策）に
+// 伴い、fixed全幅化対策だったpointer-events: noneと.overlayRootラッパー（打ち消し用）を
+// 撤去した。ShareDialog・MarkdownCopyFallbackDialogは引き続きExportSheetの外（兄弟）で
+// レンダーする（transform祖先回避の理由は変わらず有効）。
 function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
   const { t } = useTranslation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const actions = useExportActions(recipe, onExported);
+  // ExportSheetのフォーカスeffect（deps: [open, onClose]）がonClose参照の変化のたびに
+  // 再実行され、シート表示中に無関係な状態変化（他ダイアログの開閉等）が起きるたびに
+  // ✕ボタンへフォーカスが奪われるバグの修正（2026-07-04 FB-G申し送り）。useCallbackで
+  // onClose自体の参照を安定させ、effect再実行の引き金を絶つ。
+  const handleCloseSheet = useCallback(() => setSheetOpen(false), []);
 
   return (
     <div className={styles.mobileRoot} data-testid="export-action-bar">
@@ -439,28 +448,24 @@ function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
       </button>
       <ExportSheet
         open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        onClose={handleCloseSheet}
         recipe={recipe}
         actions={actions}
       />
       {actions.shareDialogOpen && actions.shareDialogContext !== null && (
-        <div className={styles.overlayRoot}>
-          <ShareDialog
-            open={actions.shareDialogOpen}
-            onClose={actions.handleCloseShareDialog}
-            context={actions.shareDialogContext}
-          />
-        </div>
+        <ShareDialog
+          open={actions.shareDialogOpen}
+          onClose={actions.handleCloseShareDialog}
+          context={actions.shareDialogContext}
+        />
       )}
       {actions.noteMdFallbackOpen &&
         actions.noteMdFallbackMarkdown !== null && (
-          <div className={styles.overlayRoot}>
-            <MarkdownCopyFallbackDialog
-              open={actions.noteMdFallbackOpen}
-              markdown={actions.noteMdFallbackMarkdown}
-              onClose={actions.handleCloseNoteMdFallback}
-            />
-          </div>
+          <MarkdownCopyFallbackDialog
+            open={actions.noteMdFallbackOpen}
+            markdown={actions.noteMdFallbackMarkdown}
+            onClose={actions.handleCloseNoteMdFallback}
+          />
         )}
     </div>
   );

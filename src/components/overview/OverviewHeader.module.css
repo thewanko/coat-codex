@@ -2,6 +2,8 @@
    BASE工程は独立カード化のためこのコンポーネントの対象外＝2026-07-03） */
 
 .root {
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg-raised);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
@@ -36,4 +38,26 @@
     var(--color-placeholder-a) 0 14px,
     var(--color-placeholder-b) 14px 28px
   );
+}
+
+/* 全体写真の変更ボタン（FB-C 2026-07-04）。PartCard.module.css .reviewButtonと
+   同系の細ピル意匠に揃える */
+.changePhotoButton {
+  align-self: flex-end;
+  margin-top: var(--space-2);
+  flex: none;
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  color: var(--color-link);
+  background: var(--color-bg);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
+.changePhotoButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }

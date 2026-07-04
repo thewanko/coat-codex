@@ -83,23 +83,32 @@
   flex: none;
 }
 
-/* ---- mobile(<768px): 出力・共有ボタン1つ＋ボトムシート ---- */
+/* ---- mobile(<768px): 出力・共有ボタン1つ＋ボトムシート ----
+   2026-07-04 FB-G（ユーザー実機フィードバック対応）: position: fixedはページ最下部まで
+   スクロールするとフッター商標表記に重なるため、sticky方式へ変更。コンテンツ末尾
+   （＋パーツを追加ボタンの下・RecipeOverviewPage側でレンダー位置指定）に配置し、
+   スクロール中は画面下に張り付き、最下部到達時は通常フロー位置（フッターの上）に
+   収まる。stickyは親要素の通常フローの一員になるため全幅を専有せず、fixed時代に
+   必要だったpointer-events: none（背後要素へのタップ素通し確保）は不要になった。 */
 
 .mobileRoot {
-  position: fixed;
-  left: 0;
-  right: 0;
+  position: sticky;
   bottom: 0;
   display: flex;
   justify-content: center;
   padding: var(--space-3) var(--space-4)
     calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
-  pointer-events: none;
+  /* sticky背後にコンテンツが透けて見えないよう最小限の下地を敷く
+     （デザイン仕様書§4の範囲。背景色のみ・意匠追加はしない） */
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--color-bg) var(--space-4)
+  );
   z-index: var(--z-panel, 40);
 }
 
 .menuButton {
-  pointer-events: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -128,21 +137,9 @@
   box-shadow: var(--shadow-2), var(--focus-ring);
 }
 
-/* ShareDialog・MarkdownCopyFallbackDialog（いずれもExportSheet外・.mobileRootの兄弟として
-   リフトアップ済み。ShareDialogはレビューRound1 Medium-1対応、MarkdownCopyFallbackDialogは
-   実機検証で背後要素へのタップ素通しが確認され同方式に統一）は.mobileRootのpointer-events:
-   noneを継承してしまうため、ここで打ち消す。.mobileRoot自体はtransform/transitionを持たない
-   ためcontaining blockはinitial containing block（viewport）のままで、各ダイアログの
-   backdrop（position: fixed）はここに置いても位置・サイズが破綻しない。 */
-.overlayRoot {
-  pointer-events: auto;
-}
-
 /* ---- ボトムシート ---- */
 
 .sheetBackdrop {
-  /* 親.mobileRootのpointer-events: noneを打ち消す（シートは操作対象） */
-  pointer-events: auto;
   position: fixed;
   inset: 0;
   background: var(--color-bg-backdrop);
