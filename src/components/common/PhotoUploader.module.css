@@ -95,6 +95,46 @@
   }
 }
 
+/* トリミングボタン: removeButton（タイル右上）の鏡像として画像タイル右下に配置する。
+   thumb自体はoverflow: hiddenのため、removeButtonと同じくthumbの兄弟（tileWrapperの子）
+   としてtileWrapper基準で絶対配置し、thumbの高さ(112px)を基準に下端-8pxへ寄せる。 */
+.trimButton {
+  position: absolute;
+  top: calc(112px + 8px - 28px);
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  color: var(--color-link);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 1;
+}
+
+.trimButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （removeButtonと同じ方針。隣接するthumb右下コーナーで、ヒット領域の重なりを避けるため
+   内向き（左・上）にのみ拡張する） */
+@media (max-width: 767px) {
+  .trimButton::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * (var(--size-touch-target) - 28px));
+    left: calc(-1 * (var(--size-touch-target) - 28px));
+    right: 0;
+    bottom: 0;
+  }
+}
+
 .tileControls {
   display: flex;
   align-items: center;

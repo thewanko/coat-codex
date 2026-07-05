@@ -3,6 +3,7 @@
    全写真フィルタ・トーン加工禁止。radius: --radius-sm */
 
 .root {
+  position: relative;
   display: inline-block;
 }
 
@@ -110,19 +111,26 @@
   box-shadow: var(--focus-ring);
 }
 
+/* トリミングボタン: removeButton（タイル右上）の鏡像として画像タイル右下に配置する。
+   .thumbはoverflow: hiddenのため、removeButtonと同じ轍を踏まないよう.thumbの外
+   （.rootの子・.thumbの兄弟）に置き、.thumbの高さ(84px/mobile 76px)を基準に
+   下端-8pxへ寄せる。 */
 .trimButton {
-  display: block;
-  width: 84px;
-  min-height: var(--size-touch-target);
-  margin-top: var(--space-1);
-  padding: 0 var(--space-1);
+  position: absolute;
+  top: calc(84px + 8px - 28px);
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
   background: var(--color-bg-raised);
-  border: 1px solid var(--color-gold-soft);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-line);
   color: var(--color-link);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  line-height: 1;
+  z-index: 1;
 }
 
 .trimButton:focus-visible {
@@ -130,9 +138,22 @@
   box-shadow: var(--focus-ring);
 }
 
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （removeButtonと同じ方針。ボタン自身から内向き（左・上）にのみ広げる） */
+@media (max-width: 767px) {
+  .trimButton::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * (var(--size-touch-target) - 28px));
+    left: calc(-1 * (var(--size-touch-target) - 28px));
+    right: 0;
+    bottom: 0;
+  }
+}
+
 @media (max-width: 480px) {
   .trimButton {
-    width: 76px;
+    top: calc(76px + 8px - 28px);
   }
 }
 

@@ -117,7 +117,9 @@ describe("PhotoUploader", () => {
       </ToastHost>,
     );
     await waitFor(() => {
-      expect(screen.queryByText("トリミング")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "トリミング" }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -195,7 +197,9 @@ describe("PhotoUploader", () => {
       </ToastHost>,
     );
 
-    const trimButton = await screen.findByText("トリミング");
+    const trimButton = await screen.findByRole("button", {
+      name: "トリミング",
+    });
     fireEvent.click(trimButton);
 
     await waitFor(() => {

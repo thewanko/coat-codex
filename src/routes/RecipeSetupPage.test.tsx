@@ -162,7 +162,9 @@ describe("RecipeSetupPage", () => {
     );
     renderPage();
 
-    const trimButton = await screen.findByText("トリミング");
+    const trimButton = await screen.findByRole("button", {
+      name: "トリミング",
+    });
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
     fireEvent.click(trimButton);

@@ -149,7 +149,7 @@ describe("PhotoCropDialog", () => {
     expect(rect.style.left).toBe("20%");
   });
 
-  test("imgロード後、naturalWidth/Heightの比率がframeへaspect-ratioスタイルとして適用される（フレーム基準正規化=画像基準正規化のバグ修正）", async () => {
+  test("imgロード後、naturalWidth/Heightの比率がstageへaspect-ratioスタイルとして適用される（フレーム基準正規化=画像基準正規化のバグ修正）", async () => {
     render(
       <PhotoCropDialog
         open
@@ -161,16 +161,39 @@ describe("PhotoCropDialog", () => {
     );
 
     const img = await screen.findByAltText("トリミング対象の写真");
-    const frame = img.parentElement as HTMLElement;
+    // DOM階層: .stage > .frame > img。座標基準（getFrameDelta）は.stageのボックス。
+    const stage = img.parentElement?.parentElement as HTMLElement;
 
     // ロード前はaspect-ratioスタイルが未適用（フォールバックCSSの4/3に委ねる）
-    expect(frame.style.aspectRatio).toBe("");
+    expect(stage.style.aspectRatio).toBe("");
 
     Object.defineProperty(img, "naturalWidth", { value: 1200 });
     Object.defineProperty(img, "naturalHeight", { value: 1600 });
     fireEvent.load(img);
 
-    expect(frame.style.aspectRatio).toBe("1200 / 1600");
+    expect(stage.style.aspectRatio).toBe("1200 / 1600");
+  });
+
+  test("shadeRect（暗転専用矩形）はcropRectと同一のleft/top/width/heightスタイルを持つ（ハンドルクリップ解消の2層化: 暗転はframe内でクリップ、矩形＋ハンドルはoverlayでvisible）", () => {
+    render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={{ x: 0.2, y: 0.1, w: 0.5, h: 0.4 }}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    const rect = screen.getByRole("group", { name: /クロップ範囲/ });
+    // 安定セレクタで直接取得（DOM順・resolvePhotoUrl解決タイミングへの暗黙依存を避ける。レビューM-1）
+    const shadeRect = screen.getByTestId("crop-shade-rect");
+
+    expect(shadeRect).not.toBeNull();
+    expect(shadeRect?.getAttribute("aria-hidden")).toBe("true");
+    expect(shadeRect?.style.left).toBe(rect.style.left);
+    expect(shadeRect?.style.top).toBe(rect.style.top);
+    expect(shadeRect?.style.width).toBe(rect.style.width);
+    expect(shadeRect?.style.height).toBe(rect.style.height);
   });
 
   test("open=falseの間は何もレンダーしない", () => {
