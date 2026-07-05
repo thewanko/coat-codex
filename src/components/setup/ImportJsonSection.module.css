@@ -36,7 +36,8 @@
 .dividerLabel:lang(fr),
 .dividerLabel:lang(de),
 .dividerLabel:lang(it),
-.dividerLabel:lang(es) {
+.dividerLabel:lang(es),
+.dividerLabel:lang(ko) {
   letter-spacing: normal;
   text-indent: 0;
 }

@@ -37,6 +37,8 @@
 - ユーザーコンテンツ（レシピ名・パーツ名）: しっぽり明朝 600（和文）／EB Garamond（欧文）
 - EN見出しは i18n 対象外の意匠。JP glossのみ翻訳で差し替わる
 - 本文・フォーム・ボタン: `--font-family-body`、和文 line-height 1.7
+- **多言語のgloss字間（2026-07-05改訂）**: `.4em`級のglossトラッキングは和文（ja）専用。ラテン系（en/fr/de/it/es）と韓国語（ko）は `:lang()` 列挙で letter-spacing: normal に解除する（ハングルへの字間流用は禁忌）
+- **韓国語フォント戦略（2026-07-05新設）**: 全OS共通のシステム明朝ハングルが存在しないため、`:root:lang(ko)` で display=`"EB Garamond", "Noto Serif KR"(Webフォント・Google Fonts wght@500;600;700), AppleMyungjo, Batang, serif`／body=`"Inter", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif` に差し替える（global.css。theme.cssは無改変）。見出しのみ명조（明朝）・本文システムゴシックは韓国Webの格式演出の慣習に適合。あわせて `:lang(ko) { word-break: keep-all }`（分かち書き言語の単語単位改行）
 
 ## 3. トークン差分（初期値からの変更）
 

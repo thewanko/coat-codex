@@ -52,7 +52,8 @@
 .heroGloss:lang(fr),
 .heroGloss:lang(de),
 .heroGloss:lang(it),
-.heroGloss:lang(es) {
+.heroGloss:lang(es),
+.heroGloss:lang(ko) {
   letter-spacing: normal;
   text-indent: 0;
 }
