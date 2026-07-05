@@ -12,8 +12,8 @@ import { useTranslation } from "react-i18next";
 import BackLink from "../components/common/BackLink";
 import styles from "./HelpPage.module.css";
 
-import homePc from "../assets/help/home-pc.jpg";
-import homeMobile from "../assets/help/home-mobile.jpg";
+import createPc from "../assets/help/create-pc.jpg";
+import createMobile from "../assets/help/create-mobile.jpg";
 import setupPc from "../assets/help/setup-pc.jpg";
 import setupMobile from "../assets/help/setup-mobile.jpg";
 import editorPc from "../assets/help/editor-pc.jpg";
@@ -64,8 +64,8 @@ function HelpPage() {
           <h3 className={styles.stepHeading}>{t("help.steps.create.title")}</h3>
           <p className={styles.body}>{t("help.steps.create.body")}</p>
           <StepFigure
-            pcSrc={homePc}
-            mobileSrc={homeMobile}
+            pcSrc={createPc}
+            mobileSrc={createMobile}
             alt={t("help.steps.create.imageAlt")}
           />
         </div>

@@ -66,7 +66,7 @@ async function importRecipe(page) {
       r.onsuccess = () => res(r.result);
       r.onerror = () => rej(r.error);
     });
-    const doc = all[0];
+    const doc = all.find((r) => r.title === "黒狼") ?? all[0];
     return { id: doc.id, partId: doc.parts[0]?.id };
   });
   console.log("imported", ids);
@@ -83,6 +83,18 @@ async function captureSet(browser, kind, viewport, dsf, isMobile) {
   });
   const page = await ctx.newPage();
   await page.addInitScript(() => localStorage.setItem("coat-codex:lang", "ja"));
+
+  // 0. create — 新規作成ボタンを押した直後の画面（空の新規レシピのSetup。fresh DBで撮る）
+  await page.goto(BASE + "/");
+  const createBtn = page
+    .getByRole("button", { name: /新規作成|最初の秘伝書を作る/ })
+    .first();
+  await createBtn.waitFor({ timeout: 15000 });
+  await createBtn.click();
+  await page.waitForURL(/\/setup$/, { timeout: 15000 });
+  await page.waitForTimeout(600);
+  await shot(page, `create-${kind}`);
+
   const { id, partId } = await importRecipe(page);
 
   const dismissBanner = async () => {
@@ -100,13 +112,11 @@ async function captureSet(browser, kind, viewport, dsf, isMobile) {
     await page.waitForTimeout(300);
   };
 
-  // 1. home (import auto-navigates to overview — go back to "/")
+  // (home-{kind} は廃止: ステップ1は create-{kind} を使用)
   await page.goto(BASE + "/");
   await page.getByText("黒狼", { exact: false }).first().waitFor({ timeout: 10000 });
   await waitToastGone();
   await dismissBanner();
-  await page.waitForTimeout(800); // card thumbnail
-  await shot(page, `home-${kind}`);
 
   // 2. setup
   await page.goto(`${BASE}/recipe/${id}/setup`);
