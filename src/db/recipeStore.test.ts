@@ -93,6 +93,82 @@ describe("listRecipes", () => {
     const list = await listRecipes();
     expect(list.map((r) => r.id)).toEqual([a.id, c.id, b.id]);
   });
+
+  test("v1レコード（photoCrops欠落の生オブジェクト）はmigration適用済み（photoCrops:{}付き）で返る（B-4実機バグ対応）", async () => {
+    const now = new Date().toISOString();
+    const v1Doc = {
+      schemaVersion: 1,
+      id: "rcp_v1_list",
+      title: "v1 recipe (list)",
+      createdAt: now,
+      updatedAt: now,
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+      // photoCropsはv1では存在しない
+    };
+    await db.recipes.put(v1Doc as unknown as RecipeDoc);
+
+    const list = await listRecipes();
+    expect(list).toHaveLength(1);
+    expect(list[0].schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(list[0].photoCrops).toEqual({});
+
+    // 一覧経路はDBへ書き戻さない（書き戻しはloadRecipeのtx内責務のまま）
+    const stored = await db.recipes.get("rcp_v1_list");
+    expect(stored?.schemaVersion).toBe(1);
+  });
+
+  test("未来バージョン（schemaVersion: 99）レコードはスキップされ、他のレコードは返る（console.warn記録）", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const now = new Date().toISOString();
+
+    const futureDoc = {
+      schemaVersion: 99,
+      id: "rcp_future_list",
+      title: "future recipe (list)",
+      createdAt: now,
+      updatedAt: now,
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+    };
+    await db.recipes.put(futureDoc as unknown as RecipeDoc);
+    const normal = await createDraft("normal recipe");
+
+    const list = await listRecipes();
+    expect(list.map((r) => r.id)).toEqual([normal.id]);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0][0]).toContain("rcp_future_list");
+  });
+
+  test("破損文書（migration適用後もparse失敗）はスキップされ、他のレコードは返る", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const corrupt = {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      id: "rcp_corrupt_list",
+      // title欠落 → recipeDocSchemaのparseに失敗する
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+      photoCrops: {},
+    };
+    await db.recipes.put(corrupt as unknown as RecipeDoc);
+    const normal = await createDraft("normal recipe 2");
+
+    const list = await listRecipes();
+    expect(list.map((r) => r.id)).toEqual([normal.id]);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0][0]).toContain("rcp_corrupt_list");
+  });
 });
 
 describe("deleteRecipe", () => {
