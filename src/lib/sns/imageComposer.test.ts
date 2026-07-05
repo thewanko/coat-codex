@@ -4,6 +4,7 @@ import {
   composeShareImages,
   computeCardLayout,
   computeCoverSourceRect,
+  computeSummaryWholeBudget,
   generateRandomSuffix,
   listShareCandidates,
   sanitizeFileNamePart,
@@ -140,14 +141,14 @@ describe("listShareCandidates", () => {
     expect(summary.overflowColorsLabel).toBeNull();
   });
 
-  test("whole: まとめカードのパレットが12色超→上限12色＋overflowColorsLabel", () => {
-    const palette = Array.from({ length: 15 }, (_, i) => ({ id: `col_${i}` }));
+  test("whole: パーツ0件・パレットがハード上限24色超→上限24色＋overflowColorsLabel（動的バランス配分でも際限なく伸びない安全弁）", () => {
+    const palette = Array.from({ length: 27 }, (_, i) => ({ id: `col_${i}` }));
     const recipe = makeRecipe({ palette });
     const ctx: ShareContext = { mode: "whole", recipe };
     const result = listShareCandidates(ctx, resolvers);
     const summary = result[0] as SummaryWholeCandidateSpec;
 
-    expect(summary.swatches).toHaveLength(12);
+    expect(summary.swatches).toHaveLength(24);
     expect(summary.overflowColorsLabel).toBe("+3");
   });
 
@@ -201,10 +202,10 @@ describe("listShareCandidates", () => {
     expect(summary.partRows.map((row) => row.name)).toEqual(["兜", "盾"]);
   });
 
-  test("whole: パーツ行が上限（8件）を超える→上限で切り詰めoverflowPartsLabelへ残数集約", () => {
+  test("whole: パーツ行がハード上限（16件）を超える→上限で切り詰めoverflowPartsLabelへ残数集約（動的バランス配分でも際限なく伸びない安全弁）", () => {
     const recipe = makeRecipe({
       baseSteps: [],
-      parts: Array.from({ length: 10 }, (_, i) =>
+      parts: Array.from({ length: 18 }, (_, i) =>
         makePart({ id: `part_${i}`, name: `パーツ${i}`, steps: [makeStep()] }),
       ),
     });
@@ -212,7 +213,7 @@ describe("listShareCandidates", () => {
     const result = listShareCandidates(ctx, resolvers);
     const summary = result[0] as SummaryWholeCandidateSpec;
 
-    expect(summary.partRows).toHaveLength(8);
+    expect(summary.partRows).toHaveLength(16);
     expect(summary.partRows.map((row) => row.name)).toEqual([
       "パーツ0",
       "パーツ1",
@@ -222,14 +223,22 @@ describe("listShareCandidates", () => {
       "パーツ5",
       "パーツ6",
       "パーツ7",
+      "パーツ8",
+      "パーツ9",
+      "パーツ10",
+      "パーツ11",
+      "パーツ12",
+      "パーツ13",
+      "パーツ14",
+      "パーツ15",
     ]);
     expect(summary.overflowPartsLabel).toBe("…他2パーツ");
   });
 
-  test("whole: baseSteps非空＋パーツ多数で合計が上限を超える場合もbase行を含めて切り詰め、overflowは合算件数", () => {
+  test("whole: baseSteps非空＋パーツ多数で合計がハード上限を超える場合もbase行を含めて切り詰め、overflowは合算件数", () => {
     const recipe = makeRecipe({
       baseSteps: [makeStep()],
-      parts: Array.from({ length: 9 }, (_, i) =>
+      parts: Array.from({ length: 18 }, (_, i) =>
         makePart({ id: `part_${i}`, name: `パーツ${i}`, steps: [makeStep()] }),
       ),
     });
@@ -237,13 +246,13 @@ describe("listShareCandidates", () => {
     const result = listShareCandidates(ctx, resolvers);
     const summary = result[0] as SummaryWholeCandidateSpec;
 
-    // ベース行1 + パーツ9件 = 10行 → 上限8で切り詰め、残り2件がoverflow
-    expect(summary.partRows).toHaveLength(8);
+    // ベース行1 + パーツ18件 = 19行 → ハード上限16で切り詰め、残り3件がoverflow
+    expect(summary.partRows).toHaveLength(16);
     expect(summary.partRows[0]).toEqual({
       name: "ベース工程（全体）",
       stepsLabel: "1工程",
     });
-    expect(summary.overflowPartsLabel).toBe("…他2パーツ");
+    expect(summary.overflowPartsLabel).toBe("…他3パーツ");
   });
 
   test("part: 写真つき工程0件（全工程が写真なし）→まとめカード（summary/part）1枚のみ", () => {
@@ -605,6 +614,102 @@ describe("computeCoverSourceRect", () => {
   });
 });
 
+// ---- computeSummaryWholeBudget ----
+// 期待値は実装式の写経ではなく、行予算1018px（bodyTop〜contentBottomの1166pxから
+// 固定オーバーヘッド148pxを差し引いた値）・パーツ行40px・overflow行40px・
+// カラーグリッド行44px（3列）を用いて独立に検算した値。
+
+describe("computeSummaryWholeBudget", () => {
+  test("少数（parts 2・colors 9）→全件表示（overflowなし）", () => {
+    expect(computeSummaryWholeBudget(2, 9)).toEqual({
+      partsDisplay: 2,
+      colorsDisplay: 9,
+    });
+  });
+
+  test("パーツ多数（parts 30・colors 30）→パーツはハード上限16件＋overflow、カラーは最低保証6色を上回って21色表示され、総使用高さは1018px以内", () => {
+    const result = computeSummaryWholeBudget(30, 30);
+    expect(result).toEqual({ partsDisplay: 16, colorsDisplay: 21 });
+    expect(result.colorsDisplay).toBeGreaterThanOrEqual(6);
+
+    // 独立検算: パーツ16行＋overflow行(30>16のため) = 680px、カラー21色は
+    // 3列グリッドで ceil(21/3)=7行×44px = 308px。合計988px ≤ 1018px。
+    const partsUsedHeight = 16 * 40 + 40;
+    const colorsUsedHeight = Math.ceil(21 / 3) * 44;
+    expect(partsUsedHeight + colorsUsedHeight).toBeLessThanOrEqual(1018);
+  });
+
+  test("カラーのみ多数（parts 1・colors 30）→パーツを圧迫せずカラーはハード上限24色（8行）まで表示", () => {
+    expect(computeSummaryWholeBudget(1, 30)).toEqual({
+      partsDisplay: 1,
+      colorsDisplay: 24,
+    });
+  });
+
+  test("colors 0件→カラー表示0・overflowColorsLabel相当の判定に使う値もパーツ表示に影響しない", () => {
+    expect(computeSummaryWholeBudget(5, 0)).toEqual({
+      partsDisplay: 5,
+      colorsDisplay: 0,
+    });
+  });
+
+  test("parts 0件→パーツ表示0・カラーは通常どおり全件（少数）表示", () => {
+    expect(computeSummaryWholeBudget(0, 10)).toEqual({
+      partsDisplay: 0,
+      colorsDisplay: 10,
+    });
+  });
+
+  test("parts 0件・colors 0件→両方0（既存挙動維持）", () => {
+    expect(computeSummaryWholeBudget(0, 0)).toEqual({
+      partsDisplay: 0,
+      colorsDisplay: 0,
+    });
+  });
+
+  test("境界: パーツがハード上限ちょうど（16件・colors 0）→overflowなしで16件全表示", () => {
+    expect(computeSummaryWholeBudget(16, 0)).toEqual({
+      partsDisplay: 16,
+      colorsDisplay: 0,
+    });
+  });
+
+  test("境界: パーツがハード上限を1件超過（17件・colors 0）→overflow行を含めて16件のみ表示（overflow行の予算40pxぶんカラーには影響しない＝colors 0のまま）", () => {
+    expect(computeSummaryWholeBudget(17, 0)).toEqual({
+      partsDisplay: 16,
+      colorsDisplay: 0,
+    });
+  });
+
+  test("境界: パーツ・カラーが両方ハード上限ちょうど（parts 16・colors 24）→overflow行なしで両方満額表示できる（唯一の同時最大到達ケース）", () => {
+    // 独立検算: パーツ16行（overflowなし）=640px。残り予算1018-640=378px→
+    // floor(378/44)=8行→8*3=24枠 ちょうどcolors 24が収まる。
+    expect(computeSummaryWholeBudget(16, 24)).toEqual({
+      partsDisplay: 16,
+      colorsDisplay: 24,
+    });
+  });
+
+  test("computeCardLayoutとの整合性: listShareCandidates経由の最大配分ケースでもsummarySwatchArea下端がcontentBottom(1310)以下に収まる", () => {
+    const recipe = makeRecipe({
+      baseSteps: [],
+      parts: Array.from({ length: 16 }, (_, i) =>
+        makePart({ id: `part_${i}`, name: `パーツ${i}`, steps: [makeStep()] }),
+      ),
+      palette: Array.from({ length: 24 }, (_, i) => ({ id: `col_${i}` })),
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const summary = result[0] as SummaryWholeCandidateSpec;
+    const layout = computeCardLayout(summary);
+
+    const contentBottom = 1350 - 40; // CARD_HEIGHT - FOOTER_HEIGHT
+    const bottomMost =
+      layout.summarySwatchArea!.y + layout.summarySwatchArea!.height;
+    expect(bottomMost).toBeLessThanOrEqual(contentBottom);
+  });
+});
+
 // ---- computeCardLayout ----
 
 function rectsOverlap(a: Rect, b: Rect): boolean {
@@ -833,19 +938,22 @@ describe("computeCardLayout", () => {
     );
   });
 
-  test("summary(whole): パーツ行上限8件・スウォッチ上限12件の最大ケースでも全要素がカード内に静的に収まる", () => {
+  test("summary(whole): パーツ行ハード上限16件（overflowなし）・スウォッチハード上限24件の最大ケースでも全要素がカード内に静的に収まる", () => {
+    // computeSummaryWholeBudgetの保証により、パーツ16件がoverflow行なしで収まるケースが
+    // 「両方ハード上限に同時到達する」唯一の組み合わせ（17件以上ではoverflow行の予算40pxが
+    // 追加され、カラー側の表示数は24を下回る）。
     const spec = makeSummaryWholeSpec({
-      partRows: Array.from({ length: 8 }, (_, i) => ({
+      partRows: Array.from({ length: 16 }, (_, i) => ({
         name: `パーツ${i + 1}`,
         stepsLabel: `${i + 1}工程`,
       })),
-      overflowPartsLabel: "…他2パーツ",
-      swatches: Array.from({ length: 12 }, (_, i) => ({
+      overflowPartsLabel: null,
+      swatches: Array.from({ length: 24 }, (_, i) => ({
         name: `Color ${i}`,
         hex: "#960F0F",
         brand: null,
       })),
-      overflowColorsLabel: "+3",
+      overflowColorsLabel: null,
     });
     const layout = computeCardLayout(spec);
 
@@ -859,15 +967,15 @@ describe("computeCardLayout", () => {
     );
 
     // レビューL3対応の回帰防止: rect相互不重複だけでなく合計高さの絶対値も検算する
-    // （定数を同時に肥大させても通ってしまう抜け穴を塞ぐ）。閾値840は実装式の写経ではなく、
-    // FB-3後の最大ケース最下端（実測828px。パーツ行8＋overflow・色12＝3列×4行）に対して
-    // 余裕を持たせた独立数値。footerArea開始位置（contentBottom = 860px）よりは十分厳しい。
+    // （定数を同時に肥大させても通ってしまう抜け穴を塞ぐ）。閾値1300は実装式の写経ではなく、
+    // 動的バランス配分後の最大ケース最下端（独立計算による実測1284px。パーツ行16(overflowなし)・
+    // 色24＝3列×8行）に対して余裕を持たせた独立数値。contentBottom(1310px)よりは十分厳しい。
     const bottomMost =
       layout.summarySwatchArea!.y + layout.summarySwatchArea!.height;
-    expect(bottomMost).toBeLessThanOrEqual(840);
+    expect(bottomMost).toBeLessThanOrEqual(1300);
   });
 
-  test("summary(whole)FB-3: パーツ行が2行しかない場合、summaryPartRowsAreaの高さは8行固定ではなく実行数（2行）分＋見出しになる（上詰めレイアウト）", () => {
+  test("summary(whole)FB-3: パーツ行が2行しかない場合、summaryPartRowsAreaの高さは16行固定ではなく実行数（2行）分＋見出しになる（上詰めレイアウト）", () => {
     const twoRowsSpec = makeSummaryWholeSpec({
       partRows: [
         { name: "パーツ1", stepsLabel: "3工程" },
@@ -875,8 +983,8 @@ describe("computeCardLayout", () => {
       ],
       overflowPartsLabel: null,
     });
-    const eightRowsSpec = makeSummaryWholeSpec({
-      partRows: Array.from({ length: 8 }, (_, i) => ({
+    const sixteenRowsSpec = makeSummaryWholeSpec({
+      partRows: Array.from({ length: 16 }, (_, i) => ({
         name: `パーツ${i + 1}`,
         stepsLabel: `${i + 1}工程`,
       })),
@@ -884,18 +992,18 @@ describe("computeCardLayout", () => {
     });
 
     const twoRowsLayout = computeCardLayout(twoRowsSpec);
-    const eightRowsLayout = computeCardLayout(eightRowsSpec);
+    const sixteenRowsLayout = computeCardLayout(sixteenRowsSpec);
 
-    // 見出し30px + 2行×40px = 110px（8行固定予約の見出し30+320=350pxより明確に小さい）
+    // 見出し30px + 2行×40px = 110px（16行固定予約の見出し30+640=670pxより明確に小さい）
     expect(twoRowsLayout.summaryPartRowsArea!.height).toBe(110);
-    expect(eightRowsLayout.summaryPartRowsArea!.height).toBe(350);
+    expect(sixteenRowsLayout.summaryPartRowsArea!.height).toBe(670);
     expect(twoRowsLayout.summaryPartRowsArea!.height).toBeLessThan(
-      eightRowsLayout.summaryPartRowsArea!.height,
+      sixteenRowsLayout.summaryPartRowsArea!.height,
     );
 
     // 上詰め: パーツ行が少ないほど使用カラーセクションの開始位置（y）が上に来る
     expect(twoRowsLayout.summarySwatchArea!.y).toBeLessThan(
-      eightRowsLayout.summarySwatchArea!.y,
+      sixteenRowsLayout.summarySwatchArea!.y,
     );
   });
 
