@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "Elimina",
     "stepAdd": "+ Aggiungi 1 foto",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "Ritaglia"
+  },
+  "photoCrop": {
+    "title": "Ritaglia foto",
+    "imageAlt": "Foto da ritagliare",
+    "apply": "Applica",
+    "reset": "Reimposta (rimuovi ritaglio)",
+    "cancel": "Annulla",
+    "rectLabel": "Area di ritaglio (sposta con le frecce)",
+    "handle": {
+      "nw": "Maniglia in alto a sinistra",
+      "ne": "Maniglia in alto a destra",
+      "sw": "Maniglia in basso a sinistra",
+      "se": "Maniglia in basso a destra"
+    }
   },
   "confirm": {
     "cancel": "Annulla",

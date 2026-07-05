@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "Löschen",
     "stepAdd": "+ 1 Foto hinzufügen",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "Zuschneiden"
+  },
+  "photoCrop": {
+    "title": "Foto zuschneiden",
+    "imageAlt": "Zuzuschneidendes Foto",
+    "apply": "Übernehmen",
+    "reset": "Zurücksetzen (Zuschnitt entfernen)",
+    "cancel": "Abbrechen",
+    "rectLabel": "Zuschnittbereich (mit Pfeiltasten verschieben)",
+    "handle": {
+      "nw": "Griff oben links",
+      "ne": "Griff oben rechts",
+      "sw": "Griff unten links",
+      "se": "Griff unten rechts"
+    }
   },
   "confirm": {
     "cancel": "Abbrechen",

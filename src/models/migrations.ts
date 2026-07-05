@@ -3,10 +3,14 @@
 // ロード時lazy migration（§2.7）およびインポート3段検証の第2段（migrate）から呼ばれる。
 // zodによる検証は行わない（形の変換のみ。検証は呼び出し側の責務 — §2.7）。
 //
-// key = 変換元バージョン。v2導入時は docRegistry[1] = (v1Doc) => v2Doc を追加する。
-// 現行はv1のみのためレジストリは空（v1は恒等＝そのまま返す）。
+// key = 変換元バージョン。
+// v2（photoCrops追加。§2.1/§3.4）: docRegistry[1] = v1Doc→v2Doc（photoCrops: {} を付与）。
+// photosRegistry[1]はv2でphotos部の形状変化がないため恒等関数を登録する
+// （migrateExportFileはphotos部にもapplyMigrationsを適用し、レジストリ欠落は
+// MissingMigrationErrorをthrowするため、恒等登録を省略するとv1エクスポートファイルの
+// インポートが全滅する。CRITICAL）。
 
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 
 /** RecipeDoc本体のバージョン間変換関数レジストリ。キーn = vn→vn+1変換 */
 export type DocMigrationRegistry = Record<number, (doc: unknown) => unknown>;
@@ -17,8 +21,12 @@ export type PhotosMigrationRegistry = Record<
   (photos: unknown) => unknown
 >;
 
-const docRegistry: DocMigrationRegistry = {};
-const photosRegistry: PhotosMigrationRegistry = {};
+const docRegistry: DocMigrationRegistry = {
+  1: (doc) => ({ ...(doc as object), schemaVersion: 2, photoCrops: {} }),
+};
+const photosRegistry: PhotosMigrationRegistry = {
+  1: (photos) => photos,
+};
 
 /** fromVersionがtargetVersionより新しい（未知の将来バージョンである）場合に投げる */
 export class UnsupportedSchemaVersionError extends Error {

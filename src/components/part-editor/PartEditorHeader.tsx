@@ -15,7 +15,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
+import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
+import type { CropRect } from "../../models/recipe";
 import styles from "./PartEditorHeader.module.css";
 
 interface PartEditorHeaderProps {
@@ -27,6 +29,8 @@ interface PartEditorHeaderProps {
   onPartNameCommit?: (name: string) => void;
   /** baseモードのみ使用: 代表写真ID（overviewPhotoIds[0]。未設定ならnull） */
   representativePhotoId?: string | null;
+  /** baseモードのみ使用: 代表写真のクロップ矩形（未設定はnull） */
+  representativePhotoCrop?: CropRect | null;
 }
 
 function PartEditorHeader({
@@ -35,6 +39,7 @@ function PartEditorHeader({
   partName,
   onPartNameCommit,
   representativePhotoId,
+  representativePhotoCrop = null,
 }: PartEditorHeaderProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState(partName ?? "");
@@ -87,9 +92,10 @@ function PartEditorHeader({
           ) : (
             <div className={styles.readonlyThumb}>
               {photoUrl ? (
-                <img
+                <CroppedPhoto
                   className={styles.readonlyThumbImg}
                   src={photoUrl}
+                  crop={representativePhotoCrop}
                   alt=""
                 />
               ) : (

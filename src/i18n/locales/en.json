@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "Delete",
     "stepAdd": "+ Add 1 photo",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "Crop"
+  },
+  "photoCrop": {
+    "title": "Crop photo",
+    "imageAlt": "Photo to crop",
+    "apply": "Apply",
+    "reset": "Reset (remove crop)",
+    "cancel": "Cancel",
+    "rectLabel": "Crop area (use arrow keys to move)",
+    "handle": {
+      "nw": "Top-left handle",
+      "ne": "Top-right handle",
+      "sw": "Bottom-left handle",
+      "se": "Bottom-right handle"
+    }
   },
   "confirm": {
     "cancel": "Cancel",

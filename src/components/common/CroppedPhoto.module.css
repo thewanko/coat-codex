@@ -1,0 +1,32 @@
+/* CroppedPhoto — ラッパーは既存サイトのimgと同寸法になるようclassName側の寸法指定を受ける。
+   crop未設定時はplainImgのみ（object-fit: coverで現行同一の見た目）。
+   crop設定時はcropBox（中間要素）でラッパーをcoverし、その内側にimgをクロップ領域が
+   過不足なく満たすよう配置する（数値計算はCroppedPhoto.tsx computeCroppedPhotoStyle）。 */
+
+.wrapper {
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+
+.plainImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 配置（top/left/transform/aspect-ratio/min-*）はcomputeCroppedPhotoStyleのインラインstyleが
+   全て担う。ここにinset等の位置指定を置くとインラインが上書きしない辺（right/bottom）が残って
+   過剰拘束になりaspect-ratio coverが崩れるため、位置指定は置かない（レビューL-2関連の実機確認で検出） */
+.cropBox {
+  position: absolute;
+  display: block;
+}
+
+.croppedImg {
+  display: block;
+  /* インラインstyle未適用（naturalSize取得前・visibility:hidden中）でも文書フローに
+     影響しないようCSS側でも絶対配置を持たせる（レビューL-2） */
+  position: absolute;
+}

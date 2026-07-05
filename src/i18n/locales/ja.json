@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "削除",
     "stepAdd": "＋ 写真 1枚",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "トリミング"
+  },
+  "photoCrop": {
+    "title": "写真をトリミング",
+    "imageAlt": "トリミング対象の写真",
+    "apply": "適用",
+    "reset": "リセット（クロップ解除）",
+    "cancel": "キャンセル",
+    "rectLabel": "クロップ範囲（矢印キーで移動）",
+    "handle": {
+      "nw": "左上のハンドル",
+      "ne": "右上のハンドル",
+      "sw": "左下のハンドル",
+      "se": "右下のハンドル"
+    }
   },
   "confirm": {
     "cancel": "キャンセル",

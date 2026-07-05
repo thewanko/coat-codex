@@ -78,6 +78,8 @@ export class RecipeNotFoundError extends Error {
  * （§2.2「実体のないphotoId参照は出力文書から除去する」/ §2.6「photoId欠損時フォールバック」）。
  * 参照箇所は overviewPhotoIds（配列＝要素除去） / steps[].photoId（null化） /
  * palette[].chipPhotoId（null化）の3種（v2.2: 旧parts[].photoIdsは廃止）。
+ * photoCropsは「文書内で参照されている（=strip後もなお存在する）photoId」のキーのみ残す
+ * （実体のないphotoId・文書内で未参照になったphotoIdのクロップは無害だが不要なので除去する）。
  * 純関数（DB・ブラウザAPIに非依存）でテスト容易性を確保する。
  */
 export function stripDanglingPhotoRefs(
@@ -89,21 +91,44 @@ export function stripDanglingPhotoRefs(
       ? { ...step, photoId: null }
       : step;
 
+  const strippedOverviewPhotoIds = doc.overviewPhotoIds.filter((id) =>
+    existingPhotoIds.has(id),
+  );
+  const strippedPalette = doc.palette.map((color) =>
+    color.chipPhotoId !== null && !existingPhotoIds.has(color.chipPhotoId)
+      ? { ...color, chipPhotoId: null }
+      : color,
+  );
+  const strippedBaseSteps = doc.baseSteps.map(stripStep);
+  const strippedParts = doc.parts.map((part) => ({
+    ...part,
+    steps: part.steps.map(stripStep),
+  }));
+
+  const referencedPhotoIds = new Set<string>(strippedOverviewPhotoIds);
+  for (const step of [
+    ...strippedBaseSteps,
+    ...strippedParts.flatMap((part) => part.steps),
+  ]) {
+    if (step.photoId !== null) {
+      referencedPhotoIds.add(step.photoId);
+    }
+  }
+
+  const nextPhotoCrops: RecipeDoc["photoCrops"] = {};
+  for (const [photoId, rect] of Object.entries(doc.photoCrops)) {
+    if (referencedPhotoIds.has(photoId)) {
+      nextPhotoCrops[photoId] = rect;
+    }
+  }
+
   return {
     ...doc,
-    overviewPhotoIds: doc.overviewPhotoIds.filter((id) =>
-      existingPhotoIds.has(id),
-    ),
-    palette: doc.palette.map((color) =>
-      color.chipPhotoId !== null && !existingPhotoIds.has(color.chipPhotoId)
-        ? { ...color, chipPhotoId: null }
-        : color,
-    ),
-    baseSteps: doc.baseSteps.map(stripStep),
-    parts: doc.parts.map((part) => ({
-      ...part,
-      steps: part.steps.map(stripStep),
-    })),
+    overviewPhotoIds: strippedOverviewPhotoIds,
+    palette: strippedPalette,
+    baseSteps: strippedBaseSteps,
+    parts: strippedParts,
+    photoCrops: nextPhotoCrops,
   };
 }
 

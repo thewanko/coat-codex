@@ -58,6 +58,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
     ...overrides,
   };
 }
@@ -335,6 +336,82 @@ describe("M4必須事項③: 未使用palette色の自動GC（v2.3）", () => {
 
     // GCは保存文書にのみ適用され、stateのpalette要素の参照は変わらない
     expect(useRecipeStore.getState().doc?.palette[0]).toBe(usedColor);
+  });
+});
+
+describe("保存時GC: dangling photoCropsの除去（B-1）", () => {
+  test("overviewPhotoIds・baseSteps・partsのいずれからも参照されなくなったcropは保存文書から除去される", async () => {
+    vi.useFakeTimers();
+    const doc = makeDoc({
+      overviewPhotoIds: [],
+      baseSteps: [],
+      parts: [],
+      photoCrops: { ph_orphan: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } },
+    });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.photoCrops).toEqual({});
+  });
+
+  test("overviewPhotoIdsから参照されているcropは保持される", async () => {
+    vi.useFakeTimers();
+    const doc = makeDoc({
+      overviewPhotoIds: ["ph_overview"],
+      photoCrops: { ph_overview: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } },
+    });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.photoCrops).toEqual({
+      ph_overview: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 },
+    });
+  });
+
+  test("baseStepsから参照されているcropは保持される", async () => {
+    vi.useFakeTimers();
+    const stepWithPhoto = makeStep({ id: "stp_base", photoId: "ph_base" });
+    const doc = makeDoc({
+      baseSteps: [stepWithPhoto],
+      photoCrops: { ph_base: { x: 0.2, y: 0.2, w: 0.4, h: 0.4 } },
+    });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.photoCrops).toEqual({
+      ph_base: { x: 0.2, y: 0.2, w: 0.4, h: 0.4 },
+    });
+  });
+
+  test("parts[].stepsから参照されているcropは保持される", async () => {
+    vi.useFakeTimers();
+    const stepWithPhoto = makeStep({ id: "stp_part", photoId: "ph_part" });
+    const doc = makeDoc({
+      parts: [{ id: "part_1", name: "頭部", steps: [stepWithPhoto] }],
+      photoCrops: { ph_part: { x: 0.3, y: 0.3, w: 0.2, h: 0.2 } },
+    });
+    vi.mocked(loadRecipe).mockResolvedValue(doc);
+    await useRecipeStore.getState().load("rcp_1");
+
+    useRecipeStore.getState().updateRecipe((d) => ({ ...d }));
+    await vi.advanceTimersByTimeAsync(500);
+
+    const saved = vi.mocked(saveRecipe).mock.calls[0][0];
+    expect(saved.photoCrops).toEqual({
+      ph_part: { x: 0.3, y: 0.3, w: 0.2, h: 0.2 },
+    });
   });
 });
 

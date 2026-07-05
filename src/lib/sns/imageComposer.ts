@@ -13,6 +13,17 @@ export type ShareContext =
   | { mode: "whole"; recipe: RecipeDocLike }
   | { mode: "part"; recipe: RecipeDocLike; partId: string };
 
+/**
+ * imageComposerが必要とするCropRectの最小形（models/recipe.tsのCropRectと構造的互換。
+ * 元画像に対する正規化矩形。x/y/w/hはいずれも0〜1）。
+ */
+export interface CropRectLike {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 /** imageComposerが必要とするRecipeDocの最小形（models/recipe.tsのRecipeDocと構造的互換） */
 export interface RecipeDocLike {
   title: string;
@@ -22,6 +33,12 @@ export interface RecipeDocLike {
   baseSteps: StepLike[];
   /** まとめカード（whole）のパレット全色スウォッチに使用。RecipeDoc.paletteと構造的互換（idのみ参照） */
   palette: { id: string }[];
+  /**
+   * 写真ごとのクロップ矩形（B-1・RecipeDoc.photoCropsと構造的互換）。共有カード生成時に
+   * 該当photoIdのクロップを解決して各specへ伝搬する（B-3a）。省略時はクロップなし扱い
+   * （既存呼び出し元・既存テストのRecipeDocLikeリテラルを壊さないためoptional）。
+   */
+  photoCrops?: Record<string, CropRectLike>;
 }
 
 export interface PartLike {
@@ -100,6 +117,12 @@ export interface WholeCandidateSpec {
   kind: "whole";
   photoId: string;
   title: string;
+  /**
+   * photoIdに対するクロップ矩形（recipe.photoCrops[photoId]解決済み）。
+   * クロップ未設定はnull（drawPhotoは元画像全体でのcover計算にフォールバックする）。
+   * optional: 既存テストのリテラル（未指定）はクロップなし扱いのまま緑を維持する。
+   */
+  crop?: CropRectLike | null;
 }
 
 /** part候補: 全体画像（代表写真）＋工程写真＋工程情報の1枚絵 */
@@ -111,8 +134,18 @@ export interface PartCandidateSpec {
   partName: string;
   /** 全体画像（代表写真=overviewPhotoIds[0]）。全体写真が1枚もなければnull */
   overviewPhotoId: string | null;
+  /**
+   * overviewPhotoIdに対するクロップ矩形（recipe.photoCrops解決済み）。overviewPhotoIdがnullの
+   * 場合はundefined/null。optional: 既存テストのリテラル（未指定）は緑を維持する。
+   */
+  overviewPhotoCrop?: CropRectLike | null;
   /** 対象工程の写真（呼び出し元はphotoId非nullの工程のみ列挙するため常に非null） */
   stepPhotoId: string;
+  /**
+   * stepPhotoIdに対するクロップ矩形（recipe.photoCrops解決済み）。クロップ未設定はnull。
+   * optional: 既存テストのリテラル（未指定）は緑を維持する。
+   */
+  stepPhotoCrop?: CropRectLike | null;
   /** 工程番号（1-based）の表示タグ */
   stepTag: string;
   techniqueLabel: string;
@@ -572,6 +605,7 @@ export function listShareCandidates(
         kind: "whole",
         photoId,
         title: ctx.recipe.title,
+        crop: ctx.recipe.photoCrops?.[photoId] ?? null,
       }),
     );
     return [summary, ...wholeCards];
@@ -583,6 +617,10 @@ export function listShareCandidates(
   }
 
   const overviewPhotoId = ctx.recipe.overviewPhotoIds[0] ?? null;
+  const overviewPhotoCrop =
+    overviewPhotoId !== null
+      ? (ctx.recipe.photoCrops?.[overviewPhotoId] ?? null)
+      : null;
 
   const candidates: PartCandidateSpec[] = [];
   part.steps.forEach((step, index) => {
@@ -609,7 +647,9 @@ export function listShareCandidates(
       title: ctx.recipe.title,
       partName: part.name,
       overviewPhotoId,
+      overviewPhotoCrop,
       stepPhotoId: step.photoId,
+      stepPhotoCrop: ctx.recipe.photoCrops?.[step.photoId] ?? null,
       stepTag: resolvers.stepTag(index + 1),
       techniqueLabel: resolvers.techniqueLabel(step),
       mixBadge: resolvers.mixBadge(step),
@@ -1131,34 +1171,61 @@ export interface SourceRect {
  * 元画像内で最大となる中央矩形を返す。
  * ゼロ・負値ガード: src/destいずれかの幅高さが0以下の場合は例外を投げず、
  * フォールバックとして元画像全面 `{0, 0, srcWidth, srcHeight}` を返す。
+ *
+ * crop引数（B-3a）: 指定時は「まずcrop矩形（元画像に対する正規化矩形）でソース空間を制限し、
+ * その制限された空間内でdestアスペクトのcover矩形を計算する」（クロップ→その中でcover、の2段階）。
+ * 戻り値は常に元画像のピクセル座標系（cropのオフセット・スケールを織り込み済み）。
+ * crop未指定（undefined/null）時は現行と完全に同一の結果を返す（既存呼び出し元・既存テスト非破壊）。
  */
 export function computeCoverSourceRect(
   srcWidth: number,
   srcHeight: number,
   destWidth: number,
   destHeight: number,
+  crop?: CropRectLike | null,
 ): SourceRect {
   if (srcWidth <= 0 || srcHeight <= 0 || destWidth <= 0 || destHeight <= 0) {
     return { sx: 0, sy: 0, sw: srcWidth, sh: srcHeight };
   }
 
-  const srcAspect = srcWidth / srcHeight;
+  const cropped = crop != null;
+  const spaceX = cropped ? crop.x * srcWidth : 0;
+  const spaceY = cropped ? crop.y * srcHeight : 0;
+  const spaceWidth = cropped ? crop.w * srcWidth : srcWidth;
+  const spaceHeight = cropped ? crop.h * srcHeight : srcHeight;
+
+  if (spaceWidth <= 0 || spaceHeight <= 0) {
+    // crop矩形が退化（幅か高さが0以下）: フォールバックとしてcrop空間全体をそのまま返す
+    return { sx: spaceX, sy: spaceY, sw: spaceWidth, sh: spaceHeight };
+  }
+
+  const spaceAspect = spaceWidth / spaceHeight;
   const destAspect = destWidth / destHeight;
 
-  if (srcAspect > destAspect) {
-    // 元画像の方が横長: 高さいっぱいを使い、左右をクロップする
-    const sw = srcHeight * destAspect;
-    return { sx: (srcWidth - sw) / 2, sy: 0, sw, sh: srcHeight };
+  if (spaceAspect > destAspect) {
+    // crop空間の方が横長: 高さいっぱいを使い、左右をクロップする
+    const sw = spaceHeight * destAspect;
+    return {
+      sx: spaceX + (spaceWidth - sw) / 2,
+      sy: spaceY,
+      sw,
+      sh: spaceHeight,
+    };
   }
 
-  if (srcAspect < destAspect) {
-    // 元画像の方が縦長: 幅いっぱいを使い、上下をクロップする
-    const sh = srcWidth / destAspect;
-    return { sx: 0, sy: (srcHeight - sh) / 2, sw: srcWidth, sh };
+  if (spaceAspect < destAspect) {
+    // crop空間の方が縦長: 幅いっぱいを使い、上下をクロップする
+    const sh = spaceWidth / destAspect;
+    return {
+      sx: spaceX,
+      sy: spaceY + (spaceHeight - sh) / 2,
+      sw: spaceWidth,
+      sh,
+    };
   }
 
-  // アスペクト比が同一: クロップ不要で全面を使う
-  return { sx: 0, sy: 0, sw: srcWidth, sh: srcHeight };
+  // アスペクト比が同一: クロップ空間全体を使う
+  return { sx: spaceX, sy: spaceY, sw: spaceWidth, sh: spaceHeight };
 }
 
 /**
@@ -1179,12 +1246,19 @@ function readImageNaturalSize(
   return null;
 }
 
-/** 写真Blobをrect内へアスペクト維持のcover配置で描画する。decode失敗時はプレースホルダ */
+/**
+ * 写真Blobをrect内へアスペクト維持のcover配置で描画する。decode失敗時はプレースホルダ。
+ * crop引数（B-3a）: 指定時はcomputeCoverSourceRectへそのまま伝搬し、クロップ矩形内でのcoverに
+ * 制限する。naturalSize取得不能時の5引数フォールバック（画像全体をdestへ全面描画）は
+ * ソース側の部分指定ができない形式のため、cropの有無を問わず現行のまま（全面描画）でよい
+ * （クロップ不能なケースであり、意図的に非対応）。
+ */
 async function drawPhoto(
   ctx: CanvasContextLike,
   rect: Rect,
   photoId: string | null,
   deps: Required<Pick<ComposerDeps, "loadPhoto" | "decodeImage">>,
+  crop?: CropRectLike | null,
 ): Promise<void> {
   if (photoId === null) {
     drawPhotoPlaceholder(ctx, rect);
@@ -1211,6 +1285,7 @@ async function drawPhoto(
         naturalSize.height,
         rect.width,
         rect.height,
+        crop,
       );
       ctx.drawImage(
         image,
@@ -1886,16 +1961,29 @@ export async function composeShareImages(
         drawSummaryPartCard(ctx, spec, layout);
       }
     } else if (spec.kind === "whole") {
-      await drawPhoto(ctx, layout.mainPhoto!, spec.photoId, photoDeps);
+      await drawPhoto(
+        ctx,
+        layout.mainPhoto!,
+        spec.photoId,
+        photoDeps,
+        spec.crop ?? null,
+      );
       drawWholeCard(ctx, spec, layout);
     } else {
-      await drawPhoto(ctx, layout.mainPhoto!, spec.stepPhotoId, photoDeps);
+      await drawPhoto(
+        ctx,
+        layout.mainPhoto!,
+        spec.stepPhotoId,
+        photoDeps,
+        spec.stepPhotoCrop ?? null,
+      );
       if (layout.insetPhoto !== null) {
         await drawPhoto(
           ctx,
           layout.insetPhoto,
           spec.overviewPhotoId,
           photoDeps,
+          spec.overviewPhotoCrop ?? null,
         );
       }
       drawPartCard(ctx, spec, layout);

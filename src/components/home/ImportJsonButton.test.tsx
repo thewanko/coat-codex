@@ -56,6 +56,7 @@ function makeImportedRecipe(): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
   };
 }
 

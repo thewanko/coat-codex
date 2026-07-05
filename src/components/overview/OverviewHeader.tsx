@@ -12,16 +12,21 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
+import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
+import type { CropRect } from "../../models/recipe";
 import styles from "./OverviewHeader.module.css";
 
 interface OverviewHeaderProps {
   representativePhotoId: string | null;
+  /** 代表写真のクロップ矩形（未設定はnull） */
+  representativePhotoCrop?: CropRect | null;
   onChangePhoto: () => void;
 }
 
 function OverviewHeader({
   representativePhotoId,
+  representativePhotoCrop = null,
   onChangePhoto,
 }: OverviewHeaderProps) {
   const { t } = useTranslation();
@@ -63,7 +68,12 @@ function OverviewHeader({
     <div className={styles.root}>
       <div className={styles.photoFrame}>
         {photoUrl ? (
-          <img className={styles.photo} src={photoUrl} alt="" />
+          <CroppedPhoto
+            className={styles.photo}
+            src={photoUrl}
+            crop={representativePhotoCrop}
+            alt=""
+          />
         ) : (
           <span className={styles.photoPlaceholder} aria-hidden="true" />
         )}

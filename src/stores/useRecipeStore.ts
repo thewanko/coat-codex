@@ -127,15 +127,48 @@ function withStrippedPending(doc: RecipeDoc): RecipeDoc {
 }
 
 /**
- * 保存直前の変換（title既定名補完 → pending strip → 未使用palette色の自動GC）を
- * まとめて適用する（v2.3 §4.2 M4必須事項③）。除去した色のchipPhotoIdはBlob削除の
- * ためremovedChipPhotoIdsとして返す（削除自体は呼び出し側=performSaveの責務）。
+ * doc.photoCrops のうち、overviewPhotoIds・全step（baseSteps＋parts[].steps）のphotoIdの
+ * いずれからも参照されていないキーを除去した新しい文書を返す（純関数。写真削除の各UI経路
+ * （StepPhotoTile/PhotoUploader等）を個別に変更せず、保存時GCで一元的にdangling cropを掃除
+ * する設計。palette[].chipPhotoIdはクロップ対象外仕様のため参照集合に含めない）。
+ * 除去対象が無ければdocをそのまま返す（M4必須事項②の参照同一性方針に倣う）。
+ */
+function gcUnusedPhotoCrops(doc: RecipeDoc): RecipeDoc {
+  const referencedPhotoIds = new Set<string>(doc.overviewPhotoIds);
+  for (const step of [
+    ...doc.baseSteps,
+    ...doc.parts.flatMap((part) => part.steps),
+  ]) {
+    if (step.photoId !== null) {
+      referencedPhotoIds.add(step.photoId);
+    }
+  }
+
+  const cropEntries = Object.entries(doc.photoCrops);
+  const nextEntries = cropEntries.filter(([photoId]) =>
+    referencedPhotoIds.has(photoId),
+  );
+
+  if (nextEntries.length === cropEntries.length) {
+    return doc;
+  }
+
+  return { ...doc, photoCrops: Object.fromEntries(nextEntries) };
+}
+
+/**
+ * 保存直前の変換（title既定名補完 → pending strip → dangling photoCropsのGC →
+ * 未使用palette色の自動GC）をまとめて適用する（v2.3 §4.2 M4必須事項③）。除去した色の
+ * chipPhotoIdはBlob削除のためremovedChipPhotoIdsとして返す（削除自体は呼び出し側=
+ * performSaveの責務）。
  */
 function toPersistedDoc(doc: RecipeDoc): {
   doc: RecipeDoc;
   removedChipPhotoIds: string[];
 } {
-  const stripped = withStrippedPending(withResolvedTitle(doc));
+  const stripped = gcUnusedPhotoCrops(
+    withStrippedPending(withResolvedTitle(doc)),
+  );
   return gcUnusedPaletteColors(stripped);
 }
 

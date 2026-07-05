@@ -21,7 +21,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { Step, PaletteColor } from "../../models/recipe";
+import type { CropRect, Step, PaletteColor } from "../../models/recipe";
 import type { MixState } from "../../lib/mixRatio";
 import TechniqueSelect from "./TechniqueSelect";
 import PaintSlotList from "./PaintSlotList";
@@ -39,6 +39,9 @@ interface StepCardProps {
   onChange: (next: Step) => void;
   onAddColor: (color: PaletteColor) => void;
   onDelete: () => void;
+  /** 指定時のみStepPhotoTileのクロップ導線を有効化する */
+  crop?: CropRect | null;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 function StepCard({
@@ -49,6 +52,8 @@ function StepCard({
   onChange,
   onAddColor,
   onDelete,
+  crop,
+  onCropChange,
 }: StepCardProps) {
   const { t } = useTranslation();
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -116,6 +121,19 @@ function StepCard({
           stepIndex={index}
           recipeId={recipeId}
           onChange={(photoId) => onChange({ ...step, photoId })}
+          crop={crop}
+          onCropChange={
+            onCropChange
+              ? (next) => {
+                  // アップロード直後の自動オープン（StepPhotoTile内部state）が適用/リセットを
+                  // 呼ぶ時点では、onChange(photoId)を経てStepCardが再レンダー済みのため
+                  // step.photoIdは新しい値に更新されている（クロージャの陳腐化はない）。
+                  if (step.photoId) {
+                    onCropChange(step.photoId, next);
+                  }
+                }
+              : undefined
+          }
         />
         <div className={styles.memoWrap}>
           <MemoField

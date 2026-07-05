@@ -94,6 +94,7 @@ describe("StepPhotoStrip", () => {
         tools: [],
         baseSteps: [],
         parts: [],
+        photoCrops: {},
       },
     });
 

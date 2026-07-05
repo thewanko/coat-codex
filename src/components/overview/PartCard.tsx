@@ -33,8 +33,9 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
+import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
 import { resolveSwatchHexes } from "./partSwatch";
 import styles from "./PartCard.module.css";
 
@@ -44,6 +45,8 @@ interface PartCardProps {
   part: RecipePart;
   order?: number;
   palette?: RecipeDoc["palette"];
+  /** photoId→クロップ矩形（未設定はエントリなし）。RecipeDoc.photoCropsをそのまま渡す */
+  photoCrops?: Record<string, CropRect>;
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
 }
@@ -67,6 +70,7 @@ function PartCard({
   part,
   order,
   palette = [],
+  photoCrops = {},
   onOpen,
   onReview,
 }: PartCardProps) {
@@ -149,7 +153,12 @@ function PartCard({
             </span>
           )}
           {photoUrl ? (
-            <img className={styles.thumbImg} src={photoUrl} alt="" />
+            <CroppedPhoto
+              className={styles.thumbImg}
+              src={photoUrl}
+              crop={thumbPhotoId ? (photoCrops[thumbPhotoId] ?? null) : null}
+              alt=""
+            />
           ) : (
             <span className={styles.thumbPlaceholder} aria-hidden="true" />
           )}

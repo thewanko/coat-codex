@@ -13,13 +13,19 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "./toastContext";
 import ConfirmDialog from "./ConfirmDialog";
+import CroppedPhoto from "./CroppedPhoto";
+import PhotoCropDialog from "./PhotoCropDialog";
 import Skeleton from "./Skeleton";
+import type { CropRect } from "../../models/recipe";
 import styles from "./PhotoUploader.module.css";
 
 interface PhotoUploaderProps {
   recipeId: string;
   value: string[];
   onChange: (photoIds: string[]) => void;
+  /** 指定時のみクロップ導線（トリミングアクション・単発アップロード後の自動オープン）を有効化する */
+  crops?: Record<string, CropRect>;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 interface HasMessageKey {
@@ -38,9 +44,11 @@ function hasMessageKey(err: unknown): err is HasMessageKey {
 function PhotoTile({
   photoId,
   isCover,
+  crop,
 }: {
   photoId: string;
   isCover: boolean;
+  crop: CropRect | null;
 }) {
   const { t } = useTranslation();
   const [url, setUrl] = useState<string | null>(null);
@@ -61,7 +69,12 @@ function PhotoTile({
     <div className={styles.thumb}>
       {isCover && <span className={styles.coverTag}>{t("photo.cover")}</span>}
       {url ? (
-        <img className={styles.thumbImg} src={url} alt="" />
+        <CroppedPhoto
+          className={styles.thumbImg}
+          src={url}
+          crop={crop}
+          alt=""
+        />
       ) : (
         <span className={styles.thumbPlaceholder} aria-hidden="true" />
       )}
@@ -69,12 +82,21 @@ function PhotoTile({
   );
 }
 
-function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
+function PhotoUploader({
+  recipeId,
+  value,
+  onChange,
+  crops,
+  onCropChange,
+}: PhotoUploaderProps) {
   const { t } = useTranslation();
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [cropTargetId, setCropTargetId] = useState<string | null>(null);
+
+  const cropEnabled = onCropChange !== undefined;
 
   function handleAddClick() {
     inputRef.current?.click();
@@ -102,6 +124,12 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
       }
       if (newIds.length > 0) {
         onChange([...value, ...newIds]);
+        // 単発アップロード完了直後のみ自動でクロップダイアログを開く（複数一括時は開かない）。
+        // 既にダイアログ表示中（cropTargetId !== null）の場合は差し替えない
+        // （連続アップロードで表示中の対象photoIdが黙って切り替わる事故を防ぐ）
+        if (cropEnabled && newIds.length === 1 && cropTargetId === null) {
+          setCropTargetId(newIds[0]);
+        }
       }
     } finally {
       setUploading(false);
@@ -109,6 +137,21 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
         inputRef.current.value = "";
       }
     }
+  }
+
+  function requestCrop(photoId: string) {
+    setCropTargetId(photoId);
+  }
+
+  function handleCropSave(crop: CropRect | null) {
+    if (cropTargetId && onCropChange) {
+      onCropChange(cropTargetId, crop);
+    }
+    setCropTargetId(null);
+  }
+
+  function closeCropDialog() {
+    setCropTargetId(null);
   }
 
   function moveUp(index: number) {
@@ -162,7 +205,11 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
       <div className={styles.grid}>
         {value.map((photoId, index) => (
           <div key={photoId} className={styles.tileWrapper}>
-            <PhotoTile photoId={photoId} isCover={index === 0} />
+            <PhotoTile
+              photoId={photoId}
+              isCover={index === 0}
+              crop={crops?.[photoId] ?? null}
+            />
             <button
               type="button"
               className={styles.removeButton}
@@ -199,6 +246,15 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
                   {t("photo.makeCover")}
                 </button>
               )}
+              {cropEnabled && (
+                <button
+                  type="button"
+                  className={styles.controlButtonWide}
+                  onClick={() => requestCrop(photoId)}
+                >
+                  {t("photo.trim")}
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -233,6 +289,16 @@ function PhotoUploader({ recipeId, value, onChange }: PhotoUploaderProps) {
         onConfirm={() => void confirmDelete()}
         onCancel={cancelDelete}
       />
+
+      {cropEnabled && cropTargetId && (
+        <PhotoCropDialog
+          open={cropTargetId !== null}
+          photoId={cropTargetId}
+          initialCrop={crops?.[cropTargetId] ?? null}
+          onSave={handleCropSave}
+          onClose={closeCropDialog}
+        />
+      )}
     </div>
   );
 }

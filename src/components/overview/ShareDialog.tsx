@@ -575,6 +575,7 @@ function ShareDialog({ open, onClose, context }: ShareDialogProps) {
               generating={generating}
               images={images}
               selectedIndexes={selectedIndexes}
+              photoCrops={context.recipe.photoCrops}
               onToggle={handleToggleImage}
               onDownload={(index) =>
                 void handleDownloadSingleImage(images[index])

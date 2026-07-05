@@ -20,6 +20,8 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import type { ComposedShareImage } from "../../lib/sns/imageComposer";
+import type { CropRect } from "../../models/recipe";
+import CroppedPhoto from "../common/CroppedPhoto";
 import styles from "./ShareImagePreview.module.css";
 
 export const SHARE_IMAGE_MAX_SELECTION = 4;
@@ -30,6 +32,8 @@ interface ShareImagePreviewProps {
   images: ComposedShareImage[];
   /** 選択中のindex（imagesに対するindex）集合。呼び出し側で既定=先頭4枚を設定する */
   selectedIndexes: number[];
+  /** photoId→クロップ矩形（未設定はエントリなし）。RecipeDoc.photoCropsをそのまま渡す */
+  photoCrops?: Record<string, CropRect>;
   onToggle: (index: number) => void;
   /** 個別「保存」ボタン押下時（imagesに対するindex指定。1タップ=1ファイルDL） */
   onDownload: (index: number) => void;
@@ -39,7 +43,13 @@ interface ShareImagePreviewProps {
  * 候補カード1枚分のカバー写真（wholeはphotoId、partはstepPhotoId）を解決して表示する。
  * photoId=null（summaryカードは写真を持たない）は常に対角縞プレースホルダ様式で表示する。
  */
-function CandidatePhoto({ photoId }: { photoId: string | null }) {
+function CandidatePhoto({
+  photoId,
+  crop,
+}: {
+  photoId: string | null;
+  crop: CropRect | null;
+}) {
   const [url, setUrl] = useState<string | null>(null);
 
   // resolvePhotoUrlが返すobjectURLはここでrevokeしない: photoStore側の共有キャッシュ
@@ -68,7 +78,9 @@ function CandidatePhoto({ photoId }: { photoId: string | null }) {
       />
     );
   }
-  return <img className={styles.photoImg} src={url} alt="" />;
+  return (
+    <CroppedPhoto className={styles.photoImg} src={url} crop={crop} alt="" />
+  );
 }
 
 function candidateTag(
@@ -95,10 +107,20 @@ function candidatePhotoId(image: ComposedShareImage): string | null {
     : image.spec.stepPhotoId;
 }
 
+/** 候補カードの写真に対応するクロップ矩形を解決する（photoId不在ならnull） */
+function candidatePhotoCrop(
+  image: ComposedShareImage,
+  photoCrops: Record<string, CropRect>,
+): CropRect | null {
+  const photoId = candidatePhotoId(image);
+  return photoId ? (photoCrops[photoId] ?? null) : null;
+}
+
 function ShareImagePreview({
   generating,
   images,
   selectedIndexes,
+  photoCrops = {},
   onToggle,
   onDownload,
 }: ShareImagePreviewProps) {
@@ -156,7 +178,10 @@ function ShareImagePreview({
                 aria-label={t("share.selectImage", { index: index + 1 })}
               />
               <span className={styles.photoFrame}>
-                <CandidatePhoto photoId={candidatePhotoId(image)} />
+                <CandidatePhoto
+                  photoId={candidatePhotoId(image)}
+                  crop={candidatePhotoCrop(image, photoCrops)}
+                />
                 {tag && <span className={styles.tag}>{tag}</span>}
               </span>
               <button

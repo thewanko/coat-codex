@@ -300,6 +300,85 @@ describe("listShareCandidates", () => {
     expect(partCards.every((c) => c.partName === "兜")).toBe(true);
   });
 
+  test("whole: recipe.photoCropsに該当エントリがあればspec.cropへ解決される（B-3a）", () => {
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["ph_1", "ph_2"],
+      photoCrops: { ph_1: { x: 0.1, y: 0.2, w: 0.5, h: 0.6 } },
+    });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const wholeCards = result.slice(1) as WholeCandidateSpec[];
+
+    expect(wholeCards[0].crop).toEqual({ x: 0.1, y: 0.2, w: 0.5, h: 0.6 });
+    // ph_2は未設定→null
+    expect(wholeCards[1].crop).toBeNull();
+  });
+
+  test("whole: recipe.photoCrops未設定（省略）→全候補のcropはnull（既存レシピ・photoCrops未指定の後方互換）", () => {
+    const recipe = makeRecipe({ overviewPhotoIds: ["ph_1"] });
+    const ctx: ShareContext = { mode: "whole", recipe };
+    const result = listShareCandidates(ctx, resolvers);
+    const wholeCards = result.slice(1) as WholeCandidateSpec[];
+
+    expect(wholeCards[0].crop).toBeNull();
+  });
+
+  test("part: recipe.photoCropsがoverviewPhotoId・stepPhotoIdの両方へ独立に解決される（B-3a）", () => {
+    const part = makePart({
+      steps: [
+        makeStep({ photoId: "ph_step1" }),
+        makeStep({ photoId: "ph_step2" }),
+      ],
+    });
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["ph_overview"],
+      parts: [part],
+      photoCrops: {
+        ph_overview: { x: 0, y: 0, w: 0.8, h: 0.8 },
+        ph_step1: { x: 0.25, y: 0.25, w: 0.5, h: 0.5 },
+        // ph_step2はエントリなし
+      },
+    });
+    const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
+    const result = listShareCandidates(ctx, resolvers);
+    const partCards = result.slice(1) as PartCandidateSpec[];
+
+    expect(partCards[0].overviewPhotoCrop).toEqual({
+      x: 0,
+      y: 0,
+      w: 0.8,
+      h: 0.8,
+    });
+    expect(partCards[0].stepPhotoCrop).toEqual({
+      x: 0.25,
+      y: 0.25,
+      w: 0.5,
+      h: 0.5,
+    });
+    expect(partCards[1].overviewPhotoCrop).toEqual({
+      x: 0,
+      y: 0,
+      w: 0.8,
+      h: 0.8,
+    });
+    expect(partCards[1].stepPhotoCrop).toBeNull();
+  });
+
+  test("part: overviewPhotoId=null→overviewPhotoCropもnull（クロップ解決対象のphotoId自体が存在しない）", () => {
+    const part = makePart({ steps: [makeStep({ photoId: "ph_step1" })] });
+    const recipe = makeRecipe({
+      overviewPhotoIds: [],
+      parts: [part],
+      photoCrops: { ph_step1: { x: 0, y: 0, w: 1, h: 1 } },
+    });
+    const ctx: ShareContext = { mode: "part", recipe, partId: "part_1" };
+    const result = listShareCandidates(ctx, resolvers);
+    const partCards = result.slice(1) as PartCandidateSpec[];
+
+    expect(partCards[0].overviewPhotoCrop).toBeNull();
+    expect(partCards[0].stepPhotoCrop).toEqual({ x: 0, y: 0, w: 1, h: 1 });
+  });
+
   test("part: 全体写真なし→overviewPhotoIdはnull", () => {
     const part = makePart({ steps: [makeStep({ photoId: "ph_1" })] });
     const recipe = makeRecipe({ overviewPhotoIds: [], parts: [part] });
@@ -1329,6 +1408,82 @@ describe("buildFileName", () => {
   });
 });
 
+// ---- computeCoverSourceRect（crop対応・B-3a） ----
+
+describe("computeCoverSourceRect — crop対応（B-3a）", () => {
+  test("crop={0,0,1,1}（全体）指定時はcrop未指定時と完全に同一の結果になる", () => {
+    const withoutCrop = computeCoverSourceRect(2000, 1000, 1080, 1350);
+    const withFullCrop = computeCoverSourceRect(2000, 1000, 1080, 1350, {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    });
+    expect(withFullCrop).toEqual(withoutCrop);
+  });
+
+  test("crop未指定（undefined）はcrop=nullと同一の結果になる", () => {
+    const withUndefined = computeCoverSourceRect(2000, 1000, 1080, 1350);
+    const withNull = computeCoverSourceRect(2000, 1000, 1080, 1350, null);
+    expect(withNull).toEqual(withUndefined);
+  });
+
+  test("中央50%クロップ×dest横長: crop空間(1000x1500の中央矩形)内でdestアスペクトのcoverを計算する", () => {
+    // 元画像2000x1500・中央50%crop → crop空間: sx=500,sy=375,sw=1000,sh=750 (aspect=1.333)
+    // dest 1080x1350のアスペクト=0.8（縦長）: crop空間の方が横長なので高さいっぱいを使い左右をクロップ
+    const result = computeCoverSourceRect(2000, 1500, 1080, 1350, {
+      x: 0.25,
+      y: 0.25,
+      w: 0.5,
+      h: 0.5,
+    });
+    // crop空間: sx=500, sy=375, sw=1000, sh=750
+    // destAspect = 1080/1350 = 0.8。spaceAspect = 1000/750 = 1.333... > 0.8 → 高さ全部使う
+    // sw = spaceHeight * destAspect = 750 * 0.8 = 600
+    // sx = spaceX + (spaceWidth - sw)/2 = 500 + (1000-600)/2 = 500 + 200 = 700
+    expect(result.sx).toBeCloseTo(700, 6);
+    expect(result.sy).toBeCloseTo(375, 6);
+    expect(result.sw).toBeCloseTo(600, 6);
+    expect(result.sh).toBeCloseTo(750, 6);
+  });
+
+  test("中央50%クロップ×dest縦長: crop空間が縦長なら幅いっぱいを使い上下をクロップする", () => {
+    // 元画像1000x2000・中央50%crop → crop空間: sx=250,sy=500,sw=500,sh=1000 (aspect=0.5)
+    // dest 1350x1080のアスペクト=1.25（横長）: crop空間の方が縦長なので幅いっぱいを使い上下をクロップ
+    const result = computeCoverSourceRect(1000, 2000, 1350, 1080, {
+      x: 0.25,
+      y: 0.25,
+      w: 0.5,
+      h: 0.5,
+    });
+    // crop空間: sx=250, sy=500, sw=500, sh=1000
+    // destAspect = 1350/1080 = 1.25。spaceAspect = 500/1000 = 0.5 < 1.25 → 幅全部使う
+    // sh = spaceWidth / destAspect = 500 / 1.25 = 400
+    // sy = spaceY + (spaceHeight - sh)/2 = 500 + (1000-400)/2 = 500 + 300 = 800
+    expect(result.sx).toBeCloseTo(250, 6);
+    expect(result.sy).toBeCloseTo(800, 6);
+    expect(result.sw).toBeCloseTo(500, 6);
+    expect(result.sh).toBeCloseTo(400, 6);
+  });
+
+  test("クロップ矩形が極端に細い（横長すぎ）場合: crop空間の全高を使い左右をさらに絞り込む", () => {
+    // 元画像1000x1000・crop: x=0, y=0.45, w=1, h=0.1 → crop空間: sx=0, sy=450, sw=1000, sh=100 (aspect=10)
+    // dest 1080x1350のアスペクト=0.8: crop空間はdestよりずっと横長 → 高さ全部使い、左右を大きく絞る
+    const result = computeCoverSourceRect(1000, 1000, 1080, 1350, {
+      x: 0,
+      y: 0.45,
+      w: 1,
+      h: 0.1,
+    });
+    // sw = spaceHeight * destAspect = 100 * 0.8 = 80
+    // sx = spaceX + (spaceWidth - sw)/2 = 0 + (1000-80)/2 = 460
+    expect(result.sx).toBeCloseTo(460, 6);
+    expect(result.sy).toBeCloseTo(450, 6);
+    expect(result.sw).toBeCloseTo(80, 6);
+    expect(result.sh).toBeCloseTo(100, 6);
+  });
+});
+
 // ---- composeShareImages ----
 
 function makeSpyContext(): CanvasContextLike {
@@ -1507,6 +1662,126 @@ describe("composeShareImages", () => {
     expect(call[2]).toBe(rect.y);
     expect(call[3]).toBe(rect.width);
     expect(call[4]).toBe(rect.height);
+  });
+
+  test("B-3a: whole候補にspec.cropがあればdrawImageのsource引数がcrop内に制限される", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "whole",
+        photoId: "ph_cropped",
+        title: "Title",
+        crop: { x: 0.25, y: 0.25, w: 0.5, h: 0.5 },
+      },
+    ];
+    const layout = computeCardLayout(specs[0]);
+    const rect = layout.mainPhoto!;
+
+    // 元画像2000x2000（正方形）を中央50%クロップ→crop空間: sx=500,sy=500,sw=1000,sh=1000
+    const fakeBitmap = { width: 2000, height: 2000 } as unknown as ImageBitmap;
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(
+        async () => fakeBitmap as unknown as CanvasImageSource,
+      ),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(drawImageMock).toHaveBeenCalledTimes(1);
+    const call = drawImageMock.mock.calls[0];
+    expect(call).toHaveLength(9);
+
+    // crop込みの期待値をcomputeCoverSourceRectと独立に一致確認（cropなし版とは異なる値になること）
+    const expectedSource = computeCoverSourceRect(
+      2000,
+      2000,
+      rect.width,
+      rect.height,
+      { x: 0.25, y: 0.25, w: 0.5, h: 0.5 },
+    );
+    const expectedWithoutCrop = computeCoverSourceRect(
+      2000,
+      2000,
+      rect.width,
+      rect.height,
+    );
+    expect(call[1]).toBeCloseTo(expectedSource.sx, 6);
+    expect(call[2]).toBeCloseTo(expectedSource.sy, 6);
+    expect(call[3]).toBeCloseTo(expectedSource.sw, 6);
+    expect(call[4]).toBeCloseTo(expectedSource.sh, 6);
+    // source矩形はすべてcrop空間（元画像の[500,1500]区間）内に収まっている
+    expect(expectedSource.sx).toBeGreaterThanOrEqual(500);
+    expect(expectedSource.sx + expectedSource.sw).toBeLessThanOrEqual(1500);
+    expect(expectedSource.sy).toBeGreaterThanOrEqual(500);
+    expect(expectedSource.sy + expectedSource.sh).toBeLessThanOrEqual(1500);
+    // cropなし版とは異なる値になること（配線が実際にcropを伝搬している証拠）
+    expect(expectedSource).not.toEqual(expectedWithoutCrop);
+  });
+
+  test("B-3a: part候補のstepPhotoCrop/overviewPhotoCropがそれぞれ独立にdrawPhotoへ伝搬される", async () => {
+    const specs: ShareCandidateSpec[] = [
+      {
+        kind: "part",
+        title: "Recipe Title",
+        partName: "Helmet",
+        overviewPhotoId: "ph_overview",
+        overviewPhotoCrop: { x: 0, y: 0, w: 0.5, h: 0.5 },
+        stepPhotoId: "ph_step",
+        stepPhotoCrop: { x: 0.5, y: 0.5, w: 0.5, h: 0.5 },
+        stepTag: "STEP 1",
+        techniqueLabel: "basecoat",
+        mixBadge: "",
+        mixWarning: null,
+        swatches: [],
+      },
+    ];
+    const layout = computeCardLayout(specs[0]);
+    const mainRect = layout.mainPhoto!;
+    const insetRect = layout.insetPhoto!;
+
+    const fakeBitmap = { width: 1000, height: 1000 } as unknown as ImageBitmap;
+    const ctx = makeSpyContext();
+    const deps: ComposerDeps = {
+      loadPhoto: vi.fn(async () => new Blob(["photo"], { type: "image/png" })),
+      createCanvas: () => makeSpyCanvas(ctx),
+      decodeImage: vi.fn(
+        async () => fakeBitmap as unknown as CanvasImageSource,
+      ),
+    };
+
+    await composeShareImages(specs, deps);
+
+    const drawImageMock = ctx.drawImage as unknown as ReturnType<typeof vi.fn>;
+    expect(drawImageMock).toHaveBeenCalledTimes(2);
+
+    // 1回目: mainPhoto（stepPhotoId）はstepPhotoCrop={0.5,0.5,0.5,0.5}で計算される
+    const stepCall = drawImageMock.mock.calls[0];
+    const expectedStepSource = computeCoverSourceRect(
+      1000,
+      1000,
+      mainRect.width,
+      mainRect.height,
+      { x: 0.5, y: 0.5, w: 0.5, h: 0.5 },
+    );
+    expect(stepCall[1]).toBeCloseTo(expectedStepSource.sx, 6);
+    expect(stepCall[2]).toBeCloseTo(expectedStepSource.sy, 6);
+
+    // 2回目: insetPhoto（overviewPhotoId）はoverviewPhotoCrop={0,0,0.5,0.5}で計算される
+    const overviewCall = drawImageMock.mock.calls[1];
+    const expectedOverviewSource = computeCoverSourceRect(
+      1000,
+      1000,
+      insetRect.width,
+      insetRect.height,
+      { x: 0, y: 0, w: 0.5, h: 0.5 },
+    );
+    expect(overviewCall[1]).toBeCloseTo(expectedOverviewSource.sx, 6);
+    expect(overviewCall[2]).toBeCloseTo(expectedOverviewSource.sy, 6);
+    // 2つのcropは異なる矩形なので、それぞれ異なるsource座標になる（独立配線の証拠）
+    expect(stepCall[1]).not.toBeCloseTo(overviewCall[1], 3);
   });
 
   test("loadPhotoがnullを返す候補は写真領域をプレースホルダ塗りしつつカード自体は生成する", async () => {

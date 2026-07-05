@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: 共有カード縦長化＋DLファイル名 → PR起票)
+最終更新: 2026-07-05 (loop: ループB 写真の非破壊クロップ → PR起票)
 
 ## 完了
+
+- 2026-07-05: **ループB: 写真の非破壊クロップ（schemaVersion 1→2）**（PR: impl/photo-crop。承認済み計画 ~/.claude/plans/zazzy-gliding-honey.md の後半） — 3Wave構成。**B-1データ層**: RecipeDocへ`photoCrops: Record<photoId, {x,y,w,h}正規化矩形>`（EPSILON許容refine=レビューL-3のglue先行対応）・migrations `docRegistry[1]`＋**`photosRegistry[1]`恒等**（設計時1次確認で発見: migrateExportFileはphotos部にもレジストリ適用・欠落throwのため恒等登録必須=計画に無い落とし穴）・stripDanglingPhotoRefs/reassignRecipeIds/toPersistedDoc GC（palette GCと同所の保存時dangling掃除=全削除経路を一括カバー）。R1 PASS(C0/H0/M0/L3)。**B-2クロップUI**: PhotoCropDialog（矩形ドラッグ＋四隅ハンドル44px内向きヒット領域・最小10%・6桁丸め・矢印1%/Shift5%・useFocusTrap）＋cropGeometry純関数＋導線（PhotoUploader/StepPhotoTileへ任意props・単発アップロード直後自動オープン・タイル「トリミング」。chip写真は経路非共有で自動対象外）＋i18n 7ロケール。R1 FAIL(H1=StepCard条件渡しで自動オープン不発+テスト非代表/M2/L3)→修正→R2 PASS→**出口実機の幾何目視がレビュー素通りの実バグ2連発を検出**: (a)正規化座標がobject-fit:containレターボックス込みの**フレーム基準**で保存され契約（元画像基準）とズレる→フレーム比=画像比化で根治 (b)その修正のaspect-ratio+max-*のみ指定でフレームが0に潰れる（absolute子は内容量に寄与しない・jsdom検出不能）→width明示glue。R3 PASS(C0/H0/M0/L1)。**B-3反映（並列2委譲・不可侵指示）**: imageComposer=computeCoverSourceRect第5引数crop（クロップ空間制限→cover・未指定完全一致）／CroppedPhoto共通部品（2段CSS cover: cropBox=aspect-ratio CA・min-w/h 100%・中央translate＋img百分率配置=無歪み数式）で表示11箇所＋印刷を置換。R1 PASS(M1=src差し替え時naturalSize未リセット→src照合方式glue/L3。.cropBoxのinset:0過剰拘束も裁定時Read で検出しglue除去)。**B-4出口実機検証がCritical検出**: v1文書が残る実DBでHome全滅（RecipeCardのthrowで全アンマウント）— 真因=**listRecipesが一覧経路でlazy migration未適用**という設計の穴をB-3のphotoCrops直アクセスが顕在化（fixture全v2でユニット素通り=実データ代表性）。根治=一覧経路へ同一マイグレーションパイプライン適用（書き戻しなし・破損/未来Verは可用性優先でスキップ+warn）。R2 PASS(C0/H0/M0/L2)。実機検証: v1インポート→v2昇格・lazy migration昇格・クロップ設定→OverviewHeader/Home/印刷の幾何が数式一致（cropBox比=CA・img無歪み）・共有カード実ピクセル=クロップ領域のみ描画（1080×1350・`黒狼-g0v1d.png`）・export→import往復（クロップ同梱・キー再採番追従）・375/768/1280ヒットテスト・縦長600×1000実アップロード自動オープン。計1095テスト。技術計画§2.1/§2.7/§3.4改訂済み
 
 - 2026-07-05: **共有カード縦長化（1080×1350・4:5）＋DLファイル名改善**（PR: impl/share-card-portrait。ユーザーiPhone実機FB起点=T43④確認と同時受領） — 起点FB: ①「画像のトリミング幅が上下に狭い。広めにとりたい」②「全部同じ名前だと不便。レシピ名＋5文字ランダム。工程レビューはレシピ名＋工程名＋ランダム」。ユーザー裁定（AskUserQuestion）: カード4:5縦長化＋クロップUIは非破壊で別ループ。実装（impl 2委譲・A-1/A-2順次=同一ファイルのため並列不可）: ①CARD 1200×900→1080×1350（whole写真領域604→1054px≒1:1・part 524→974px。SUMMARY_STEP_LIST_AREA_HEIGHTは式ベース定数のため自動追従716→1166px・computeStepCapacity収容25/15件へ拡大）②`buildFileName(spec, randomSuffix)`化: whole/summary(whole)=`{title}-{rand5}.png`・part=`{title}-{技法名|STEP n}-{rand5}.png`・summary(part)=`{title}-{partName}-{rand5}.png`。sanitize（禁止文字/制御文字除去・空→"recipe"・サロゲート安全）＋crypto由来rand5（`ComposerDeps.randomSuffix?`でDI・テスト決定化）③ShareImagePreview aspect-ratio 4/5化。レビューR1 PASS(C0/H0/M0/L3。L1コメント4:3残存/L2仕様書「連番PNG」未同期=FB-A時点からの残骸ごとセッションglue回収・L3剰余写像微偏り=対応不要)。実機検証: 黒狼実データで4カード種の実ピクセル目視（工程カードは狼全身＋ベースまで写る=改善目的達成）・寸法1080×1350・ファイル名4系統実捕獲（`黒狼-he82n.png`/`黒狼-エッジハイライト-i2wj0.png`等）・375/768/1280全ヒットテスト・候補タイル比0.80・横はみ出しなし。計1005テスト。**追加A-3（同PR・ユーザー追加指示「まとめの情報量を増やしていい・バランス必須」）**: summary(whole)の固定上限（パーツ8行/12色）を`computeSummaryWholeBudget`動的配分へ改訂 — 行予算1018pxをパーツ優先（上限16行・超過はoverflow行）＋カラー残り空間拡張（上限24色・最低6色保証）。レビューR2 PASS(C0/H0/M0/L1=docコメント陳腐化→glue修正。40×40総当りでbottomMost≤1310検証済み)。実機: 合成spec20パーツ×30色で16行＋…他4・21色＋「+9」の実ピクセル確認。計1015テスト。**残ループB=非破壊クロップ（承認済み計画 ~/.claude/plans/zazzy-gliding-honey.md）**
 
@@ -56,9 +58,9 @@
 
 ## 次の候補 (優先順)
 
-1. **ループB: 写真の非破壊クロップ**（承認済み計画 ~/.claude/plans/zazzy-gliding-honey.md）: schemaVersion 1→2で`photoCrops: Record<photoId, 正規化矩形>`をrecipe文書に追加（export往復で自動保持）／PhotoCropDialog新設（矩形ドラッグ＋四隅ハンドル・単発アップロード直後自動オープン＋タイル「トリミング」導線・chipPhotoId対象外）／反映=imageComposer（クロップ内cover）＋`CroppedPhoto`共通部品で表示12箇所＋印刷。B-1データ層→B-2 UI→B-3反映の3Wave
-2. ~~ユーザー作業（公開前）~~ **全て完了（2026-07-05）**: T43③実印刷OK・T43④Web Share A系統OK（共有成功）・韓国語実機OK
-3. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）。多言語対応は2026-07-05実装済み
+1. ~~ループB: 写真の非破壊クロップ~~ **完了（2026-07-05・上記「完了」参照。PR起票済み: impl/photo-crop）**。ユーザー実機確認（iPhone: クロップ操作・共有カード反映）待ち
+2. 一覧の破損/未来バージョン文書スキップのUX改善（エラーカード表示等・B-4レビューL-1残件。i18n・§2.7エラー提示方針との整合が必要なため独立タスク）
+3. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 ## 決定事項 (変更には理由が要る)
 
@@ -73,6 +75,8 @@
 - **SNS共有は「全体」「パーツ」の2起点**（2026-07-03決定、v2.3）: 全体=ExportActionBar起点・全体写真＋タイトルの1枚絵候補／パーツ=PartCardメニュー起点・工程ごとの1枚絵（全体画像＋工程写真＋工程情報）候補。**いずれもユーザーが最大4枚選択**（既定=先頭4枚）。投稿テキストにURL非掲載（Xリーチ抑制対策）・`#coat-codex`必須（トリム対象外）。モバイルの下部固定バーは「出力・共有」→ボトムシートへ改善。詳細は計画§3.4冒頭とT37/T39/T40
 
 ## 申し送り (次セッションの自分へ)
+
+- **非破壊クロップの残置（2026-07-05・全PASS済み・対応任意）**: ①変更なしで「適用」すると全面クロップ{0,0,1,1}が保存される（無害だが冗長データ。全面矩形はnull扱いにする改善は任意）②一覧の破損/未来Ver文書スキップは黙殺（console.warnのみ・個別を開くと明示エラーの非対称。「次の候補2」に独立タスク化済み）③PhotoCropDialogフレームのborder 1pxがgetBoundingClientRect正規化に~0.3%の系統誤差（EPSILON＋6桁丸めの防御内・R3で裁定支持）④テスト内インラインfixtureにschemaVersion:1が約30箇所残存（機能無害・マイグレーション経路も不通過）⑤dangling crop判定がexport/保存GC=chipPhotoId除外 vs インポートremap=chipPhotoId込みの3経路非対称（chip写真にcropは実データで発生しないため実害なし）⑥ハンドル44pxヒット領域は極端な縦横比画像（フレーム極細）で重なり増の理論リスク（実機8/8成立確認済み・将来の極端比実機テスト推奨）⑦listRecipesが全件safeParseするコスト新規発生（mount時のみ・doc軽量で無害=R2 L-2）
 
 - **共有カード縦長化の残置（2026-07-05・対応任意）**: ①summary(part)は工程数が少ないと下部余白が縦長化でさらに広がる（既存申し送り「行間の均等配分はユーザー反応を見て判断」の継続。実害なし）②generateRandomSuffixの`byte % 36`剰余写像はa–d,0がわずかに高頻度（レビューL3・4枚/回の用途に実用十分・rejection samplingは不採用と記録）③長大タイトルのファイル名は切り詰めなし（OS側で扱える範囲・実害未確認）
 

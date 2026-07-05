@@ -60,6 +60,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
     ...overrides,
   };
 }

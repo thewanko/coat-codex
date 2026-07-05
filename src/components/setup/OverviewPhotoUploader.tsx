@@ -5,18 +5,23 @@
 
 import { useTranslation } from "react-i18next";
 import PhotoUploader from "../common/PhotoUploader";
+import type { CropRect } from "../../models/recipe";
 import styles from "./SetupSection.module.css";
 
 interface OverviewPhotoUploaderProps {
   recipeId: string;
   value: string[];
   onChange: (photoIds: string[]) => void;
+  crops?: Record<string, CropRect>;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 function OverviewPhotoUploader({
   recipeId,
   value,
   onChange,
+  crops,
+  onCropChange,
 }: OverviewPhotoUploaderProps) {
   const { t } = useTranslation();
 
@@ -24,7 +29,13 @@ function OverviewPhotoUploader({
     <section className={styles.section}>
       <h2 className={styles.heading}>{t("setup.photosLabel")}</h2>
       <p className={styles.note}>{t("setup.photosNote")}</p>
-      <PhotoUploader recipeId={recipeId} value={value} onChange={onChange} />
+      <PhotoUploader
+        recipeId={recipeId}
+        value={value}
+        onChange={onChange}
+        crops={crops}
+        onCropChange={onCropChange}
+      />
     </section>
   );
 }

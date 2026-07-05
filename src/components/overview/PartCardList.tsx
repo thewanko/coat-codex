@@ -24,7 +24,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { RecipeDoc } from "../../models/recipe";
+import type { CropRect, RecipeDoc } from "../../models/recipe";
 import PartCard from "./PartCard";
 import AddPartButton from "./AddPartButton";
 import EmptyState from "../common/EmptyState";
@@ -35,6 +35,8 @@ export type RecipePart = RecipeDoc["parts"][number];
 interface PartCardListProps {
   parts: RecipePart[];
   palette: RecipeDoc["palette"];
+  /** photoId→クロップ矩形（未設定はエントリなし）。RecipeDoc.photoCropsをそのまま渡す */
+  photoCrops?: Record<string, CropRect>;
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
   onReorder: (nextParts: RecipePart[]) => void;
@@ -47,6 +49,7 @@ interface SortablePartCardProps {
   index: number;
   total: number;
   palette: RecipeDoc["palette"];
+  photoCrops: Record<string, CropRect>;
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
   onMoveUp: () => void;
@@ -59,6 +62,7 @@ function SortablePartCard({
   index,
   total,
   palette,
+  photoCrops,
   onOpen,
   onReview,
   onMoveUp,
@@ -116,6 +120,7 @@ function SortablePartCard({
           part={part}
           order={order}
           palette={palette}
+          photoCrops={photoCrops}
           onOpen={onOpen}
           onReview={onReview}
         />
@@ -127,6 +132,7 @@ function SortablePartCard({
 function PartCardList({
   parts,
   palette,
+  photoCrops = {},
   onOpen,
   onReview,
   onReorder,
@@ -196,6 +202,7 @@ function PartCardList({
                 index={index}
                 total={parts.length}
                 palette={palette}
+                photoCrops={photoCrops}
                 onOpen={onOpen}
                 onReview={onReview}
                 onMoveUp={() => moveItem(index, -1)}

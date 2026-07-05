@@ -34,7 +34,7 @@ import BackLink from "../components/common/BackLink";
 import PartEditorHeader from "../components/part-editor/PartEditorHeader";
 import StepPhotoStrip from "../components/part-editor/StepPhotoStrip";
 import StepList from "../components/part-editor/StepList";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { CropRect, PaletteColor, RecipeDoc, Step } from "../models/recipe";
 import styles from "./PartEditorPage.module.css";
 
 interface PartEditorPageProps {
@@ -214,6 +214,21 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
     });
   }
 
+  function handlePhotoCropChange(photoId: string, crop: CropRect | null) {
+    updateRecipe((current) => {
+      if (crop === null) {
+        const nextEntries = Object.entries(current.photoCrops).filter(
+          ([id]) => id !== photoId,
+        );
+        return { ...current, photoCrops: Object.fromEntries(nextEntries) };
+      }
+      return {
+        ...current,
+        photoCrops: { ...current.photoCrops, [photoId]: crop },
+      };
+    });
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.backdrop} onClick={handleClose} />
@@ -237,9 +252,14 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
           partName={targetPart?.name}
           onPartNameCommit={handlePartNameCommit}
           representativePhotoId={doc.overviewPhotoIds[0] ?? null}
+          representativePhotoCrop={
+            doc.overviewPhotoIds[0]
+              ? (doc.photoCrops[doc.overviewPhotoIds[0]] ?? null)
+              : null
+          }
         />
 
-        <StepPhotoStrip steps={steps} />
+        <StepPhotoStrip steps={steps} photoCrops={doc.photoCrops} />
 
         <div className={styles.body}>
           <StepList
@@ -251,6 +271,8 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
             onDelete={handleStepDelete}
             onReorder={handleStepReorder}
             onAdd={handleStepAdd}
+            photoCrops={doc.photoCrops}
+            onCropChange={handlePhotoCropChange}
           />
         </div>
       </div>

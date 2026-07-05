@@ -63,6 +63,7 @@ function makeRecipe(id: string, title: string): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
   };
 }
 

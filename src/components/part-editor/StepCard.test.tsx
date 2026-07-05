@@ -84,6 +84,7 @@ function renderStepCard(
       tools: [],
       baseSteps: [],
       parts: [],
+      photoCrops: {},
     },
   });
 
@@ -144,6 +145,7 @@ describe("StepCard — ToolSelect結線", () => {
         tools: [{ id: "tool_1", name: "丸筆", note: null }],
         baseSteps: [],
         parts: [],
+        photoCrops: {},
       },
     });
     const onChange = vi.fn();

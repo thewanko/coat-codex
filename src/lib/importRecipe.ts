@@ -163,6 +163,16 @@ export function reassignRecipeIds(recipe: RecipeDoc): ReassignRecipeIdsResult {
     toolIds: step.toolIds.map((toolId) => toolIdMap.get(toolId) ?? toolId),
   });
 
+  // photoCropsのキーをphotoIdMapでリマップする。photoIdMapは文書内で参照される全photoIdを
+  // 網羅するため、マップ外キー（=文書内で未参照のdangling crop）は落とす。
+  const newPhotoCrops: RecipeDoc["photoCrops"] = {};
+  for (const [oldPhotoId, rect] of Object.entries(recipe.photoCrops)) {
+    const newPhotoId = photoIdMap.get(oldPhotoId);
+    if (newPhotoId !== undefined) {
+      newPhotoCrops[newPhotoId] = rect;
+    }
+  }
+
   const newRecipe: RecipeDoc = {
     ...recipe,
     id: newId("rcp"),
@@ -184,6 +194,7 @@ export function reassignRecipeIds(recipe: RecipeDoc): ReassignRecipeIdsResult {
       id: partIdMap.get(part.id) ?? part.id,
       steps: part.steps.map(remapStep),
     })),
+    photoCrops: newPhotoCrops,
   };
 
   return { recipe: newRecipe, photoIdMap };

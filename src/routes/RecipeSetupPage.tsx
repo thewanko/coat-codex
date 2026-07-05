@@ -78,6 +78,24 @@ function RecipeSetupPage() {
         onChange={(overviewPhotoIds) =>
           updateRecipe((current) => ({ ...current, overviewPhotoIds }))
         }
+        crops={doc.photoCrops}
+        onCropChange={(photoId, crop) =>
+          updateRecipe((current) => {
+            if (crop === null) {
+              const nextEntries = Object.entries(current.photoCrops).filter(
+                ([id]) => id !== photoId,
+              );
+              return {
+                ...current,
+                photoCrops: Object.fromEntries(nextEntries),
+              };
+            }
+            return {
+              ...current,
+              photoCrops: { ...current.photoCrops, [photoId]: crop },
+            };
+          })
+        }
       />
 
       <ToolListEditor doc={doc} onUpdate={updateRecipe} />

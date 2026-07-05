@@ -31,10 +31,64 @@ export class CorruptRecipeError extends Error {
   }
 }
 
-/** 一覧表示用: updatedAt降順の全レシピ文書一覧（§2.7・§3.3 HomePage RecipeCardGrid） */
+/**
+ * 一覧表示用: updatedAt降順の全レシピ文書一覧（§2.7・§3.3 HomePage RecipeCardGrid）。
+ *
+ * lazy migrationをここにも適用する（B-4実機バグ対応）: 従来はloadRecipe（個別ロード）にしか
+ * migrationが無く、一覧経路はv1文書（例: photoCropsフィールド欠落）がそのまま流れていた。
+ * RecipeCardがrecipe.photoCropsに直アクセスするようになったことでこの穴が顕在化し、
+ * v1データが混在する実環境でHome全体がクラッシュする事象が発生した。
+ *
+ * 修正方針:
+ * - schemaVersion < CURRENT の文書は migrateRecipeDoc を適用してから返す（in-memoryのみ。
+ *   DBへの書き戻しはしない。書き戻しは既存どおり個別loadRecipeのtx内責務のままとする —
+ *   一覧表示のたびに全件へ書き戻しtxを走らせるのは、個別編集との並行書き込みに対する
+ *   lost update耐性が無く並行性リスクが大きいため）。
+ * - schemaVersion > CURRENT（未来バージョン）の文書は、loadRecipeと異なり一覧全体を
+ *   道連れにthrowせず、当該レコードのみスキップしconsole.warnで記録する。個別ロードと
+ *   一覧表示は可用性要求が異なり、1件の将来バージョン文書のせいでHome全体が表示不能に
+ *   なる方が実害が大きいと判断したため（1件アプリ内部で完結する部分機能が失われるより、
+ *   一覧そのものが死ぬ方が影響範囲が広い）。
+ * - migration適用後もrecipeDocSchemaのparseに失敗する（破損）文書も同様の理由でスキップする
+ *   （loadRecipeはCorruptRecipeErrorをthrowして個別編集画面でエラー提示する設計だが、
+ *   一覧はその1件だけ欠落させて他を表示できる方が望ましい）。
+ */
 export async function listRecipes(): Promise<RecipeDoc[]> {
   const records = await db.recipes.orderBy("updatedAt").reverse().toArray();
-  return records;
+
+  const result: RecipeDoc[] = [];
+  for (const raw of records) {
+    const schemaVersion = (raw as { schemaVersion?: unknown }).schemaVersion;
+
+    if (
+      typeof schemaVersion === "number" &&
+      schemaVersion > CURRENT_SCHEMA_VERSION
+    ) {
+      console.warn(
+        `listRecipes: recipe "${(raw as { id?: unknown }).id}" のschemaVersion ${schemaVersion} は現在のアプリ（対応最大: ${CURRENT_SCHEMA_VERSION}）より新しいため一覧から除外します`,
+      );
+      continue;
+    }
+
+    const needsMigration =
+      typeof schemaVersion === "number" &&
+      schemaVersion < CURRENT_SCHEMA_VERSION;
+    const candidate: unknown = needsMigration
+      ? migrateRecipeDoc(raw, schemaVersion)
+      : raw;
+
+    const parsed = recipeDocSchema.safeParse(candidate);
+    if (!parsed.success) {
+      console.warn(
+        `listRecipes: recipe "${(raw as { id?: unknown }).id}" はスキーマ検証に失敗したため一覧から除外します`,
+      );
+      continue;
+    }
+
+    result.push(parsed.data);
+  }
+
+  return result;
 }
 
 /**
@@ -61,6 +115,7 @@ export async function createDraft(title: string): Promise<RecipeDoc> {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
   };
 
   const parsed = recipeDocSchema.parse(draft);
