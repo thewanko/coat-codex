@@ -39,6 +39,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
     ...overrides,
   };
 }
@@ -311,6 +312,38 @@ describe("reassignRecipeIds: 正規化規則b（参照リマップ）", () => {
     const { recipe: result } = reassignRecipeIds(recipe);
     const newColorId = result.palette[0].id;
     expect(result.parts[0].steps[0].paints[0].colorId).toBe(newColorId);
+  });
+
+  test("photoCropsのキーがphotoIdMapで新IDへリマップされる", () => {
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["ph_overview"],
+      photoCrops: {
+        ph_overview: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 },
+      },
+    });
+
+    const { recipe: result, photoIdMap } = reassignRecipeIds(recipe);
+    const newOverviewPhotoId = photoIdMap.get("ph_overview");
+
+    expect(newOverviewPhotoId).toBeDefined();
+    expect(result.photoCrops).toEqual({
+      [newOverviewPhotoId as string]: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 },
+    });
+  });
+
+  test("photoIdMapに存在しないphotoCropsキー（文書内で未参照のdangling crop）は脱落する", () => {
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["ph_overview"],
+      photoCrops: {
+        ph_overview: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 },
+        ph_unreferenced: { x: 0.2, y: 0.2, w: 0.3, h: 0.3 },
+      },
+    });
+
+    const { recipe: result, photoIdMap } = reassignRecipeIds(recipe);
+
+    expect(photoIdMap.has("ph_unreferenced")).toBe(false);
+    expect(Object.keys(result.photoCrops)).toHaveLength(1);
   });
 });
 

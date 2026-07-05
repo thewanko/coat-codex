@@ -133,6 +133,31 @@ const partSchema = z.object({
   steps: z.array(stepSchema),
 });
 
+/**
+ * §2.1/§3.4 photoCrops[photoId] — 元画像に対する正規化クロップ矩形（非破壊クロップ。
+ * 元画像は保持し、表示・共有カード生成時にこの矩形で切り出す）。
+ * 制約: 0<=x<=1・0<=y<=1・0<w<=1・0<h<=1・x+w<=1・y+h<=1（矩形が元画像内に収まること）。
+ * 和の判定はEPSILON許容付き — クロップUIの任意ドラッグ座標（除算由来の循環小数）では
+ * x+w が浮動小数点加算誤差で1をごく僅かに超え得るため、真の超過のみを拒否する。
+ */
+const CROP_SUM_EPSILON = 1e-9;
+
+export const cropRectSchema = z
+  .object({
+    x: z.number().finite().min(0).max(1),
+    y: z.number().finite().min(0).max(1),
+    w: z.number().finite().gt(0).max(1),
+    h: z.number().finite().gt(0).max(1),
+  })
+  .refine((rect) => rect.x + rect.w <= 1 + CROP_SUM_EPSILON, {
+    message: "x + w は1以下である必要があります",
+    path: ["w"],
+  })
+  .refine((rect) => rect.y + rect.h <= 1 + CROP_SUM_EPSILON, {
+    message: "y + h は1以下である必要があります",
+    path: ["h"],
+  });
+
 /** §2.1 RecipeDoc（IndexedDB内スキーマ） */
 export const recipeDocSchema = z
   .object({
@@ -146,6 +171,9 @@ export const recipeDocSchema = z
     tools: z.array(toolSchema),
     baseSteps: z.array(stepSchema),
     parts: z.array(partSchema),
+    // dangling（文書内で未参照 or 実体のないphotoId）なキーはINVを追加せず無害として扱う
+    // （INV-16「写真参照の実体存在は検証しない」と同方針。exportやreassignで整合処理する）
+    photoCrops: z.record(idSchema, cropRectSchema),
   })
   .superRefine((doc, ctx) => {
     // INV-11: palette[].id / tools[].id / parts[].id / 全Step id（baseSteps・parts横断）は各々文書内一意
@@ -302,6 +330,7 @@ export type PaletteColor = z.infer<typeof paletteColorSchema>;
 export type Tool = z.infer<typeof toolSchema>;
 export type StepPaint = z.infer<typeof stepPaintSchema>;
 export type Step = z.infer<typeof stepSchema>;
+export type CropRect = z.infer<typeof cropRectSchema>;
 export type RecipeDoc = z.infer<typeof recipeDocSchema>;
 export type ExportPhoto = z.infer<typeof exportPhotoSchema>;
 export type RecipeExportFile = z.infer<typeof recipeExportFileSchema>;

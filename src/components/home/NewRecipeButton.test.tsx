@@ -52,6 +52,7 @@ function makeDraft(): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
   };
 }
 

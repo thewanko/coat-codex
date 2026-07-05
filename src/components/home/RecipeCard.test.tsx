@@ -96,6 +96,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
         ],
       },
     ],
+    photoCrops: {},
     ...overrides,
   };
 }

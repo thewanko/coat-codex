@@ -26,7 +26,9 @@ describe("migrateRecipeDoc", () => {
     };
 
     const raw = { schemaVersion: 0, legacyField: "old-value" };
-    const result = migrateRecipeDoc(raw, 0, dummyRegistry) as {
+    // targetVersion=1を明示（CURRENT_SCHEMA_VERSIONの実値に依存させない。本テストの意図は
+    // 「registry[0]が1回だけ適用される」ことの検証であり、多段チェーンの検証は別テストが担う）
+    const result = migrateRecipeDoc(raw, 0, dummyRegistry, 1) as {
       schemaVersion: number;
       migratedFrom: string;
     };
@@ -93,6 +95,25 @@ describe("migrateRecipeDoc", () => {
       MissingMigrationError,
     );
   });
+
+  test("本番docRegistry: v1文書→v2でphotoCrops: {}が付与される（技術計画v2.2 §2.7/§3.4）", () => {
+    const v1Doc = {
+      schemaVersion: 1,
+      id: "rcp_1",
+      title: "test",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+    };
+
+    const result = migrateRecipeDoc(v1Doc, 1) as { photoCrops: unknown };
+
+    expect(result.photoCrops).toEqual({});
+  });
 });
 
 describe("migrateExportFile", () => {
@@ -134,11 +155,14 @@ describe("migrateExportFile", () => {
       photos: [{ id: "ph_1" }],
     };
 
+    // targetVersion=1を明示（CURRENT_SCHEMA_VERSIONの実値に依存させない。本テストの意図は
+    // 「recipe部・photos部の両レジストリが順次適用される」ことの検証）
     const result = migrateExportFile(
       raw,
       0,
       dummyDocRegistry,
       dummyPhotosRegistry,
+      1,
     ) as {
       schemaVersion: number;
       recipe: { schemaVersion: number };
@@ -147,7 +171,7 @@ describe("migrateExportFile", () => {
 
     expect(docCalls).toEqual(["0→1"]);
     expect(photosCalls).toEqual(["0→1"]);
-    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.schemaVersion).toBe(1);
     expect(result.recipe.schemaVersion).toBe(1);
     expect(result.photos[0].migrated).toBe(true);
   });
@@ -157,5 +181,37 @@ describe("migrateExportFile", () => {
     expect(() => migrateExportFile(file, 99)).toThrow(
       UnsupportedSchemaVersionError,
     );
+  });
+
+  test("本番レジストリ: v1エクスポートファイル→v2でrecipeにphotoCrops付与・photosは恒等通過する（CRITICAL: photosRegistry[1]欠落でMissingMigrationErrorになる回帰防止）", () => {
+    const file = {
+      app: "coat-codex",
+      kind: "recipe-export",
+      schemaVersion: 1,
+      exportedAt: "2026-07-01T00:00:00.000Z",
+      recipe: {
+        schemaVersion: 1,
+        id: "rcp_1",
+        title: "test",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+        overviewPhotoIds: [],
+        palette: [],
+        tools: [],
+        baseSteps: [],
+        parts: [],
+      },
+      photos: [{ id: "ph_1", dataUrl: "data:image/png;base64,AAAA" }],
+    };
+
+    const result = migrateExportFile(file, 1) as {
+      schemaVersion: number;
+      recipe: { photoCrops: unknown };
+      photos: unknown;
+    };
+
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.recipe.photoCrops).toEqual({});
+    expect(result.photos).toEqual(file.photos);
   });
 });

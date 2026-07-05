@@ -30,6 +30,7 @@ function makeDoc(
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
     ...overrides,
   };
 }

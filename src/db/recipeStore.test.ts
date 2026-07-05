@@ -127,6 +127,7 @@ describe("loadRecipe: lazy migration（下位バージョン）", () => {
       .mockImplementation((raw) => ({
         ...(raw as object),
         schemaVersion: CURRENT_SCHEMA_VERSION,
+        photoCrops: {},
       }));
 
     const now = new Date().toISOString();
@@ -153,6 +154,33 @@ describe("loadRecipe: lazy migration（下位バージョン）", () => {
     // 書き戻り確認: DBを直接読んで更新済み（schemaVersion===CURRENT）であることを検証
     const stored = await db.recipes.get("rcp_legacy");
     expect(stored?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  });
+
+  test("実DocMigrationRegistry: 保存済みv1文書のロードでphotoCrops:{}が付与されv2へ自動昇格する", async () => {
+    const now = new Date().toISOString();
+    const v1Doc = {
+      schemaVersion: 1,
+      id: "rcp_v1",
+      title: "v1 recipe",
+      createdAt: now,
+      updatedAt: now,
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+      // photoCropsはv1では存在しない
+    };
+    await db.recipes.put(v1Doc as unknown as RecipeDoc);
+
+    const loaded = await loadRecipe("rcp_v1");
+    expect(loaded).not.toBeNull();
+    expect(loaded?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(loaded?.photoCrops).toEqual({});
+
+    const stored = await db.recipes.get("rcp_v1");
+    expect(stored?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect((stored as unknown as RecipeDoc).photoCrops).toEqual({});
   });
 });
 

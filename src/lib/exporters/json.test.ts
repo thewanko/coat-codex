@@ -51,6 +51,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     tools: [],
     baseSteps: [],
     parts: [],
+    photoCrops: {},
     ...overrides,
   };
 }
@@ -154,6 +155,36 @@ describe("stripDanglingPhotoRefs", () => {
     const original = JSON.parse(JSON.stringify(doc)) as RecipeDoc;
     stripDanglingPhotoRefs(doc, new Set(["ph_1"]));
     expect(doc).toEqual(original);
+  });
+
+  test("photoCrops: 実体のないphotoId・stripで未参照になったphotoIdのキーを除去する", () => {
+    const doc = makeDoc({
+      overviewPhotoIds: ["ph_1"],
+      photoCrops: {
+        ph_1: { x: 0, y: 0, w: 0.5, h: 0.5 },
+        ph_missing_entity: { x: 0.1, y: 0.1, w: 0.2, h: 0.2 },
+      },
+    });
+    // ph_1は実体なし（existingPhotoIdsに含まれない）→ overviewPhotoIdsから除去され、
+    // その結果photoCropsのph_1キーも参照なしとして除去される
+    const result = stripDanglingPhotoRefs(doc, new Set());
+    expect(result.photoCrops).toEqual({});
+  });
+
+  test("photoCrops: 参照ありのcropは保持する（誤除去しない）", () => {
+    const doc = makeDoc({
+      overviewPhotoIds: ["ph_1"],
+      baseSteps: [makeStep({ id: "stp_1", photoId: "ph_2" })],
+      photoCrops: {
+        ph_1: { x: 0, y: 0, w: 0.5, h: 0.5 },
+        ph_2: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 },
+      },
+    });
+    const result = stripDanglingPhotoRefs(doc, new Set(["ph_1", "ph_2"]));
+    expect(result.photoCrops).toEqual({
+      ph_1: { x: 0, y: 0, w: 0.5, h: 0.5 },
+      ph_2: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 },
+    });
   });
 });
 

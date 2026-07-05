@@ -3,6 +3,7 @@
 
 import { describe, expect, test } from "vitest";
 import {
+  cropRectSchema,
   recipeDocSchema,
   recipeExportFileSchema,
   stepSchema,
@@ -69,6 +70,7 @@ function makeValidRecipeDoc(): RecipeDoc {
         ],
       },
     ],
+    photoCrops: {},
   };
 }
 
@@ -465,5 +467,88 @@ describe("INV-20: photos[].idに重複なし、dataUrlは3形式のいずれか"
     const file = makeValidExportFile();
     file.photos = [{ id: "ph_2", dataUrl: "not-a-data-url" }];
     expect(recipeExportFileSchema.safeParse(file).success).toBe(false);
+  });
+});
+
+describe("cropRectSchema — 非破壊クロップの正規化矩形（技術計画v2.2 §2.1/§3.4）", () => {
+  test("受理: 中央付近の一般的な矩形", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.1, y: 0.2, w: 0.5, h: 0.4 }).success,
+    ).toBe(true);
+  });
+
+  test("受理: 境界値 x=0/y=0/w=1/h=1（画像全体）", () => {
+    expect(cropRectSchema.safeParse({ x: 0, y: 0, w: 1, h: 1 }).success).toBe(
+      true,
+    );
+  });
+
+  test("受理: 浮動小数点加算誤差でx+wが1をごく僅かに超える矩形（レビューR1 L-3・EPSILON許容）", () => {
+    // 0.1 + 0.2 === 0.30000000000000004 → x + w === 1.0000000000000002（真の超過ではない）
+    expect(
+      cropRectSchema.safeParse({ x: 0.7, y: 0, w: 0.1 + 0.2, h: 1 }).success,
+    ).toBe(true);
+  });
+
+  test("拒否: x + w > 1（右端をはみ出す）", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.6, y: 0.1, w: 0.5, h: 0.2 }).success,
+    ).toBe(false);
+  });
+
+  test("拒否: y + h > 1（下端をはみ出す）", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.1, y: 0.6, w: 0.2, h: 0.5 }).success,
+    ).toBe(false);
+  });
+
+  test("拒否: w = 0（幅ゼロの矩形は無効）", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.1, y: 0.1, w: 0, h: 0.5 }).success,
+    ).toBe(false);
+  });
+
+  test("拒否: h = 0（高さゼロの矩形は無効）", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.1, y: 0.1, w: 0.5, h: 0 }).success,
+    ).toBe(false);
+  });
+
+  test("拒否: xが負値", () => {
+    expect(
+      cropRectSchema.safeParse({ x: -0.1, y: 0.1, w: 0.5, h: 0.5 }).success,
+    ).toBe(false);
+  });
+
+  test("拒否: yが負値", () => {
+    expect(
+      cropRectSchema.safeParse({ x: 0.1, y: -0.1, w: 0.5, h: 0.5 }).success,
+    ).toBe(false);
+  });
+});
+
+describe("recipeDocSchema — photoCrops（技術計画v2.2 §2.1/§3.4）", () => {
+  test("受理: photoCropsにクロップ矩形を持つ文書", () => {
+    const doc = makeValidRecipeDoc();
+    doc.photoCrops = { ph_1: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } };
+    expect(recipeDocSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("受理: photoCropsが空マップ", () => {
+    const doc = makeValidRecipeDoc();
+    doc.photoCrops = {};
+    expect(recipeDocSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("拒否: photoCropsフィールド自体が欠落している文書（v2で必須）", () => {
+    const doc = makeValidRecipeDoc() as Partial<RecipeDoc>;
+    delete doc.photoCrops;
+    expect(recipeDocSchema.safeParse(doc).success).toBe(false);
+  });
+
+  test("拒否: photoCrops内の不正な矩形（x+w>1）は文書全体を拒否する", () => {
+    const doc = makeValidRecipeDoc();
+    doc.photoCrops = { ph_1: { x: 0.8, y: 0.1, w: 0.5, h: 0.1 } };
+    expect(recipeDocSchema.safeParse(doc).success).toBe(false);
   });
 });
