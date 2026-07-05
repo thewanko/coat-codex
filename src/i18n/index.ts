@@ -6,12 +6,21 @@ import fr from "./locales/fr.json";
 import de from "./locales/de.json";
 import it from "./locales/it.json";
 import es from "./locales/es.json";
+import ko from "./locales/ko.json";
 
 export const LANG_STORAGE_KEY = "coat-codex:lang";
 
-export type SupportedLang = "ja" | "en" | "fr" | "de" | "it" | "es";
+export type SupportedLang = "ja" | "en" | "fr" | "de" | "it" | "es" | "ko";
 
-const SUPPORTED_LANGS: SupportedLang[] = ["ja", "en", "fr", "de", "it", "es"];
+const SUPPORTED_LANGS: SupportedLang[] = [
+  "ja",
+  "en",
+  "fr",
+  "de",
+  "it",
+  "es",
+  "ko",
+];
 
 function readStoredLang(): SupportedLang {
   const stored = window.localStorage.getItem(LANG_STORAGE_KEY);
@@ -28,6 +37,7 @@ void i18next.use(initReactI18next).init({
     de: { translation: de },
     it: { translation: it },
     es: { translation: es },
+    ko: { translation: ko },
   },
   lng: readStoredLang(),
   fallbackLng: "ja",

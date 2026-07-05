@@ -11,6 +11,7 @@ const LANGS: { code: SupportedLang; label: string; nativeName: string }[] = [
   { code: "de", label: "DE", nativeName: "Deutsch" },
   { code: "it", label: "IT", nativeName: "Italiano" },
   { code: "es", label: "ES", nativeName: "Español" },
+  { code: "ko", label: "KO", nativeName: "한국어" },
 ];
 
 function LanguageSwitcher() {

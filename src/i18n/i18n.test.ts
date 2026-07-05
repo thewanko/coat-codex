@@ -1,15 +1,15 @@
-// i18n/i18n.test.ts — i18n全キー棚卸しの機械チェック（技術計画v2.2 §4.2 T41・§7 6言語化）
+// i18n/i18n.test.ts — i18n全キー棚卸しの機械チェック（技術計画v2.2 §4.2 T41・§7 7言語化）
 //
-// (a)(b) 全6ロケール(ja/en/fr/de/it/es)のキー集合完全一致・空文字列翻訳ゼロ（enを基準に双方向比較）
+// (a)(b) 全7ロケール(ja/en/fr/de/it/es/ko)のキー集合完全一致・空文字列翻訳ゼロ（enを基準に双方向比較）
 // (c)(d) ソースコードから静的t()呼び出し・キー文字列リテラル代入（messageKey等）を機械抽出し、
 //        ja.jsonへの存在を検証。動的名前空間（techniques.<presetKey>）は名前空間単位で
-//        全6ロケールの存在・一致を検証する（(d)は想定外の動的名前空間出現も検出する閉包アサーション付き）
+//        全7ロケールの存在・一致を検証する（(d)は想定外の動的名前空間出現も検出する閉包アサーション付き）
 // (e) 仕様名指しキー（recipe.untitledTitle・mix.totalWarning・工程写真UI文言）の存在
 // (f) 逆方向チェック: ja.jsonの全キーが「静的抽出キー ∪ techniques.*」に含まれる
 //     （＝デッドキー検出。(c)は使用キー⊆ja.jsonの片方向のみのため、未使用キーの
 //     再混入は(f)がなければ検出できない）
-// 追加: fr/de/it/es のterms.*（法的文面）はen.jsonと一字一句一致する（ユーザー裁定: 英語流用）。
-//       storageStatus.volumesCount_one/_otherは全ロケールでenと一致する（意匠キー据え置き）。
+// 追加: fr/de/it/es/ko のterms.*（法的文面）はen.jsonと一字一句一致する（ユーザー裁定: 英語流用）。
+//       storageStatus.volumesCount_*は、存在する複数形サフィックスのみenと一致する（_otherは必須）。
 // 言語切替永続化: coat-codex:lang（src/i18n/index.ts）の書き込み・復元
 
 import { describe, expect, test, beforeEach, afterEach, vi } from "vitest";
@@ -19,6 +19,7 @@ import fr from "./locales/fr.json";
 import de from "./locales/de.json";
 import it from "./locales/it.json";
 import es from "./locales/es.json";
+import ko from "./locales/ko.json";
 import { TECHNIQUE_PRESET_KEYS } from "../lib/techniques";
 import type { SupportedLang } from "./index";
 
@@ -64,6 +65,7 @@ const NON_EN_LOCALES: {
   { code: "de", data: de as unknown as JsonRecord },
   { code: "it", data: it as unknown as JsonRecord },
   { code: "es", data: es as unknown as JsonRecord },
+  { code: "ko", data: ko as unknown as JsonRecord },
 ];
 
 // i18nextの複数形サフィックス（CLDR plural categories）。`t()`呼び出し側は
@@ -222,6 +224,7 @@ describe("i18n key inventory (T41)", () => {
       de: de.techniques,
       it: it.techniques,
       es: es.techniques,
+      ko: ko.techniques,
     };
     for (const [code, techniques] of Object.entries(localeTechniques)) {
       const keys = new Set(Object.keys(techniques));
@@ -278,7 +281,7 @@ describe("i18n key inventory (T41)", () => {
     }
   });
 
-  test("fr/de/it/esのterms.*全19キーはen.jsonと一字一句一致する（ユーザー裁定: 法的文面は英語流用）", () => {
+  test("fr/de/it/es/koのterms.*全19キーはen.jsonと一字一句一致する（ユーザー裁定: 法的文面は英語流用）", () => {
     const enTermsEntries = flattenWithValues(
       en.terms as unknown as JsonRecord,
       "terms",
@@ -290,6 +293,7 @@ describe("i18n key inventory (T41)", () => {
       { code: "de", data: de.terms as unknown as JsonRecord },
       { code: "it", data: it.terms as unknown as JsonRecord },
       { code: "es", data: es.terms as unknown as JsonRecord },
+      { code: "ko", data: ko.terms as unknown as JsonRecord },
     ];
 
     for (const { code, data } of nonEnTermsLocales) {
@@ -298,34 +302,43 @@ describe("i18n key inventory (T41)", () => {
     }
   });
 
-  test("storageStatus.volumesCount_one/_otherは全ロケールでenと一致する（意匠キー据え置き）", () => {
-    const enVolumes = {
-      one: en.storageStatus.volumesCount_one,
-      other: en.storageStatus.volumesCount_other,
-    };
+  test("koのfooter.trademarkNoticeはen.jsonと一字一句一致する（ユーザー裁定: 法的文面は英語流用）", () => {
+    expect(ko.footer.trademarkNotice).toBe(en.footer.trademarkNotice);
+  });
 
-    const otherLocales: {
+  test("storageStatus.volumesCount_*は、そのロケールに存在する複数形サフィックスのみenと一致する（複数形カテゴリ数の差異は許容・_otherは全ロケール必須）", () => {
+    const enVolumes = en.storageStatus as Record<string, string>;
+
+    const allLocales: {
       code: string;
       storageStatus: Record<string, string>;
     }[] = [
+      { code: "ja", storageStatus: ja.storageStatus },
       { code: "fr", storageStatus: fr.storageStatus },
       { code: "de", storageStatus: de.storageStatus },
       { code: "it", storageStatus: it.storageStatus },
       { code: "es", storageStatus: es.storageStatus },
+      { code: "ko", storageStatus: ko.storageStatus },
     ];
 
-    for (const { code, storageStatus } of otherLocales) {
-      expect(storageStatus.volumesCount_one, `${code} volumesCount_one`).toBe(
-        enVolumes.one,
-      );
+    for (const { code, storageStatus } of allLocales) {
+      // _otherは全ロケール必須（複数形フォールバックの意匠キー）
       expect(
         storageStatus.volumesCount_other,
-        `${code} volumesCount_other`,
-      ).toBe(enVolumes.other);
-    }
+        `${code} volumesCount_other must exist`,
+      ).toBeTruthy();
 
-    // jaはvolumesCount_one非保持（既存の複数形カテゴリ差異許容仕様）が、_otherはenと一致すること
-    expect(ja.storageStatus.volumesCount_other).toBe(enVolumes.other);
+      // そのロケールに実際に存在する複数形サフィックスのキーのみ、enの同サフィックス値と一致させる
+      // （ja/koは_otherのみ保持・複数形カテゴリ数の差異は許容する既存仕様）
+      const presentSuffixKeys = Object.keys(storageStatus).filter((key) =>
+        key.startsWith("volumesCount"),
+      );
+      for (const key of presentSuffixKeys) {
+        expect(storageStatus[key], `${code}.storageStatus.${key}`).toBe(
+          enVolumes[key],
+        );
+      }
+    }
   });
 });
 
@@ -374,9 +387,15 @@ describe("i18n language persistence (coat-codex:lang)", () => {
     expect(i18next.language).toBe("fr");
   });
 
-  test("6言語すべてchangeLanguageで永続化される", async () => {
+  test("localStorageが「ko」の場合はkoで初期化復元する（koは正規言語）", async () => {
+    window.localStorage.setItem(LANG_STORAGE_KEY, "ko");
     const { default: i18next } = await import("./index");
-    const codes: SupportedLang[] = ["ja", "en", "fr", "de", "it", "es"];
+    expect(i18next.language).toBe("ko");
+  });
+
+  test("7言語すべてchangeLanguageで永続化される", async () => {
+    const { default: i18next } = await import("./index");
+    const codes: SupportedLang[] = ["ja", "en", "fr", "de", "it", "es", "ko"];
     for (const code of codes) {
       await i18next.changeLanguage(code);
       expect(window.localStorage.getItem(LANG_STORAGE_KEY)).toBe(code);

@@ -10,3 +10,19 @@ body {
   font-family: var(--font-family-body);
   margin: 0;
 }
+
+/* 韓国語フォント戦略（2026-07-05 調査に基づくデザイン裁定）:
+   全OS共通のシステム明朝ハングルは存在しないため、見出し（display）のみ
+   Noto Serif KR を Webフォント配信し、本文はシステムゴシックに委ねる。
+   欧文フォント先頭は既存スタックと同じ定石（CJKフォントのラテングリフ混入防止） */
+:root:lang(ko) {
+  --font-family-display:
+    "EB Garamond", "Noto Serif KR", AppleMyungjo, Batang, serif;
+  --font-family-body:
+    "Inter", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+
+/* ハングルは分かち書き言語のため単語単位で改行する */
+:lang(ko) {
+  word-break: keep-all;
+}

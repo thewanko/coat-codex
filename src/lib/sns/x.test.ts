@@ -49,6 +49,30 @@ describe("x.countText", () => {
     expect(result.over).toBe(false);
   });
 
+  it("韓国語（ハングル音節）はweight=1の4レンジ外＝weight2として数える", () => {
+    // ハングル音節 U+AC00–U+D7A3 は WEIGHT_ONE_RANGES いずれにも含まれないためweight2
+    const text = "안".repeat(140);
+    const result = x.countText(text);
+    expect(result.count).toBe(280);
+    expect(result.over).toBe(false);
+    const text2 = "안".repeat(141);
+    expect(x.countText(text2).over).toBe(true);
+  });
+
+  it("ハングル音節ブロックの両端コードポイント（U+AC00/U+D7A3）もweight2で数える", () => {
+    // 範囲端の回帰検出: 가(U+AC00)・힣(U+D7A3) 各1文字 = weight2×2 = 4
+    expect(x.countText("가힣").count).toBe(4);
+  });
+
+  it("韓国語テキスト10文字＋#coat-codexタグのweighted lengthを検算する", () => {
+    // 独立計算: ハングル10文字(weight2×10=20) + " #coat-codex"(ASCII 12文字・weight1×12=12) = 32
+    const text = "한국어텍스트입니다요우와".slice(0, 10) + " #coat-codex";
+    expect(Array.from("한국어텍스트입니다요우와".slice(0, 10)).length).toBe(10);
+    const result = x.countText(text);
+    expect(result.count).toBe(32);
+    expect(result.over).toBe(false);
+  });
+
   it("全角記号（weight=1レンジ外）はweight2として数える", () => {
     // U+FF01 (！全角感嘆符) は4レンジいずれにも含まれずweight2
     const text = "！".repeat(140);
