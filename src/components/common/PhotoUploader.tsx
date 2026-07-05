@@ -28,6 +28,27 @@ interface PhotoUploaderProps {
   onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
+/** トリミングアクションのアイコン（定番crop形状: L字2本の重なり） */
+export function CropIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 1v9a2 2 0 0 0 2 2h9M1 4h9a2 2 0 0 1 2 2v9"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 interface HasMessageKey {
   messageKey: string;
 }
@@ -246,16 +267,17 @@ function PhotoUploader({
                   {t("photo.makeCover")}
                 </button>
               )}
-              {cropEnabled && (
-                <button
-                  type="button"
-                  className={styles.controlButtonWide}
-                  onClick={() => requestCrop(photoId)}
-                >
-                  {t("photo.trim")}
-                </button>
-              )}
             </div>
+            {cropEnabled && (
+              <button
+                type="button"
+                className={styles.trimButton}
+                aria-label={t("photo.trim")}
+                onClick={() => requestCrop(photoId)}
+              >
+                <CropIcon />
+              </button>
+            )}
           </div>
         ))}
 

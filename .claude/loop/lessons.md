@@ -256,6 +256,14 @@
 - 反映先: loop prompt（「検証が実利用を代表していない」系の既存昇格ルールが機能した実証。言語分岐Grepは新規の運用ルール）
 - 発生回数: 1 回目
 
+## 2026-07-05 crop-ui-feedback overflow:hiddenに依存する既存効果を特定してからvisible化する2層分離design [GOOD]
+
+- 事象: 「ハンドルがクリップされる」FBへの自然な対処（overflow:visible化）が、暗転のbox-shadow 0 0 0 9999pxが同じoverflow:hiddenのクリップに**依存して成立している**ことをdesign時のRead/1次確認で特定できたため、暗転レイヤー（frame内クリップ・非対話shadeRect）と操作レイヤー（overlay overflow:visible・cropRect＋ハンドル）の分離を最初から委譲プロンプトに指定し、1委譲・レビューR1 PASS（C0/H0）で成立した。レビューは座標契約（frameRef移管先stage box=旧frame border-boxの厳密一致）まで独立検算した
+- 原因: 「1つのCSSプロパティ（overflow:hidden）が複数の役割（ハンドルのクリップ=バグ・暗転の閉じ込め=仕様）を同時に担っている」ことを、変更前にそのプロパティに依存する全効果を列挙して発見した
+- 一般化ルール (次ループの指示文としてそのまま使える形で): overflow・z-index・position等の「文脈を作るCSSプロパティ」を変更するタスクのdesignでは、変更前に**そのプロパティに依存している全ての既存効果**（クリップ・スタッキング・containing block）を列挙し、壊れる効果があれば層分離（役割ごとに要素を分ける）を委譲プロンプトへ指定する。付記: elementFromPointの境界プローブは矩形端+1pxだと小数丸めで外れることがある（+2px内側を使う。「効いていない」誤判定の新しい相）
+- 反映先: loop prompt（M6 z序列・T44ネストルート化と同族「暗黙の前提の無効化」を、事後検出でなく事前designで回避できた実証）
+- 発生回数: 1 回目
+
 ## 2026-07-05 photo-crop schemaVersion昇格時にlistRecipes（一覧経路）のマイグレーション欠落でHome全滅 [BAD]
 
 - 事象: schemaVersion 1→2（photoCrops必須フィールド追加）の実装で、lazy migrationがloadRecipe（個別ロード）にしかなくlistRecipes（一覧）は生レコードを返す設計の穴が、B-3のRecipeCard `recipe.photoCrops[...]` 直アクセスで顕在化。v1文書が残る実DBでHomeを開くとRecipeCardがthrowしアプリ全体がアンマウント（エラーバウンダリなし・body空白化）のCritical。ユニットテスト1092件は全緑（fixtureが全てv2だったため）で、B-4出口実機検証のみが捕捉した。根治=listRecipesへ同一マイグレーションパイプライン適用（in-memoryのみ書き戻しなし・破損/未来バージョンは可用性優先でスキップ+console.warn）

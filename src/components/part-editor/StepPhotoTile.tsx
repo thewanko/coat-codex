@@ -18,6 +18,7 @@ import { useToast } from "../common/toastContext";
 import ConfirmDialog from "../common/ConfirmDialog";
 import CroppedPhoto from "../common/CroppedPhoto";
 import PhotoCropDialog from "../common/PhotoCropDialog";
+import { CropIcon } from "../common/PhotoUploader";
 import Skeleton from "../common/Skeleton";
 import type { CropRect } from "../../models/recipe";
 import styles from "./StepPhotoTile.module.css";
@@ -208,9 +209,10 @@ function StepPhotoTile({
         <button
           type="button"
           className={styles.trimButton}
+          aria-label={t("photo.trim")}
           onClick={requestCrop}
         >
-          {t("photo.trim")}
+          <CropIcon />
         </button>
       )}
 

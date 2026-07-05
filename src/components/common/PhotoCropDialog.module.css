@@ -33,20 +33,26 @@
   border-bottom: 2px solid var(--color-gold-soft);
 }
 
-/* frameWrapは.frameを中央寄せしつつ、幅・高さ両方の上限を.frame（aspect-ratio指定先）へ
-   伝える器。flexの子要素（.frame）はデフォルトでcontent-basedサイズになる
+/* frameWrapは.stageを中央寄せしつつ、幅・高さ両方の上限を.stage（aspect-ratio指定先）へ
+   伝える器。flexの子要素（.stage）はデフォルトでcontent-basedサイズになる
    （blockのwidth: auto=containing blockいっぱいとは異なる）ため、aspect-ratioが
    width/heightどちらの上限にもぶつかった側で縮む（縦長画像はmax-heightで頭打ちして
-   幅が縮み、横長画像はmax-widthで頭打ちして高さが縮む）。 */
+   幅が縮み、横長画像はmax-widthで頭打ちして高さが縮む）。
+   外周にpadding: 14pxを設け、ハンドル（半径7px）＋focus ring分の見切れを防ぐ
+   （.frameのoverflow: hiddenでクロップされるハンドルを.overlay側でvisibleにするため、
+   その表示領域をここで確保する）。 */
 .frameWrap {
   display: flex;
   justify-content: center;
+  padding: 14px;
 }
 
-/* frameのaspect-ratioは画像naturalWidth/Height取得後にインラインstyleで上書きされ、
-   画像の実寸比に一致する（object-fit: containによるレターボックス消滅→フレーム基準の
-   正規化座標=画像基準の正規化座標になる）。未取得時（ロード中）は下記4:3を暫定表示する。 */
-.frame {
+/* .stageは.frame（旧実装の唯一のボックス）が持っていたサイズ決定ロジック
+   （aspect-ratio・width式・frameRef）を引き継ぐ器。overflow: visibleにすることで、
+   子の.overlayに置かれたハンドルが枠外へはみ出して表示できる。
+   getFrameDelta（ポインタ正規化の基準）は引き続きこの.stageのボックスを参照する
+   （旧.frameと同一の寸法・位置のボックスのため、座標契約は変わらない）。 */
+.stage {
   position: relative;
   /* .imageはposition:absoluteで内容量に寄与しないため、幅の明示が必要（flex子の
      content-basedサイズは0に潰れる）。画像ロード後はインラインstyleの
@@ -55,6 +61,15 @@
   max-width: 100%;
   max-height: 60vh;
   aspect-ratio: 4 / 3;
+  overflow: visible;
+}
+
+/* .frameのaspect-ratioは.stageが決定するため、.frameは常にinset: 0で親いっぱいに広がる。
+   暗転(.shadeRect)と画像の表示・クリップのみを担い、ハンドルは含まない
+   （ハンドルは.overlay側でクリップの影響を受けずに表示する）。 */
+.frame {
+  position: absolute;
+  inset: 0;
   background: var(--color-bg-sunken);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
@@ -82,20 +97,38 @@
   );
 }
 
+/* 暗転専用の非対話矩形。.cropRectと同一のインラインstyle（left/top/width/height）を
+   受け取り、.frame（overflow: hidden）の内側で9999pxの box-shadow を全画面漏れなく
+   クリップさせる。 */
+.shadeRect {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba(43, 36, 28, 0.35);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* .frameの後（DOM順で後＝上に重なる）に置かれる.stageの子。overflow: visibleのため、
+   ここに置かれた.cropRectのハンドルは.frameの外周にクリップされず表示できる。
+   非対話（クリック透過）にし、.cropRect自身にのみpointer-events: autoを戻す。 */
+.overlay {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
 .cropRect {
   position: absolute;
   border: 2px solid var(--color-gold);
-  box-shadow: 0 0 0 9999px rgba(43, 36, 28, 0.35);
   box-sizing: border-box;
   cursor: move;
   touch-action: none;
+  pointer-events: auto;
 }
 
 .cropRect:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 9999px rgba(43, 36, 28, 0.35),
-    var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .handle {

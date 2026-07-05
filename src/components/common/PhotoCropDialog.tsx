@@ -10,6 +10,12 @@
 // 意匠はConfirmDialog/ImportErrorDialogに合わせる（backdrop --color-bg-backdrop、
 // 本体 --color-bg / radius 10px / --shadow-3）。OverviewPhotoDialog（z-index 300）の
 // 内側から開かれ得るため、それより前面のz-index 400とする。
+//
+// ハンドルのクリップ解消（ユーザーFB対応）: .stage（サイズ決定・overflow: visible）→
+// .frame（暗転.shadeRect＋画像・overflow: hiddenでクロップ確定）／.overlay
+// （.cropRect＋ハンドル・overflow: visibleでクリップされず表示）の2層に分離。
+// .shadeRectと.cropRectは同一インラインstyle（rectStyle）を共有し、暗転の見た目は
+// 従来通りフレーム外周でクリップさせつつ、ハンドルだけを枠外へはみ出させる。
 
 import { useEffect, useRef, useState } from "react";
 import type {
@@ -76,6 +82,8 @@ function PhotoCropDialog({
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement>(null);
   const applyButtonRef = useRef<HTMLButtonElement>(null);
+  // getFrameDelta（ポインタ正規化の基準）が参照する.stage要素への参照。
+  // 変数名は座標契約の由来（旧.frame＝現.stage、同一ボックス）を示すため維持する。
   const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
 
@@ -126,11 +134,11 @@ function PhotoCropDialog({
   }
 
   function getFrameDelta(clientX: number, clientY: number) {
-    const frame = frameRef.current;
-    if (!frame) {
+    const stage = frameRef.current;
+    if (!stage) {
       return { dx: 0, dy: 0 };
     }
-    const rectBox = frame.getBoundingClientRect();
+    const rectBox = stage.getBoundingClientRect();
     return {
       dx: rectBox.width === 0 ? 0 : (clientX - rectBox.left) / rectBox.width,
       dy: rectBox.height === 0 ? 0 : (clientY - rectBox.top) / rectBox.height,
@@ -234,14 +242,14 @@ function PhotoCropDialog({
     height: `${(rect.h * 100).toString()}%`,
   };
 
-  // frameのアスペクト比を画像の実寸に一致させる（naturalSize未取得時はレターボックス
+  // stageのアスペクト比を画像の実寸に一致させる（naturalSize未取得時はレターボックス
   // 発生防止のため既定4:3のまま。この間はクロップ矩形の操作を無効化する。
-  // フレーム比=画像比にすることでobject-fit: containによるレターボックス（余白）が消え、
-  // getFrameDelta（フレーム基準の正規化座標）が画像基準の正規化座標と一致するようになる）
-  // .image はposition:absoluteでフレームの内容量に寄与しないため、aspect-ratioと
-  // max-*だけではフレーム寸法が導出できず0に潰れる（jsdomでは検出不能・実機で確認）。
+  // stage比=画像比にすることでobject-fit: containによるレターボックス（余白）が消え、
+  // getFrameDelta（stage基準の正規化座標）が画像基準の正規化座標と一致するようになる）
+  // .image はposition:absoluteでstageの内容量に寄与しないため、aspect-ratioと
+  // max-*だけではstage寸法が導出できず0に潰れる（jsdomでは検出不能・実機で確認）。
   // widthを明示して高さをaspect-ratioから導出させる: width ≤ 100%かつ高さ ≤ 60vh。
-  const frameStyle = naturalSize
+  const stageStyle = naturalSize
     ? {
         aspectRatio: `${naturalSize.width} / ${naturalSize.height}`,
         width: `min(100%, calc(60vh * ${naturalSize.width / naturalSize.height}))`,
@@ -268,40 +276,50 @@ function PhotoCropDialog({
         </h2>
 
         <div className={styles.frameWrap}>
-          <div ref={frameRef} className={styles.frame} style={frameStyle}>
-            {url ? (
-              <img
-                className={styles.image}
-                src={url}
-                alt={t("photoCrop.imageAlt")}
-                onLoad={handleImageLoad}
-              />
-            ) : (
-              <span className={styles.placeholder} aria-hidden="true" />
-            )}
-            <div
-              className={styles.cropRect}
-              style={rectStyle}
-              tabIndex={0}
-              role="group"
-              aria-label={t("photoCrop.rectLabel")}
-              onPointerDown={handleMoveStart}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerEnd}
-              onPointerCancel={handlePointerEnd}
-              onKeyDown={handleArrowKey}
-            >
-              {HANDLES.map((handle) => (
-                <div
-                  key={handle}
-                  className={`${styles.handle} ${styles[`handle-${handle}`]}`}
-                  aria-label={t(HANDLE_LABEL_KEYS[handle])}
-                  onPointerDown={(event) => handleResizeStart(handle, event)}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerEnd}
-                  onPointerCancel={handlePointerEnd}
+          <div ref={frameRef} className={styles.stage} style={stageStyle}>
+            <div className={styles.frame}>
+              {url ? (
+                <img
+                  className={styles.image}
+                  src={url}
+                  alt={t("photoCrop.imageAlt")}
+                  onLoad={handleImageLoad}
                 />
-              ))}
+              ) : (
+                <span className={styles.placeholder} aria-hidden="true" />
+              )}
+              <div
+                className={styles.shadeRect}
+                style={rectStyle}
+                aria-hidden="true"
+                data-testid="crop-shade-rect"
+              />
+            </div>
+            <div className={styles.overlay}>
+              <div
+                className={styles.cropRect}
+                style={rectStyle}
+                tabIndex={0}
+                role="group"
+                aria-label={t("photoCrop.rectLabel")}
+                onPointerDown={handleMoveStart}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerEnd}
+                onPointerCancel={handlePointerEnd}
+                onKeyDown={handleArrowKey}
+              >
+                {HANDLES.map((handle) => (
+                  <div
+                    key={handle}
+                    className={`${styles.handle} ${styles[`handle-${handle}`]}`}
+                    aria-label={t(HANDLE_LABEL_KEYS[handle])}
+                    onPointerDown={(event) => handleResizeStart(handle, event)}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerEnd}
+                    onPointerCancel={handlePointerEnd}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
