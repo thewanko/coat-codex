@@ -41,4 +41,17 @@ describe("AppFooter — 封蝋ロゴ", () => {
       screen.getByRole("link", { name: "利用規約・免責" }),
     ).toBeInTheDocument();
   });
+
+  test("使い方・Q&Aへのリンクが表示される", () => {
+    render(
+      <MemoryRouter>
+        <AppFooter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: "使い方・Q&A" })).toHaveAttribute(
+      "href",
+      "/help",
+    );
+  });
 });

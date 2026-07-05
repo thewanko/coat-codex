@@ -4,6 +4,7 @@
   },
   "nav": {
     "terms": "Nutzungsbedingungen & Haftungsausschluss",
+    "help": "Anleitung & FAQ",
     "backToOverview": "Zurück zur Übersicht",
     "backToLibrary": "Zurück zur Bibliothek"
   },
@@ -101,7 +102,8 @@
     "duplicate": "Duplizieren",
     "exportJson": "JSON exportieren",
     "duplicateSuccess": "„{{title}}“ dupliziert",
-    "duplicateFailed": "Duplizieren fehlgeschlagen"
+    "duplicateFailed": "Duplizieren fehlgeschlagen",
+    "helpLink": "Anleitung ›"
   },
   "setup": {
     "titleLabel": "Titel",
@@ -311,5 +313,88 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "help": {
+    "overline": "GUIDE",
+    "title": "HOW TO USE",
+    "gloss": "So funktioniert coat-codex und häufig gestellte Fragen",
+    "intro": "Hier finden Sie eine Schritt-für-Schritt-Übersicht zur Nutzung von coat-codex, vom Erstellen eines Rezepts bis zum Teilen und Drucken.",
+    "stepsHeading": "Anleitung",
+    "steps": {
+      "create": {
+        "title": "1. Rezept erstellen",
+        "body": "Beginnen Sie mit „Neues Rezept“ auf Home. Ein Titel allein genügt zum Start — den Rest können Sie später ergänzen.",
+        "imageAlt": "Tippen auf die Schaltfläche Neues Rezept im Home-Bildschirm"
+      },
+      "setup": {
+        "title": "2. Grundlagen einrichten",
+        "body": "Erfassen Sie den Titel, ein Foto des fertigen Werks und die verwendeten Werkzeuge. Das fertige Foto kann später hinzugefügt werden, sodass Sie auch mitten im Projekt starten können.",
+        "imageAlt": "Bildschirm zur Erfassung der Grundinformationen eines Rezepts"
+      },
+      "editor": {
+        "title": "3. Schritte bearbeiten",
+        "body": "Erfassen Sie für jedes Teil oder die Basis Technik, Farbe (Presets aus 3 Marken durchsuchen oder eigene eingeben), Mischverhältnis, Notizen und Schrittfotos. Fügen Sie so viele Schritte hinzu, wie Sie möchten.",
+        "imageAlt": "Bildschirm zum Bearbeiten der Schritte eines Teils"
+      },
+      "overview": {
+        "title": "4. Über die Übersicht verwalten",
+        "body": "Ordnen Sie BASE- und PARTS-Karten neu an, überprüfen Sie Schritte und ändern Sie das Übersichtsfoto. Behalten Sie das gesamte Rezept im Blick, während Sie es organisieren.",
+        "imageAlt": "Übersichtsbildschirm zur Verwaltung von BASE- und PARTS-Karten"
+      },
+      "share": {
+        "title": "5. In sozialen Netzwerken teilen",
+        "body": "Wählen Sie „In sozialen Netzwerken teilen“ aus „Exportieren & Teilen“. Wechseln Sie zwischen X und Bluesky und wählen Sie bis zu 4 Bilder für die Teilen-Karte.",
+        "imageAlt": "Bildschirm zum Teilen in sozialen Netzwerken zur Auswahl von Ziel und Bildern"
+      },
+      "print": {
+        "title": "6. Drucken oder als PDF speichern",
+        "body": "Drucken Sie Ihr Rezept über die Druckansicht. Um es als PDF zu speichern, wählen Sie im Druckdialog Ihres Browsers „Als PDF speichern“.",
+        "imageAlt": "Druckansicht-Bildschirm mit einem Rezept"
+      }
+    },
+    "backupHeading": "7. Daten sichern",
+    "backupBody": "Exportieren Sie ein Rezept über sein Kartenmenü auf Home als JSON (mit Fotos). Zum Wiederherstellen nutzen Sie „JSON importieren“ auf Home.",
+    "faqHeading": "Häufig gestellte Fragen",
+    "faq": {
+      "dataCategoryHeading": "Zu Ihren Daten",
+      "dataWhere": {
+        "q": "Wo werden meine Daten gespeichert?",
+        "a": "Nur im Browser dieses Geräts (IndexedDB). Es wird nichts an einen Server gesendet, und es ist kein Konto erforderlich."
+      },
+      "dataLost": {
+        "q": "Können meine Daten verloren gehen?",
+        "a": "Ja — das Löschen von Website-Daten in Ihrem Browser oder die Nutzung des privaten Modus kann sie entfernen. Wurde der Speicherschutz nicht gewährt, kann der Browser Daten auch nach eigenem Ermessen löschen, wenn der Speicherplatz knapp wird oder nach längerer Zeit ohne Besuch (bei Safari etwa 7 Tage). Wir empfehlen, regelmäßig per JSON-Export zu sichern."
+      },
+      "backupRestore": {
+        "q": "Wie sichere und stelle ich Daten wieder her?",
+        "a": "Nutzen Sie „JSON exportieren“ im Kartenmenü eines Rezepts auf Home, um zu sichern (mit Fotos). Zum Wiederherstellen nutzen Sie „JSON importieren“ auf Home."
+      },
+      "moveDevice": {
+        "q": "Kann ich meine Daten auf ein anderes Gerät übertragen?",
+        "a": "Übertragen Sie die exportierte JSON-Datei auf das andere Gerät und importieren Sie sie dort."
+      },
+      "envCategoryHeading": "Unterstützte Umgebungen",
+      "supportedBrowsers": {
+        "q": "Welche Browser werden unterstützt?",
+        "a": "Die aktuellen Versionen von Chrome, Edge, Safari und Firefox. Bei Safari wird Version 16.2 oder höher empfohlen. Smartphones und PCs werden unterstützt."
+      },
+      "offline": {
+        "q": "Kann ich es offline nutzen?",
+        "a": "Das Laden der Seite erfordert eine Internetverbindung. Die gespeicherten Daten selbst befinden sich jedoch auf Ihrem Gerät."
+      },
+      "shareCategoryHeading": "Tipps zum Teilen & Exportieren",
+      "shareCard": {
+        "q": "Was sind Social-Share-Karten?",
+        "a": "Automatisch aus Ihrem Rezept erzeugte Bilder für Beiträge (Gesamtzusammenfassung oder pro Teil). Sie können bis zu 4 auswählen. In Umgebungen ohne Unterstützung für das Teilen-Menü speichern Sie die Bilder und fügen sie manuell im Beitragsbildschirm an."
+      },
+      "pdf": {
+        "q": "Ich möchte als PDF speichern.",
+        "a": "Wählen Sie „Drucken“ und dann im Druckdialog Ihres Browsers „Als PDF speichern“."
+      },
+      "noteMd": {
+        "q": "Was ist die note-Markdown-Funktion?",
+        "a": "Eine Funktion, die Ihr gesamtes Rezept in einem Format kopiert, das Sie direkt in einen note-Artikel einfügen können."
+      }
+    }
   }
 }

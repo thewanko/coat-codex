@@ -6,6 +6,7 @@ import RecipeOverviewPage from "./routes/RecipeOverviewPage.tsx";
 import PartEditorPage from "./routes/PartEditorPage.tsx";
 import PrintViewPage from "./routes/PrintViewPage.tsx";
 import TermsPage from "./routes/TermsPage.tsx";
+import HelpPage from "./routes/HelpPage.tsx";
 
 function AppRouter() {
   return (
@@ -27,6 +28,7 @@ function AppRouter() {
         </Route>
         <Route path="/recipe/:id/print" element={<PrintViewPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

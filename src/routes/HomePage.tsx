@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 import RecipeCardGrid from "../components/home/RecipeCardGrid";
 import NewRecipeButton from "../components/home/NewRecipeButton";
 import ImportJsonButton from "../components/home/ImportJsonButton";
@@ -52,6 +53,11 @@ function HomePage() {
           <ImportJsonButton />
         </div>
       )}
+      <p className={styles.helpLinkRow}>
+        <Link to="/help" className={styles.helpLink}>
+          {t("home.helpLink")}
+        </Link>
+      </p>
       {reminderTargets.length > 0 && (
         <ExportReminderBanner
           variant="full"

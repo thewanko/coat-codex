@@ -4,6 +4,7 @@
   },
   "nav": {
     "terms": "Terms & Disclaimer",
+    "help": "How to Use & Q&A",
     "backToOverview": "Back to overview",
     "backToLibrary": "Back to library"
   },
@@ -101,7 +102,8 @@
     "duplicate": "Duplicate",
     "exportJson": "Export JSON",
     "duplicateSuccess": "Duplicated \"{{title}}\"",
-    "duplicateFailed": "Failed to duplicate"
+    "duplicateFailed": "Failed to duplicate",
+    "helpLink": "How to use ›"
   },
   "setup": {
     "titleLabel": "Title",
@@ -311,5 +313,88 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "help": {
+    "overline": "GUIDE",
+    "title": "HOW TO USE",
+    "gloss": "How to use coat-codex and frequently asked questions",
+    "intro": "Here's a step-by-step overview of how to use coat-codex, from creating a recipe to sharing and printing it.",
+    "stepsHeading": "How to Use",
+    "steps": {
+      "create": {
+        "title": "1. Create a recipe",
+        "body": "Start from \"New Recipe\" on Home. A title alone is enough to begin — you can fill in the rest later.",
+        "imageAlt": "Tapping the New Recipe button on the Home screen"
+      },
+      "setup": {
+        "title": "2. Set up the basics",
+        "body": "Register the title, a photo of the finished piece, and the tools used. The finished photo can be added later, so you can start even mid-project.",
+        "imageAlt": "Screen for registering a recipe's basic information"
+      },
+      "editor": {
+        "title": "3. Edit the steps",
+        "body": "For each part or the base, record the technique, paint (search presets from 3 brands or enter your own), mix ratio, notes, and step photos. Add as many steps as you like.",
+        "imageAlt": "Screen for editing a part's steps"
+      },
+      "overview": {
+        "title": "4. Manage from the overview",
+        "body": "Reorder BASE and PARTS cards, review steps, and change the overview photo. See the whole recipe at a glance while you organize it.",
+        "imageAlt": "Overview screen managing BASE and PARTS cards"
+      },
+      "share": {
+        "title": "5. Share to social media",
+        "body": "Choose \"Post to Social\" from \"Export & Share\". Switch between X and Bluesky, and pick up to 4 share card images.",
+        "imageAlt": "Social share screen for selecting a target and images"
+      },
+      "print": {
+        "title": "6. Print or save as PDF",
+        "body": "Print your recipe from the print view. To save as a PDF, choose \"Save as PDF\" in your browser's print dialog.",
+        "imageAlt": "Print view screen displaying a recipe"
+      }
+    },
+    "backupHeading": "7. Back up your data",
+    "backupBody": "Export a recipe as JSON (with photos included) from its card menu on Home. To restore, use \"Import JSON\" on Home.",
+    "faqHeading": "Frequently Asked Questions",
+    "faq": {
+      "dataCategoryHeading": "About your data",
+      "dataWhere": {
+        "q": "Where is my data stored?",
+        "a": "Only in this device's browser (IndexedDB). Nothing is sent to a server, and no account is required."
+      },
+      "dataLost": {
+        "q": "Can my data be lost?",
+        "a": "Yes — clearing site data in your browser or using private browsing can erase it. If storage protection hasn't been granted, the browser may also delete data at its own discretion when storage is low or after a long period without a visit (around 7 days on Safari). We recommend backing up regularly via JSON export."
+      },
+      "backupRestore": {
+        "q": "How do I back up and restore?",
+        "a": "Use \"Export JSON\" from a recipe's card menu on Home to back up (photos included). To restore, use \"Import JSON\" on Home."
+      },
+      "moveDevice": {
+        "q": "Can I move my data to another device?",
+        "a": "Move the exported JSON file to the other device and import it there."
+      },
+      "envCategoryHeading": "Supported environments",
+      "supportedBrowsers": {
+        "q": "Which browsers are supported?",
+        "a": "The latest versions of Chrome, Edge, Safari, and Firefox. On Safari, version 16.2 or later is recommended. Both smartphones and PCs are supported."
+      },
+      "offline": {
+        "q": "Can I use it offline?",
+        "a": "Loading the page requires an internet connection. The data you've saved, however, lives on your device."
+      },
+      "shareCategoryHeading": "Tips for sharing & exporting",
+      "shareCard": {
+        "q": "What are social share cards?",
+        "a": "Images automatically generated from your recipe for posting (a full summary or per-part). You can select up to 4. On environments without share-sheet support, save the images and attach them manually in the posting screen."
+      },
+      "pdf": {
+        "q": "How do I save as a PDF?",
+        "a": "Choose \"Print\", then select \"Save as PDF\" in your browser's print dialog."
+      },
+      "noteMd": {
+        "q": "What is the note Markdown feature?",
+        "a": "A feature that copies your full recipe in a format you can paste directly into a note article."
+      }
+    }
   }
 }

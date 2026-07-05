@@ -221,4 +221,15 @@ describe("HomePage", () => {
       expect(screen.getByText("1 VOLUMES")).toBeInTheDocument();
     });
   });
+
+  test("使い方ガイドへの導線リンクを表示する", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([]);
+
+    renderHome();
+
+    await screen.findByText("まだ秘伝書がありません");
+    expect(
+      screen.getByRole("link", { name: "使い方ガイド ›" }),
+    ).toHaveAttribute("href", "/help");
+  });
 });
