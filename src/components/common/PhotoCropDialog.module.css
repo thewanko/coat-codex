@@ -11,6 +11,9 @@
   justify-content: center;
   padding: var(--space-4);
   z-index: 400;
+  /* スクロールチェーン遮断の保険（ユーザーFB: iOSでの背後スクロール吸われ対策の多段防御。
+     本命はbodyスクロールロック＋.stageの非passive touchmove preventDefault）。 */
+  overscroll-behavior: contain;
 }
 
 .dialog {
