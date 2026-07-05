@@ -103,7 +103,7 @@
     align-items: stretch;
   }
 
-  .actions > * {
+  .actions > button {
     width: 100%;
   }
 }
