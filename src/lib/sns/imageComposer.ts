@@ -213,8 +213,8 @@ export type SummaryCandidateSpec =
 export type ShareCandidateSpec =
   SummaryCandidateSpec | WholeCandidateSpec | PartCandidateSpec;
 
-const CARD_WIDTH = 1200;
-const CARD_HEIGHT = 900;
+const CARD_WIDTH = 1080;
+const CARD_HEIGHT = 1350;
 const MARGIN = 48;
 /** 共通ヘッダ帯の高さ（金淡の細罫＋金のオーバーライン1行分） */
 const HEADER_HEIGHT = 56;
@@ -564,7 +564,7 @@ export interface Rect {
   height: number;
 }
 
-/** カードレイアウト計算結果（1200×900・4:3固定） */
+/** カードレイアウト計算結果（1080×1350・4:5固定） */
 export interface CardLayout {
   cardWidth: number;
   cardHeight: number;
@@ -591,7 +591,7 @@ export interface CardLayout {
 }
 
 /**
- * カードレイアウト計算（純関数）。カードは1200×900（4:3）固定。
+ * カードレイアウト計算（純関数）。カードは1080×1350（4:5）固定。
  * 全カード共通: 最上部にheaderArea・最下部にfooterAreaを確保する（秘伝書テイストの共通意匠）。
  * whole: ヘッダ直下に全体写真、下部にタイトル＋情報帯。
  * part: 主写真（工程写真）をフルブリード寄りに配置し、左下に全体画像インセット、
@@ -633,10 +633,11 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
       // overflow行の高さ予算はcomputeStepCapacity（summary(part)）と同じ考え方で
       // area側に含める（drawSummaryPartRowsのoverflow行がrect外にはみ出さないための保証）。
       //
-      // 予算内訳（bodyTop〜contentBottomの716pxに対して。パーツ行8＋overflow・色12の最大ケース）:
+      // 予算内訳（bodyTop〜contentBottomの1166pxに対して。パーツ行8＋overflow・色12の最大ケース）:
       //   progressReserve(48) + sectionGapTop(12) + partsHeading(30) + 8行×40px(320)
       //   + overflowRow(40) + sectionGapMid(28) + colorsHeading(30) + colorsGrid(4行×44=176)
-      //   = 684px（bottomMost=828px。contentBottom 860pxに対し32pxの余裕）
+      //   = 684px（bottomMost=828px。contentBottom 1310pxに対し482pxの余裕。
+      //   4:5縦長化により写真を持たないsummary(whole)は上詰めレイアウトのまま下部余白が拡大する）
       const progressReserve = 48;
       const sectionGapTop = 12;
       const sectionGapMid = 28;
@@ -884,9 +885,86 @@ export function truncateToWidth(
   return `${truncated}${ELLIPSIS}`;
 }
 
-/** ファイル名生成（純関数）。1-basedの連番でPNG命名する（B系統の連番一括DL用） */
-export function buildFileName(index1Based: number): string {
-  return `coat-codex-share-${index1Based}.png`;
+/**
+ * ファイル名不可文字（`/ \ : * ? " < > |`）と制御文字（U+0000–U+001F）を除去し、
+ * 連続空白を1つに圧縮のうえ前後をtrimする（純関数）。結果が空文字なら"recipe"にフォールバックする。
+ * 日本語等の非ASCII文字はそのまま残す。
+ */
+const FORBIDDEN_FILENAME_CHARS = new Set([
+  "/",
+  "\\",
+  ":",
+  "*",
+  "?",
+  '"',
+  "<",
+  ">",
+  "|",
+]);
+
+export function sanitizeFileNamePart(raw: string): string {
+  let withoutForbidden = "";
+  for (const char of raw) {
+    const codePoint = char.codePointAt(0) ?? 0;
+    const isControlChar = codePoint <= 0x1f;
+    if (isControlChar || FORBIDDEN_FILENAME_CHARS.has(char)) {
+      continue;
+    }
+    withoutForbidden += char;
+  }
+  const stripped = withoutForbidden.replace(/\s+/g, " ").trim();
+  return stripped === "" ? "recipe" : stripped;
+}
+
+/**
+ * `crypto.getRandomValues`由来の`[a-z0-9]`5文字のランダム文字列を生成する。
+ * Uint8Arrayから36種（a-z0-9）への剰余写像（一様性の厳密さは不要）。Math.randomは使わない。
+ */
+export function generateRandomSuffix(): string {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const bytes = new Uint8Array(5);
+  crypto.getRandomValues(bytes);
+  let result = "";
+  for (const byte of bytes) {
+    result += alphabet[byte % alphabet.length];
+  }
+  return result;
+}
+
+/**
+ * ファイル名生成（純関数）。レシピ名（＋工程カードは工程名）＋ランダム5文字でPNG命名する
+ * （A系統共有・B系統個別保存の両方のFile名に使用。2026-07-05ユーザー要望: 「全部同じ名前だと
+ * 不便」を受け、旧・連番命名（coat-codex-share-N.png）から差し替え）。
+ * - whole / summary(whole): `{title}-{suffix}.png`
+ * - part（工程カード）: `{title}-{工程名}-{suffix}.png`。工程名はtechniqueLabelをsanitizeして
+ *   非空ならそれ、空ならstepTag（例 "STEP 1"）にフォールバックする
+ * - summary(part): `{title}-{partName}-{suffix}.png`
+ */
+export function buildFileName(
+  spec: ShareCandidateSpec,
+  randomSuffix: string,
+): string {
+  const title = sanitizeFileNamePart(spec.title);
+
+  if (
+    spec.kind === "whole" ||
+    (spec.kind === "summary" && spec.variant === "whole")
+  ) {
+    return `${title}-${randomSuffix}.png`;
+  }
+
+  if (spec.kind === "part") {
+    const trimmedTechnique = spec.techniqueLabel.trim();
+    const stepName =
+      trimmedTechnique !== ""
+        ? sanitizeFileNamePart(spec.techniqueLabel)
+        : spec.stepTag;
+    return `${title}-${stepName}-${randomSuffix}.png`;
+  }
+
+  // summary(part)
+  const partName = sanitizeFileNamePart(spec.partName);
+  return `${title}-${partName}-${randomSuffix}.png`;
 }
 
 /** canvas 2D contextの最小形（本番はCanvasRenderingContext2D、テストはspy互換オブジェクト） */
@@ -944,6 +1022,11 @@ export interface ComposerDeps {
   createCanvas(w: number, h: number): CanvasLike;
   /** Blob→描画可能なImageSourceへの変換。省略時はcreateImageBitmapを使う既定実装 */
   decodeImage?: (blob: Blob) => Promise<CanvasImageSource>;
+  /**
+   * ファイル名のランダム5文字サフィックスを生成する関数。省略時はgenerateRandomSuffix
+   * （crypto.getRandomValues実装）を既定にする。テスト決定化のためのDI（decodeImageと同じパターン）。
+   */
+  randomSuffix?: () => string;
 }
 
 /** documentの有無を問わず安全にfonts.readyをawaitする（存在しない環境ではスキップ） */
@@ -1701,7 +1784,8 @@ export interface ComposedShareImage {
 /**
  * 合成本体: 全候補を {spec, file} のペア配列（image/png）で返す。
  * canvas取得失敗・toBlob null時は当該候補のみスキップし、候補とFileの対応を崩さない。
- * 連番ファイル名は「生成に成功したカードの順に1から」振る（欠番なし）。
+ * ファイル名は候補ごとにbuildFileName（レシピ名＋内容＋ランダム5文字）で生成する
+ * （2026-07-05ユーザー要望対応。旧・連番命名から差し替え）。
  * 最大4枚の選定は呼び出し側（T39）の責務なので全件生成する。
  */
 export async function composeShareImages(
@@ -1711,6 +1795,7 @@ export async function composeShareImages(
   await waitForFontsReady();
 
   const decodeImage = deps.decodeImage ?? defaultDecodeImage;
+  const randomSuffix = deps.randomSuffix ?? generateRandomSuffix;
   const photoDeps = { loadPhoto: deps.loadPhoto, decodeImage };
 
   const results: ComposedShareImage[] = [];
@@ -1757,7 +1842,7 @@ export async function composeShareImages(
       continue;
     }
 
-    const file = new File([blob], buildFileName(results.length + 1), {
+    const file = new File([blob], buildFileName(spec, randomSuffix()), {
       type: "image/png",
     });
     results.push({ spec, file });

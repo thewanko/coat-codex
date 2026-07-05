@@ -69,7 +69,7 @@ function makeFile(name: string): File {
 function makeComposedImages(count: number): ComposedShareImage[] {
   return Array.from({ length: count }, (_, i) => ({
     spec: { kind: "whole" as const, photoId: `ph_${i + 1}`, title: "T" },
-    file: makeFile(`coat-codex-share-${i + 1}.png`),
+    file: makeFile(`T-sfx${i + 1}.png`),
   }));
 }
 
