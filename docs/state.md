@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: 韓国語対応 → PR #25)
+最終更新: 2026-07-05 (loop: 共有カード縦長化＋DLファイル名 → PR起票)
 
 ## 完了
+
+- 2026-07-05: **共有カード縦長化（1080×1350・4:5）＋DLファイル名改善**（PR: impl/share-card-portrait。ユーザーiPhone実機FB起点=T43④確認と同時受領） — 起点FB: ①「画像のトリミング幅が上下に狭い。広めにとりたい」②「全部同じ名前だと不便。レシピ名＋5文字ランダム。工程レビューはレシピ名＋工程名＋ランダム」。ユーザー裁定（AskUserQuestion）: カード4:5縦長化＋クロップUIは非破壊で別ループ。実装（impl 2委譲・A-1/A-2順次=同一ファイルのため並列不可）: ①CARD 1200×900→1080×1350（whole写真領域604→1054px≒1:1・part 524→974px。SUMMARY_STEP_LIST_AREA_HEIGHTは式ベース定数のため自動追従716→1166px・computeStepCapacity収容25/15件へ拡大）②`buildFileName(spec, randomSuffix)`化: whole/summary(whole)=`{title}-{rand5}.png`・part=`{title}-{技法名|STEP n}-{rand5}.png`・summary(part)=`{title}-{partName}-{rand5}.png`。sanitize（禁止文字/制御文字除去・空→"recipe"・サロゲート安全）＋crypto由来rand5（`ComposerDeps.randomSuffix?`でDI・テスト決定化）③ShareImagePreview aspect-ratio 4/5化。レビューR1 PASS(C0/H0/M0/L3。L1コメント4:3残存/L2仕様書「連番PNG」未同期=FB-A時点からの残骸ごとセッションglue回収・L3剰余写像微偏り=対応不要)。実機検証: 黒狼実データで4カード種の実ピクセル目視（工程カードは狼全身＋ベースまで写る=改善目的達成）・寸法1080×1350・ファイル名4系統実捕獲（`黒狼-he82n.png`/`黒狼-エッジハイライト-i2wj0.png`等）・375/768/1280全ヒットテスト・候補タイル比0.80・横はみ出しなし。計1005テスト。**残ループB=非破壊クロップ（承認済み計画 ~/.claude/plans/zazzy-gliding-honey.md）**
 
 - 2026-07-05: **韓国語（ko）対応・計7言語化**（PR: impl/i18n-ko） — 起点=ユーザー質問「中国語・韓国語は難しい？」→Sonnet Web調査（**Warhammer Community公式言語は en/de/es/fr/it/ja/ko でzh非対応・GWは韓国に直営店開設予定の注力市場**・全OS共通のシステム明朝ハングルは存在せずWebフォント必須・韓国Web慣習は「本文ゴシック＋見出しのみ명조=格式演出」）→計画モード承認。ユーザー裁定: **koのみ追加（zhは公式基準外で見送り・§7に再検討時の推奨案を記録）**・見出しのみNoto Serif KR Webフォント。実装: ①ko.json（251キー・**複数形はvolumesCount_otherのみ**=koのCLDR cardinalはother単独・terms/trademarkNoticeは英語流用・techniques=음写ローンワード・タグライン幅制約付き委譲）②フォント戦略=既存Google Fonts CDN行に`Noto+Serif+KR:wght@500;600;700`追加＋global.cssの`:root:lang(ko)`変数上書き（**theme.css無改変**）＋`word-break: keep-all`③**koはトラッキング解除側**（:lang列挙3ファイルへ追加。ハングルへの字間流用は禁忌=調査定石）④design時の言語分岐Grep（lessons 2026-07-05ルール適用）で**X文字数カウンタはホワイトリスト方式でハングル既に重み2=本体無変更・境界U+AC00/D7A3テストのみ追加**、`toLocaleDateString(i18n.language)`は自動対応と事前確定⑤i18n.test.ts=koループ追加＋volumesCountアサーションを「存在サフィックスのみen比較」へ統一。レビューR1 PASS(M1=タグライン「비록」が接続副詞と多義→「비망록」へ/L2)→glue修正→R2 PASS(**C0/H0/M0/L0**)。実機検証: 375/768/1280×7オプション全ヒットテスト・**Noto Serif KR実描画確認**（`document.fonts.check()`はスライス方式でfalseを返すためcanvas実測幅比較〔KR 263.3≠generic 271.8≠gothic 238.3〕＋スクリーンショット목視で確定・66スライスオンデマンドロード・低頻度音節「뷁궯쀍힚」も描画）・keep-all/letter-spacing=normal・375px収まり（switcher右端343）・Overview/印刷ビューko gloss（사용 컬러等）・Terms英語文面・リロード永続化。デザイン仕様書§2へ「韓国語フォント戦略」「多言語gloss字間」節を新設、計画§7へko判断とzh見送り記録。計989テスト。**PR #25マージ済み（2026-07-05）。ユーザー実機確認（iPhone: 한국어選択→見出しが明朝字形か）待ち**
 
@@ -54,7 +56,8 @@
 
 ## 次の候補 (優先順)
 
-1. **ユーザー作業（公開前・残2件）**: ③T43③実印刷ダイアログ（Chrome/Safari印刷プレビューで背景色・改ページ・PDF保存。※画面上の縮小プレビュー右端切れはPR #21で解消済み）④Web Share A系統実機（iPhone Safari「SNSに投稿/共有」→共有ボタンでOS共有シート＋画像添付が出ればA系統成功。手順ガイド画面ならB系統フォールバック）。※①PR #18 note MD・②T43④他項目は2026-07-04ユーザー実機でOK確認済み
+1. **ループB: 写真の非破壊クロップ**（承認済み計画 ~/.claude/plans/zazzy-gliding-honey.md）: schemaVersion 1→2で`photoCrops: Record<photoId, 正規化矩形>`をrecipe文書に追加（export往復で自動保持）／PhotoCropDialog新設（矩形ドラッグ＋四隅ハンドル・単発アップロード直後自動オープン＋タイル「トリミング」導線・chipPhotoId対象外）／反映=imageComposer（クロップ内cover）＋`CroppedPhoto`共通部品で表示12箇所＋印刷。B-1データ層→B-2 UI→B-3反映の3Wave
+2. ~~ユーザー作業（公開前）~~ **全て完了（2026-07-05）**: T43③実印刷OK・T43④Web Share A系統OK（共有成功）・韓国語実機OK
 3. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）。多言語対応は2026-07-05実装済み
 
 ## 決定事項 (変更には理由が要る)
@@ -70,6 +73,8 @@
 - **SNS共有は「全体」「パーツ」の2起点**（2026-07-03決定、v2.3）: 全体=ExportActionBar起点・全体写真＋タイトルの1枚絵候補／パーツ=PartCardメニュー起点・工程ごとの1枚絵（全体画像＋工程写真＋工程情報）候補。**いずれもユーザーが最大4枚選択**（既定=先頭4枚）。投稿テキストにURL非掲載（Xリーチ抑制対策）・`#coat-codex`必須（トリム対象外）。モバイルの下部固定バーは「出力・共有」→ボトムシートへ改善。詳細は計画§3.4冒頭とT37/T39/T40
 
 ## 申し送り (次セッションの自分へ)
+
+- **共有カード縦長化の残置（2026-07-05・対応任意）**: ①summary(part)は工程数が少ないと下部余白が縦長化でさらに広がる（既存申し送り「行間の均等配分はユーザー反応を見て判断」の継続。実害なし）②generateRandomSuffixの`byte % 36`剰余写像はa–d,0がわずかに高頻度（レビューL3・4枚/回の用途に実用十分・rejection samplingは不採用と記録）③長大タイトルのファイル名は切り詰めなし（OS側で扱える範囲・実害未確認）
 
 - **M8前半の残Low（全PASS済み・対応任意）**: ①AppFooter.test.tsxの`getByAltText("")`は「空altのimgがフッター内に1つ」前提の脆いセレクタ（R2 L2。将来装飾img追加時に`querySelector("img[aria-hidden]")`等へ）②useFocusTrapの2 effect定義順（capture→初期フォーカス）はStrictMode二重mountでの正しさに寄与する順序依存（R3 L1。コメント明文化済み・入れ替え禁止）③inert付与はuseEffectのため直接URL初回ペイントに未適用の1フレームが理論上あり（R2 L3・Skeletonのみで実害なし）④favicon `?v=2`は再発時に`?v=3`へ上げるだけでよい
 - **M7前半の残Low＋検証環境**: ①summary(whole)使用カラーの「+N」は「13色以上かつ12色目の色名が極端に長い」限定条件で12色目ラベル末尾と視覚干渉しうる（R3 Low・幾何は静的検算済み・機能無影響。最小修正=12色目のみlabelMaxWidthを+N実測幅ぶん縮める分岐）②T41裁定: レンジ表記は小文字キー維持（表示名変換はユーザー反応待ち）③印刷パレット行スウォッチ16pxは**デザイン仕様書§6「16px（工程行）」に適合と確定**（M6申し送りの「dc.html規定30×30」は誤記。対応不要）④検証用データ: previewのIndexedDBに黒狼実データ（ユーザー指定 Obsidian vault の黒狼2.json＝毎回ユーザーが `@` で添付）と合成「黒狼検証」（0工程パーツ・混合色・brand null・**マスタ外presetId・70/30 MIX工程**入り）をインポート済み。JSON原本は node_modules/.verify-tmp/（gitignore内・再生成可能）⑤summary(whole)「+N」視覚干渉（①）はM7で未対応のまま残置（限定条件・機能無影響。将来のカラー数UX調整時に一括対応推奨）
