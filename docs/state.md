@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: 多言語対応 fr/de/it/es → PR #23)
+最終更新: 2026-07-05 (loop: モバイルHome横はみ出し修正・worktree agitated-edison-393592)
 
 ## 完了
+
+- 2026-07-05: **モバイルHome横はみ出し修正（scrollWidth 390→375）**（worktree: agitated-edison-393592・branch claude/agitated-edison-393592。多言語対応ループの実機検証で発見された既存問題） — 起票時の想定原因「隠しファイル入力がvisually-hidden未実装」は**事実と異なり**（全5ファイルの`.hiddenInput`はwidth:1px+clip+overflow:hiddenパターン実装済み）、セッション1次確認（375px実機再現→computed style→カスケード追跡）で真因を特定: HomePage.module.cssの`@media(max-width:767px) .actions > * {width:100%}`（T42ボタン縦積み用）が同詳細度・後方読込で隠し入力のwidth:1pxを上書きし、position:absolute入力が幅375px（left:15→right:390）に膨張。修正=セレクタを`.actions > button`へ限定（1行。`.actions`直下はbutton2つ＋隠しinput＋ImportErrorDialog〔fixed+inset:0で無影響〕のみを確認済み）＋発火チェーン固定テスト1件（ボタンクリック→隠しinput.click()がspyで1回）。`> * {width}`類似パターンのGrep横断=他に存在せず。EmptyState経路（0件Home）は元々`> *`ルールなしで無影響。レビューR1 PASS（C0/H0/M0/L1=spy restore省略・実害なし残置）。実機検証: 375/768/1280全幅でscrollWidth≤clientWidth・隠し入力1px・両ボタンelementFromPointヒットテスト通過・モバイル全幅343px/PC中央寄せ114/190px不変（スクリーンショット証跡）。4ゲートexit 0・計985テスト。**未コミット（コミット/PR作成はユーザー裁定待ち）**
 
 - 2026-07-05: **多言語対応 fr/de/it/es（計画§7バックログ・v1後初タスク）**（PR #23: impl/i18n-fr-de-it-es） — ①`locales/{fr,de,it,es}.json` 新規4ファイル（各252キー・en同一構造。翻訳=Sonnet impl並列2委譲＋opusレビュー校正。**意匠キーはja/en値一致=据え置きの機械ルール**で全言語共通維持・techniques.*は各言語のミニチュアペイント標準用語・**terms.* 19キーとfooter.trademarkNoticeは英語流用**=法的文面のユーザー裁定）②LanguageSwitcher 2セグメント→**カスタムドロップダウン**（ユーザー裁定。listbox パターン・roving focus・↑↓円環・Escape/外側クリック/確定の3閉経路すべてでトリガーへフォーカス復帰・z:10でヘッダー文脈内完結）③i18n.test.ts全6ロケール一般化（「fr=不正コード」テストを"zz"へ・terms英語逐語一致とvolumesCount据え置きの固定化アサーション新設）④vite.config.tsにvitest exclude `**/.claude/**` 追加（**残骸worktreeの二重テスト実行を発見・修正**。stoic-wing worktreeは進行中チップの作業ツリーのため削除せず）。レビューR1 PASS(M1=fr/de STEPタグ翻訳逸脱/L2)→glue修正→R2 PASS(L1=sed置換が導入したfrエリジオン崩れ`de l'STEP`→`du STEP`修正)→**出口実機検証が静的レビュー不可視の実バグ2件を検出**: (a)和文glossトラッキング解除の`:lang(en)`特例が新4言語未カバー→**ドイツ語375pxでヘッダー471pxへ膨張**（Grep横断で3ファイル`:lang`5言語列挙化: AppShell tagline/HomePage heroGloss/ImportJsonSection dividerLabel）(b)it/es app.tagline未翻訳（en文面コピー）→R3 PASS(**C0/H0/M0/L0**・翻訳漏れ横断再検査で残存なし確認)。実機検証: 375/768/1280×ドロップダウン全ヒットテスト・6言語切替（gloss/複数形/documentElement.lang/リロード永続化）・fr Terms英語文面・ドイツ語Home/Overview/印刷ビュー（黒狼実データ・スクリーンショット証跡）。計983テスト。**PR #23マージ済み（2026-07-05）。ユーザー実機確認（iPhone: ドロップダウン操作・de/fr表示）待ち**
 
