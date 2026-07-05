@@ -256,6 +256,14 @@
 - 反映先: loop prompt（「検証が実利用を代表していない」系の既存昇格ルールが機能した実証。言語分岐Grepは新規の運用ルール）
 - 発生回数: 1 回目
 
+## 2026-07-05 share-card-portrait DL生成物の実機検証はcreateObjectURLフックでBlob本体を捕獲する [GOOD]
+
+- 事象: DLファイル名と実ピクセルの実機検証で、`anchor.click`フックで捕獲したblob URLが表示前に死んでいた（`downloadBlob`がクリック直後に`URL.revokeObjectURL`する正しい実装のため）。`URL.createObjectURL`を先にフックしてBlob本体を捕獲→FileReaderでdataURL化→画面表示に切替えたところ、ファイル名4系統・寸法1080×1350・実ピクセル目視まで一気通貫で検証できた。あわせて「式ベースのレイアウト定数」（SUMMARY_STEP_LIST_AREA_HEIGHT=CARD_HEIGHTからの導出式）だったため、寸法変更が定数2行の変更で全収容計算に自動追従し、impl 2委譲・レビュー1ラウンドPASSで完了した
+- 原因: objectURLはDL系ヘルパーが後始末でrevokeするのが定石であり、URL文字列の捕獲では生成物検証に使えない。レイアウト定数を直値でなく導出式で持つ設計は寸法変更系タスクの変更面を最小化する
+- 一般化ルール (次ループの指示文としてそのまま使える形で): DL生成物（画像・ファイル）の実機検証は`URL.createObjectURL`をフックして**Blob本体**を捕獲し、dataURL化して表示・目視する（anchor.hrefのblob URLはrevoke済みで使えない前提で書く）。ファイル名検証は`HTMLAnchorElement.prototype.click`フックで`download`属性を読む（実DLも抑止できる）。レイアウト定数は直値でなく基準寸法からの導出式で定義させる
+- 反映先: loop prompt（実機検証の規律の運用詳細）
+- 発生回数: 1 回目
+
 ## 2026-07-05 ko対応 言語分岐Grepルールが機能＋CJKスライスフォントの実ロード判定手法 [GOOD]
 
 - 事象: ①前ループ（fr/de/it/es）で昇格した「言語追加時は `:lang(`・`i18n.language`・`lng ===`・`Intl.` をGrepして全分岐を列挙」ルールをdesign段階で適用した結果、(a)Xカウンタがホワイトリスト方式でハングルは既に重み2=本体無変更と事前確定 (b):langトラッキング解除3ファイルへのko追加（ハングルへの字間流用は禁忌）を委譲プロンプトに最初から明記でき、前回の「実機検証まで到達する見えないCSSバグ」を未然に防いだ。レビューR1もM1（訳語1件）のみでR2 C0/H0/M0/L0 ②新手法: Google FontsのCJKスライス配信では `document.fonts.check()` が実描画中でもfalseを返す（unicode-range分割の全face一括判定のため）。実ロード判定は「canvas measureTextで対象フォント名 vs 明示フォールバックの幅差」＋「loadedステータスのスライス数」＋「スクリーンショット目視（明朝/ゴシックの字形差）」の3点で確定できた。低頻度音節の一時注入でオンデマンドスライス取得も検証可能
