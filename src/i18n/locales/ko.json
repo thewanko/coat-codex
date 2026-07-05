@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "삭제",
     "stepAdd": "+ 사진 1장 추가",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "자르기"
+  },
+  "photoCrop": {
+    "title": "사진 자르기",
+    "imageAlt": "자를 사진",
+    "apply": "적용",
+    "reset": "초기화(자르기 해제)",
+    "cancel": "취소",
+    "rectLabel": "자르기 영역(화살표 키로 이동)",
+    "handle": {
+      "nw": "왼쪽 위 핸들",
+      "ne": "오른쪽 위 핸들",
+      "sw": "왼쪽 아래 핸들",
+      "se": "오른쪽 아래 핸들"
+    }
   },
   "confirm": {
     "cancel": "취소",

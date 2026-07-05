@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "Supprimer",
     "stepAdd": "+ Ajouter 1 photo",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "Recadrer"
+  },
+  "photoCrop": {
+    "title": "Recadrer la photo",
+    "imageAlt": "Photo à recadrer",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser (supprimer le recadrage)",
+    "cancel": "Annuler",
+    "rectLabel": "Zone de recadrage (déplacer avec les flèches)",
+    "handle": {
+      "nw": "Poignée haut-gauche",
+      "ne": "Poignée haut-droite",
+      "sw": "Poignée bas-gauche",
+      "se": "Poignée bas-droite"
+    }
   },
   "confirm": {
     "cancel": "Annuler",

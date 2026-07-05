@@ -39,7 +39,7 @@ import PartCardList from "../components/overview/PartCardList";
 import PartReviewDialog from "../components/overview/PartReviewDialog";
 import ExportActionBar from "../components/overview/ExportActionBar";
 import ExportReminderBanner from "../components/home/ExportReminderBanner";
-import type { RecipeDoc } from "../models/recipe";
+import type { CropRect, RecipeDoc } from "../models/recipe";
 import styles from "./RecipeOverviewPage.module.css";
 
 type RecipePart = RecipeDoc["parts"][number];
@@ -255,6 +255,24 @@ function RecipeOverviewPage() {
     updateRecipe((current) => ({ ...current, overviewPhotoIds }));
   }
 
+  function handleOverviewPhotoCropChange(
+    photoId: string,
+    crop: CropRect | null,
+  ) {
+    updateRecipe((current) => {
+      if (crop === null) {
+        const nextEntries = Object.entries(current.photoCrops).filter(
+          ([id]) => id !== photoId,
+        );
+        return { ...current, photoCrops: Object.fromEntries(nextEntries) };
+      }
+      return {
+        ...current,
+        photoCrops: { ...current.photoCrops, [photoId]: crop },
+      };
+    });
+  }
+
   // §3.5コンパクト帯の表示条件: 当該レシピが未バックアップ、かつスヌーズ中でない
   const showReminderCompact = shouldShowExportReminder({
     updatedAt: doc.updatedAt,
@@ -353,6 +371,8 @@ function RecipeOverviewPage() {
             value={doc.overviewPhotoIds}
             onChange={handleOverviewPhotosChange}
             onClose={() => setPhotoDialogOpen(false)}
+            crops={doc.photoCrops}
+            onCropChange={handleOverviewPhotoCropChange}
           />
         )}
       </div>

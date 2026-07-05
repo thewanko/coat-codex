@@ -57,7 +57,22 @@
     "cover": "COVER",
     "delete": "Eliminar",
     "stepAdd": "+ Añadir 1 foto",
-    "stepTag": "STEP {{n}}"
+    "stepTag": "STEP {{n}}",
+    "trim": "Recortar"
+  },
+  "photoCrop": {
+    "title": "Recortar foto",
+    "imageAlt": "Foto a recortar",
+    "apply": "Aplicar",
+    "reset": "Restablecer (quitar recorte)",
+    "cancel": "Cancelar",
+    "rectLabel": "Área de recorte (mover con las flechas)",
+    "handle": {
+      "nw": "Controlador superior izquierdo",
+      "ne": "Controlador superior derecho",
+      "sw": "Controlador inferior izquierdo",
+      "se": "Controlador inferior derecho"
+    }
   },
   "confirm": {
     "cancel": "Cancelar",

@@ -16,7 +16,9 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "../common/toastContext";
 import ConfirmDialog from "../common/ConfirmDialog";
+import PhotoCropDialog from "../common/PhotoCropDialog";
 import Skeleton from "../common/Skeleton";
+import type { CropRect } from "../../models/recipe";
 import styles from "./StepPhotoTile.module.css";
 
 interface StepPhotoTileProps {
@@ -24,6 +26,9 @@ interface StepPhotoTileProps {
   stepIndex: number;
   recipeId: string;
   onChange: (photoId: string | null) => void;
+  /** 指定時のみクロップ導線（トリミングアクション・アップロード完了直後の自動オープン）を有効化する */
+  crop?: CropRect | null;
+  onCropChange?: (crop: CropRect | null) => void;
 }
 
 interface HasMessageKey {
@@ -44,6 +49,8 @@ function StepPhotoTile({
   stepIndex,
   recipeId,
   onChange,
+  crop,
+  onCropChange,
 }: StepPhotoTileProps) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -52,6 +59,9 @@ function StepPhotoTile({
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+
+  const cropEnabled = onCropChange !== undefined;
 
   useEffect(() => {
     if (!photoId) {
@@ -90,6 +100,10 @@ function StepPhotoTile({
     try {
       const id = await savePhoto(file, recipeId);
       onChange(id);
+      // 工程写真は常に単発アップロードのため、完了直後に自動でクロップダイアログを開く
+      if (cropEnabled) {
+        setCropDialogOpen(true);
+      }
     } catch (err) {
       if (hasMessageKey(err)) {
         toast.error(t(err.messageKey));
@@ -106,6 +120,19 @@ function StepPhotoTile({
 
   function requestDelete() {
     setPendingDelete(true);
+  }
+
+  function requestCrop() {
+    setCropDialogOpen(true);
+  }
+
+  function handleCropSave(next: CropRect | null) {
+    onCropChange?.(next);
+    setCropDialogOpen(false);
+  }
+
+  function closeCropDialog() {
+    setCropDialogOpen(false);
   }
 
   async function confirmDelete() {
@@ -171,12 +198,32 @@ function StepPhotoTile({
         </button>
       </div>
 
+      {cropEnabled && (
+        <button
+          type="button"
+          className={styles.trimButton}
+          onClick={requestCrop}
+        >
+          {t("photo.trim")}
+        </button>
+      )}
+
       <ConfirmDialog
         open={pendingDelete}
         title={t("photo.delete")}
         onConfirm={() => void confirmDelete()}
         onCancel={cancelDelete}
       />
+
+      {cropEnabled && photoId && (
+        <PhotoCropDialog
+          open={cropDialogOpen}
+          photoId={photoId}
+          initialCrop={crop ?? null}
+          onSave={handleCropSave}
+          onClose={closeCropDialog}
+        />
+      )}
     </div>
   );
 }

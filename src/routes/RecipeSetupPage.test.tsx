@@ -156,6 +156,29 @@ describe("RecipeSetupPage", () => {
     vi.useRealTimers();
   });
 
+  test("トリミング適用でphotoCropsが設定され、autosaveされる", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({ overviewPhotoIds: ["ph_a"] }),
+    );
+    renderPage();
+
+    const trimButton = await screen.findByText("トリミング");
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    fireEvent.click(trimButton);
+
+    const applyButton = await screen.findByText("適用");
+    fireEvent.click(applyButton);
+
+    await vi.advanceTimersByTimeAsync(600);
+
+    expect(saveRecipe).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(saveRecipe).mock.calls[0][0].photoCrops).toEqual({
+      ph_a: { x: 0, y: 0, w: 1, h: 1 },
+    });
+    vi.useRealTimers();
+  });
+
   test("make codex!クリックで/recipe/:idへ遷移する", async () => {
     vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
     renderPage();

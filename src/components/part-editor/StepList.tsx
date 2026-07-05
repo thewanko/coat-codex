@@ -27,7 +27,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { PaletteColor, Step } from "../../models/recipe";
+import type { CropRect, PaletteColor, Step } from "../../models/recipe";
 import StepCard from "./StepCard";
 import EmptyState from "../common/EmptyState";
 import AddStepButton from "./AddStepButton";
@@ -42,6 +42,9 @@ interface StepListProps {
   onDelete: (index: number) => void;
   onReorder: (nextSteps: Step[]) => void;
   onAdd: (step: Step) => void;
+  /** 指定時のみStepPhotoTileのクロップ導線を有効化する */
+  photoCrops?: Record<string, CropRect>;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 interface SortableStepCardProps {
@@ -55,6 +58,8 @@ interface SortableStepCardProps {
   onDelete: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  crop?: CropRect | null;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 function SortableStepCard({
@@ -68,6 +73,8 @@ function SortableStepCard({
   onDelete,
   onMoveUp,
   onMoveDown,
+  crop,
+  onCropChange,
 }: SortableStepCardProps) {
   const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -125,6 +132,8 @@ function SortableStepCard({
           onChange={onChange}
           onAddColor={onAddColor}
           onDelete={onDelete}
+          crop={crop}
+          onCropChange={onCropChange}
         />
       </div>
     </li>
@@ -140,6 +149,8 @@ function StepList({
   onDelete,
   onReorder,
   onAdd,
+  photoCrops,
+  onCropChange,
 }: StepListProps) {
   const { t } = useTranslation();
 
@@ -210,6 +221,10 @@ function StepList({
                 onDelete={() => onDelete(index)}
                 onMoveUp={() => moveStep(index, -1)}
                 onMoveDown={() => moveStep(index, 1)}
+                crop={
+                  step.photoId ? (photoCrops?.[step.photoId] ?? null) : null
+                }
+                onCropChange={onCropChange}
               />
             ))}
           </ul>

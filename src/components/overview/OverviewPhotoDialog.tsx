@@ -18,6 +18,7 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "../common/useFocusTrap";
 import PhotoUploader from "../common/PhotoUploader";
+import type { CropRect } from "../../models/recipe";
 import styles from "./OverviewPhotoDialog.module.css";
 
 interface OverviewPhotoDialogProps {
@@ -26,6 +27,8 @@ interface OverviewPhotoDialogProps {
   value: string[];
   onChange: (photoIds: string[]) => void;
   onClose: () => void;
+  crops?: Record<string, CropRect>;
+  onCropChange?: (photoId: string, crop: CropRect | null) => void;
 }
 
 function OverviewPhotoDialog({
@@ -34,6 +37,8 @@ function OverviewPhotoDialog({
   value,
   onChange,
   onClose,
+  crops,
+  onCropChange,
 }: OverviewPhotoDialogProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -69,7 +74,13 @@ function OverviewPhotoDialog({
         <h2 id="overview-photo-dialog-title" className={styles.title}>
           {t("overview.photoDialogTitle")}
         </h2>
-        <PhotoUploader recipeId={recipeId} value={value} onChange={onChange} />
+        <PhotoUploader
+          recipeId={recipeId}
+          value={value}
+          onChange={onChange}
+          crops={crops}
+          onCropChange={onCropChange}
+        />
         <div className={styles.actions}>
           <button
             ref={closeButtonRef}

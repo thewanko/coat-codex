@@ -110,6 +110,32 @@
   box-shadow: var(--focus-ring);
 }
 
+.trimButton {
+  display: block;
+  width: 84px;
+  min-height: var(--size-touch-target);
+  margin-top: var(--space-1);
+  padding: 0 var(--space-1);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.trimButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 480px) {
+  .trimButton {
+    width: 76px;
+  }
+}
+
 .hiddenInput {
   position: absolute;
   width: 1px;
