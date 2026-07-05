@@ -324,7 +324,7 @@
       "create": {
         "title": "1. Create a recipe",
         "body": "Start from \"New Recipe\" on Home. A title alone is enough to begin — you can fill in the rest later.",
-        "imageAlt": "Tapping the New Recipe button on the Home screen"
+        "imageAlt": "The new recipe screen shown right after pressing \"New Recipe\""
       },
       "setup": {
         "title": "2. Set up the basics",

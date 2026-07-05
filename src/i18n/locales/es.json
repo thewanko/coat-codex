@@ -324,7 +324,7 @@
       "create": {
         "title": "1. Crea una receta",
         "body": "Empieza desde \"Nueva receta\" en Home. Basta con un título para empezar — puedes completar el resto más tarde.",
-        "imageAlt": "Toque en el botón Nueva receta en la pantalla Home"
+        "imageAlt": "La pantalla de una receta nueva justo después de pulsar \"Nueva receta\""
       },
       "setup": {
         "title": "2. Configura lo básico",
