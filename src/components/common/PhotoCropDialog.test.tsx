@@ -110,7 +110,31 @@ describe("PhotoCropDialog", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  test("矢印キーで矩形が移動する", () => {
+  test("矢印キーで矩形が移動する（画像ロード完了後）", async () => {
+    render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={{ x: 0.2, y: 0.2, w: 0.3, h: 0.3 }}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const img = await screen.findByAltText("トリミング対象の写真");
+    Object.defineProperty(img, "naturalWidth", { value: 800 });
+    Object.defineProperty(img, "naturalHeight", { value: 600 });
+    fireEvent.load(img);
+
+    const rect = screen.getByRole("group", { name: /クロップ範囲/ });
+    fireEvent.keyDown(rect, { key: "ArrowRight" });
+    expect(parseFloat(rect.style.left)).toBeCloseTo(21);
+
+    fireEvent.keyDown(rect, { key: "ArrowDown", shiftKey: true });
+    expect(parseFloat(rect.style.top)).toBeCloseTo(25);
+  });
+
+  test("画像ロード完了前は矢印キーで矩形が動かない（interactionReadyガード）", () => {
     render(
       <PhotoCropDialog
         open
@@ -122,10 +146,31 @@ describe("PhotoCropDialog", () => {
     );
     const rect = screen.getByRole("group", { name: /クロップ範囲/ });
     fireEvent.keyDown(rect, { key: "ArrowRight" });
-    expect(parseFloat(rect.style.left)).toBeCloseTo(21);
+    expect(rect.style.left).toBe("20%");
+  });
 
-    fireEvent.keyDown(rect, { key: "ArrowDown", shiftKey: true });
-    expect(parseFloat(rect.style.top)).toBeCloseTo(25);
+  test("imgロード後、naturalWidth/Heightの比率がframeへaspect-ratioスタイルとして適用される（フレーム基準正規化=画像基準正規化のバグ修正）", async () => {
+    render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={null}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const img = await screen.findByAltText("トリミング対象の写真");
+    const frame = img.parentElement as HTMLElement;
+
+    // ロード前はaspect-ratioスタイルが未適用（フォールバックCSSの4/3に委ねる）
+    expect(frame.style.aspectRatio).toBe("");
+
+    Object.defineProperty(img, "naturalWidth", { value: 1200 });
+    Object.defineProperty(img, "naturalHeight", { value: 1600 });
+    fireEvent.load(img);
+
+    expect(frame.style.aspectRatio).toBe("1200 / 1600");
   });
 
   test("open=falseの間は何もレンダーしない", () => {

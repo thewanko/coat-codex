@@ -12,7 +12,11 @@
 // 内側から開かれ得るため、それより前面のz-index 400とする。
 
 import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
+import type {
+  KeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+  SyntheticEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "./useFocusTrap";
 import { resolvePhotoUrl } from "../../db/photoStore";
@@ -77,6 +81,10 @@ function PhotoCropDialog({
 
   const [url, setUrl] = useState<string | null>(null);
   const [rect, setRect] = useState<CropRect>(initialCrop ?? FULL_RECT);
+  const [naturalSize, setNaturalSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   useFocusTrap({
     containerRef: dialogRef,
@@ -97,6 +105,7 @@ function PhotoCropDialog({
       return;
     }
     let cancelled = false;
+    setNaturalSize(null);
     void resolvePhotoUrl(photoId).then((resolved) => {
       if (!cancelled) {
         setUrl(resolved);
@@ -109,6 +118,11 @@ function PhotoCropDialog({
 
   if (!open) {
     return null;
+  }
+
+  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
+    const img = event.currentTarget;
+    setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
   }
 
   function getFrameDelta(clientX: number, clientY: number) {
@@ -124,6 +138,9 @@ function PhotoCropDialog({
   }
 
   function handleMoveStart(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!interactionReady) {
+      return;
+    }
     event.currentTarget.setPointerCapture(event.pointerId);
     const origin = getFrameDelta(event.clientX, event.clientY);
     dragRef.current = {
@@ -138,6 +155,9 @@ function PhotoCropDialog({
     handle: ResizeHandle,
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
+    if (!interactionReady) {
+      return;
+    }
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     const origin = getFrameDelta(event.clientX, event.clientY);
@@ -173,6 +193,9 @@ function PhotoCropDialog({
   }
 
   function handleArrowKey(event: KeyboardEvent<HTMLDivElement>) {
+    if (!interactionReady) {
+      return;
+    }
     const step = event.shiftKey ? ARROW_STEP_LARGE : ARROW_STEP;
     let dx = 0;
     let dy = 0;
@@ -211,6 +234,21 @@ function PhotoCropDialog({
     height: `${(rect.h * 100).toString()}%`,
   };
 
+  // frameのアスペクト比を画像の実寸に一致させる（naturalSize未取得時はレターボックス
+  // 発生防止のため既定4:3のまま。この間はクロップ矩形の操作を無効化する。
+  // フレーム比=画像比にすることでobject-fit: containによるレターボックス（余白）が消え、
+  // getFrameDelta（フレーム基準の正規化座標）が画像基準の正規化座標と一致するようになる）
+  // .image はposition:absoluteでフレームの内容量に寄与しないため、aspect-ratioと
+  // max-*だけではフレーム寸法が導出できず0に潰れる（jsdomでは検出不能・実機で確認）。
+  // widthを明示して高さをaspect-ratioから導出させる: width ≤ 100%かつ高さ ≤ 60vh。
+  const frameStyle = naturalSize
+    ? {
+        aspectRatio: `${naturalSize.width} / ${naturalSize.height}`,
+        width: `min(100%, calc(60vh * ${naturalSize.width / naturalSize.height}))`,
+      }
+    : undefined;
+  const interactionReady = naturalSize !== null;
+
   return (
     <div
       className={styles.backdrop}
@@ -229,39 +267,42 @@ function PhotoCropDialog({
           {t("photoCrop.title")}
         </h2>
 
-        <div ref={frameRef} className={styles.frame}>
-          {url ? (
-            <img
-              className={styles.image}
-              src={url}
-              alt={t("photoCrop.imageAlt")}
-            />
-          ) : (
-            <span className={styles.placeholder} aria-hidden="true" />
-          )}
-          <div
-            className={styles.cropRect}
-            style={rectStyle}
-            tabIndex={0}
-            role="group"
-            aria-label={t("photoCrop.rectLabel")}
-            onPointerDown={handleMoveStart}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerEnd}
-            onPointerCancel={handlePointerEnd}
-            onKeyDown={handleArrowKey}
-          >
-            {HANDLES.map((handle) => (
-              <div
-                key={handle}
-                className={`${styles.handle} ${styles[`handle-${handle}`]}`}
-                aria-label={t(HANDLE_LABEL_KEYS[handle])}
-                onPointerDown={(event) => handleResizeStart(handle, event)}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerEnd}
-                onPointerCancel={handlePointerEnd}
+        <div className={styles.frameWrap}>
+          <div ref={frameRef} className={styles.frame} style={frameStyle}>
+            {url ? (
+              <img
+                className={styles.image}
+                src={url}
+                alt={t("photoCrop.imageAlt")}
+                onLoad={handleImageLoad}
               />
-            ))}
+            ) : (
+              <span className={styles.placeholder} aria-hidden="true" />
+            )}
+            <div
+              className={styles.cropRect}
+              style={rectStyle}
+              tabIndex={0}
+              role="group"
+              aria-label={t("photoCrop.rectLabel")}
+              onPointerDown={handleMoveStart}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerEnd}
+              onPointerCancel={handlePointerEnd}
+              onKeyDown={handleArrowKey}
+            >
+              {HANDLES.map((handle) => (
+                <div
+                  key={handle}
+                  className={`${styles.handle} ${styles[`handle-${handle}`]}`}
+                  aria-label={t(HANDLE_LABEL_KEYS[handle])}
+                  onPointerDown={(event) => handleResizeStart(handle, event)}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerEnd}
+                  onPointerCancel={handlePointerEnd}
+                />
+              ))}
+            </div>
           </div>
         </div>
 

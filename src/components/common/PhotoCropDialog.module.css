@@ -33,9 +33,27 @@
   border-bottom: 2px solid var(--color-gold-soft);
 }
 
+/* frameWrapは.frameを中央寄せしつつ、幅・高さ両方の上限を.frame（aspect-ratio指定先）へ
+   伝える器。flexの子要素（.frame）はデフォルトでcontent-basedサイズになる
+   （blockのwidth: auto=containing blockいっぱいとは異なる）ため、aspect-ratioが
+   width/heightどちらの上限にもぶつかった側で縮む（縦長画像はmax-heightで頭打ちして
+   幅が縮み、横長画像はmax-widthで頭打ちして高さが縮む）。 */
+.frameWrap {
+  display: flex;
+  justify-content: center;
+}
+
+/* frameのaspect-ratioは画像naturalWidth/Height取得後にインラインstyleで上書きされ、
+   画像の実寸比に一致する（object-fit: containによるレターボックス消滅→フレーム基準の
+   正規化座標=画像基準の正規化座標になる）。未取得時（ロード中）は下記4:3を暫定表示する。 */
 .frame {
   position: relative;
+  /* .imageはposition:absoluteで内容量に寄与しないため、幅の明示が必要（flex子の
+     content-basedサイズは0に潰れる）。画像ロード後はインラインstyleの
+     width: min(100%, calc(60vh * 実比)) が上書きし、高さはaspect-ratioから導出される */
   width: 100%;
+  max-width: 100%;
+  max-height: 60vh;
   aspect-ratio: 4 / 3;
   background: var(--color-bg-sunken);
   border: 1px solid var(--color-line);
