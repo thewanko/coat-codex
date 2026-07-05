@@ -10,14 +10,17 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
+import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { Step } from "../../models/recipe";
+import type { CropRect, Step } from "../../models/recipe";
 import styles from "./StepPhotoStrip.module.css";
 
 interface StepPhotoStripProps {
   steps: Step[];
   /** タップ時に該当工程へスクロールするための要素id解決（既定はstep-card-{index}） */
   getStepElementId?: (index: number) => string;
+  /** photoId→クロップ矩形（未設定はエントリなし）。RecipeDoc.photoCropsをそのまま渡す */
+  photoCrops?: Record<string, CropRect>;
 }
 
 interface PhotoStepEntry {
@@ -32,9 +35,10 @@ function defaultStepElementId(index: number): string {
 interface ThumbProps {
   entry: PhotoStepEntry;
   elementId: string;
+  crop: CropRect | null;
 }
 
-function StripThumb({ entry, elementId }: ThumbProps) {
+function StripThumb({ entry, elementId, crop }: ThumbProps) {
   const { t } = useTranslation();
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,7 +92,12 @@ function StripThumb({ entry, elementId }: ThumbProps) {
       >
         <span className={styles.stepTag}>{t("editor.stepLabel", { n })}</span>
         {url ? (
-          <img className={styles.thumbImg} src={url} alt="" />
+          <CroppedPhoto
+            className={styles.thumbImg}
+            src={url}
+            crop={crop}
+            alt=""
+          />
         ) : (
           <span className={styles.thumbPlaceholder} aria-hidden="true" />
         )}
@@ -100,6 +109,7 @@ function StripThumb({ entry, elementId }: ThumbProps) {
 function StepPhotoStrip({
   steps,
   getStepElementId = defaultStepElementId,
+  photoCrops = {},
 }: StepPhotoStripProps) {
   const { t } = useTranslation();
 
@@ -119,6 +129,11 @@ function StepPhotoStrip({
             key={entry.step.id}
             entry={entry}
             elementId={getStepElementId(entry.index)}
+            crop={
+              entry.step.photoId
+                ? (photoCrops[entry.step.photoId] ?? null)
+                : null
+            }
           />
         ))}
       </ul>

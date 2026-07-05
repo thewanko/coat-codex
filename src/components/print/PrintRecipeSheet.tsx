@@ -11,8 +11,9 @@ import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { resolveTechniqueLabel } from "../../lib/techniques";
+import CroppedPhoto from "../common/CroppedPhoto";
 import SwatchChip from "../common/SwatchChip";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
 import styles from "./PrintRecipeSheet.module.css";
 
 type PaletteColor = RecipeDoc["palette"][number];
@@ -69,9 +70,10 @@ function useResolvedPhotoUrl(photoId: string | null): string | null {
 
 interface CoverPhotoProps {
   photoId: string | null;
+  crop: CropRect | null;
 }
 
-function CoverPhoto({ photoId }: CoverPhotoProps) {
+function CoverPhoto({ photoId, crop }: CoverPhotoProps) {
   const { t } = useTranslation();
   const url = useResolvedPhotoUrl(photoId);
 
@@ -79,9 +81,10 @@ function CoverPhoto({ photoId }: CoverPhotoProps) {
     <div className={styles.coverBlock}>
       <div className={styles.coverPhoto}>
         {url && (
-          <img
+          <CroppedPhoto
             className={styles.coverPhotoImg}
             src={url}
+            crop={crop}
             alt={t("print.coverPhotoAlt")}
           />
         )}
@@ -94,9 +97,10 @@ function CoverPhoto({ photoId }: CoverPhotoProps) {
 interface StepPhotoCellProps {
   photoId: string | null;
   stepIndex: number;
+  crop: CropRect | null;
 }
 
-function StepPhotoCell({ photoId, stepIndex }: StepPhotoCellProps) {
+function StepPhotoCell({ photoId, stepIndex, crop }: StepPhotoCellProps) {
   const { t } = useTranslation();
   const url = useResolvedPhotoUrl(photoId);
 
@@ -114,9 +118,10 @@ function StepPhotoCell({ photoId, stepIndex }: StepPhotoCellProps) {
   return (
     <span className={styles.stepPhotoCell} data-testid="print-step-photo">
       {url && (
-        <img
+        <CroppedPhoto
           className={styles.stepPhotoImg}
           src={url}
+          crop={crop}
           alt={t("print.stepPhotoAlt", { index: stepIndex })}
         />
       )}
@@ -165,9 +170,10 @@ interface StepRowProps {
   index: number;
   palette: PaletteColor[];
   tools: Tool[];
+  photoCrops: Record<string, CropRect>;
 }
 
-function StepRow({ step, index, palette, tools }: StepRowProps) {
+function StepRow({ step, index, palette, tools, photoCrops }: StepRowProps) {
   const { t } = useTranslation();
   const techniqueLabel = resolveTechniqueLabel(step.technique, t);
   const badgeText = formatMixBadge(step.paints, step.mix);
@@ -221,7 +227,11 @@ function StepRow({ step, index, palette, tools }: StepRowProps) {
         </span>
         {step.memo && <span className={styles.memo}>{step.memo}</span>}
       </span>
-      <StepPhotoCell photoId={step.photoId} stepIndex={index + 1} />
+      <StepPhotoCell
+        photoId={step.photoId}
+        stepIndex={index + 1}
+        crop={step.photoId ? (photoCrops[step.photoId] ?? null) : null}
+      />
     </li>
   );
 }
@@ -230,9 +240,10 @@ interface StepListProps {
   steps: Step[];
   palette: PaletteColor[];
   tools: Tool[];
+  photoCrops: Record<string, CropRect>;
 }
 
-function StepList({ steps, palette, tools }: StepListProps) {
+function StepList({ steps, palette, tools, photoCrops }: StepListProps) {
   return (
     <ol className={styles.stepList}>
       {steps.map((step, index) => (
@@ -242,6 +253,7 @@ function StepList({ steps, palette, tools }: StepListProps) {
           index={index}
           palette={palette}
           tools={tools}
+          photoCrops={photoCrops}
         />
       ))}
     </ol>
@@ -300,7 +312,14 @@ function PrintRecipeSheet({ recipe }: PrintRecipeSheetProps) {
       </div>
 
       <div className={styles.coverAndPalette}>
-        <CoverPhoto photoId={recipe.overviewPhotoIds[0] ?? null} />
+        <CoverPhoto
+          photoId={recipe.overviewPhotoIds[0] ?? null}
+          crop={
+            recipe.overviewPhotoIds[0]
+              ? (recipe.photoCrops[recipe.overviewPhotoIds[0]] ?? null)
+              : null
+          }
+        />
 
         <div className={styles.paletteBlock}>
           <SectionHeading
@@ -344,6 +363,7 @@ function PrintRecipeSheet({ recipe }: PrintRecipeSheetProps) {
             steps={recipe.baseSteps}
             palette={recipe.palette}
             tools={recipe.tools}
+            photoCrops={recipe.photoCrops}
           />
         </section>
       )}
@@ -365,6 +385,7 @@ function PrintRecipeSheet({ recipe }: PrintRecipeSheetProps) {
             steps={part.steps}
             palette={recipe.palette}
             tools={recipe.tools}
+            photoCrops={recipe.photoCrops}
           />
         </section>
       ))}

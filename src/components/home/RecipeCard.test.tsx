@@ -277,6 +277,37 @@ describe("RecipeCard", () => {
     });
   });
 
+  test("photoCropsに代表写真のクロップがある場合、CroppedPhotoのcropBoxに反映される", async () => {
+    const recipe = makeRecipe({
+      overviewPhotoIds: ["photo_1"],
+      photoCrops: { photo_1: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } },
+    });
+
+    renderCard({ recipe });
+
+    await waitFor(() => {
+      expect(screen.getByAltText("")).toHaveAttribute(
+        "src",
+        "blob:mock-cover-url",
+      );
+    });
+    // crop設定時はplain imgではなくcropBox構造（CroppedPhoto内部）でレンダーされる
+    expect(screen.getByTestId("cropped-photo-cropbox")).toBeInTheDocument();
+  });
+
+  test("photoCropsが未設定（該当エントリなし）の場合、CroppedPhotoはplain img（現行同一）で表示する", async () => {
+    const recipe = makeRecipe({ overviewPhotoIds: ["photo_1"] });
+
+    renderCard({ recipe });
+
+    await waitFor(() => {
+      expect(screen.getByAltText("")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId("cropped-photo-cropbox"),
+    ).not.toBeInTheDocument();
+  });
+
   test("エクスポート失敗時はonExportedが呼ばれない", async () => {
     vi.mocked(exportRecipeToBlob).mockRejectedValue(new Error("fail"));
     const onExported = vi.fn();

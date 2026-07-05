@@ -8,18 +8,23 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
+import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
+import type { CropRect } from "../../models/recipe";
 import styles from "./OverviewPhotoStrip.module.css";
 
 interface OverviewPhotoStripProps {
   photoIds: string[];
+  /** photoId→クロップ矩形（未設定はエントリなし）。RecipeDoc.photoCropsをそのまま渡す */
+  photoCrops?: Record<string, CropRect>;
 }
 
 interface ThumbProps {
   photoId: string;
+  crop: CropRect | null;
 }
 
-function StripThumb({ photoId }: ThumbProps) {
+function StripThumb({ photoId, crop }: ThumbProps) {
   const { t } = useTranslation();
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +59,12 @@ function StripThumb({ photoId }: ThumbProps) {
   return (
     <li className={styles.item}>
       {url ? (
-        <img className={styles.thumbImg} src={url} alt="" />
+        <CroppedPhoto
+          className={styles.thumbImg}
+          src={url}
+          crop={crop}
+          alt=""
+        />
       ) : (
         <span className={styles.thumbPlaceholder} aria-hidden="true" />
       )}
@@ -62,7 +72,10 @@ function StripThumb({ photoId }: ThumbProps) {
   );
 }
 
-function OverviewPhotoStrip({ photoIds }: OverviewPhotoStripProps) {
+function OverviewPhotoStrip({
+  photoIds,
+  photoCrops = {},
+}: OverviewPhotoStripProps) {
   const { t } = useTranslation();
   const restPhotoIds = photoIds.slice(1);
 
@@ -74,7 +87,11 @@ function OverviewPhotoStrip({ photoIds }: OverviewPhotoStripProps) {
     <div className={styles.root} data-testid="overview-photo-strip">
       <ul className={styles.list}>
         {restPhotoIds.map((photoId) => (
-          <StripThumb key={photoId} photoId={photoId} />
+          <StripThumb
+            key={photoId}
+            photoId={photoId}
+            crop={photoCrops[photoId] ?? null}
+          />
         ))}
       </ul>
       <span className={styles.count}>

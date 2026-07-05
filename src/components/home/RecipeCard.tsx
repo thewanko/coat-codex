@@ -18,6 +18,7 @@ import { exportRecipeToBlob } from "../../lib/exporters/json";
 import type { RecipeDoc } from "../../models/recipe";
 import { useToast } from "../common/toastContext";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
+import CroppedPhoto from "../common/CroppedPhoto";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
 import { duplicateRecipe } from "./duplicateRecipe";
 import styles from "./RecipeCard.module.css";
@@ -187,7 +188,14 @@ function RecipeCard({
 
       <button type="button" className={styles.thumbButton} onClick={handleOpen}>
         {photoUrl ? (
-          <img className={styles.thumb} src={photoUrl} alt="" />
+          <CroppedPhoto
+            className={styles.thumb}
+            src={photoUrl}
+            crop={
+              coverPhotoId ? (recipe.photoCrops[coverPhotoId] ?? null) : null
+            }
+            alt=""
+          />
         ) : (
           <span className={styles.thumbPlaceholder} aria-hidden="true" />
         )}

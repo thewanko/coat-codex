@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "./toastContext";
 import ConfirmDialog from "./ConfirmDialog";
+import CroppedPhoto from "./CroppedPhoto";
 import PhotoCropDialog from "./PhotoCropDialog";
 import Skeleton from "./Skeleton";
 import type { CropRect } from "../../models/recipe";
@@ -43,9 +44,11 @@ function hasMessageKey(err: unknown): err is HasMessageKey {
 function PhotoTile({
   photoId,
   isCover,
+  crop,
 }: {
   photoId: string;
   isCover: boolean;
+  crop: CropRect | null;
 }) {
   const { t } = useTranslation();
   const [url, setUrl] = useState<string | null>(null);
@@ -66,7 +69,12 @@ function PhotoTile({
     <div className={styles.thumb}>
       {isCover && <span className={styles.coverTag}>{t("photo.cover")}</span>}
       {url ? (
-        <img className={styles.thumbImg} src={url} alt="" />
+        <CroppedPhoto
+          className={styles.thumbImg}
+          src={url}
+          crop={crop}
+          alt=""
+        />
       ) : (
         <span className={styles.thumbPlaceholder} aria-hidden="true" />
       )}
@@ -197,7 +205,11 @@ function PhotoUploader({
       <div className={styles.grid}>
         {value.map((photoId, index) => (
           <div key={photoId} className={styles.tileWrapper}>
-            <PhotoTile photoId={photoId} isCover={index === 0} />
+            <PhotoTile
+              photoId={photoId}
+              isCover={index === 0}
+              crop={crops?.[photoId] ?? null}
+            />
             <button
               type="button"
               className={styles.removeButton}

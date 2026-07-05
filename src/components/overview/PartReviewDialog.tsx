@@ -34,11 +34,12 @@ import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { resolveTechniqueLabel } from "../../lib/techniques";
+import CroppedPhoto from "../common/CroppedPhoto";
 import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
 import styles from "./PartReviewDialog.module.css";
 
 type PaletteColor = RecipeDoc["palette"][number];
@@ -54,9 +55,10 @@ interface PartReviewDialogProps {
 
 interface StepPhotoProps {
   photoId: string | null;
+  crop: CropRect | null;
 }
 
-function StepPhoto({ photoId }: StepPhotoProps) {
+function StepPhoto({ photoId, crop }: StepPhotoProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,7 +84,12 @@ function StepPhoto({ photoId }: StepPhotoProps) {
   return (
     <span className={styles.stepPhoto}>
       {photoUrl ? (
-        <img className={styles.stepPhotoImg} src={photoUrl} alt="" />
+        <CroppedPhoto
+          className={styles.stepPhotoImg}
+          src={photoUrl}
+          crop={crop}
+          alt=""
+        />
       ) : (
         <span className={styles.stepPhotoPlaceholder} aria-hidden="true" />
       )}
@@ -95,9 +102,10 @@ interface StepRowProps {
   index: number;
   palette: PaletteColor[];
   tools: Tool[];
+  photoCrops: Record<string, CropRect>;
 }
 
-function StepRow({ step, index, palette, tools }: StepRowProps) {
+function StepRow({ step, index, palette, tools, photoCrops }: StepRowProps) {
   const { t } = useTranslation();
   const techniqueLabel = resolveTechniqueLabel(step.technique, t);
   const badgeText = formatMixBadge(step.paints, step.mix);
@@ -119,7 +127,10 @@ function StepRow({ step, index, palette, tools }: StepRowProps) {
       </div>
 
       <div className={styles.stepBody}>
-        <StepPhoto photoId={step.photoId} />
+        <StepPhoto
+          photoId={step.photoId}
+          crop={step.photoId ? (photoCrops[step.photoId] ?? null) : null}
+        />
 
         <div className={styles.stepDetails}>
           {step.paints.length > 0 && (
@@ -262,6 +273,7 @@ function PartReviewDialog({
                     index={index}
                     palette={recipe.palette}
                     tools={recipe.tools}
+                    photoCrops={recipe.photoCrops}
                   />
                 ))}
               </ol>

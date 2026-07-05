@@ -252,9 +252,14 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
           partName={targetPart?.name}
           onPartNameCommit={handlePartNameCommit}
           representativePhotoId={doc.overviewPhotoIds[0] ?? null}
+          representativePhotoCrop={
+            doc.overviewPhotoIds[0]
+              ? (doc.photoCrops[doc.overviewPhotoIds[0]] ?? null)
+              : null
+          }
         />
 
-        <StepPhotoStrip steps={steps} />
+        <StepPhotoStrip steps={steps} photoCrops={doc.photoCrops} />
 
         <div className={styles.body}>
           <StepList

@@ -311,10 +311,18 @@ function RecipeOverviewPage() {
 
         <OverviewHeader
           representativePhotoId={doc.overviewPhotoIds[0] ?? null}
+          representativePhotoCrop={
+            doc.overviewPhotoIds[0]
+              ? (doc.photoCrops[doc.overviewPhotoIds[0]] ?? null)
+              : null
+          }
           onChangePhoto={() => setPhotoDialogOpen(true)}
         />
 
-        <OverviewPhotoStrip photoIds={doc.overviewPhotoIds} />
+        <OverviewPhotoStrip
+          photoIds={doc.overviewPhotoIds}
+          photoCrops={doc.photoCrops}
+        />
 
         <section className={styles.baseSection}>
           <h2 className={styles.baseHeading}>{t("overview.baseOverline")}</h2>
@@ -331,6 +339,7 @@ function RecipeOverviewPage() {
             <PartCard
               part={basePart}
               palette={doc.palette}
+              photoCrops={doc.photoCrops}
               onOpen={handleOpenBase}
               onReview={handleReviewBase}
             />
@@ -342,6 +351,7 @@ function RecipeOverviewPage() {
           <PartCardList
             parts={doc.parts}
             palette={doc.palette}
+            photoCrops={doc.photoCrops}
             onOpen={handleOpenPart}
             onReview={handleReviewPart}
             onReorder={handleReorderParts}

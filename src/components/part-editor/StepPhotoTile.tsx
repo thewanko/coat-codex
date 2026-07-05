@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "../common/toastContext";
 import ConfirmDialog from "../common/ConfirmDialog";
+import CroppedPhoto from "../common/CroppedPhoto";
 import PhotoCropDialog from "../common/PhotoCropDialog";
 import Skeleton from "../common/Skeleton";
 import type { CropRect } from "../../models/recipe";
@@ -184,7 +185,12 @@ function StepPhotoTile({
       <div className={styles.thumb}>
         <span className={styles.stepTag}>{stepTag}</span>
         {url ? (
-          <img className={styles.thumbImg} src={url} alt="" />
+          <CroppedPhoto
+            className={styles.thumbImg}
+            src={url}
+            crop={crop ?? null}
+            alt=""
+          />
         ) : (
           <span className={styles.thumbPlaceholder} aria-hidden="true" />
         )}
