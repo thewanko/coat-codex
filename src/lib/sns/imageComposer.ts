@@ -62,7 +62,7 @@ export interface CandidateResolvers {
    * i18n解決込みで呼び出し側が組み立てる。
    */
   summaryProgress(partsCount: number, totalSteps: number): string;
-  /** まとめカード: スウォッチ列が上限（12色）を超えた際の残数表示（例: "+3"） */
+  /** まとめカード: スウォッチ列が表示数（動的配分・ハード上限24色）を超えた際の残数表示（例: "+3"） */
   overflowColorsLabel(remaining: number): string;
   /** まとめカード（part）: 工程リストが収容上限を超えた際の残数表示（例: "…他4工程"） */
   overflowStepsLabel(remaining: number): string;
@@ -183,9 +183,9 @@ export interface SummaryWholeCandidateSpec {
   overflowPartsLabel: string | null;
   /** 「パーツ構成」セクション見出し（resolvers.sectionPartsLabel解決済み） */
   sectionPartsLabel: string;
-  /** パレット全色スウォッチ（上限12色）。13色目以降はoverflowColorsLabelへ集約 */
+  /** パレット全色スウォッチ（computeSummaryWholeBudgetの動的配分・ハード上限24色）。超過分はoverflowColorsLabelへ集約 */
   swatches: SwatchSpec[];
-  /** スウォッチが12色を超えた場合の残数表示（resolvers.overflowColorsLabel解決済み）。超過なしはnull */
+  /** スウォッチが表示数を超えた場合の残数表示（resolvers.overflowColorsLabel解決済み）。超過なしはnull */
   overflowColorsLabel: string | null;
   /** 「使用カラー」セクション見出し（resolvers.sectionColorsLabel解決済み） */
   sectionColorsLabel: string;
@@ -223,14 +223,6 @@ const FOOTER_HEIGHT = 40;
 /** タイトル行の高さ（写真つきカードは情報帯内の小見出し、summaryは表紙の主見出し） */
 const TITLE_AREA_HEIGHT = 64;
 
-/** まとめカードのスウォッチ列表示上限（超過分は「+N」に集約） */
-const SUMMARY_SWATCH_LIMIT = 12;
-
-/**
- * summary(whole)のパーツ行（目次）表示上限（超過分はoverflowPartsLabelへ集約）。
- * レイアウト計算根拠はcomputeCardLayoutのsummary(whole)分岐コメントを参照。
- */
-const SUMMARY_PART_ROWS_LIMIT = 8;
 /**
  * summary(whole)のパーツ行1行分の高さ・セクション小見出しの高さ。
  * computeCardLayoutのsummary(whole)分岐とdrawSummaryPartRows/drawSectionHeadingの
@@ -267,6 +259,87 @@ const SUMMARY_COLOR_GRID_COLUMNS = 3;
  * 分岐（colorsGridHeight計算）とdrawSummaryColorGridの両方が参照する（値の一致を保証）。
  */
 const SUMMARY_COLOR_GRID_ROW_HEIGHT = 44;
+
+/**
+ * summary(whole)の行予算（bodyTop〜contentBottomの1166pxから固定オーバーヘッドを
+ * 差し引いた、パーツ行・カラーグリッドの純粋な収容用高さ）。
+ * 固定オーバーヘッド148px = progressReserve(48) + sectionGapTop(12) + partsHeading(30)
+ *   + sectionGapMid(28) + colorsHeading(30)（computeCardLayoutのsummary(whole)分岐と同じ内訳）。
+ * 1166 - 148 = 1018px。この値はcomputeSummaryWholeBudgetとcomputeCardLayoutの両方が
+ * 同じ数値を参照する前提（オーバーヘッドの内訳を変更したらここも更新すること）。
+ */
+const SUMMARY_WHOLE_ROW_BUDGET = 1018;
+/** summary(whole)のパーツ行表示数のハード上限（バランス配分の暴走防止。カラーがほぼ0でも際限なく伸ばさない） */
+const SUMMARY_PARTS_HARD_MAX = 16;
+/** summary(whole)のカラー表示数のハード上限（=8行×3列。パーツがほぼ0でも際限なく伸ばさない） */
+const SUMMARY_COLORS_HARD_MAX = 24;
+/** summary(whole)のカラー表示の最低保証行数（=6色。パーツ数が多くてもカラーセクションを潰さない） */
+const SUMMARY_COLORS_MIN_ROWS = 2;
+
+/**
+ * summary(whole)のパーツ行・カラーグリッドの表示数を動的配分する（純関数）。
+ * パーツ優先・カラーは残り空間へ自動拡張・最低保証ありのバランス配分（2026-07-05ユーザー要望対応）。
+ *
+ * 手順:
+ * 1. カラーの最低予約行数（colorCount=0なら0、それ以外はceil(min(colorCount,24)/3)行と
+ *    SUMMARY_COLORS_MIN_ROWS(2)行の小さい方）を先に確保する。
+ * 2. 残り予算（SUMMARY_WHOLE_ROW_BUDGET − カラー最低予約）内でパーツ行数を決める
+ *    （全件が収まればoverflow行なし、収まらなければoverflow行40px分を予算に含めて詰める）。
+ * 3. パーツ使用後の残り予算をカラーグリッドへ渡し、行単位（44px）で表示色数を決める
+ *    （3列グリッドのため行数×3が表示数の上限。超過分は最終セルの「+N」ラベルへ集約＝呼び出し側の責務）。
+ *
+ * export: 単体テスト対象（配分アルゴリズムの正しさをcomputeCardLayoutと独立に検算するため）。
+ */
+export function computeSummaryWholeBudget(
+  partCount: number,
+  colorCount: number,
+): { partsDisplay: number; colorsDisplay: number } {
+  const colorCapForReserve = Math.min(colorCount, SUMMARY_COLORS_HARD_MAX);
+  const colorReserveRows =
+    colorCount > 0
+      ? Math.min(
+          Math.ceil(colorCapForReserve / SUMMARY_COLOR_GRID_COLUMNS),
+          SUMMARY_COLORS_MIN_ROWS,
+        )
+      : 0;
+  const colorReserveHeight = colorReserveRows * SUMMARY_COLOR_GRID_ROW_HEIGHT;
+
+  const partsBudget = SUMMARY_WHOLE_ROW_BUDGET - colorReserveHeight;
+  const partsHardCapped = Math.min(partCount, SUMMARY_PARTS_HARD_MAX);
+  const fitsFully =
+    partsHardCapped === partCount &&
+    partsHardCapped * SUMMARY_PART_ROW_HEIGHT <= partsBudget;
+
+  let partsDisplay: number;
+  let partsUsedHeight: number;
+  if (fitsFully) {
+    partsDisplay = partsHardCapped;
+    partsUsedHeight = partsDisplay * SUMMARY_PART_ROW_HEIGHT;
+  } else {
+    const budgetWithOverflowRow =
+      partsBudget - SUMMARY_PART_OVERFLOW_ROW_HEIGHT;
+    partsDisplay = Math.min(
+      partsHardCapped,
+      Math.max(0, Math.floor(budgetWithOverflowRow / SUMMARY_PART_ROW_HEIGHT)),
+    );
+    partsUsedHeight =
+      partsDisplay * SUMMARY_PART_ROW_HEIGHT +
+      (partsDisplay < partCount ? SUMMARY_PART_OVERFLOW_ROW_HEIGHT : 0);
+  }
+
+  const remainingHeight = SUMMARY_WHOLE_ROW_BUDGET - partsUsedHeight;
+  const colorRowsAvailable = Math.max(
+    0,
+    Math.floor(remainingHeight / SUMMARY_COLOR_GRID_ROW_HEIGHT),
+  );
+  const colorsDisplay = Math.min(
+    colorCount,
+    SUMMARY_COLORS_HARD_MAX,
+    colorRowsAvailable * SUMMARY_COLOR_GRID_COLUMNS,
+  );
+
+  return { partsDisplay, colorsDisplay };
+}
 
 /** summary(part)の工程行1行分の高さ（技法行のみ。印刷ビュー工程行の翻案） */
 const SUMMARY_STEP_ROW_HEIGHT = 44;
@@ -324,22 +397,6 @@ function computeStepCapacity(rows: { hasMemo: boolean }[]): number {
   return Math.max(1, count);
 }
 
-/** スウォッチ配列を上限で切り詰め、超過分のoverflowラベルを解決する（resolvers注入・重複除去は呼び出し元の責務） */
-function capSwatches(
-  swatches: SwatchSpec[],
-  resolvers: CandidateResolvers,
-): { swatches: SwatchSpec[]; overflowColorsLabel: string | null } {
-  if (swatches.length <= SUMMARY_SWATCH_LIMIT) {
-    return { swatches, overflowColorsLabel: null };
-  }
-  return {
-    swatches: swatches.slice(0, SUMMARY_SWATCH_LIMIT),
-    overflowColorsLabel: resolvers.overflowColorsLabel(
-      swatches.length - SUMMARY_SWATCH_LIMIT,
-    ),
-  };
-}
-
 /**
  * whole用まとめカードのパーツ行（目次）を構築する。baseStepsが非空なら先頭に
  * 「ベース工程（全体）」行、以降parts順で工程数1以上のパーツのみを行にする
@@ -389,15 +446,24 @@ function buildSummaryWholeCandidate(
         color !== null,
     )
     .map((color) => ({ name: color.name, hex: color.hex, brand: color.brand }));
-  const { swatches, overflowColorsLabel } = capSwatches(allSwatches, resolvers);
 
   const allPartRows = buildSummaryPartRows(recipe, resolvers);
-  const partRows = allPartRows.slice(0, SUMMARY_PART_ROWS_LIMIT);
+
+  const { partsDisplay, colorsDisplay } = computeSummaryWholeBudget(
+    allPartRows.length,
+    allSwatches.length,
+  );
+
+  const partRows = allPartRows.slice(0, partsDisplay);
   const overflowPartsLabel =
-    allPartRows.length > SUMMARY_PART_ROWS_LIMIT
-      ? resolvers.overflowPartsLabel(
-          allPartRows.length - SUMMARY_PART_ROWS_LIMIT,
-        )
+    allPartRows.length > partsDisplay
+      ? resolvers.overflowPartsLabel(allPartRows.length - partsDisplay)
+      : null;
+
+  const swatches = allSwatches.slice(0, colorsDisplay);
+  const overflowColorsLabel =
+    allSwatches.length > colorsDisplay
+      ? resolvers.overflowColorsLabel(allSwatches.length - colorsDisplay)
       : null;
 
   return {
@@ -625,25 +691,26 @@ export function computeCardLayout(spec: ShareCandidateSpec): CardLayout {
 
     if (spec.variant === "whole") {
       // summary(whole)は「レシピの目次」（2026-07-03実機フィードバック）: 進捗行の下に
-      // 「パーツ構成」セクション（見出し＋パーツ行リスト。spec.partRows.lengthは
-      // buildSummaryWholeCandidateで既にSUMMARY_PART_ROWS_LIMIT行に切り詰め済みのため、
-      // ここでは渡された行数をそのまま信じて上詰めレイアウトする＝FB-3）、
-      // その下に「使用カラー」セクション（見出し＋色名・ブランド併記の3列グリッド・
-      // 上限SUMMARY_SWATCH_LIMIT色＝ceil(12/3)=4行）を縦に並べる。
+      // 「パーツ構成」セクション（見出し＋パーツ行リスト。spec.partRows.length/spec.swatches.length
+      // はbuildSummaryWholeCandidateでcomputeSummaryWholeBudgetによる動的バランス配分
+      // （2026-07-05: 固定上限8行/12色から、パーツ優先・カラー残り空間自動拡張へ改訂）が
+      // 済んでいるため、ここでは渡された件数をそのまま信じて上詰めレイアウトする＝FB-3）、
+      // その下に「使用カラー」セクション（見出し＋色名・ブランド併記の3列グリッド）を縦に並べる。
       // overflow行の高さ予算はcomputeStepCapacity（summary(part)）と同じ考え方で
       // area側に含める（drawSummaryPartRowsのoverflow行がrect外にはみ出さないための保証）。
       //
-      // 予算内訳（bodyTop〜contentBottomの1166pxに対して。パーツ行8＋overflow・色12の最大ケース）:
-      //   progressReserve(48) + sectionGapTop(12) + partsHeading(30) + 8行×40px(320)
-      //   + overflowRow(40) + sectionGapMid(28) + colorsHeading(30) + colorsGrid(4行×44=176)
-      //   = 684px（bottomMost=828px。contentBottom 1310pxに対し482pxの余裕。
-      //   4:5縦長化により写真を持たないsummary(whole)は上詰めレイアウトのまま下部余白が拡大する）
+      // 予算内訳（bodyTop〜contentBottomの1166pxに対して）: 固定オーバーヘッド148px
+      //   = progressReserve(48) + sectionGapTop(12) + partsHeading(30) + sectionGapMid(28)
+      //   + colorsHeading(30)。残り1018px（SUMMARY_WHOLE_ROW_BUDGET）をパーツ行(40px/行・
+      //   overflow行も40px)とカラーグリッド(44px/行・3列)へcomputeSummaryWholeBudgetが動的配分する
+      //   （配分の保証によりbottomMostはcontentBottom(1310)を超過しない。SUMMARY_COLORS_HARD_MAX/
+      //   SUMMARY_PARTS_HARD_MAXはここでも二重の安全弁として掛けておく）。
       const progressReserve = 48;
       const sectionGapTop = 12;
       const sectionGapMid = 28;
       const colorSlotCount = Math.min(
         spec.swatches.length,
-        SUMMARY_SWATCH_LIMIT,
+        SUMMARY_COLORS_HARD_MAX,
       );
       const colorGridRows = Math.max(
         1,
@@ -1702,8 +1769,9 @@ const SUMMARY_COLOR_SWATCH_SIZE = 40;
  * 1セル =「スウォッチ（塗り＋線色枠）＋右に色名（ink・15px）＋その下にブランド小字
  * （line色・13px。brandがnullなら省略）」で、summary(part)工程行のスウォッチ表記
  * （drawSummaryStepRow）と意匠を揃える。色名はセル幅内でtruncateToWidthして詰める。
- * overflowLabelはcapSwatchesの仕様上swatches.length===SUMMARY_SWATCH_LIMIT（グリッド満杯）
- * の時のみ非nullになるため、新規セル/行を追加せず最終行の右端に金文字で添える。
+ * overflowLabelはbuildSummaryWholeCandidate（computeSummaryWholeBudget）の仕様上、
+ * swatches.length===colorsDisplay（配分された表示数ぶんグリッドが埋まっている）の
+ * 時のみ非nullになるため、新規セル/行を追加せず最終行の右端に金文字で添える。
  */
 function drawSummaryColorGrid(
   ctx: CanvasContextLike,
