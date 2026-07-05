@@ -101,6 +101,18 @@ describe("ImportJsonButton", () => {
     ).toBeInTheDocument();
   });
 
+  test("ボタンクリックで隠しファイル入力のclick()が発火する", () => {
+    renderButton();
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const clickSpy = vi.spyOn(input, "click");
+
+    fireEvent.click(screen.getByRole("button", { name: "JSONをインポート" }));
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
   test("ファイル選択確定でstorage.persist()が要求される（§3.5発火点②）", async () => {
     vi.mocked(importRecipe).mockResolvedValue({
       ok: true,
