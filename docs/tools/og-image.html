@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Shippori+Mincho:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    background: #F6F0E2;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* 内周の金の飾り枠（決定デザインの罫イディオム） */
+  .frame {
+    position: absolute; inset: 28px;
+    border: 1px solid #C9A85C;
+  }
+  .frame::after {
+    content: ""; position: absolute; inset: 6px;
+    border: 2px solid rgba(201, 168, 92, 0.45);
+  }
+  .inner { text-align: center; }
+  .seal { width: 148px; height: auto; display: block; margin: 0 auto 30px; mix-blend-mode: multiply; }
+  .overline {
+    font-family: "EB Garamond", serif;
+    font-size: 24px; letter-spacing: 0.42em; text-indent: 0.42em;
+    color: #8F6B2E; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .title {
+    font-family: "EB Garamond", "Shippori Mincho", serif;
+    font-weight: 600; font-size: 96px; letter-spacing: 0.04em;
+    color: #2B241C; line-height: 1.05;
+  }
+  .gloss {
+    font-family: "Shippori Mincho", serif;
+    font-weight: 600; font-size: 34px;
+    letter-spacing: 0.38em; text-indent: 0.38em;
+    color: #6B5F4D;
+    margin-top: 26px;
+  }
+  .rule {
+    width: 420px; height: 1px; background: #C9A85C;
+    margin: 30px auto 0; position: relative;
+  }
+  .rule::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 8px; height: 8px; background: #8F6B2E;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .sub {
+    font-family: "Shippori Mincho", serif;
+    font-weight: 500; font-size: 26px; letter-spacing: 0.14em;
+    color: #6B5F4D; margin-top: 28px;
+  }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <div class="inner">
+    <img class="seal" id="seal" alt="" />
+  <script>
+    // ロゴPNGの背景（クリーム地）をコーナー色サンプリングで透過化してから表示
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 0, c.width, c.height);
+      const p = d.data;
+      const [br, bg2, bb] = [p[0], p[1], p[2]]; // 左上コーナー=背景色
+      for (let i = 0; i < p.length; i += 4) {
+        const dist = Math.hypot(p[i] - br, p[i + 1] - bg2, p[i + 2] - bb);
+        const a = Math.min(1, Math.max(0, (dist - 12) / 60));
+        p[i + 3] = Math.round(p[i + 3] * a);
+      }
+      ctx.putImageData(d, 0, 0);
+      document.getElementById("seal").src = c.toDataURL("image/png");
+      window.__sealReady = true;
+    };
+    img.src = "file:///Users/ken/Documents/ViveProject/coat-codex/docs/design/coat-codex_logo.png";
+  </script>
+    <div class="overline">Paint Recipe Codex</div>
+    <div class="title">Coat Codex</div>
+    <div class="gloss">塗装秘伝書</div>
+    <div class="rule"></div>
+    <div class="sub">ミニチュアペイントの塗装レシピを記録・共有</div>
+  </div>
+</body>
+</html>
