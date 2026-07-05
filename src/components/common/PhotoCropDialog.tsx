@@ -16,6 +16,19 @@
 // （.cropRect＋ハンドル・overflow: visibleでクリップされず表示）の2層に分離。
 // .shadeRectと.cropRectは同一インラインstyle（rectStyle）を共有し、暗転の見た目は
 // 従来通りフレーム外周でクリップさせつつ、ハンドルだけを枠外へはみ出させる。
+//
+// タッチ操作時の背後スクロール吸われ対策（ユーザーFB。iOS実機で発生。previewの合成
+// イベントでは実タッチのスクロール競合を再現できないため、touch-action: noneを
+// 信頼せず多段防御にする。RecipeOverviewPage.tsxのパネルスクロールロックは
+// body.style.overflow="hidden"方式だが、iOS Safariはそれを無視することがあるため、
+// 本ダイアログは`position: fixed`方式（閉時にscrollY復元）を採用する）:
+// 1. open中はbodyを`position: fixed; top: -scrollY; width: 100%`に固定し、
+//    close/アンマウント両経路のeffect cleanupでscrollYへ復元する
+//    （退避はDOM変更前に読む。display変更後はscrollYが0にクランプされる既知の罠）。
+// 2. Reactの合成touchmoveイベントはpassive登録されpreventDefaultが無効なため、
+//    .stageへ生のaddEventListener("touchmove", handler, { passive: false })を張り、
+//    open中はスクロールへ渡さない（backdrop側は触らずタップ閉じの挙動を保つ）。
+// 3. .backdropへoverscroll-behavior: containを追加し、スクロールチェーンを保険として遮断する。
 
 import { useEffect, useRef, useState } from "react";
 import type {
@@ -123,6 +136,58 @@ function PhotoCropDialog({
       cancelled = true;
     };
   }, [open, photoId]);
+
+  // bodyスクロールロック（open中）。iOS Safariはbody overflow: hiddenを無視することが
+  // あるため`position: fixed; top: -scrollY`方式にする。スクロール位置の退避はDOM変更
+  // （position: fixedへの切替）より前に読む必要がある（変更後はscrollYが0にクランプ
+  // される既知の罠）。open→close・アンマウントの両経路でこのeffectのcleanupが走り、
+  // 元のインラインstyleへ復元したうえでscrollYへ戻す。
+  // RecipeOverviewPage側のbodyスクロール管理はoverflowのみ・本effectはposition/top/width
+  // のみで管理プロパティが直交しており相互不干渉。両者が同時アンマウントされる経路でも、
+  // 本ダイアログは常にページの子孫のためReactのcleanupは子（本effect）→親（Page）の順に
+  // 走り、最終的なscrollTo復元はPage側の退避値が勝って整合する（レビューM-1の順序保証）。
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const { body } = document;
+    const scrollY = window.scrollY;
+    const previousPosition = body.style.position;
+    const previousTop = body.style.top;
+    const previousWidth = body.style.width;
+
+    body.style.position = "fixed";
+    body.style.top = `${(-scrollY).toString()}px`;
+    body.style.width = "100%";
+
+    return () => {
+      body.style.position = previousPosition;
+      body.style.top = previousTop;
+      body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
+
+  // 非passiveなtouchmove preventDefault。Reactの合成イベントはpassive登録されるため
+  // ここでは生のaddEventListenerを使う。.stage（frameRef）上のタッチはクロップ操作に
+  // 専有させ、背後（body）へスクロールが伝播しないようにする。backdrop側は触らない
+  // （バックドロップタップ閉じの既存挙動を壊さないため）。
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const stage = frameRef.current;
+    if (!stage) {
+      return;
+    }
+    function handleTouchMove(event: TouchEvent) {
+      event.preventDefault();
+    }
+    stage.addEventListener("touchmove", handleTouchMove, { passive: false });
+    return () => {
+      stage.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [open]);
 
   if (!open) {
     return null;

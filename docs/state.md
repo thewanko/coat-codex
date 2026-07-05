@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: クロップUIユーザーFB対応 → PR起票)
+最終更新: 2026-07-05 (loop: クロップのタッチスクロール吸われ対応 → PR起票)
 
 ## 完了
+
+- 2026-07-05: **クロップ操作のタッチスクロール吸われ対応**（PR: fix/crop-touch-scroll。PR #29マージ後のユーザーiPhone実機FB「トリミングで指を動かすと後ろのスクロールに吸われる」起点） — 1次確認: `touch-action: none`は全対話要素に既在＝仕様上は効くはずが実iOSで吸われる（**previewの合成イベントでは実タッチのスクロール競合を原理的に再現不能**=clipboardハング同族の環境ギャップ・lessons同根2回目でCLAUDE.md昇格）。対処=結果分岐に依存しない多段防御: ①open中のbodyスクロールロック（`position:fixed; top:-scrollY; width:100%`方式=iOSがoverflow:hiddenを無視する既知事象対応。退避はDOM変更前・close/アンマウント両経路cleanup復元＋scrollTo）②`.stage`への生`addEventListener("touchmove", {passive:false})`＋preventDefault（Reactの合成イベントはpassive登録でpreventDefault無効）③`.backdrop`へ`overscroll-behavior: contain`。レビューR1 PASS(C0/H0/M1/L3。M-1=RecipeOverviewPageのoverflow管理との二重管理はプロパティ直交で健全・cleanup順序保証のコメント明文化glue。L-1=stage上ピンチズーム抑止は仕様意図として受容)。preview検証: open中body fixed/-scrollY・touchmove preventDefault実効・close後完全復元＋scrollY復帰・操作リグレッションなし。**実タッチの吸われ解消はユーザーiPhone実機確認必須**。計1099テスト。※委譲前提の誤り（bodyロック実在箇所をPartEditorPageと記憶で書いた→実在はRecipeOverviewPage）をimplのRead確認が差し戻し=1次確認ルール3回目としてlessons更新
 
 - 2026-07-05: **クロップUIユーザーFB対応 2件**（PR: fix/crop-ui-feedback。PR #28マージ後のユーザー実機FB起点） — 起点FB: ①「トリミング文字ボタンはダサい。アイコンにして✕ボタンみたいに画像の右下に」②「トリミングの四角ドラッグが枠に半分以上かくれている。上下左右に余白が必要」。実装（impl 1委譲）: ①CropIcon（インラインSVG）を✕ボタン同イディオムの28px円形で画像右下配置（PhotoUploader/StepPhotoTile。aria-label=既存photo.trimキー・44px内向きヒット領域・ボタンをoverflow:hidden要素の外に出しクリップ問題自体を回避）②**stage/frame/overlay 3層化**: ハンドルクリップの単純なoverflow:visible化は暗転box-shadow 9999pxが全画面へ漏れる罠があるため、暗転（shadeRect・frame内クリップ・非対話）と操作層（cropRect＋ハンドル・overlay overflow:visible）を分離＋frameWrap外周14px余白。座標契約はframeRefを同一ボックスのstageへ移管で不変（レビューが「stage box=旧frameのborder-box厳密一致」まで検算）。レビューR1 PASS(C0/H0/M1/L3。M-1テストセレクタ堅牢化=data-testid glue適用)。実機検証: ハンドル全体視認（stage縁を跨ぎ外側半分もヒット・375/1280）・暗転実効（shade表示切替の2枚比較）・アイコンボタン両サイトのヒットテスト・自動オープン/保存フロー不変。計1096テスト
 

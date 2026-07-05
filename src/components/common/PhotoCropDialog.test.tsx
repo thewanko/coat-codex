@@ -6,6 +6,9 @@ import PhotoCropDialog from "./PhotoCropDialog";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
+  // jsdomはwindow.scrollToを実装していないため、bodyスクロールロックのcleanupが
+  // window.scrollTo(0, scrollY)を呼ぶ本実装のテストに必要な最小スタブを用意する。
+  window.scrollTo = vi.fn();
 });
 
 vi.mock("../../db/photoStore", async () => {
@@ -194,6 +197,102 @@ describe("PhotoCropDialog", () => {
     expect(shadeRect?.style.top).toBe(rect.style.top);
     expect(shadeRect?.style.width).toBe(rect.style.width);
     expect(shadeRect?.style.height).toBe(rect.style.height);
+  });
+
+  test("bodyスクロールロック: open中はposition:fixed+top(-scrollY)+width:100%へ固定し、closeで元の値とscrollYへ復元する", () => {
+    Object.defineProperty(window, "scrollY", {
+      value: 240,
+      configurable: true,
+    });
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
+    const scrollToSpy = vi.mocked(window.scrollTo);
+    scrollToSpy.mockClear();
+
+    const { rerender } = render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={null}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(document.body.style.position).toBe("fixed");
+    expect(document.body.style.top).toBe("-240px");
+    expect(document.body.style.width).toBe("100%");
+
+    rerender(
+      <PhotoCropDialog
+        open={false}
+        photoId="ph_1"
+        initialCrop={null}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(document.body.style.position).toBe("");
+    expect(document.body.style.top).toBe("");
+    expect(document.body.style.width).toBe("");
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 240);
+  });
+
+  test("bodyスクロールロック: アンマウント経路でも元の値とscrollYへ復元する", () => {
+    Object.defineProperty(window, "scrollY", {
+      value: 88,
+      configurable: true,
+    });
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
+    const scrollToSpy = vi.mocked(window.scrollTo);
+    scrollToSpy.mockClear();
+
+    const { unmount } = render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={null}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(document.body.style.position).toBe("fixed");
+
+    unmount();
+
+    expect(document.body.style.position).toBe("");
+    expect(document.body.style.top).toBe("");
+    expect(document.body.style.width).toBe("");
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 88);
+  });
+
+  test("open中は.stage（クロップ範囲の祖先）へのtouchmoveディスパッチでpreventDefaultが呼ばれる（背後スクロール吸われ対策）", async () => {
+    render(
+      <PhotoCropDialog
+        open
+        photoId="ph_1"
+        initialCrop={null}
+        onSave={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const rect = screen.getByRole("group", { name: /クロップ範囲/ });
+    // .stage = .overlayの親 = .cropRectの祖先（.overlay.parentElement）
+    const stage = rect.parentElement?.parentElement as HTMLElement;
+
+    const touchMoveEvent = new Event("touchmove", {
+      bubbles: true,
+      cancelable: true,
+    });
+    stage.dispatchEvent(touchMoveEvent);
+
+    expect(touchMoveEvent.defaultPrevented).toBe(true);
   });
 
   test("open=falseの間は何もレンダーしない", () => {
