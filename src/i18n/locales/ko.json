@@ -4,6 +4,7 @@
   },
   "nav": {
     "terms": "Terms & Disclaimer",
+    "help": "사용법 & Q&A",
     "backToOverview": "전체 보기로",
     "backToLibrary": "레시피 목록으로"
   },
@@ -101,7 +102,8 @@
     "duplicate": "복제",
     "exportJson": "JSON 내보내기",
     "duplicateSuccess": "\"{{title}}\"을(를) 복제했습니다",
-    "duplicateFailed": "복제에 실패했습니다"
+    "duplicateFailed": "복제에 실패했습니다",
+    "helpLink": "사용법 가이드 ›"
   },
   "setup": {
     "titleLabel": "제목",
@@ -310,5 +312,88 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "help": {
+    "overline": "GUIDE",
+    "title": "HOW TO USE",
+    "gloss": "coat-codex 사용법과 자주 묻는 질문",
+    "intro": "레시피를 만드는 것부터 공유·인쇄까지, coat-codex의 기본 사용법을 순서대로 소개합니다.",
+    "stepsHeading": "사용법",
+    "steps": {
+      "create": {
+        "title": "1. 레시피 만들기",
+        "body": "Home의 \"새 레시피\"에서 레시피 작성을 시작합니다. 처음에는 제목만 입력해도 괜찮습니다. 나중에 내용을 편집할 수 있습니다.",
+        "imageAlt": "Home 화면에서 새 레시피 버튼을 누르는 모습"
+      },
+      "setup": {
+        "title": "2. 기본 정보 등록",
+        "body": "제목·완성 사진·사용 도구를 등록합니다. 완성 사진은 나중에 추가할 수 있으므로 작업 도중에도 편하게 시작할 수 있습니다.",
+        "imageAlt": "레시피의 기본 정보를 등록하는 화면"
+      },
+      "editor": {
+        "title": "3. 단계 편집",
+        "body": "파츠별 또는 베이스별로 기법·도료(3개 브랜드 프리셋 검색 또는 직접 입력)·혼합 비율·메모·단계 사진을 기록합니다. 단계는 원하는 만큼 추가할 수 있습니다.",
+        "imageAlt": "파츠의 단계를 편집하는 화면"
+      },
+      "overview": {
+        "title": "4. 전체 보기로 관리",
+        "body": "BASE·PARTS 카드의 순서 변경, 단계 리뷰, 전체 사진 변경을 할 수 있습니다. 레시피 전체를 한눈에 보면서 정리할 수 있습니다.",
+        "imageAlt": "전체 보기에서 BASE·PARTS 카드를 관리하는 화면"
+      },
+      "share": {
+        "title": "5. SNS에 공유",
+        "body": "\"내보내기 및 공유\"에서 \"SNS에 공유\"를 선택합니다. X와 Bluesky를 전환할 수 있으며, 공유 카드 이미지는 최대 4장까지 선택할 수 있습니다.",
+        "imageAlt": "SNS 공유 화면에서 게시할 곳과 이미지를 선택하는 모습"
+      },
+      "print": {
+        "title": "6. 인쇄·PDF",
+        "body": "인쇄 화면에서 레시피를 인쇄할 수 있습니다. PDF로 저장하려면 브라우저 인쇄 대화상자에서 \"PDF로 저장\"을 선택하세요.",
+        "imageAlt": "인쇄 화면에서 레시피를 표시하는 화면"
+      }
+    },
+    "backupHeading": "7. 백업",
+    "backupBody": "Home의 레시피 카드 메뉴에서 JSON 내보내기를 하면 사진도 함께 백업할 수 있습니다. 복원하려면 Home의 \"JSON 가져오기\"를 이용하세요.",
+    "faqHeading": "자주 묻는 질문",
+    "faq": {
+      "dataCategoryHeading": "데이터에 대해",
+      "dataWhere": {
+        "q": "데이터는 어디에 저장되나요?",
+        "a": "이 기기의 브라우저(IndexedDB) 안에만 저장됩니다. 서버로 전송되지 않으며 계정 등록도 필요 없습니다."
+      },
+      "dataLost": {
+        "q": "데이터가 사라질 수도 있나요?",
+        "a": "브라우저의 사이트 데이터 삭제나 시크릿 모드를 이용하면 사라질 수 있습니다. 또한 저장 공간 보호가 허용되지 않은 경우, 저장 공간이 부족하거나 장기간 사이트를 방문하지 않았을 때(Safari는 약 7일 기준) 브라우저의 판단으로 데이터가 삭제될 수 있습니다. 정기적인 JSON 백업을 권장합니다."
+      },
+      "backupRestore": {
+        "q": "백업과 복원은 어떻게 하나요?",
+        "a": "Home의 레시피 카드 메뉴에 있는 \"JSON 내보내기\"로 사진도 함께 백업할 수 있습니다. 복원은 Home의 \"JSON 가져오기\"로 진행합니다."
+      },
+      "moveDevice": {
+        "q": "다른 기기로 옮길 수 있나요?",
+        "a": "내보낸 JSON 파일을 다른 기기로 옮기고, 그 기기에서 \"JSON 가져오기\"를 하면 이전할 수 있습니다."
+      },
+      "envCategoryHeading": "지원 환경에 대해",
+      "supportedBrowsers": {
+        "q": "지원 브라우저는 무엇인가요?",
+        "a": "최신 버전의 Chrome·Edge·Safari·Firefox를 지원합니다. Safari는 16.2 이상을 권장합니다. 스마트폰과 PC 모두에서 이용할 수 있습니다."
+      },
+      "offline": {
+        "q": "오프라인에서도 사용할 수 있나요?",
+        "a": "페이지를 불러올 때는 인터넷 연결이 필요합니다. 저장된 데이터 자체는 기기 안에 있습니다."
+      },
+      "shareCategoryHeading": "공유·내보내기 팁",
+      "shareCard": {
+        "q": "SNS 공유 카드란 무엇인가요?",
+        "a": "레시피에서 자동으로 생성되는 게시용 이미지입니다(전체 요약 또는 파츠별). 최대 4장까지 선택할 수 있습니다. 공유 시트를 지원하지 않는 환경에서는 이미지를 저장한 뒤 게시 화면에 직접 첨부해 주세요."
+      },
+      "pdf": {
+        "q": "PDF로 저장하고 싶어요.",
+        "a": "\"인쇄\"에서 브라우저의 인쇄 대화상자를 열고 \"PDF로 저장\"을 선택하세요."
+      },
+      "noteMd": {
+        "q": "note용 Markdown이란 무엇인가요?",
+        "a": "note 게시글에 그대로 붙여넣을 수 있는 형식으로 레시피 전문을 복사하는 기능입니다."
+      }
+    }
   }
 }

@@ -4,6 +4,7 @@
   },
   "nav": {
     "terms": "Conditions & Avertissement",
+    "help": "Guide d'utilisation & FAQ",
     "backToOverview": "Retour à la vue d'ensemble",
     "backToLibrary": "Retour à la bibliothèque"
   },
@@ -101,7 +102,8 @@
     "duplicate": "Dupliquer",
     "exportJson": "Exporter en JSON",
     "duplicateSuccess": "« {{title}} » dupliquée",
-    "duplicateFailed": "Échec de la duplication"
+    "duplicateFailed": "Échec de la duplication",
+    "helpLink": "Guide d'utilisation ›"
   },
   "setup": {
     "titleLabel": "Titre",
@@ -311,5 +313,88 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "help": {
+    "overline": "GUIDE",
+    "title": "HOW TO USE",
+    "gloss": "Guide d'utilisation de coat-codex et questions fréquentes",
+    "intro": "Voici un aperçu, étape par étape, de l'utilisation de coat-codex, de la création d'une recette jusqu'au partage et à l'impression.",
+    "stepsHeading": "Guide d'utilisation",
+    "steps": {
+      "create": {
+        "title": "1. Créer une recette",
+        "body": "Commencez par « Nouvelle recette » sur Home. Un simple titre suffit pour débuter — vous pourrez compléter le reste plus tard.",
+        "imageAlt": "Appui sur le bouton Nouvelle recette dans l'écran Home"
+      },
+      "setup": {
+        "title": "2. Renseigner les informations de base",
+        "body": "Renseignez le titre, une photo de la pièce terminée et les outils utilisés. La photo finale peut être ajoutée plus tard, vous pouvez donc commencer même en cours de projet.",
+        "imageAlt": "Écran d'enregistrement des informations de base d'une recette"
+      },
+      "editor": {
+        "title": "3. Modifier les étapes",
+        "body": "Pour chaque pièce ou pour la base, enregistrez la technique, la peinture (recherche de préréglages parmi 3 marques ou saisie libre), le ratio de mélange, des notes et des photos d'étape. Ajoutez autant d'étapes que vous le souhaitez.",
+        "imageAlt": "Écran de modification des étapes d'une pièce"
+      },
+      "overview": {
+        "title": "4. Gérer depuis la vue d'ensemble",
+        "body": "Réordonnez les cartes BASE et PARTS, passez en revue les étapes et changez la photo de vue d'ensemble. Visualisez toute la recette d'un coup d'œil pendant que vous l'organisez.",
+        "imageAlt": "Écran de vue d'ensemble gérant les cartes BASE et PARTS"
+      },
+      "share": {
+        "title": "5. Partager sur les réseaux sociaux",
+        "body": "Choisissez « Partager sur un réseau social » depuis « Exporter & Partager ». Basculez entre X et Bluesky, et choisissez jusqu'à 4 images de carte de partage.",
+        "imageAlt": "Écran de partage social pour choisir une destination et des images"
+      },
+      "print": {
+        "title": "6. Imprimer ou enregistrer en PDF",
+        "body": "Imprimez votre recette depuis la vue d'impression. Pour l'enregistrer en PDF, choisissez « Enregistrer en PDF » dans la boîte de dialogue d'impression de votre navigateur.",
+        "imageAlt": "Écran de vue d'impression affichant une recette"
+      }
+    },
+    "backupHeading": "7. Sauvegarder vos données",
+    "backupBody": "Exportez une recette en JSON (photos incluses) depuis son menu de carte sur Home. Pour restaurer, utilisez « Importer un JSON » sur Home.",
+    "faqHeading": "Questions fréquentes",
+    "faq": {
+      "dataCategoryHeading": "À propos de vos données",
+      "dataWhere": {
+        "q": "Où mes données sont-elles stockées ?",
+        "a": "Uniquement dans le navigateur de cet appareil (IndexedDB). Rien n'est envoyé à un serveur, et aucun compte n'est requis."
+      },
+      "dataLost": {
+        "q": "Mes données peuvent-elles être perdues ?",
+        "a": "Oui — effacer les données du site dans votre navigateur ou utiliser la navigation privée peut les supprimer. Si la protection du stockage n'a pas été accordée, le navigateur peut aussi supprimer des données à sa discrétion lorsque le stockage est faible ou après une longue période sans visite (environ 7 jours sur Safari). Nous recommandons de sauvegarder régulièrement via l'export JSON."
+      },
+      "backupRestore": {
+        "q": "Comment sauvegarder et restaurer ?",
+        "a": "Utilisez « Exporter en JSON » depuis le menu de carte d'une recette sur Home pour sauvegarder (photos incluses). Pour restaurer, utilisez « Importer un JSON » sur Home."
+      },
+      "moveDevice": {
+        "q": "Puis-je transférer mes données vers un autre appareil ?",
+        "a": "Déplacez le fichier JSON exporté vers l'autre appareil et importez-le là-bas."
+      },
+      "envCategoryHeading": "Environnements pris en charge",
+      "supportedBrowsers": {
+        "q": "Quels navigateurs sont pris en charge ?",
+        "a": "Les dernières versions de Chrome, Edge, Safari et Firefox. Sur Safari, la version 16.2 ou ultérieure est recommandée. Smartphones et ordinateurs sont pris en charge."
+      },
+      "offline": {
+        "q": "Puis-je l'utiliser hors ligne ?",
+        "a": "Le chargement de la page nécessite une connexion internet. Les données que vous avez enregistrées, elles, résident sur votre appareil."
+      },
+      "shareCategoryHeading": "Astuces pour le partage et l'export",
+      "shareCard": {
+        "q": "Que sont les cartes de partage social ?",
+        "a": "Des images générées automatiquement à partir de votre recette pour la publication (résumé complet ou par pièce). Vous pouvez en sélectionner jusqu'à 4. Sur les environnements sans prise en charge de la feuille de partage, enregistrez les images puis joignez-les manuellement dans l'écran de publication."
+      },
+      "pdf": {
+        "q": "Je veux enregistrer en PDF.",
+        "a": "Choisissez « Imprimer », puis sélectionnez « Enregistrer en PDF » dans la boîte de dialogue d'impression de votre navigateur."
+      },
+      "noteMd": {
+        "q": "Qu'est-ce que le Markdown pour note ?",
+        "a": "Une fonctionnalité qui copie l'intégralité de votre recette dans un format que vous pouvez coller directement dans un article note."
+      }
+    }
   }
 }

@@ -4,6 +4,7 @@
   },
   "nav": {
     "terms": "Termini e Disclaimer",
+    "help": "Guida all'uso e Q&A",
     "backToOverview": "Torna alla panoramica",
     "backToLibrary": "Torna alla libreria"
   },
@@ -101,7 +102,8 @@
     "duplicate": "Duplica",
     "exportJson": "Esporta JSON",
     "duplicateSuccess": "\"{{title}}\" duplicata",
-    "duplicateFailed": "Duplicazione non riuscita"
+    "duplicateFailed": "Duplicazione non riuscita",
+    "helpLink": "Guida all'uso ›"
   },
   "setup": {
     "titleLabel": "Titolo",
@@ -311,5 +313,88 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "help": {
+    "overline": "GUIDE",
+    "title": "HOW TO USE",
+    "gloss": "Come usare coat-codex e domande frequenti",
+    "intro": "Ecco una panoramica passo dopo passo su come usare coat-codex, dalla creazione di una ricetta fino alla condivisione e alla stampa.",
+    "stepsHeading": "Come si usa",
+    "steps": {
+      "create": {
+        "title": "1. Crea una ricetta",
+        "body": "Parti da \"Nuova ricetta\" su Home. Basta un titolo per iniziare — potrai completare il resto in seguito.",
+        "imageAlt": "Tocco del pulsante Nuova ricetta nella schermata Home"
+      },
+      "setup": {
+        "title": "2. Imposta le basi",
+        "body": "Registra il titolo, una foto del pezzo finito e gli strumenti usati. La foto finale può essere aggiunta in seguito, quindi puoi iniziare anche a metà progetto.",
+        "imageAlt": "Schermata di registrazione delle informazioni di base di una ricetta"
+      },
+      "editor": {
+        "title": "3. Modifica i passaggi",
+        "body": "Per ogni parte o per la base, registra la tecnica, il colore (cerca tra i preset di 3 marche o inseriscine uno tuo), il rapporto di miscelazione, le note e le foto del passaggio. Aggiungi tutti i passaggi che vuoi.",
+        "imageAlt": "Schermata di modifica dei passaggi di una parte"
+      },
+      "overview": {
+        "title": "4. Gestisci dalla panoramica",
+        "body": "Riordina le card BASE e PARTS, rivedi i passaggi e cambia la foto d'insieme. Tieni sotto controllo l'intera ricetta mentre la organizzi.",
+        "imageAlt": "Schermata di panoramica per gestire le card BASE e PARTS"
+      },
+      "share": {
+        "title": "5. Condividi sui social",
+        "body": "Scegli \"Condividi sui social\" da \"Esporta e condividi\". Passa da X a Bluesky e scegli fino a 4 immagini per la card di condivisione.",
+        "imageAlt": "Schermata di condivisione social per scegliere destinazione e immagini"
+      },
+      "print": {
+        "title": "6. Stampa o salva come PDF",
+        "body": "Stampa la tua ricetta dalla vista di stampa. Per salvarla come PDF, scegli \"Salva come PDF\" nella finestra di stampa del browser.",
+        "imageAlt": "Schermata della vista di stampa con una ricetta"
+      }
+    },
+    "backupHeading": "7. Esegui il backup dei dati",
+    "backupBody": "Esporta una ricetta in JSON (con le foto incluse) dal suo menu card su Home. Per ripristinare, usa \"Importa JSON\" su Home.",
+    "faqHeading": "Domande frequenti",
+    "faq": {
+      "dataCategoryHeading": "Sui tuoi dati",
+      "dataWhere": {
+        "q": "Dove vengono salvati i miei dati?",
+        "a": "Solo nel browser di questo dispositivo (IndexedDB). Non viene inviato nulla a un server e non è richiesto alcun account."
+      },
+      "dataLost": {
+        "q": "I miei dati possono andare persi?",
+        "a": "Sì — cancellare i dati del sito nel browser o usare la navigazione privata può eliminarli. Se la protezione dell'archiviazione non è stata concessa, il browser può anche eliminare i dati a sua discrezione quando lo spazio è scarso o dopo un lungo periodo senza visite (circa 7 giorni su Safari). Consigliamo di fare backup regolari tramite l'esportazione JSON."
+      },
+      "backupRestore": {
+        "q": "Come faccio backup e ripristino?",
+        "a": "Usa \"Esporta JSON\" dal menu card di una ricetta su Home per fare il backup (foto incluse). Per ripristinare, usa \"Importa JSON\" su Home."
+      },
+      "moveDevice": {
+        "q": "Posso spostare i miei dati su un altro dispositivo?",
+        "a": "Sposta il file JSON esportato sull'altro dispositivo e importalo lì."
+      },
+      "envCategoryHeading": "Ambienti supportati",
+      "supportedBrowsers": {
+        "q": "Quali browser sono supportati?",
+        "a": "Le versioni più recenti di Chrome, Edge, Safari e Firefox. Su Safari si consiglia la versione 16.2 o successiva. Sono supportati sia smartphone che PC."
+      },
+      "offline": {
+        "q": "Posso usarlo offline?",
+        "a": "Il caricamento della pagina richiede una connessione internet. I dati che hai salvato, però, si trovano sul tuo dispositivo."
+      },
+      "shareCategoryHeading": "Consigli per condivisione ed esportazione",
+      "shareCard": {
+        "q": "Cosa sono le card di condivisione social?",
+        "a": "Immagini generate automaticamente dalla tua ricetta per la pubblicazione (riepilogo completo o per singola parte). Puoi selezionarne fino a 4. Negli ambienti senza supporto per il foglio di condivisione, salva le immagini e allegale manualmente nella schermata di pubblicazione."
+      },
+      "pdf": {
+        "q": "Voglio salvare come PDF.",
+        "a": "Scegli \"Stampa\", poi seleziona \"Salva come PDF\" nella finestra di stampa del browser."
+      },
+      "noteMd": {
+        "q": "Cos'è la funzione Markdown per note?",
+        "a": "Una funzione che copia l'intera ricetta in un formato che puoi incollare direttamente in un articolo note."
+      }
+    }
   }
 }
