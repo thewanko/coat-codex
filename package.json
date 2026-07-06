@@ -6,9 +6,21 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "npm run dev -w apps/codex",
-    "build": "npm run build -w apps/codex",
+    "build": "npm run build --workspaces --if-present",
     "preview": "npm run preview -w apps/codex",
-    "test": "npm test -w apps/codex",
+    "test": "vitest run",
     "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-react-refresh": "^0.4",
+    "globals": "^16",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8",
+    "prettier": "^3",
+    "vitest": "^4"
   }
 }
