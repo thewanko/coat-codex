@@ -12,8 +12,8 @@ import {
   reassignRecipeIds,
   type ImportRecipeDeps,
 } from "./importRecipe";
-import { CURRENT_SCHEMA_VERSION } from "../models/migrations";
-import type { RecipeDoc, RecipeExportFile } from "../models/recipe";
+import { CURRENT_SCHEMA_VERSION } from "@coat-codex/recipe-core";
+import type { RecipeDoc, RecipeExportFile } from "@coat-codex/recipe-core";
 
 beforeEach(async () => {
   await db.recipes.clear();

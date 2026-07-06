@@ -25,7 +25,7 @@
 
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { PaletteColor } from "../../models/recipe";
+import type { PaletteColor } from "@coat-codex/recipe-core";
 import {
   addPaintSlot,
   commitPercentInput,

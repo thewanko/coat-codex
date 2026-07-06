@@ -26,7 +26,7 @@ import {
 } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
 import { readRecipeExport } from "../lib/storageHealth";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 type RecipePart = RecipeDoc["parts"][number];
 

@@ -1,6 +1,6 @@
 // components/part-editor/MemoField.tsx — 工程メモの複数行テキスト（技術計画v2.2 §4.2 T24）
 //
-// Step.memo（models/recipe.ts、必須・空文字許容の文字列）を編集する薄い制御コンポーネント。
+// Step.memo（@coat-codex/recipe-core、必須・空文字許容の文字列）を編集する薄い制御コンポーネント。
 // バリデーション等のロジックは持たず、value/onChangeをそのまま中継する。
 
 import { useTranslation } from "react-i18next";

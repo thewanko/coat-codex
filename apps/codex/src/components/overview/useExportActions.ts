@@ -43,7 +43,7 @@ import { recordRecipeExport } from "../../lib/storageHealth";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
 import { copyTextLegacy } from "../common/legacyCopy";
 import { useToast } from "../common/toastContext";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import type { ShareDialogContext } from "./ShareDialog";
 
 /** noteMdCopiedのフィードバック表示時間（ms）。約2秒でリセットする */

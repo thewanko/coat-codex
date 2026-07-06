@@ -22,9 +22,9 @@ import {
   type RecipeDoc,
   type RecipeExportFile,
   type Step,
-} from "../models/recipe";
-import { migrateExportFile } from "../models/migrations";
-import { CURRENT_SCHEMA_VERSION } from "../models/migrations";
+} from "@coat-codex/recipe-core";
+import { migrateExportFile } from "@coat-codex/recipe-core";
+import { CURRENT_SCHEMA_VERSION } from "@coat-codex/recipe-core";
 import { TECHNIQUE_PRESET_KEYS } from "./techniques";
 import { loadBrandColorsResult } from "./paintPresets";
 
@@ -466,7 +466,7 @@ const defaultImportRecipeDeps: ImportRecipeDeps = {
  *
  * 1. JSON.parse（失敗→invalid-json）
  * 2. 第1段: ヘッダ検証（app/kind/schemaVersion。上位バージョンは拒否）
- * 3. 第2段: migrateExportFile（models/migrations.tsの既存チェーン）
+ * 3. 第2段: migrateExportFile（@coat-codex/recipe-coreの既存チェーン）
  * 4. 第3段: フル検証（recipeExportFileSchema.parse）
  * 5. normalizeImport（正規化規則a〜e）
  * 6. Dexie rwトランザクションで photos.bulkAdd → recipes.add（失敗時ロールバック）

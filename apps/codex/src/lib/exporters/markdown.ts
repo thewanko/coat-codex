@@ -12,7 +12,7 @@
 import { formatMixBadge } from "../mixRatio";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
 import { sanitizeMarkdownText } from "./markdownSanitize";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 /** i18n未接続時（テスト等）の技法名フォールバック辞書。ja.json techniques.* と表記を揃える。
  *  本タスクではja.json/en.jsonの編集は行わないため、実運用ではUI層が本物のt関数を注入する

@@ -7,7 +7,7 @@ import HomePage from "./HomePage";
 import ToastHost from "../components/common/ToastHost";
 import { listRecipes } from "../db/recipeStore";
 import { checkPersisted, readAllRecipeExports } from "../lib/storageHealth";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

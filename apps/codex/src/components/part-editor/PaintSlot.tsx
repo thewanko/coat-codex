@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import type { ChangeEvent, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import type { PaletteColor } from "../../models/recipe";
+import type { PaletteColor } from "@coat-codex/recipe-core";
 import PaintPicker from "../paint/PaintPicker";
 import SwatchChip from "../common/SwatchChip";
 import styles from "./PaintSlot.module.css";

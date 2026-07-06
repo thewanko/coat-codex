@@ -23,7 +23,7 @@ import {
   __resetRecipeStoreForTest,
   useRecipeStore,
 } from "../stores/useRecipeStore";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

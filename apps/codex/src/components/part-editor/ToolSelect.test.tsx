@@ -2,7 +2,7 @@ import "../../i18n";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import {
   useRecipeStore,
   __resetRecipeStoreForTest,

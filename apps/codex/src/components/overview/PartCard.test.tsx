@@ -5,7 +5,7 @@ import "../../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { PaletteColor, RecipeDoc, Step } from "../../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 import PartCard from "./PartCard";
 import { resolveSwatchHexes } from "./partSwatch";
 

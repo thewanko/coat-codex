@@ -39,7 +39,7 @@ import PartCardList from "../components/overview/PartCardList";
 import PartReviewDialog from "../components/overview/PartReviewDialog";
 import ExportActionBar from "../components/overview/ExportActionBar";
 import ExportReminderBanner from "../components/home/ExportReminderBanner";
-import type { CropRect, RecipeDoc } from "../models/recipe";
+import type { CropRect, RecipeDoc } from "@coat-codex/recipe-core";
 import styles from "./RecipeOverviewPage.module.css";
 
 type RecipePart = RecipeDoc["parts"][number];

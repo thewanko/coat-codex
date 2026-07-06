@@ -20,7 +20,7 @@ import i18next from "../../i18n";
 import ToastHost from "../common/ToastHost";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
 import type { ComposedShareImage } from "../../lib/sns/imageComposer";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

@@ -15,7 +15,7 @@ import ToastHost from "../common/ToastHost";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
 import { recordRecipeExport, snoozeReminder } from "../../lib/storageHealth";
 import { downloadBlob } from "../common/downloadBlob";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

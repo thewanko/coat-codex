@@ -5,7 +5,7 @@
 // エラー通知ロジックのみを検証する）。
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 vi.mock("../db/recipeStore", () => ({
   loadRecipe: vi.fn(),

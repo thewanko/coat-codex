@@ -4,7 +4,7 @@
 // react-refresh/only-export-components（コンポーネントファイルは非コンポーネントをexportしない）
 // 対応のため独立ファイルに分離（同ディレクトリのexportSheetDrag.tsに倣う）。
 
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 /** モバイル2段目スウォッチの表示上限。超過分は「+N」で丸める */
 export const SWATCH_LIMIT = 8;

@@ -12,7 +12,7 @@
 import { formatMixBadge } from "../mixRatio";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
 import { sanitizeMarkdownText } from "./markdownSanitize";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 /** i18n未接続時（テスト等）の技法名フォールバック辞書。markdown.tsと同一内容（重複防止のためexportはしない） */
 const FALLBACK_TECHNIQUE_LABELS: Record<

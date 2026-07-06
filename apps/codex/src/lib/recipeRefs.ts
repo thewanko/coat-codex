@@ -4,7 +4,7 @@
 // 参照しているStep数を返す。1 Step内での同一colorId重複はINV-7で禁止されているため、
 // Stepごとの単純な該当有無カウントでよい（同色を1 Step内で複数回数えない）。
 
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 /** baseSteps・全parts[].stepsを横断した全Stepの配列を返す（内部ヘルパー） */
 function allSteps(doc: RecipeDoc): RecipeDoc["baseSteps"] {

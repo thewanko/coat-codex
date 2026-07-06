@@ -8,7 +8,7 @@
 //     パーツ0件・palette 0件・tools 0件・混合比合計≠100警告
 
 import { describe, expect, test } from "vitest";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import { DEFAULT_MARKDOWN_LABELS, exportRecipeToMarkdown } from "./markdown";
 
 /** テスト用Step生成ヘルパー。noteMarkdown.test.tsの慣行に倣う */

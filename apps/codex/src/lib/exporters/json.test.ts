@@ -10,8 +10,8 @@
 // collectPhotosForExport）はJsonExportDepsで差し替え、Dexie接続なしに検証する。
 
 import { describe, expect, test, vi } from "vitest";
-import type { RecipeDoc, RecipeExportFile } from "../../models/recipe";
-import { recipeExportFileSchema } from "../../models/recipe";
+import type { RecipeDoc, RecipeExportFile } from "@coat-codex/recipe-core";
+import { recipeExportFileSchema } from "@coat-codex/recipe-core";
 import type { PhotoRecord } from "../../db/db";
 import {
   assembleExportBlob,
@@ -250,7 +250,7 @@ describe("assembleExportBlob", () => {
       { id: "ph_1", dataUrl: "data:image/png;base64,aGVsbG8=" },
     ]);
 
-    // zodスキーマでも構造検証（§2.2 / models/recipe.ts recipeExportFileSchema）
+    // zodスキーマでも構造検証（§2.2 / @coat-codex/recipe-core recipeExportFileSchema）
     expect(() => recipeExportFileSchema.parse(parsed)).not.toThrow();
   });
 

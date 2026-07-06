@@ -1,11 +1,14 @@
 // db/recipeStore.ts — レシピCRUD・ロード時lazy migration（技術計画v2.2 §2.7・D-8）
 //
-// zodパース（models/recipe.ts）・migration（models/migrations.ts）のロジックはここで
+// zodパース（@coat-codex/recipe-core）・migration（@coat-codex/recipe-core）のロジックはここで
 // 重複実装しない。UIやReactには依存しない（storeはM4でZustandから使われる）。
 
 import { db, type RecipeRecord } from "./db";
-import { recipeDocSchema, type RecipeDoc } from "../models/recipe";
-import { CURRENT_SCHEMA_VERSION, migrateRecipeDoc } from "../models/migrations";
+import { recipeDocSchema, type RecipeDoc } from "@coat-codex/recipe-core";
+import {
+  CURRENT_SCHEMA_VERSION,
+  migrateRecipeDoc,
+} from "@coat-codex/recipe-core";
 
 /**
  * 保存済み文書のschemaVersionがCURRENT_SCHEMA_VERSIONより新しい（未知の将来バージョンである）

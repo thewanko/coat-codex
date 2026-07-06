@@ -28,7 +28,7 @@ import RecipeOverviewPage from "./RecipeOverviewPage";
 import PartEditorPage from "./PartEditorPage";
 import ToastHost from "../components/common/ToastHost";
 import { __resetRecipeStoreForTest } from "../stores/useRecipeStore";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

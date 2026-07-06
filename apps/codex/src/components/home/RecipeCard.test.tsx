@@ -8,7 +8,7 @@ import { duplicateRecipe } from "./duplicateRecipe";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
 import { recordRecipeExport } from "../../lib/storageHealth";
 import { downloadBlob } from "../common/downloadBlob";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

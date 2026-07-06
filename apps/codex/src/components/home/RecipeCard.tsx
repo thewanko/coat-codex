@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { recordRecipeExport } from "../../lib/storageHealth";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import { useToast } from "../common/toastContext";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
 import CroppedPhoto from "../common/CroppedPhoto";

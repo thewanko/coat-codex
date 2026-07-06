@@ -5,9 +5,9 @@
 // （全レコード一括書き換えのupgrade()は使わない。§2.7）。
 
 import Dexie, { type Table } from "dexie";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
-/** recipesテーブルのレコード形状。RecipeDoc（models/recipe.ts）をそのまま保存する */
+/** recipesテーブルのレコード形状。RecipeDoc（@coat-codex/recipe-core）をそのまま保存する */
 export type RecipeRecord = RecipeDoc;
 
 /**

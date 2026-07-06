@@ -1,7 +1,7 @@
 // components/part-editor/StepCard.tsx — 工程カード組み立て（技術計画v2.2 §4.2 T25）
 //
 // TechniqueSelect＋PaintSlotList（内部にMixRatioInputを含む）＋ToolSelect＋
-// 下段にStepPhotoTile＋MemoFieldのペア＋工程削除ボタン、を1つのStep（models/recipe.ts）に
+// 下段にStepPhotoTile＋MemoFieldのペア＋工程削除ボタン、を1つのStep（@coat-codex/recipe-core）に
 // 対する制御コンポーネントとして組み立てる。state保持は行わず、部分更新はすべて
 // onChange(next: Step)で呼び出し側（StepList/PartEditorPage、T26/T27）へ委譲する。
 //
@@ -21,7 +21,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { CropRect, Step, PaletteColor } from "../../models/recipe";
+import type { CropRect, Step, PaletteColor } from "@coat-codex/recipe-core";
 import type { MixState } from "../../lib/mixRatio";
 import TechniqueSelect from "./TechniqueSelect";
 import PaintSlotList from "./PaintSlotList";

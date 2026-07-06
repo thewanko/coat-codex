@@ -20,7 +20,7 @@ import i18next from "../i18n";
 import RecipeSetupPage from "./RecipeSetupPage";
 import ToastHost from "../components/common/ToastHost";
 import { __resetRecipeStoreForTest } from "../stores/useRecipeStore";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

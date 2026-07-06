@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { CropRect, Step } from "../../models/recipe";
+import type { CropRect, Step } from "@coat-codex/recipe-core";
 import styles from "./StepPhotoStrip.module.css";
 
 interface StepPhotoStripProps {

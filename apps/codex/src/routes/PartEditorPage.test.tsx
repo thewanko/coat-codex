@@ -28,7 +28,7 @@ import {
   useRecipeStore,
 } from "../stores/useRecipeStore";
 import { StorageQuotaError } from "../db/photoStore";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

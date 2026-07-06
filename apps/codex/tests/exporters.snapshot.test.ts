@@ -8,7 +8,7 @@
 import "../src/i18n";
 import { beforeAll, describe, expect, test } from "vitest";
 import i18next from "../src/i18n";
-import { recipeDocSchema } from "../src/models/recipe";
+import { recipeDocSchema } from "@coat-codex/recipe-core";
 import {
   buildMarkdownLabels,
   exportRecipeToMarkdown,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { RecipeDoc, Step } from "../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import { countColorUsage, countToolUsage } from "./recipeRefs";
 
 /** テスト用Step生成ヘルパー。paints/toolIdsのみ指定し他は最小固定値で埋める */

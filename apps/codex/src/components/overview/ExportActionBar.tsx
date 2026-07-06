@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useTranslation } from "react-i18next";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
 import MarkdownCopyFallbackDialog from "../common/MarkdownCopyFallbackDialog";
 import ShareDialog from "./ShareDialog";

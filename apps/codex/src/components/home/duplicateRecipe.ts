@@ -8,7 +8,7 @@
 import { db, type PhotoRecord } from "../../db/db";
 import { collectPhotosForExport } from "../../db/photoStore";
 import { reassignRecipeIds } from "../../lib/importRecipe";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 /**
  * 指定レシピを複製する。新しいRecipeDoc（新ID・updatedAt=now）を返す。

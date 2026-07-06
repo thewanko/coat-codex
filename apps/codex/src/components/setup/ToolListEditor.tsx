@@ -11,7 +11,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { RecipeDoc, Tool } from "../../models/recipe";
+import type { RecipeDoc, Tool } from "@coat-codex/recipe-core";
 import { countToolUsage } from "../../lib/recipeRefs";
 import styles from "./EditorRow.module.css";
 import sectionStyles from "./SetupSection.module.css";

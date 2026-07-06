@@ -14,7 +14,7 @@ import NewRecipeButton from "../components/home/NewRecipeButton";
 import ImportJsonButton from "../components/home/ImportJsonButton";
 import StorageStatusBar from "../components/home/StorageStatusBar";
 import ExportReminderBanner from "../components/home/ExportReminderBanner";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import styles from "./HomePage.module.css";
 
 function HomePage() {

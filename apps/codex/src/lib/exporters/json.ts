@@ -20,7 +20,7 @@
 //   一度もメモリ上に生成せず、Blob自体（ブラウザ実装側でストリーミング的に扱われる）にパーツを
 //   渡すだけで済む（v1レビュー指摘9のメモリピーク対策方針）。
 
-import type { RecipeDoc, RecipeExportFile } from "../../models/recipe";
+import type { RecipeDoc, RecipeExportFile } from "@coat-codex/recipe-core";
 import type { PhotoRecord } from "../../db/db";
 import { collectPhotosForExport } from "../../db/photoStore";
 import { loadRecipe } from "../../db/recipeStore";

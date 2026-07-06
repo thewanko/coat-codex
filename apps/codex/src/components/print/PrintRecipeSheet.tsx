@@ -13,7 +13,7 @@ import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { resolveTechniqueLabel } from "../../lib/techniques";
 import CroppedPhoto from "../common/CroppedPhoto";
 import SwatchChip from "../common/SwatchChip";
-import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "@coat-codex/recipe-core";
 import styles from "./PrintRecipeSheet.module.css";
 
 type PaletteColor = RecipeDoc["palette"][number];

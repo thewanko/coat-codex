@@ -7,7 +7,7 @@
 //   - 境界: 空工程・技法名なし・塗料/ツール/メモ/写真の有無組合せ・パーツ0件・palette 0件
 
 import { describe, expect, test } from "vitest";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import {
   DEFAULT_NOTE_MARKDOWN_LABELS,
   exportRecipeToNoteMarkdown,

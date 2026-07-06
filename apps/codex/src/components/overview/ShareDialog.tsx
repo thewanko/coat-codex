@@ -38,7 +38,7 @@ import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { loadBrandColors } from "../../lib/paintPresets";
 import { resolveTechniqueLabel } from "../../lib/techniques";
 import { snsTargets } from "../../lib/sns/types";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import { useToast } from "../common/toastContext";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareImagePreview, {

@@ -35,7 +35,7 @@ import { resolvePhotoUrl } from "../../db/photoStore";
 import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "@coat-codex/recipe-core";
 import { resolveSwatchHexes } from "./partSwatch";
 import styles from "./PartCard.module.css";
 

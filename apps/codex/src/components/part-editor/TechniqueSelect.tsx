@@ -1,7 +1,7 @@
 // components/part-editor/TechniqueSelect.tsx — 工程の技法選択（技術計画v2.2 §4.2 T24）
 //
 // プリセット（src/lib/techniques.ts の10種）から選択 or 自由入力の切替。
-// Step.technique（models/recipe.ts）の不変条件INV-8（presetKeyとlabelを同時に
+// Step.technique（@coat-codex/recipe-core）の不変条件INV-8（presetKeyとlabelを同時に
 // 非nullにできない）を、選択切替時に他方をnullへ倒すことでUI側から守る。
 // 制御コンポーネント（value/onChange）で状態は持たず、StepCard（T25）から使う。
 
@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { TECHNIQUE_PRESET_KEYS } from "../../lib/techniques";
 import styles from "./TechniqueSelect.module.css";
 
-/** Step.technique（models/recipe.ts）と同形。値も"presetKey/labelの排他"を維持したまま渡す */
+/** Step.technique（@coat-codex/recipe-core）と同形。値も"presetKey/labelの排他"を維持したまま渡す */
 export interface TechniqueValue {
   presetKey: string | null;
   label: string | null;

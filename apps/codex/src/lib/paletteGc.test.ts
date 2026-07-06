@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from "vitest";
 import { gcUnusedPaletteColors } from "./paletteGc";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 function makeColor(overrides: Partial<PaletteColor> = {}): PaletteColor {
   return {

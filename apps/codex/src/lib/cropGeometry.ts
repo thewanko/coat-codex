@@ -4,7 +4,7 @@
 // PhotoCropDialog（Pointer Events由来の生座標）からはこのモジュールの関数のみを通して
 // CropRectを算出させ、DOM/Reactに依存しないユニットテストを可能にする。
 
-import type { CropRect } from "../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 
 /** クロップ矩形の最小辺長（各辺10%。計画B-2） */
 export const MIN_CROP_SIZE = 0.1;

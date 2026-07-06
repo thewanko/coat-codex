@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import PartReviewDialog from "./PartReviewDialog";
 import ToastHost from "../common/ToastHost";
 

@@ -10,7 +10,7 @@ import "../../i18n";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { Step } from "../../models/recipe";
+import type { Step } from "@coat-codex/recipe-core";
 import {
   useRecipeStore,
   __resetRecipeStoreForTest,

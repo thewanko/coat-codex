@@ -39,7 +39,7 @@ import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
-import type { CropRect, RecipeDoc, Step } from "../../models/recipe";
+import type { CropRect, RecipeDoc, Step } from "@coat-codex/recipe-core";
 import styles from "./PartReviewDialog.module.css";
 
 type PaletteColor = RecipeDoc["palette"][number];

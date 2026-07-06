@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
 import ToolListEditor from "./ToolListEditor";
-import type { RecipeDoc, Step, Tool } from "../../models/recipe";
+import type { RecipeDoc, Step, Tool } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
