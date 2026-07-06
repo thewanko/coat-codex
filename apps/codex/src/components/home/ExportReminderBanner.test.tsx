@@ -54,7 +54,7 @@ vi.mock("../common/downloadBlob", async () => {
 
 function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "赤い装甲",
     createdAt: "2026-06-01T00:00:00.000Z",
@@ -65,6 +65,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

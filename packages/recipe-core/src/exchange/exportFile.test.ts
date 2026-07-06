@@ -41,7 +41,7 @@ function makeStep(
 /** テスト用RecipeDoc生成ヘルパー */
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テストレシピ",
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -52,6 +52,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }
@@ -217,7 +218,7 @@ describe("assembleExportBlob", () => {
     const header = {
       app: "coat-codex" as const,
       kind: "recipe-export" as const,
-      schemaVersion: 1,
+      schemaVersion: 3,
       exportedAt: "2026-07-03T00:00:00.000Z",
     };
     const recipe = makeDoc({ overviewPhotoIds: ["ph_1"] });
@@ -230,7 +231,7 @@ describe("assembleExportBlob", () => {
 
     expect(parsed.app).toBe("coat-codex");
     expect(parsed.kind).toBe("recipe-export");
-    expect(parsed.schemaVersion).toBe(1);
+    expect(parsed.schemaVersion).toBe(3);
     expect(parsed.exportedAt).toBe("2026-07-03T00:00:00.000Z");
     expect(parsed.recipe).toEqual(recipe);
     expect(parsed.photos).toEqual([
@@ -245,7 +246,7 @@ describe("assembleExportBlob", () => {
     const header = {
       app: "coat-codex" as const,
       kind: "recipe-export" as const,
-      schemaVersion: 1,
+      schemaVersion: 3,
       exportedAt: "2026-07-03T00:00:00.000Z",
     };
     const recipe = makeDoc();
@@ -268,7 +269,7 @@ describe("assembleExportBlob", () => {
     const header = {
       app: "coat-codex" as const,
       kind: "recipe-export" as const,
-      schemaVersion: 1,
+      schemaVersion: 3,
       exportedAt: "2026-07-03T00:00:00.000Z",
     };
     const recipe = makeDoc();

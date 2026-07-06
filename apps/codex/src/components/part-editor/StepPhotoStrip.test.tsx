@@ -84,7 +84,7 @@ describe("StepPhotoStrip", () => {
   test("タップで実StepCard要素（id=step-card-{index}）のscrollIntoViewが呼ばれる", async () => {
     useRecipeStore.setState({
       doc: {
-        schemaVersion: 1,
+        schemaVersion: 3,
         id: "rcp_1",
         title: "テストレシピ",
         createdAt: "2026-07-01T00:00:00.000Z",
@@ -95,6 +95,7 @@ describe("StepPhotoStrip", () => {
         baseSteps: [],
         parts: [],
         photoCrops: {},
+        source: null,
       },
     });
 

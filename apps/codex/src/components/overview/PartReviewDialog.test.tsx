@@ -62,7 +62,7 @@ function makePart(overrides: Partial<RecipePart> & { id: string }): RecipePart {
 
 function makeRecipe(overrides: Partial<RecipeDoc> & { id: string }): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     title: "レシピ",
     createdAt: "2026-07-01T00:00:00.000Z",
     updatedAt: "2026-07-01T00:00:00.000Z",
@@ -72,6 +72,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> & { id: string }): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

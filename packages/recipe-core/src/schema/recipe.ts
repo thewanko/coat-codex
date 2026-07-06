@@ -158,6 +158,17 @@ export const cropRectSchema = z
     path: ["h"],
   });
 
+/**
+ * §2.5 source — scriptoriumからインポートされたレシピの出典情報。
+ * codex内で新規作成されたレシピ・scriptorium連携前にv2以前で作成されたレシピはnull
+ * （v2→v3マイグレーションで補完。migrations.ts docRegistry[2]参照）。
+ */
+export const recipeSourceSchema = z.object({
+  scriptoriumId: z.string().min(1),
+  author: z.string(),
+  importedAt: isoDateTimeSchema,
+});
+
 /** §2.1 RecipeDoc（IndexedDB内スキーマ） */
 export const recipeDocSchema = z
   .object({
@@ -174,6 +185,8 @@ export const recipeDocSchema = z
     // dangling（文書内で未参照 or 実体のないphotoId）なキーはINVを追加せず無害として扱う
     // （INV-16「写真参照の実体存在は検証しない」と同方針。exportやreassignで整合処理する）
     photoCrops: z.record(idSchema, cropRectSchema),
+    // §2.5 v3: scriptoriumからのインポート出典（必須・nullable。§2.7 v2→v3マイグレーションでnull補完）
+    source: recipeSourceSchema.nullable(),
   })
   .superRefine((doc, ctx) => {
     // INV-11: palette[].id / tools[].id / parts[].id / 全Step id（baseSteps・parts横断）は各々文書内一意
@@ -331,6 +344,7 @@ export type Tool = z.infer<typeof toolSchema>;
 export type StepPaint = z.infer<typeof stepPaintSchema>;
 export type Step = z.infer<typeof stepSchema>;
 export type CropRect = z.infer<typeof cropRectSchema>;
+export type RecipeSource = z.infer<typeof recipeSourceSchema>;
 export type RecipeDoc = z.infer<typeof recipeDocSchema>;
 export type ExportPhoto = z.infer<typeof exportPhotoSchema>;
 export type RecipeExportFile = z.infer<typeof recipeExportFileSchema>;

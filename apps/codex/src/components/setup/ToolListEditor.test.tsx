@@ -32,7 +32,7 @@ function makeStep(overrides: Partial<Step> = {}): Step {
 
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テスト",
     createdAt: "2026-07-01T00:00:00.000Z",
@@ -43,6 +43,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

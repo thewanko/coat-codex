@@ -119,6 +119,7 @@ export async function createDraft(title: string): Promise<RecipeDoc> {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
   };
 
   const parsed = recipeDocSchema.parse(draft);

@@ -84,7 +84,7 @@ import { loadRecipe, saveRecipe } from "../db/recipeStore";
 
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テストレシピ",
     createdAt: "2026-07-01T00:00:00.000Z",
@@ -95,6 +95,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

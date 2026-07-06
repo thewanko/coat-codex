@@ -20,7 +20,7 @@ function makeDoc(
   overrides: Partial<Pick<RecipeDoc, "baseSteps" | "parts">>,
 ): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "recipe_1",
     title: "テストレシピ",
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -31,6 +31,7 @@ function makeDoc(
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

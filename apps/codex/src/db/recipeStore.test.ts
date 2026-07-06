@@ -160,6 +160,7 @@ describe("listRecipes", () => {
       baseSteps: [],
       parts: [],
       photoCrops: {},
+      source: null,
     };
     await db.recipes.put(corrupt as unknown as RecipeDoc);
     const normal = await createDraft("normal recipe 2");
@@ -204,6 +205,7 @@ describe("loadRecipe: lazy migration（下位バージョン）", () => {
         ...(raw as object),
         schemaVersion: CURRENT_SCHEMA_VERSION,
         photoCrops: {},
+        source: null,
       }));
 
     const now = new Date().toISOString();

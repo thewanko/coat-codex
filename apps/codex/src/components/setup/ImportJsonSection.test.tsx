@@ -46,7 +46,7 @@ vi.mock("../../lib/storageHealth", async () => {
 
 function makeImportedRecipe(): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_imported",
     title: "インポートされたレシピ",
     createdAt: "2026-07-02T00:00:00.000Z",
@@ -57,6 +57,7 @@ function makeImportedRecipe(): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
   };
 }
 

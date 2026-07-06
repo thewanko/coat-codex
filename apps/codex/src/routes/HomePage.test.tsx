@@ -53,7 +53,7 @@ vi.mock("../lib/storageHealth", async () => {
 
 function makeRecipe(id: string, title: string): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id,
     title,
     createdAt: "2026-06-01T00:00:00.000Z",
@@ -64,6 +64,7 @@ function makeRecipe(id: string, title: string): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
   };
 }
 

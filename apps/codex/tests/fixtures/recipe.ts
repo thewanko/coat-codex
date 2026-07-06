@@ -138,7 +138,7 @@ export function createFixtureRecipe(
   overrides: Partial<RecipeDoc> = {},
 ): RecipeDoc {
   const base: RecipeDoc = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id: "rcp_fixture",
     title: "Space Marine Captain",
     createdAt: "2026-07-02T10:00:00.000Z",
@@ -198,6 +198,7 @@ export function createFixtureRecipe(
       },
     ],
     photoCrops: {},
+    source: null,
   };
 
   return { ...base, ...overrides };

@@ -39,6 +39,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }
