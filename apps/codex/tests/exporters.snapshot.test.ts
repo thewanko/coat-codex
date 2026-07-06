@@ -191,7 +191,10 @@ describe("exportRecipeToMarkdown", () => {
 
     test("概要行・見出し・工程行がDEFAULT_MARKDOWN_LABELSと同一形で出力される（stepsMetaの語順はprint.stepsMeta既定・スコープ外）", () => {
       const recipe = createFixtureRecipe();
-      const output = exportRecipeToMarkdown(recipe, buildMarkdownLabels(i18next.t));
+      const output = exportRecipeToMarkdown(
+        recipe,
+        buildMarkdownLabels(i18next.t),
+      );
       expect(output).toContain("全7工程・2パーツ ・ 2026-07-02");
       expect(output).toContain("## PALETTE — 使用カラー");
       expect(output).toContain("- Mephiston Red（Citadel） ・ #960F0F");
