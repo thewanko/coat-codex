@@ -24,3 +24,4 @@ export * from "./logic/techniques";
 export * from "./logic/recipeRefs";
 export * from "./logic/cropGeometry";
 export * from "./exchange/exportFile";
+export * from "./exchange/importPipeline";

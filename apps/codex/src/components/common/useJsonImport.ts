@@ -9,7 +9,8 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { importRecipe, type ImportIssue } from "../../lib/importRecipe";
+import { importRecipe } from "../../lib/importRecipe";
+import type { ImportIssue } from "@coat-codex/recipe-core";
 import {
   checkPersisted,
   readPersistRecord,

@@ -8,7 +8,7 @@
 
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { ImportIssue } from "../../lib/importRecipe";
+import type { ImportIssue } from "@coat-codex/recipe-core";
 import { useFocusTrap } from "./useFocusTrap";
 import styles from "./ImportErrorDialog.module.css";
 
