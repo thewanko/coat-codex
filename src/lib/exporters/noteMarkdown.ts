@@ -83,7 +83,7 @@ export const DEFAULT_NOTE_MARKDOWN_LABELS: NoteMarkdownLabels = {
   mixTotalWarning: (total) => `⚠ 計 ${total}%`,
   emptyStepLabel: "（未設定）",
   techniqueT: defaultTechniqueT,
-  hashtag: "#coat-codex",
+  hashtag: "#coatcodex",
 };
 
 /** i18nの t 関数から NoteMarkdownLabels を構築するヘルパー。
@@ -103,7 +103,7 @@ export function buildNoteMarkdownLabels(
     mixTotalWarning: (total) => t("mix.badgeWarning", { value: total }),
     emptyStepLabel: t("export.markdownEmptyStepLabel"),
     techniqueT: t,
-    hashtag: "#coat-codex",
+    hashtag: "#coatcodex",
   };
 }
 

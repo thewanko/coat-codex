@@ -341,7 +341,7 @@ describe("ShareDialog — 選択ロジック", () => {
 });
 
 describe("ShareDialog — テキスト既定文", () => {
-  test("whole: タイトル＋概要（パーツ数・全工程数）＋#coat-codex", async () => {
+  test("whole: タイトル＋概要（パーツ数・全工程数）＋#coatcodex", async () => {
     vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
     composeShareImagesMock.mockResolvedValue(makeComposedImages(2));
 
@@ -359,10 +359,10 @@ describe("ShareDialog — テキスト既定文", () => {
     // baseSteps(2) + part_1.steps(2) = 4工程、パーツ1
     expect(textarea.value).toContain("パーツ1");
     expect(textarea.value).toContain("全4工程");
-    expect(textarea.value).toContain("#coat-codex");
+    expect(textarea.value).toContain("#coatcodex");
   });
 
-  test("part: タイトル＋パーツ名＋技法の流れ（3件以下は全列挙）＋全工程数＋#coat-codex", async () => {
+  test("part: タイトル＋パーツ名＋技法の流れ（3件以下は全列挙）＋全工程数＋#coatcodex", async () => {
     vi.stubGlobal("navigator", { canShare: () => true, share: vi.fn() });
     composeShareImagesMock.mockResolvedValue(makeComposedImages(1));
 
@@ -381,7 +381,7 @@ describe("ShareDialog — テキスト既定文", () => {
       "share-text-textarea",
     ) as HTMLTextAreaElement;
     expect(textarea.value).toBe(
-      "宵闇の騎士 - 頭部の塗装レシピ。ベースコート→ベースコート、全2工程。#coat-codex",
+      "宵闇の騎士 - 頭部の塗装レシピ。ベースコート→ベースコート、全2工程。#coatcodex",
     );
   });
 
@@ -427,7 +427,7 @@ describe("ShareDialog — テキスト既定文", () => {
       "share-text-textarea",
     ) as HTMLTextAreaElement;
     expect(textarea.value).toBe(
-      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→…→エッジハイライト、全4工程。#coat-codex",
+      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→…→エッジハイライト、全4工程。#coatcodex",
     );
   });
 
@@ -461,7 +461,7 @@ describe("ShareDialog — テキスト既定文", () => {
       "share-text-textarea",
     ) as HTMLTextAreaElement;
     expect(textarea.value).toBe(
-      "宵闇の騎士 - 頭部の塗装レシピ。全1工程。#coat-codex",
+      "宵闇の騎士 - 頭部の塗装レシピ。全1工程。#coatcodex",
     );
   });
 
@@ -507,7 +507,7 @@ describe("ShareDialog — テキスト既定文", () => {
     ) as HTMLTextAreaElement;
     // 空白のみラベルの工程は除外され、有効な2件（プライマー・ウォッシュ）のみが「→」で連結される
     expect(textarea.value).toBe(
-      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→ウォッシュ、全3工程。#coat-codex",
+      "宵闇の騎士 - 頭部の塗装レシピ。プライマー→ウォッシュ、全3工程。#coatcodex",
     );
   });
 });

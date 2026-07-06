@@ -155,7 +155,7 @@ describe("exportRecipeToNoteMarkdown", () => {
         "",
         "---",
         "",
-        "#coat-codex",
+        "#coatcodex",
         "",
       ].join("\n"),
     );
@@ -225,7 +225,7 @@ describe("exportRecipeToNoteMarkdown", () => {
 
     expectOnlySupportedSyntax(markdown);
     expect(markdown).toBe(
-      ["## テストレシピ", "", "---", "", "#coat-codex", ""].join("\n"),
+      ["## テストレシピ", "", "---", "", "#coatcodex", ""].join("\n"),
     );
   });
 

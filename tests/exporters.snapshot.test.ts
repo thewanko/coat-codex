@@ -207,10 +207,10 @@ describe("exportRecipeToNoteMarkdown", () => {
     expect(exportRecipeToNoteMarkdown(recipe)).toMatchSnapshot();
   });
 
-  test("末尾にハッシュタグ#coat-codexを含む", () => {
+  test("末尾にハッシュタグ#coatcodexを含む", () => {
     const recipe = createFixtureRecipe();
     const output = exportRecipeToNoteMarkdown(recipe);
-    expect(output.trim().endsWith("#coat-codex")).toBe(true);
+    expect(output.trim().endsWith("#coatcodex")).toBe(true);
   });
 
   test("混色・合計≠100は警告バッジを併記", () => {
@@ -254,7 +254,7 @@ describe("exportRecipeToNoteMarkdown", () => {
       techniqueT: (key) => key,
       hashtag: "",
     });
-    expect(output).not.toContain("#coat-codex");
+    expect(output).not.toContain("#coatcodex");
   });
 
   test("M5修正3: title行頭#・memo内改行はサニタイズされ構造を壊さない（スナップショット）", () => {

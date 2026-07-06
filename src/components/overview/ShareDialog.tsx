@@ -96,7 +96,7 @@ function buildTechniqueFlow(
   return `${labels[0]}→…→${labels[labels.length - 1]}`;
 }
 
-/** 投稿テキスト既定文の組み立て（§3.4手順3。URLは含めない。#coat-codexは末尾固定） */
+/** 投稿テキスト既定文の組み立て（§3.4手順3。URLは含めない。#coatcodexは末尾固定） */
 function buildDefaultText(
   context: ShareDialogContext,
   t: (key: string, opts?: Record<string, unknown>) => string,

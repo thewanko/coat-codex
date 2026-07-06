@@ -4,7 +4,7 @@
 // 新規SNS（Mastodon等）を1ファイル追加のみで拡張できる構造にする（T38要件）。
 //
 // 自動トリムの共通仕様（§3.4手順3・6'）:
-//   `#coat-codex` はトリム対象外＝トリム後も末尾に維持する。本文を末尾から削って
+//   `#coatcodex` はトリム対象外＝トリム後も末尾に維持する。本文を末尾から削って
 //   上限内に収め、削った場合は省略記号「…」を付与する（…とタグ分の重みも上限計算に
 //   含める）。すでに上限内なら原文のまま返す。
 
@@ -12,7 +12,7 @@ import { buildXTarget } from "./x";
 import { buildBlueskyTarget } from "./bluesky";
 
 /** トリム対象外として末尾に維持する固定タグ（§3.4） */
-export const SNS_FIXED_TAG = "#coat-codex";
+export const SNS_FIXED_TAG = "#coatcodex";
 
 /** 省略記号（自動トリムで本文を削った際に付与） */
 export const SNS_ELLIPSIS = "…";
@@ -29,7 +29,7 @@ export interface SnsTarget {
   buildIntentUrl(text: string): string;
   /** テキストの現在文字数・上限・超過有無を返す */
   countText(text: string): { count: number; limit: number; over: boolean };
-  /** 自動トリム。`#coat-codex` はトリム対象外＝末尾維持 */
+  /** 自動トリム。`#coatcodex` はトリム対象外＝末尾維持 */
   trimToLimit(text: string): string;
 }
 

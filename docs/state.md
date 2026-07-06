@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-05 (loop: 使い方＋Q&Aページ /help 新設 → PR起票)
+最終更新: 2026-07-06 (loop: SNSハッシュタグ #coatcodex 化)
 
 ## 完了
+
+- 2026-07-06: **SNSハッシュタグ `#coat-codex` → `#coatcodex` 変更**（PR: fix/sns-hashtag。ユーザー起点「Xはハイフン等の記号でタグが途切れ `#coat` になる」） — 案として#CoatCodexも提示したがXの検索はcase-insensitiveで同一タグのため、ブランド表記（© coat-codex小文字）に合わせ小文字 `#coatcodex` をユーザー案どおり採用。技術計画v2.4改訂（§3.4置換＋改訂履歴追記。5行目のv2.3履歴文は歴史記録として原文維持。原典・要件定義にタグ直接記述なし）。実装=impl 1委譲: `SNS_FIXED_TAG`/`FOOTER_TAG_TEXT`/noteMarkdown hashtag×2/7ロケール×3キー（計21箇所）/コメント2ファイル＋**テスト境界値の再計算**（タグ長11→10字: types.test極小limit 12→11・x.test韓国語検算32→31・トリム後count 279→280＝本文133→134字）＋exportersスナップショット更新。**裁定glue**=x.test.tsコメントの導出誤り修正（実装Readで検算: トリム時のタグ再付与はスペースなし=tagWeight10・「…」U+2026はweight1レンジ外=weight2・本文予算268=134字ちょうど。値は正・導出のみ誤り＝旧コメントから同種の誤りを引き継いでいた）。機械的置換タスクとしてselfcheck/review省略（meta/OGP前例準拠）。全ゲートexit 0・計1104テスト
 
 - 2026-07-05: **リリース前セキュリティ監査**（ユーザー依頼・/security-reviewスキル併用） — ①秘密情報: 全履歴164コミットをファイル名（.env/.pem/.key/.dev.vars等の追加履歴）とblob内容（APIキー/トークン/秘密鍵/Bearer/AKIA/ghp_等のパターンgrep×`git rev-list --all`全樹）の両面スキャンで**0件**。wrangler.tomlは非機密3行のみ。**トークン再発行の必要なし**。②現ブランチ差分（meta/OGP）の/security-review: 脆弱性0件。③個人情報: コード/テストデータのメール・電話・住所パターン0件、追跡画像17枚のEXIF/GPSなし。④**唯一の検出**: コミットauthorメールにthewanko@gmail.comが97/164件で露出（noreply設定はGitHub Web作成分67件のみ・ローカルgit configがgmailのまま）→**ユーザー裁定: パブリックリポジトリのため許容・履歴書き換えせず**（今後分を変えたくなったら `git config user.email "2597219+thewanko@users.noreply.github.com"`＋GitHub「Block command line pushes that expose my email」有効化）
 

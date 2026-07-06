@@ -1,7 +1,7 @@
 // components/overview/ShareTextEditor.tsx — 投稿テキスト編集（技術計画v2.2 §4.2 T39・§3.4手順3）
 //
 // 既定文を初期値としたtextarea（編集可）＋ターゲット別カウンタ（target.countText）＋
-// 超過時警告表示＋「自動トリム」ボタン（target.trimToLimit適用。#coat-codexはトリム対象外＝末尾維持）。
+// 超過時警告表示＋「自動トリム」ボタン（target.trimToLimit適用。#coatcodexはトリム対象外＝末尾維持）。
 // 値・変更はShareDialog側で状態管理し、本コンポーネントは制御コンポーネントとして振る舞う。
 
 import { useTranslation } from "react-i18next";

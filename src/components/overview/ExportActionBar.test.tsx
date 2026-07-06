@@ -280,7 +280,7 @@ describe("ExportActionBar — PC幅（従来のピル群）", () => {
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledTimes(1);
     });
-    expect(writeText.mock.calls[0][0]).toContain("#coat-codex");
+    expect(writeText.mock.calls[0][0]).toContain("#coatcodex");
   });
 
   test("note MDコピー成功時はボタンラベルが「コピーしました ✓」に切り替わる（FB-E）", async () => {
@@ -310,7 +310,7 @@ describe("ExportActionBar — PC幅（従来のピル群）", () => {
     const textarea = screen.getByTestId(
       "markdown-copy-fallback-textarea",
     ) as HTMLTextAreaElement;
-    expect(textarea.value).toContain("#coat-codex");
+    expect(textarea.value).toContain("#coatcodex");
   });
 
   // 2026-07-04 FB-H: iOS Safari実機で「note MDタップしても無反応」報告への対応。
@@ -382,7 +382,7 @@ describe("ExportActionBar — PC幅（従来のピル群）", () => {
       const textarea = screen.getByTestId(
         "markdown-copy-fallback-textarea",
       ) as HTMLTextAreaElement;
-      expect(textarea.value).toContain("#coat-codex");
+      expect(textarea.value).toContain("#coatcodex");
     });
 
     test("writeText成功時は既存経路どおりexecCommandを呼ばずに成功フィードバックを出す（リグレッションなし）", async () => {

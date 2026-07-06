@@ -145,7 +145,7 @@ exports[`exportRecipeToNoteMarkdown > M5修正3: title行頭#・memo内改行は
 
 ---
 
-#coat-codex
+#coatcodex
 "
 `;
 
@@ -187,6 +187,6 @@ exports[`exportRecipeToNoteMarkdown > 代表フィクスチャのスナップシ
 
 ---
 
-#coat-codex
+#coatcodex
 "
 `;

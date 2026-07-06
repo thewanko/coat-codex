@@ -251,7 +251,7 @@ const CARD_HEIGHT = 1350;
 const MARGIN = 48;
 /** 共通ヘッダ帯の高さ（金淡の細罫＋金のオーバーライン1行分） */
 const HEADER_HEIGHT = 56;
-/** 共通フッタ帯の高さ（細罫＋"#coat-codex"1行分） */
+/** 共通フッタ帯の高さ（細罫＋"#coatcodex"1行分） */
 const FOOTER_HEIGHT = 40;
 /** タイトル行の高さ（写真つきカードは情報帯内の小見出し、summaryは表紙の主見出し） */
 const TITLE_AREA_HEIGHT = 64;
@@ -676,7 +676,7 @@ export interface CardLayout {
   cardHeight: number;
   /** 共通ヘッダ帯（金淡の細罫＋金のオーバーライン）。全カード共通で最上部に確保 */
   headerArea: Rect;
-  /** 共通フッタ帯（細罫＋"#coat-codex"）。全カード共通で最下部に確保 */
+  /** 共通フッタ帯（細罫＋"#coatcodex"）。全カード共通で最下部に確保 */
   footerArea: Rect;
   /** whole: 全体写真の描画領域 / part: 工程写真の描画領域（メイン写真）/ summary: null（写真を載せない） */
   mainPhoto: Rect | null;
@@ -940,7 +940,7 @@ export const OVERLINE_FONT_STACK = "'EB Garamond', 'Inter', serif";
 /** ヘッダのオーバーライン文言（印刷紙面ヘッダ「coat codex — paint recipe」相当。全角表記） */
 const HEADER_OVERLINE_TEXT = "COAT CODEX — PAINT RECIPE";
 /** フッタの固定文言 */
-const FOOTER_TAG_TEXT = "#coat-codex";
+const FOOTER_TAG_TEXT = "#coatcodex";
 
 /**
  * 文字間を空けて描画する（letter-spacing風）。canvas fillTextにletter-spacingはないため、
@@ -1342,7 +1342,7 @@ function drawCardHeader(ctx: CanvasContextLike, layout: CardLayout): void {
   );
 }
 
-/** 共通フッタ帯（背景→写真の後、前景として描く）: 下辺の細罫＋"#coat-codex"の金の右寄せ小文字 */
+/** 共通フッタ帯（背景→写真の後、前景として描く）: 下辺の細罫＋"#coatcodex"の金の右寄せ小文字 */
 function drawCardFooter(ctx: CanvasContextLike, layout: CardLayout): void {
   ctx.fillStyle = THEME_COLORS.line;
   ctx.fillRect(
