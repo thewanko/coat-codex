@@ -64,12 +64,12 @@ describe("x.countText", () => {
     expect(x.countText("가힣").count).toBe(4);
   });
 
-  it("韓国語テキスト10文字＋#coat-codexタグのweighted lengthを検算する", () => {
-    // 独立計算: ハングル10文字(weight2×10=20) + " #coat-codex"(ASCII 12文字・weight1×12=12) = 32
-    const text = "한국어텍스트입니다요우와".slice(0, 10) + " #coat-codex";
+  it("韓国語テキスト10文字＋#coatcodexタグのweighted lengthを検算する", () => {
+    // 独立計算: ハングル10文字(weight2×10=20) + " #coatcodex"(ASCII 11文字・weight1×11=11) = 31
+    const text = "한국어텍스트입니다요우와".slice(0, 10) + " #coatcodex";
     expect(Array.from("한국어텍스트입니다요우와".slice(0, 10)).length).toBe(10);
     const result = x.countText(text);
-    expect(result.count).toBe(32);
+    expect(result.count).toBe(31);
     expect(result.over).toBe(false);
   });
 
@@ -169,7 +169,7 @@ describe("x.countText", () => {
 
 describe("x.trimToLimit", () => {
   it("上限内のテキストは無変換で返す", () => {
-    const text = "hello #coat-codex";
+    const text = "hello #coatcodex";
     expect(x.trimToLimit(text)).toBe(text);
   });
 
@@ -181,33 +181,34 @@ describe("x.trimToLimit", () => {
     expect(result.startsWith("a")).toBe(true);
   });
 
-  it("`#coat-codex` はトリム対象外＝末尾維持される", () => {
-    const text = `${"あ".repeat(141)} #coat-codex`;
+  it("`#coatcodex` はトリム対象外＝末尾維持される", () => {
+    const text = `${"あ".repeat(141)} #coatcodex`;
     const result = x.trimToLimit(text);
-    expect(result.endsWith("#coat-codex")).toBe(true);
+    expect(result.endsWith("#coatcodex")).toBe(true);
     expect(x.countText(result).over).toBe(false);
   });
 
   it("タグを含むトリム結果は省略記号＋タグの合計重みも上限計算に含める", () => {
-    // 独立計算: tagWeight(" #coat-codex")=12, ellipsisWeight("…")=2
-    // 残り本文weight上限 = 280 - 12 - 2 = 266 → CJK(weight2)なら133文字
-    const text = `${"あ".repeat(141)} #coat-codex`;
+    // 独立計算: トリム時のタグ再付与はスペースなし（trimWithFixedTagのtagSuffix=SNS_FIXED_TAGのみ）。
+    // tagWeight("#coatcodex")=10, ellipsisWeight("…")=2（U+2026はweight1レンジ外）
+    // 残り本文weight上限 = 280 - 10 - 2 = 268 → CJK(weight2)で134文字ちょうど
+    const text = `${"あ".repeat(141)} #coatcodex`;
     const result = x.trimToLimit(text);
     const bodyPart = result.slice(0, result.indexOf("…"));
-    expect(Array.from(bodyPart).length).toBe(133);
-    expect(x.countText(result).count).toBe(280 - 1); // 279（検算済み）
+    expect(Array.from(bodyPart).length).toBe(134);
+    expect(x.countText(result).count).toBe(280); // 280（検算済み）
   });
 
   it("タグが本文中間にあるケースは末尾維持の対象外（endsWithでない）", () => {
-    const text = `#coat-codex ${"a".repeat(300)}`;
+    const text = `#coatcodex ${"a".repeat(300)}`;
     const result = x.trimToLimit(text);
     // 末尾にタグが無いため通常の末尾トリム対象として扱われる
-    expect(result.endsWith("#coat-codex")).toBe(false);
+    expect(result.endsWith("#coatcodex")).toBe(false);
     expect(x.countText(result).over).toBe(false);
   });
 
-  it("すでに上限内なら`#coat-codex`付きでも無変換", () => {
-    const text = "短い本文 #coat-codex";
+  it("すでに上限内なら`#coatcodex`付きでも無変換", () => {
+    const text = "短い本文 #coatcodex";
     expect(x.trimToLimit(text)).toBe(text);
   });
 });
@@ -222,7 +223,7 @@ describe("x.buildIntentUrl", () => {
   });
 
   it("日本語・改行・#・&を含むテキストを正しくエンコードする", () => {
-    const text = "タイトル\n概要 #coat-codex & test";
+    const text = "タイトル\n概要 #coatcodex & test";
     const url = x.buildIntentUrl(text);
     expect(url).toBe(
       `https://x.com/intent/post?text=${encodeURIComponent(text)}`,

@@ -2162,8 +2162,8 @@ describe("composeShareImages", () => {
     );
     expect(overlineChars.length).toBeGreaterThan(0);
 
-    // フッタの"#coat-codex"は1回のfillTextで描かれる
-    expect(fillTextCalls).toContain("#coat-codex");
+    // フッタの"#coatcodex"は1回のfillTextで描かれる
+    expect(fillTextCalls).toContain("#coatcodex");
 
     // タイトル（レシピ名）が描かれている
     expect(fillTextCalls).toContain("Whole Title");

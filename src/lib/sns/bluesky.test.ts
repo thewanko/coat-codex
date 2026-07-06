@@ -63,7 +63,7 @@ describe("bluesky.countText", () => {
 
 describe("bluesky.trimToLimit", () => {
   it("上限内のテキストは無変換で返す", () => {
-    const text = "hello #coat-codex";
+    const text = "hello #coatcodex";
     expect(bluesky.trimToLimit(text)).toBe(text);
   });
 
@@ -74,31 +74,31 @@ describe("bluesky.trimToLimit", () => {
     expect(result.endsWith("…")).toBe(true);
   });
 
-  it("`#coat-codex` はトリム対象外＝末尾維持される", () => {
-    const text = `${"a".repeat(301)} #coat-codex`;
+  it("`#coatcodex` はトリム対象外＝末尾維持される", () => {
+    const text = `${"a".repeat(301)} #coatcodex`;
     const result = bluesky.trimToLimit(text);
-    expect(result.endsWith("#coat-codex")).toBe(true);
+    expect(result.endsWith("#coatcodex")).toBe(true);
     expect(bluesky.countText(result).over).toBe(false);
     // 独立計算: 300 graphemeちょうどになる（検算済み）
     expect(bluesky.countText(result).count).toBe(300);
   });
 
   it("ZWJ絵文字混じりの超過テキストもgrapheme単位で正しくトリムされる", () => {
-    const text = `${"👨‍👩‍👧‍👦".repeat(305)} #coat-codex`;
+    const text = `${"👨‍👩‍👧‍👦".repeat(305)} #coatcodex`;
     const result = bluesky.trimToLimit(text);
     expect(bluesky.countText(result).over).toBe(false);
-    expect(result.endsWith("#coat-codex")).toBe(true);
+    expect(result.endsWith("#coatcodex")).toBe(true);
   });
 
   it("タグが本文中間にあるケースは末尾維持の対象外（endsWithでない）", () => {
-    const text = `#coat-codex ${"a".repeat(350)}`;
+    const text = `#coatcodex ${"a".repeat(350)}`;
     const result = bluesky.trimToLimit(text);
-    expect(result.endsWith("#coat-codex")).toBe(false);
+    expect(result.endsWith("#coatcodex")).toBe(false);
     expect(bluesky.countText(result).over).toBe(false);
   });
 
-  it("すでに上限内なら`#coat-codex`付きでも無変換", () => {
-    const text = "短い本文 #coat-codex";
+  it("すでに上限内なら`#coatcodex`付きでも無変換", () => {
+    const text = "短い本文 #coatcodex";
     expect(bluesky.trimToLimit(text)).toBe(text);
   });
 });
@@ -113,7 +113,7 @@ describe("bluesky.buildIntentUrl", () => {
   });
 
   it("日本語・改行・#・&を含むテキストを正しくエンコードする", () => {
-    const text = "タイトル\n概要 #coat-codex & test";
+    const text = "タイトル\n概要 #coatcodex & test";
     const url = bluesky.buildIntentUrl(text);
     expect(url).toBe(
       `https://bsky.app/intent/compose?text=${encodeURIComponent(text)}`,
