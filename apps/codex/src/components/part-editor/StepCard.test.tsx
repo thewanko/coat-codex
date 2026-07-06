@@ -8,14 +8,13 @@ import "../../i18n";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { Step } from "@coat-codex/recipe-core";
+import type { Step, MixState } from "@coat-codex/recipe-core";
 import {
   useRecipeStore,
   __resetRecipeStoreForTest,
 } from "../../stores/useRecipeStore";
 import ToastHost from "../common/ToastHost";
 import StepCard from "./StepCard";
-import type { MixState } from "../../lib/mixRatio";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

@@ -2,17 +2,22 @@
 //
 // RecipeDocから人間可読なMarkdown文書を、印刷ビュー（components/print/PrintRecipeSheet.tsx）と
 // 同一の情報構造で生成する純関数。構造の正はPrintRecipeSheet.tsx（本ファイルは変更禁止・参照のみ）。
-// 混合バッジは lib/mixRatio.ts の formatMixBadge をそのまま使用する（単一情報源。§2.3「バッジ表記の正」）。
-// 技法名の解決は lib/techniques.ts の resolveTechniqueLabel に委譲する。
+// 混合バッジは @coat-codex/recipe-core の formatMixBadge をそのまま使用する
+// （単一情報源。§2.3「バッジ表記の正」）。
+// 技法名の解決は @coat-codex/recipe-core の resolveTechniqueLabel に委譲する。
 // i18n（ja.json/en.json）は固定文言をラベルテーブル（MarkdownLabels）として呼び出し側から注入する。
 // i18n未実装時のフォールバック文言をデフォルト値として持つ。
 //
 // noteMarkdown.ts（note.com向け）とは別実装・別仕様のため変更禁止（本タスクのスコープ外）。
 
-import { formatMixBadge } from "../mixRatio";
-import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
 import { sanitizeMarkdownText } from "./markdownSanitize";
-import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
+import {
+  formatMixBadge,
+  resolveTechniqueLabel,
+  TECHNIQUE_PRESET_KEYS,
+  type RecipeDoc,
+  type Step,
+} from "@coat-codex/recipe-core";
 
 /** i18n未接続時（テスト等）の技法名フォールバック辞書。ja.json techniques.* と表記を揃える。
  *  本タスクではja.json/en.jsonの編集は行わないため、実運用ではUI層が本物のt関数を注入する
@@ -105,7 +110,7 @@ export interface MarkdownLabels {
   mixTotalWarning: (total: number) => string;
   /** 塗料0件・技法未設定など、何も内容がない工程のプレースホルダ */
   emptyStepLabel: string;
-  /** 技法名解決用のt関数（techniques.<presetKey>キーを解決。lib/techniques.ts resolveTechniqueLabel互換）。
+  /** 技法名解決用のt関数（techniques.<presetKey>キーを解決。@coat-codex/recipe-core resolveTechniqueLabel互換）。
    *  省略時はja既定文言にフォールバックする */
   techniqueT: (key: string) => string;
 }

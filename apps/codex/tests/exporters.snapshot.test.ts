@@ -1,9 +1,9 @@
 // tests/exporters.snapshot.test.ts — markdown.ts / noteMarkdown.ts のスナップショットテスト（技術計画v2.2 M5 T32）
 //
 // 代表フィクスチャ（tests/fixtures/recipe.ts）で両エクスポータの出力を toMatchSnapshot する。
-// 混合バッジは lib/mixRatio.ts formatMixBadge の出力をそのまま使う設計のため、
-// バッジ書式（§2.3）自体の単体検証は src/lib/mixRatio.test.ts の責務とし、ここでは
-// 出力ドキュメント全体の構造（見出し・箇条書き・警告併記・写真有無・自由入力技法等）を検証する。
+// 混合バッジは @coat-codex/recipe-core formatMixBadge の出力をそのまま使う設計のため、
+// バッジ書式（§2.3）自体の単体検証は packages/recipe-core/src/logic/mixRatio.test.ts の責務とし、
+// ここでは出力ドキュメント全体の構造（見出し・箇条書き・警告併記・写真有無・自由入力技法等）を検証する。
 
 import "../src/i18n";
 import { beforeAll, describe, expect, test } from "vitest";

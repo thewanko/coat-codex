@@ -5,7 +5,7 @@
 // autosave直前にstripPendingPaintsを適用してpendingスロットが保存されないようにする
 // 結線自体はここでは行わない（M4の結線タスクの責務。本ファイルは基盤のみ提供する）。
 
-import type { MixState } from "./mixRatio";
+import type { MixState } from "@coat-codex/recipe-core";
 
 /** pending（未確定）塗料スロットのcolorIdプレフィックス。PaintSlotListのhandleAddSlotと共有する単一情報源 */
 export const PENDING_COLOR_PREFIX = "col_pending_";

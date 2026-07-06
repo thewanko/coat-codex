@@ -1,4 +1,4 @@
-// lib/cropGeometry.test.ts — クロップ座標純関数のユニットテスト（実装計画B-2）
+// logic/cropGeometry.test.ts — クロップ座標純関数のユニットテスト（実装計画B-2）
 
 import { describe, expect, it } from "vitest";
 import {

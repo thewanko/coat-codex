@@ -32,10 +32,15 @@ import { useEffect, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { CropRect, RecipeDoc, Step } from "@coat-codex/recipe-core";
+import {
+  formatMixBadge,
+  isMixTotalValid,
+  type CropRect,
+  type RecipeDoc,
+  type Step,
+} from "@coat-codex/recipe-core";
 import { resolveSwatchHexes } from "./partSwatch";
 import styles from "./PartCard.module.css";
 

@@ -21,8 +21,12 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { CropRect, Step, PaletteColor } from "@coat-codex/recipe-core";
-import type { MixState } from "../../lib/mixRatio";
+import type {
+  CropRect,
+  Step,
+  PaletteColor,
+  MixState,
+} from "@coat-codex/recipe-core";
 import TechniqueSelect from "./TechniqueSelect";
 import PaintSlotList from "./PaintSlotList";
 import ToolSelect from "./ToolSelect";

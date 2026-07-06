@@ -39,8 +39,6 @@ import type {
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "./useFocusTrap";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import type { CropRect } from "@coat-codex/recipe-core";
-import type { ResizeHandle } from "../../lib/cropGeometry";
 import {
   ARROW_STEP,
   ARROW_STEP_LARGE,
@@ -48,7 +46,9 @@ import {
   moveCropRect,
   resizeCropRect,
   roundCropRect,
-} from "../../lib/cropGeometry";
+  type CropRect,
+  type ResizeHandle,
+} from "@coat-codex/recipe-core";
 import styles from "./PhotoCropDialog.module.css";
 
 interface PhotoCropDialogProps {

@@ -20,7 +20,7 @@ import de from "./locales/de.json";
 import it from "./locales/it.json";
 import es from "./locales/es.json";
 import ko from "./locales/ko.json";
-import { TECHNIQUE_PRESET_KEYS } from "../lib/techniques";
+import { TECHNIQUE_PRESET_KEYS } from "@coat-codex/recipe-core";
 import type { SupportedLang } from "./index";
 
 type JsonRecord = { [key: string]: JsonRecord | string };

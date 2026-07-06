@@ -32,14 +32,19 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
-import { resolveTechniqueLabel } from "../../lib/techniques";
 import CroppedPhoto from "../common/CroppedPhoto";
 import SwatchChip from "../common/SwatchChip";
 import EmptyState from "../common/EmptyState";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
-import type { CropRect, RecipeDoc, Step } from "@coat-codex/recipe-core";
+import {
+  formatMixBadge,
+  isMixTotalValid,
+  resolveTechniqueLabel,
+  type CropRect,
+  type RecipeDoc,
+  type Step,
+} from "@coat-codex/recipe-core";
 import styles from "./PartReviewDialog.module.css";
 
 type PaletteColor = RecipeDoc["palette"][number];

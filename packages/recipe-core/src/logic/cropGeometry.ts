@@ -1,10 +1,10 @@
-// lib/cropGeometry.ts — PhotoCropDialogの座標計算を担う純関数群（実装計画B-2）
+// logic/cropGeometry.ts — PhotoCropDialogの座標計算を担う純関数群（実装計画B-2）
 //
 // 全て0〜1正規化座標系で扱う（元画像の実ピクセルサイズに依存しない）。
 // PhotoCropDialog（Pointer Events由来の生座標）からはこのモジュールの関数のみを通して
 // CropRectを算出させ、DOM/Reactに依存しないユニットテストを可能にする。
 
-import type { CropRect } from "@coat-codex/recipe-core";
+import type { CropRect } from "../schema/recipe";
 
 /** クロップ矩形の最小辺長（各辺10%。計画B-2） */
 export const MIN_CROP_SIZE = 0.1;

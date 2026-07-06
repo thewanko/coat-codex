@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
 import MixRatioInput from "./MixRatioInput";
-import type { MixState } from "../../lib/mixRatio";
+import type { MixState } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

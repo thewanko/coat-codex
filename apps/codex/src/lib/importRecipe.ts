@@ -7,7 +7,7 @@
 //   a. 全ID新規採番（rcp_/col_/tool_/part_/stp_/ph_）＋旧ID→新IDのMap作成
 //   b. 参照リマップ（colorId/toolIds/overviewPhotoIds/steps[].photoId/chipPhotoId）
 //   c. dangling photo除去（photos[].idに実体がないphoto参照を除去）
-//   d. マスタ外presetKey降格（Step.technique.presetKey。lib/techniques.tsの静的マスタで判定）
+//   d. マスタ外presetKey降格（Step.technique.presetKey。@coat-codex/recipe-coreの静的マスタで判定）
 //      ＋マスタ外presetId降格（palette[].presetId。lib/paintPresets.tsの非同期プリセットDBで判定。
 //      INV-14整合のためsource="custom"・presetId=nullへ降格）
 //   e. schemaVersion=CURRENT・createdAtは保持・updatedAt=now
@@ -22,10 +22,10 @@ import {
   type RecipeDoc,
   type RecipeExportFile,
   type Step,
+  migrateExportFile,
+  CURRENT_SCHEMA_VERSION,
+  TECHNIQUE_PRESET_KEYS,
 } from "@coat-codex/recipe-core";
-import { migrateExportFile } from "@coat-codex/recipe-core";
-import { CURRENT_SCHEMA_VERSION } from "@coat-codex/recipe-core";
-import { TECHNIQUE_PRESET_KEYS } from "./techniques";
 import { loadBrandColorsResult } from "./paintPresets";
 
 /** 第1段ヘッダ検証の最小スキーマ（§2.7①）。app/kind/schemaVersionのみを見る */
