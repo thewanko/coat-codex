@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-06 (loop: SNSハッシュタグ #coatcodex 化)
+最終更新: 2026-07-06 (loop: Coat Scriptorium 計画フェーズ)
 
 ## 完了
+
+- 2026-07-06: **Coat Scriptorium（coat書庫）計画フェーズ**（PR: docs/scriptorium-plan。ユーザー起点=調査資料v2提供・レシピ共有サイトの計画依頼） — 仕様の正 `docs/coat-scriptorium_技術計画_v1.md` を新規作成。ユーザー裁定2件（AskUserQuestion・調査資料§9の未決項目）: ①monorepo移行=**一括フル移行**（npm workspaces・既存アプリをapps/codexへgit mv・Pages Root directory切替）②部品共有=**packages/recipe-core＋recipe-ui切り出し**。骨子: Cloudflare Pages+Pages Functions（Hono・`src/server/app.ts`本体＋薄アダプタ=将来Worker+Assets移行保険）＋D1＋R2／PublishedRecipe v1（memo・Tool.note・chip写真・工程写真・タイムスタンプ除外＝倉庫化防止。cover 1枚はJSON外URL参照）／**RecipeDoc v3（source追加。S1をcodex公開アナウンス前に完了が最安全=v3はv2アプリで読めない）**／削除PW=WebCrypto PBKDF2-SHA256 100k（自己記述形式）／自動公開＋承認制フラグ・レート制限・サーキットブレーカー・通報閾値flagged／S0〜S8・ST-01〜34のタスク分解（**最小リリース=S5・パブリックローンチゲート=S6**）。計画前提はセッションGrepで1次確認（exporters純関数3種・NormalizeImportDeps注入・SwatchChip直import・CURRENT_SCHEMA_VERSION=2）。レビューR1 FAIL(C0/H2/M6/L5。H1=recipe-ui注入化対象がresolvePhotoUrl直依存12+部品と混線→「移動対象=CroppedPhoto無改変+SwatchChipのみ注入化+新設アトム／codex残留部品は直import維持」へ分離・H2=ST-18のTurnstileスタブ注入設計欠落→siteverify注入可能化を明記)→修正→同一レビュアーR2 **PASS(C0/H0/M0/L3=表現精度・全てglue反映済み)**。**未決=メール通知プロバイダ（ST-27前にユーザー裁定・候補Resend。MailChannels無料連携終了・CF Email Routingは送信不可）**。ユーザーアクション（Pages設定・D1/R2作成・Turnstileキー・CF Access・DNS）は計画§9に一覧化
 
 - 2026-07-06: **SNSハッシュタグ `#coat-codex` → `#coatcodex` 変更**（PR: fix/sns-hashtag。ユーザー起点「Xはハイフン等の記号でタグが途切れ `#coat` になる」） — 案として#CoatCodexも提示したがXの検索はcase-insensitiveで同一タグのため、ブランド表記（© coat-codex小文字）に合わせ小文字 `#coatcodex` をユーザー案どおり採用。技術計画v2.4改訂（§3.4置換＋改訂履歴追記。5行目のv2.3履歴文は歴史記録として原文維持。原典・要件定義にタグ直接記述なし）。実装=impl 1委譲: `SNS_FIXED_TAG`/`FOOTER_TAG_TEXT`/noteMarkdown hashtag×2/7ロケール×3キー（計21箇所）/コメント2ファイル＋**テスト境界値の再計算**（タグ長11→10字: types.test極小limit 12→11・x.test韓国語検算32→31・トリム後count 279→280＝本文133→134字）＋exportersスナップショット更新。**裁定glue**=x.test.tsコメントの導出誤り修正（実装Readで検算: トリム時のタグ再付与はスペースなし=tagWeight10・「…」U+2026はweight1レンジ外=weight2・本文予算268=134字ちょうど。値は正・導出のみ誤り＝旧コメントから同種の誤りを引き継いでいた）。機械的置換タスクとしてselfcheck/review省略（meta/OGP前例準拠）。全ゲートexit 0・計1104テスト
 
@@ -70,8 +72,9 @@
 
 ## 次の候補 (優先順)
 
-1. 一覧の破損/未来バージョン文書スキップのUX改善（エラーカード表示等・B-4レビューL-1残件。i18n・§2.7エラー提示方針との整合が必要なため独立タスク）
-2. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
+1. **Coat Scriptorium S0: monorepo一括移行**（ST-01〜03・coat-scriptorium_技術計画_v1.md §7。ST-03はPages Root directory変更のユーザーアクション込み。**着手前にcodex本体のリリース/アナウンス状況を確認**=S1のRecipeDoc v3はアナウンス前完了が最安全・計画§8-9）
+2. 一覧の破損/未来バージョン文書スキップのUX改善（エラーカード表示等・B-4レビューL-1残件。i18n・§2.7エラー提示方針との整合が必要なため独立タスク）
+3. （v1後のバックログ・計画§7）生成AI相談レシピ取り込み（v2.4候補）／工程グループ拡張（v2.4候補）
 
 - ~~【優先・リリース前】使い方ページ＋Q&Aページ~~ **完了（2026-07-05。PR #33マージ済み・上記「完了」参照）**
 
