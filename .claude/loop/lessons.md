@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-08 scriptorium-s4-st20 canvas系タスクは純関数＋依存注入でロジックをユニット化し実canvasはブラウザで焼込画素まで検証／低リスク純変換はopusレビューを裁定省略 [GOOD]
+
+- 事象: ST-20（codex coverComposer＝crop焼込＋WebP品質二分探索）で、canvasがjsdom不動という制約に対し、lessons M2-dataの定石「①依存注入+spyでロジックをユニット ②実APIはブラウザ検証」を適用。`computeCropPixelRect`/`findWebpQualityBlob`を純関数化し、`composeCover`は`decode`/`encodeRegion`注入で二分探索の収束・dest寸法・ソース矩形をspy検算（canvas不要）。実canvasは**セッションがpreview_evalで`import('/src/lib/coverComposer.ts')`し、ノイズ実画像→composeCover→出力WebPを`createImageBitmap`で復号し、寸法(1600×1200)・サイズ(395KB=200-400KB帯命中)・thumb(55KB)に加え、左上cropのcover中心画素RGB[213,35,36]=赤優勢で「9引数drawImageの焼込が正しい」ことまで検証**。opusレビューは「純クライアント変換・セキュリティ/永続化面なし」を理由に裁定省略（一次ロジック解析＋網羅ユニット＋実canvas検証で担保）。implは今回もtsc型検査でunion型`naturalWidth`エラーを自己捕捉（tsc-gateルール3回目の実効）
+- 原因（GOODの機序）: ①DOM/canvas依存は「純関数（座標・サイズ・探索ロジック）」と「DOM glue（canvas encode）」に分離すれば、前者はjsdomでユニット化でき後者はブラウザ検証に回せる ②画像生成物の検証は「type/サイズ/寸法」だけでなく「復号して画素をサンプルし変換（crop焼込・描画順）が意図どおりか」まで見て初めて中身を担保できる（share-card-v2の「生成物は中身まで見る」の canvas版） ③レビューのaltitudeは対象のリスク面（security/data-integrity/UI意匠）で決める＝純変換でそれらが無いタスクは、一次解析＋ユニット＋実機検証で代替してよい
+- 一般化ルール (次ループの指示文としてそのまま使える形で): canvas/画像生成系のimplは「純関数（座標・探索・サイズ算出）＋DOM glue（encode/decode注入）」に分離させ、純関数はユニット・glueはブラウザ検証と役割を分ける（`composeCover`型の注入depsが定石）。生成画像のブラウザ検証は、出力を`createImageBitmap`等で復号し**寸法・サイズに加えて画素サンプルで変換の正しさ（crop焼込は既知色クアドラントの中心画素）を確認**する。レビューのaltitudeは対象のリスク面で決める＝security/永続化/データ整合/意匠仕様の突き合わせが無い純変換タスクは、セッションの一次ロジック解析＋網羅ユニット＋実機検証で担保しopusレビュー1ラウンドを省略してよい（省略の根拠を出口に明記する）
+- 反映先: loop prompt（canvas系の純関数/glue分離とブラウザ画素検証・レビューaltitude裁定）
+- 発生回数: 1回目（tsc-gateルールは3回目の実効＝下記ST-19エントリに合算。canvas純関数分離＝M2-dataの相の再適用・レビューaltitude裁定＝新）
+
 ## 2026-07-08 scriptorium-s4-st19 前ループのtsc完了条件ルールを適用し型リグレッションを実装内で自己捕捉／D1フェイクの正規表現ディスパッチは列名で新旧分岐を判別 [GOOD]
 
 - 事象: ST-19（DELETE /api/recipes/:id）のimpl委譲で、前ループ（ST-18）のBAD学び「新規ファイル追加タスクの完了条件に`npm run build`(tsc)を含める」を適用した結果、implが作業中に自らTS6133（未使用paramのtsc失敗）を検出・修正し、型リグレッションが成果物に残らなかった（ST-18ではvitest素通り→build露見→追加委譲を要したのが、ST-19では委譲内で解決）。また、既存の`status='published'`固定の詳細SELECT分岐を壊さずに「全status取得の削除用フェッチ分岐」を追加する際、両SQLが`FROM recipes`+`WHERE id=?`にマッチする衝突を、削除フェッチ側のみが持つ列名`delete_pw_hash`を判別条件にし、かつ**詳細分岐より前に配置**することで解決。review R1(M1/L2/L3)→修正→**同一レビュアーへSendMessageでRound2依頼**（文脈保持・再Read不要）→PASS(C0/H0/M0/L0)も定石どおり機能

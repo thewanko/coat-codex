@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (loop: Scriptorium S4(2/5)=ST-19 DELETE /api/recipes/:id 実装・未コミット)
+最終更新: 2026-07-08 (loop: Scriptorium S4(3/5)=ST-20 codex coverComposer 実装・未コミット)
 
 ## 完了
+
+- 2026-07-08: **Scriptorium S4(3/5): ST-20 codex coverComposer**（**未コミット**・ブランチ`impl/scriptorium-s4-cover-composer`・delete-recipe基点にスタック） — `apps/codex/src/lib/coverComposer.ts`＝投稿用cover/thumb生成。**純関数＋依存注入で分解**（canvasはjsdom不動＝lessons M2-dataの定石）: `computeCropPixelRect`(crop正規化[0,1]→ソース画素矩形・境界クランプ・sw/sh最低1px)／`findWebpQualityBlob`(WebP品質二分探索・端点先行確認→残steps二分・`maxBytes`厳守・`minBytes`未満はq上げ優先)／`composeCover`(decode/encodeRegion注入・既定はcanvas `drawImage`9引数焼込＋`toBlob("image/webp",q)`)。cover=長辺≤1600px・maxBytes=400KB(450KB厳守の内側)・minBytes=200KB／thumb=長辺≤400px・≤80KB。**`computeCoverSourceRect`(sns/imageComposer)は再利用せず**（固定アスペfit用で目的違い）・`calcTargetSize`/`decodeToBitmap`/`CropRect`は再利用・`encodeFromSource`はquality0.9固定で不可。**implがtsc型検査でunion型`naturalWidth`エラーを自己捕捉**→`img.width/height`へ(decodeToBitmapがEXIF回転を画素に焼くため正)。**🖐実canvasブラウザ検証(セッション)**: ノイズ2400×1800画像で①全面cover=image/webp・**395KB**(200-400KB帯命中)・**1600×1200**(アスペ保持)・thumb 55KB ②左上crop`{0,0,0.5,0.5}`のcover=1200×900・中心画素RGB[213,35,36]=赤優勢＝**9引数drawImage焼込が正しい**。**opusレビューは省略裁定**(純クライアント変換・セキュリティ/永続化面なし・一次ロジック解析＋網羅ユニット＋実canvas検証で担保)。全ゲート緑: `npm run build`(tsc含む)・lint・prettier exit 0・ルート`npm test` **1372件**(+4)。**残**: ST-22(post-guide)コード先行可／ST-21(PublishDialog＝coverComposer＋publishedRecipeStrictSchema＋Turnstile。ユーザーアクション=Turnstileウィジェット作成待ち)
 
 - 2026-07-08: **Scriptorium S4(2/5): ST-19 DELETE /api/recipes/:id 本人削除**（**未コミット**・ブランチ`impl/scriptorium-s4-delete-recipe`。ST-18部品を再利用） — `server/routes/deleteRecipe.ts`＝処理順「body parse→**rate limit(del:5/日/IP/レシピ・存在確認より前でPWブルートフォース＋id列挙を抑止)**→フェッチ→PBKDF2照合(`verifyDeletePassword`定数時間)→D1 status='deleted'+deleted_at→R2 cover/thumb削除(best-effort)→200」。失敗コード=400(body)/429(rate)/404(不存在・既deleted一律＝存在秘匿)/403(PW不一致)。全returnにCORS(coat-codex.com)。`app.ts`にDELETE結線(GET同一パスのmethod振り分け)。**D1フェイク拡張**=削除用フェッチSELECT分岐(`delete_pw_hash`列名で判別・**詳細分岐より前に配置**して全status取得・公開詳細SELECTは列名非含で誤流入なし)＋UPDATE分岐(`/UPDATE recipes/ && /deleted_at = ?/`厳格化)。**R2フェイク**=delete追加。キャッシュ無効化なし(§4.5 TTL失効委譲)。**前ループのtsc完了条件ルールを適用**=implが作業中にTS6133を自己捕捉(ST-18のbuild露見→追加委譲を回避)。**review R1 PASS(C0/H0/M1/L2)**→修正〔M1=R2削除をtry/catchでbest-effort化(コメントと実装の一致・R2失敗でも200・D1削除は達成済み・孤児は不可推測id許容)＋回帰テスト／L2=ip null合体一本化／L3=UPDATE分岐厳格化〕→**同一レビュアーSendMessage Round2 PASS(C0/H0/M0/L0)**。全ゲート緑: `npm run build`(両workspace＋worker bundle)・lint・prettier exit 0・ルート`npm test` **1368件**(+14)。**残**: ST-20(codex coverComposer)・ST-22(post-guide)コード先行可／ST-21(PublishDialog＋Turnstile実疎通)はユーザーアクション=Turnstileウィジェット作成待ち
 
@@ -86,11 +88,11 @@
 
 ## 進行中
 
-- なし（S4: ST-18=PR #46マージ済み・ST-19=2026-07-08実装完了・**未コミット**（ブランチ`impl/scriptorium-s4-delete-recipe`）・「完了」欄参照。次=ST-20/22のコード先行）
+- なし（S4: ST-18=PR #46マージ済み・ST-19=PR #47・ST-20=2026-07-08実装完了・**未コミット**（ブランチ`impl/scriptorium-s4-cover-composer`・delete-recipe基点スタック）・「完了」欄参照。次=ST-22のコード先行）
 
 ## 次の候補 (優先順)
 
-1. **Coat Scriptorium S4残（ST-20/22コード先行→ST-21）**（計画§7。~~ST-18 POST~~=PR #46マージ済み・~~ST-19 DELETE~~=実装済み未コミット。次=**ST-20**(codex `apps/codex/src/lib/coverComposer.ts`＝photoCropsをcanvas焼込→長辺1600px WebP品質二分探索200-400KB＋400pxサムネ。`calcTargetSize`/`decodeToBitmap`再利用・`encodeFromSource`はquality0.9固定で再利用不可＝`canvas.toBlob(_,"image/webp",q)`直呼び・crop焼込のソース矩形は既存`imageComposer.computeCoverSourceRect`を精査)・**ST-22**(`apps/scriptorium/src/routes/PostGuidePage.tsx`＝現在`<h1>`スタブ→§5.1「投稿はcodexから」導線＋ポリシー要約・EN/JA i18n)。**ST-21(PublishDialog＋Turnstile実疎通)前にユーザーアクション: Turnstileウィジェット作成**〔サイトキー/シークレット発行・ホスト名許可〕）
+1. **Coat Scriptorium S4残（ST-22コード先行→ST-21）**（計画§7。~~ST-18 POST~~=PR #46マージ済み・~~ST-19 DELETE~~=PR #47・~~ST-20 coverComposer~~=実装済み未コミット。次=**ST-22**(`apps/scriptorium/src/routes/PostGuidePage.tsx`＝現在`<h1>`スタブ→§5.1「投稿はcodexから」導線＋ポリシー要約・EN/JA i18n・locales/en.json/ja.jsonに`postGuide.*`キー追加)。**ST-21**(codex `PublishDialog.tsx`＝§6-1: `toPublishedRecipe`変換＋削減内容プレビュー・cover選択で`coverComposer.composeCover`呼び出し・handle/削除PW入力・`publishedRecipeStrictSchema`送信前検証→`POST .../api/recipes`・完了画面URL/PWコピー・Dexie metaに`scriptoriumPost:<id>`記録。**着手前ユーザーアクション: Turnstileウィジェット作成**〔サイトキー/シークレット発行・ホスト名許可・`VITE_TURNSTILE_SITEKEY`〕)）
 1'. ~~S3残ユーザーアクション~~ **完了（2026-07-07夜。S3完了条件達成・上記「S3クローズ」参照）**
 2. ~~Coat Scriptorium S3~~ **完了（2026-07-07。PR: impl/scriptorium-s3-foundation・上記「完了」参照。ユーザーアクションのみ残）**
 2. ~~Coat Scriptorium S2~~ **完了（2026-07-07。PR: impl/scriptorium-s2-recipe-ui・上記「完了」参照）**
