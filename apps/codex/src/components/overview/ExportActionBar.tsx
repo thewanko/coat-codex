@@ -14,6 +14,11 @@
 // モバイル(<768px)は下部固定の横並びバーを廃止し「出力・共有」ボタン1つに集約→
 // タップでボトムシート（デザイン仕様書§4「Dialog / Modal」: モバイルはボトムシート化可、
 // 上角のみradius）を開く。PC幅(≥768px)は従来のピル群のまま変更しない。
+//
+// ST-21: 「Scriptoriumに公開」ボタン（PublishDialogを開く）をSNS共有ボタンの隣に追加。
+// PublishDialogはShareDialogと同じ「兄弟レンダー」方式（ExportActionsとMobileExportRootの
+// 直下）を取る。理由もShareDialogと同じ: .sheetはtransition: transformを持つため、
+// backdrop=position: fixedのダイアログを.sheet配下に置くとtransform祖先の影響を受ける。
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
@@ -21,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import type { RecipeDoc } from "@coat-codex/recipe-core";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
 import MarkdownCopyFallbackDialog from "../common/MarkdownCopyFallbackDialog";
+import PublishDialog from "./PublishDialog";
 import ShareDialog from "./ShareDialog";
 import styles from "./ExportActionBar.module.css";
 import { shouldCloseFromDrag } from "./exportSheetDrag";
@@ -82,6 +88,9 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
     shareDialogOpen,
     shareDialogContext,
     handleCloseShareDialog,
+    handleOpenPublish,
+    publishDialogOpen,
+    handleClosePublish,
   } = useExportActions(recipe, onExported);
 
   return (
@@ -104,6 +113,14 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
         onClick={handleShareSns}
       >
         {t("export.shareSns")}
+      </button>
+      <button
+        type="button"
+        className={styles.pill}
+        disabled={recipe === null}
+        onClick={handleOpenPublish}
+      >
+        {t("publish.openButton")}
       </button>
       <button
         type="button"
@@ -159,6 +176,14 @@ function ExportActions({ recipe, onExported }: ExportActionsProps) {
           context={shareDialogContext}
         />
       )}
+
+      {publishDialogOpen && recipe && (
+        <PublishDialog
+          open={publishDialogOpen}
+          recipe={recipe}
+          onClose={handleClosePublish}
+        />
+      )}
     </>
   );
 }
@@ -186,6 +211,7 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
     noteMdCopied,
     handlePrint,
     handleShareSns,
+    handleOpenPublish,
   } = actions;
 
   return (
@@ -215,6 +241,23 @@ function ExportSheetActions({ recipe, actions }: ExportSheetActionsProps) {
           onClick={handleShareSns}
         >
           {t("export.shareSns")}
+        </button>
+      </div>
+
+      <span className={styles.sheetDividerRow} aria-hidden="true">
+        <span className={styles.sheetDividerLine} />
+        <span className={styles.sheetDividerDiamond} />
+        <span className={styles.sheetDividerLine} />
+      </span>
+
+      <div className={styles.sheetGroup}>
+        <button
+          type="button"
+          className={styles.sheetButton}
+          disabled={recipe === null}
+          onClick={handleOpenPublish}
+        >
+          {t("publish.openButton")}
         </button>
       </div>
 
@@ -467,6 +510,13 @@ function MobileExportRoot({ recipe, onExported }: MobileExportRootProps) {
             onClose={actions.handleCloseNoteMdFallback}
           />
         )}
+      {actions.publishDialogOpen && recipe && (
+        <PublishDialog
+          open={actions.publishDialogOpen}
+          recipe={recipe}
+          onClose={actions.handleClosePublish}
+        />
+      )}
     </div>
   );
 }
