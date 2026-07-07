@@ -7,7 +7,7 @@
 // 呼び出し側=PartCardList/RecipeOverviewPageの責務）。
 
 import { useTranslation } from "react-i18next";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import styles from "./AddPartButton.module.css";
 
 export type RecipePart = RecipeDoc["parts"][number];

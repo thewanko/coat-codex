@@ -9,7 +9,7 @@ import {
   reducePercentsToRatio,
   sumPercents,
   type MixState,
-} from "../../lib/mixRatio";
+} from "@coat-codex/recipe-core";
 import styles from "./MixRatioInput.module.css";
 
 interface MixRatioInputProps {

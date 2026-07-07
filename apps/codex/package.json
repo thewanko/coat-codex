@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@coat-codex/recipe-core": "*",
     "@dnd-kit/core": "^6",
     "@dnd-kit/sortable": "^10",
     "@dnd-kit/utilities": "^3",

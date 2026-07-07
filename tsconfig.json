@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./apps/codex/tsconfig.app.json" },
-    { "path": "./apps/codex/tsconfig.node.json" }
+    { "path": "./apps/codex/tsconfig.node.json" },
+    { "path": "./packages/recipe-core/tsconfig.json" }
   ]
 }

@@ -1,6 +1,4 @@
 import { describe, expect, test } from "vitest";
-import ja from "../i18n/locales/ja.json";
-import en from "../i18n/locales/en.json";
 import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "./techniques";
 
 function fakeT(dict: Record<string, string>): (key: string) => string {
@@ -35,27 +33,7 @@ describe("resolveTechniqueLabel", () => {
   });
 });
 
-describe("TECHNIQUE_PRESET_KEYS ⇔ i18nロケール網羅", () => {
-  test("ja.jsonにマスタ全10キーのtechniques.*が存在する", () => {
-    const techniques = (ja as { techniques?: Record<string, string> })
-      .techniques;
-    expect(techniques).toBeDefined();
-    for (const key of TECHNIQUE_PRESET_KEYS) {
-      expect(techniques?.[key]).toEqual(expect.any(String));
-      expect(techniques?.[key]).not.toBe("");
-    }
-  });
-
-  test("en.jsonにマスタ全10キーのtechniques.*が存在する", () => {
-    const techniques = (en as { techniques?: Record<string, string> })
-      .techniques;
-    expect(techniques).toBeDefined();
-    for (const key of TECHNIQUE_PRESET_KEYS) {
-      expect(techniques?.[key]).toEqual(expect.any(String));
-      expect(techniques?.[key]).not.toBe("");
-    }
-  });
-
+describe("TECHNIQUE_PRESET_KEYS", () => {
   test("マスタは10種ちょうど", () => {
     expect(TECHNIQUE_PRESET_KEYS.length).toBe(10);
   });

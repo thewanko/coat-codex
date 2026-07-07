@@ -27,7 +27,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { CropRect, PaletteColor, Step } from "../../models/recipe";
+import type { CropRect, PaletteColor, Step } from "@coat-codex/recipe-core";
 import StepCard from "./StepCard";
 import EmptyState from "../common/EmptyState";
 import AddStepButton from "./AddStepButton";

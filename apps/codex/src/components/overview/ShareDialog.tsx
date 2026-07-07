@@ -34,11 +34,15 @@ import {
   type ComposedShareImage,
   type ShareContext as ComposerShareContext,
 } from "../../lib/sns/imageComposer";
-import { formatMixBadge, isMixTotalValid } from "../../lib/mixRatio";
 import { loadBrandColors } from "../../lib/paintPresets";
-import { resolveTechniqueLabel } from "../../lib/techniques";
 import { snsTargets } from "../../lib/sns/types";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import {
+  formatMixBadge,
+  isMixTotalValid,
+  resolveTechniqueLabel,
+  type RecipeDoc,
+  type Step,
+} from "@coat-codex/recipe-core";
 import { useToast } from "../common/toastContext";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareImagePreview, {

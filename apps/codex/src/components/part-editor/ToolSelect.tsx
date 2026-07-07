@@ -1,7 +1,7 @@
 // components/part-editor/ToolSelect.tsx — 工程のツール選択（技術計画v2.3 §3.3 StepCard・§4.2 T24・V-3）
 //
 // 編集中レシピのtools（RecipeDoc.tools）をuseRecipeStore（T16）から取得して候補表示する。
-// Step.toolIds（models/recipe.ts）はtools[].idを参照する配列（§2.6参照整合性）で、
+// Step.toolIds（@coat-codex/recipe-core）はtools[].idを参照する配列（§2.6参照整合性）で、
 // 複数選択・重複不可（INV-9）。
 //
 // v2.3: 「その場追加＋登録済み選択」に拡張。tools0件時もeditor.toolEmpty案内は出さず、
@@ -19,7 +19,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../../stores/useRecipeStore";
-import type { Tool } from "../../models/recipe";
+import type { Tool } from "@coat-codex/recipe-core";
 import styles from "./ToolSelect.module.css";
 
 interface ToolSelectProps {

@@ -6,7 +6,7 @@ import {
   PENDING_COLOR_PREFIX,
   stripPendingPaints,
 } from "./pendingPaints";
-import type { MixState } from "./mixRatio";
+import type { MixState } from "@coat-codex/recipe-core";
 
 describe("isPendingColorId", () => {
   test("col_pending_プレフィックスを持つIDはtrue", () => {

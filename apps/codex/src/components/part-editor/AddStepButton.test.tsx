@@ -4,7 +4,7 @@ import "../../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
-import { stepSchema } from "../../models/recipe";
+import { stepSchema } from "@coat-codex/recipe-core";
 import AddStepButton from "./AddStepButton";
 
 beforeAll(() => {

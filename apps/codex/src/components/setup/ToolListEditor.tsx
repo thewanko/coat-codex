@@ -1,6 +1,6 @@
 // components/setup/ToolListEditor.tsx — 使用ツール先行登録（技術計画v2.2 §4.2 T23・D-7・§2.6）
 //
-// テキスト入力＋追加ボタンでtoolsへ追加、各行に使用数バッジ（lib/recipeRefs.ts
+// テキスト入力＋追加ボタンでtoolsへ追加、各行に使用数バッジ（@coat-codex/recipe-core
 // countToolUsage）を表示し、使用中（工程から参照）ツールは削除不可＋同注記、
 // 使用数0は「未使用」バッジ（faint枠）＋削除✕活性
 // （デザイン仕様書§4「PaletteEditor / ToolListEditor行」）。重複追加を防止する
@@ -11,8 +11,11 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { RecipeDoc, Tool } from "../../models/recipe";
-import { countToolUsage } from "../../lib/recipeRefs";
+import {
+  countToolUsage,
+  type RecipeDoc,
+  type Tool,
+} from "@coat-codex/recipe-core";
 import styles from "./EditorRow.module.css";
 import sectionStyles from "./SetupSection.module.css";
 

@@ -5,14 +5,18 @@
 // `---`区切り線。h1(`# `)・h4以降・太字(`**`)・リンク・画像・表は変換されない（生テキスト残留）ため
 // 使用しない（2026-07-03ユーザー実機報告を受け再設計）。
 // データ取得・混合バッジ・技法名解決はmarkdown.tsと同一の単一情報源
-// （lib/mixRatio.ts formatMixBadge・lib/techniques.ts resolveTechniqueLabel）を使う。
+// （@coat-codex/recipe-core formatMixBadge・resolveTechniqueLabel）を使う。
 // 素のMarkdown（markdown.ts）との違い: 絵文字装飾・区切り線(---)・末尾ハッシュタグを付与し、
 // 1工程1行の番号付きリストへ圧縮することでnote.com記事としての読みやすさを優先する。
 
-import { formatMixBadge } from "../mixRatio";
-import { resolveTechniqueLabel, TECHNIQUE_PRESET_KEYS } from "../techniques";
 import { sanitizeMarkdownText } from "./markdownSanitize";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import {
+  formatMixBadge,
+  resolveTechniqueLabel,
+  TECHNIQUE_PRESET_KEYS,
+  type RecipeDoc,
+  type Step,
+} from "@coat-codex/recipe-core";
 
 /** i18n未接続時（テスト等）の技法名フォールバック辞書。markdown.tsと同一内容（重複防止のためexportはしない） */
 const FALLBACK_TECHNIQUE_LABELS: Record<

@@ -14,7 +14,7 @@
 // 実体のないIDでも zod は写真参照の実体存在を検証しない（§2.5-16）ため、
 // photoId には photos テーブル同梱なしのダミーIDをそのまま使ってよい。
 
-import type { RecipeDoc, Step } from "../../src/models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 /** 混色・合計100・約分可能（3:2） → バッジ "60% + 40% (3:2)" */
 export function stepMixReducible(overrides: Partial<Step> = {}): Step {
@@ -138,7 +138,7 @@ export function createFixtureRecipe(
   overrides: Partial<RecipeDoc> = {},
 ): RecipeDoc {
   const base: RecipeDoc = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id: "rcp_fixture",
     title: "Space Marine Captain",
     createdAt: "2026-07-02T10:00:00.000Z",
@@ -198,6 +198,7 @@ export function createFixtureRecipe(
       },
     ],
     photoCrops: {},
+    source: null,
   };
 
   return { ...base, ...overrides };

@@ -9,8 +9,7 @@ import { createRoot } from "react-dom/client";
 import "../i18n";
 import ToastHost from "../components/common/ToastHost";
 import PaintSlotList from "../components/part-editor/PaintSlotList";
-import type { MixState } from "../lib/mixRatio";
-import type { PaletteColor } from "../models/recipe";
+import type { MixState, PaletteColor } from "@coat-codex/recipe-core";
 
 declare global {
   interface Window {

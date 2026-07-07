@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { RecipeDoc, Step } from "../models/recipe";
+import type { RecipeDoc, Step } from "../schema/recipe";
 import { countColorUsage, countToolUsage } from "./recipeRefs";
 
 /** テスト用Step生成ヘルパー。paints/toolIdsのみ指定し他は最小固定値で埋める */
@@ -20,7 +20,7 @@ function makeDoc(
   overrides: Partial<Pick<RecipeDoc, "baseSteps" | "parts">>,
 ): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "recipe_1",
     title: "テストレシピ",
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -31,6 +31,7 @@ function makeDoc(
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

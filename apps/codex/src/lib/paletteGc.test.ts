@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from "vitest";
 import { gcUnusedPaletteColors } from "./paletteGc";
-import type { PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type { PaletteColor, RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 function makeColor(overrides: Partial<PaletteColor> = {}): PaletteColor {
   return {
@@ -32,7 +32,7 @@ function makeStep(overrides: Partial<Step> = {}): Step {
 
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テスト",
     createdAt: "2026-07-01T00:00:00.000Z",
@@ -43,6 +43,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

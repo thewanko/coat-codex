@@ -30,7 +30,7 @@
 import "fake-indexeddb/auto";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { db, type PhotoRecord } from "../src/db/db";
-import type { RecipeDoc, Step } from "../src/models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import {
   exportRecipeToBlob,
   type JsonExportDeps,

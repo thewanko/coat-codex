@@ -114,6 +114,60 @@ describe("migrateRecipeDoc", () => {
 
     expect(result.photoCrops).toEqual({});
   });
+
+  test("本番docRegistry: v2文書→v3でsource: nullが付与される（技術計画v1 §2.5・ST-07）", () => {
+    const v2Doc = {
+      schemaVersion: 2,
+      id: "rcp_1",
+      title: "test",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+      photoCrops: { ph_1: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 } },
+    };
+
+    const result = migrateRecipeDoc(v2Doc, 2) as {
+      schemaVersion: number;
+      source: unknown;
+      photoCrops: unknown;
+    };
+
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.source).toBeNull();
+    // v2→v3ではphotoCropsの内容は変化しない（保持されること）の回帰確認
+    expect(result.photoCrops).toEqual({
+      ph_1: { x: 0.1, y: 0.1, w: 0.5, h: 0.5 },
+    });
+  });
+
+  test("本番docRegistry: v1文書→v3チェーンでphotoCrops: {}とsource: nullの両方が付与される（技術計画v1 §2.5・ST-07）", () => {
+    const v1Doc = {
+      schemaVersion: 1,
+      id: "rcp_1",
+      title: "test",
+      createdAt: "2026-07-01T00:00:00.000Z",
+      updatedAt: "2026-07-01T00:00:00.000Z",
+      overviewPhotoIds: [],
+      palette: [],
+      tools: [],
+      baseSteps: [],
+      parts: [],
+    };
+
+    const result = migrateRecipeDoc(v1Doc, 1) as {
+      schemaVersion: number;
+      photoCrops: unknown;
+      source: unknown;
+    };
+
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.photoCrops).toEqual({});
+    expect(result.source).toBeNull();
+  });
 });
 
 describe("migrateExportFile", () => {
@@ -212,6 +266,72 @@ describe("migrateExportFile", () => {
 
     expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(result.recipe.photoCrops).toEqual({});
+    expect(result.photos).toEqual(file.photos);
+  });
+
+  test("本番レジストリ: v2エクスポートファイル→v3でrecipeにsource: null付与・photosは恒等通過する（CRITICAL: photosRegistry[2]欠落でMissingMigrationErrorになる回帰防止）", () => {
+    const file = {
+      app: "coat-codex",
+      kind: "recipe-export",
+      schemaVersion: 2,
+      exportedAt: "2026-07-01T00:00:00.000Z",
+      recipe: {
+        schemaVersion: 2,
+        id: "rcp_1",
+        title: "test",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+        overviewPhotoIds: [],
+        palette: [],
+        tools: [],
+        baseSteps: [],
+        parts: [],
+        photoCrops: {},
+      },
+      photos: [{ id: "ph_1", dataUrl: "data:image/png;base64,AAAA" }],
+    };
+
+    const result = migrateExportFile(file, 2) as {
+      schemaVersion: number;
+      recipe: { source: unknown };
+      photos: unknown;
+    };
+
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.recipe.source).toBeNull();
+    expect(result.photos).toEqual(file.photos);
+  });
+
+  test("本番レジストリ: v1エクスポートファイル→v3チェーンでrecipeにphotoCrops付与とsource: null付与の両方が起こる（CRITICAL: photosRegistry[1]・[2]両方欠落なく通ること）", () => {
+    const file = {
+      app: "coat-codex",
+      kind: "recipe-export",
+      schemaVersion: 1,
+      exportedAt: "2026-07-01T00:00:00.000Z",
+      recipe: {
+        schemaVersion: 1,
+        id: "rcp_1",
+        title: "test",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        updatedAt: "2026-07-01T00:00:00.000Z",
+        overviewPhotoIds: [],
+        palette: [],
+        tools: [],
+        baseSteps: [],
+        parts: [],
+      },
+      photos: [{ id: "ph_1", dataUrl: "data:image/png;base64,AAAA" }],
+    };
+
+    const result = migrateExportFile(file, 1) as {
+      schemaVersion: number;
+      recipe: { photoCrops: unknown; source: unknown };
+      photos: unknown;
+    };
+
+    expect(result.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(result.recipe.photoCrops).toEqual({});
+    expect(result.recipe.source).toBeNull();
     expect(result.photos).toEqual(file.photos);
   });
 });

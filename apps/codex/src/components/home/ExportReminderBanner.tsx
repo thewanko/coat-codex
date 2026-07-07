@@ -24,7 +24,7 @@ import { exportRecipeToBlob } from "../../lib/exporters/json";
 import { recordRecipeExport, snoozeReminder } from "../../lib/storageHealth";
 import { useToast } from "../common/toastContext";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import styles from "./ExportReminderBanner.module.css";
 
 const SNOOZE_DAYS = 7;

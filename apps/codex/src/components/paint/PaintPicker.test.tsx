@@ -11,7 +11,7 @@ import i18next from "../../i18n";
 import PaintPicker from "./PaintPicker";
 import ToastHost from "../common/ToastHost";
 import { savePhoto } from "../../db/photoStore";
-import type { PaletteColor } from "../../models/recipe";
+import type { PaletteColor } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

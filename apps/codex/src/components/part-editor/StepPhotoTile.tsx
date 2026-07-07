@@ -20,7 +20,7 @@ import CroppedPhoto from "../common/CroppedPhoto";
 import PhotoCropDialog from "../common/PhotoCropDialog";
 import { CropIcon } from "../common/PhotoUploader";
 import Skeleton from "../common/Skeleton";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./StepPhotoTile.module.css";
 
 interface StepPhotoTileProps {

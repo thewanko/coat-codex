@@ -1,14 +1,14 @@
 // components/home/duplicateRecipe.ts — レシピ複製（技術計画v2.2 T33: RecipeCardメニュー「複製」）
 //
-// reassignRecipeIds（lib/importRecipe.ts・T30）で全ID新規採番・参照リマップした複製文書を作り、
-// 当該レシピのphotosもphotoIdMapに沿って新IDで複製する（Blobはそのままコピー。§2.6）。
+// reassignRecipeIds（@coat-codex/recipe-core・T30／ST-06でrecipe-coreへ移設）で全ID新規採番・
+// 参照リマップした複製文書を作り、当該レシピのphotosもphotoIdMapに沿って新IDで複製する
+// （Blobはそのままコピー。§2.6）。
 // Dexie rwトランザクションでrecipes.add＋photos.bulkAddをまとめ、失敗時はロールバックする
 // （importRecipeの書き込み方針と同一）。
 
 import { db, type PhotoRecord } from "../../db/db";
 import { collectPhotosForExport } from "../../db/photoStore";
-import { reassignRecipeIds } from "../../lib/importRecipe";
-import type { RecipeDoc } from "../../models/recipe";
+import { reassignRecipeIds, type RecipeDoc } from "@coat-codex/recipe-core";
 
 /**
  * 指定レシピを複製する。新しいRecipeDoc（新ID・updatedAt=now）を返す。

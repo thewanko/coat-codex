@@ -18,7 +18,7 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "../common/useFocusTrap";
 import PhotoUploader from "../common/PhotoUploader";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./OverviewPhotoDialog.module.css";
 
 interface OverviewPhotoDialogProps {

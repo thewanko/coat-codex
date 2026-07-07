@@ -11,7 +11,7 @@ import {
   recordPersistResult,
   requestPersist,
 } from "../../lib/storageHealth";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -42,7 +42,7 @@ vi.mock("../../lib/storageHealth", async () => {
 
 function makeDraft(): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_new",
     title: "無題のレシピ",
     createdAt: "2026-07-02T00:00:00.000Z",
@@ -53,6 +53,7 @@ function makeDraft(): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
   };
 }
 

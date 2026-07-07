@@ -15,7 +15,7 @@ import {
 // --- §2.1のJSONC例に相当する完全なRecipeDocフィクスチャ ---
 function makeValidRecipeDoc(): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "Space Marine Captain",
     createdAt: "2026-07-02T10:00:00.000Z",
@@ -71,6 +71,7 @@ function makeValidRecipeDoc(): RecipeDoc {
       },
     ],
     photoCrops: {},
+    source: null,
   };
 }
 
@@ -91,7 +92,7 @@ function makeValidExportFile(): RecipeExportFile {
   return {
     app: "coat-codex",
     kind: "recipe-export",
-    schemaVersion: 1,
+    schemaVersion: 3,
     exportedAt: "2026-07-02T13:00:00.000Z",
     recipe: makeValidRecipeDoc(),
     photos: [
@@ -549,6 +550,46 @@ describe("recipeDocSchema — photoCrops（技術計画v2.2 §2.1/§3.4）", () 
   test("拒否: photoCrops内の不正な矩形（x+w>1）は文書全体を拒否する", () => {
     const doc = makeValidRecipeDoc();
     doc.photoCrops = { ph_1: { x: 0.8, y: 0.1, w: 0.5, h: 0.1 } };
+    expect(recipeDocSchema.safeParse(doc).success).toBe(false);
+  });
+});
+
+describe("recipeDocSchema — source（技術計画v1 §2.5・ST-07）", () => {
+  test("受理: sourceがnull（codex内新規作成・migration補完後の既定値）", () => {
+    const doc = makeValidRecipeDoc();
+    doc.source = null;
+    expect(recipeDocSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("受理: sourceが正しい形（scriptoriumId/author/importedAt）", () => {
+    const doc = makeValidRecipeDoc();
+    doc.source = {
+      scriptoriumId: "scr_1",
+      author: "名無しの塗装師",
+      importedAt: "2026-07-07T00:00:00.000Z",
+    };
+    expect(recipeDocSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("拒否: sourceフィールド自体が欠落している文書（v3で必須）", () => {
+    const doc = makeValidRecipeDoc() as Partial<RecipeDoc>;
+    delete doc.source;
+    expect(recipeDocSchema.safeParse(doc).success).toBe(false);
+  });
+
+  test("拒否: sourceが不正な型（文字列）", () => {
+    const doc = makeValidRecipeDoc() as unknown as Record<string, unknown>;
+    doc.source = "not-an-object";
+    expect(recipeDocSchema.safeParse(doc).success).toBe(false);
+  });
+
+  test("拒否: source.importedAtがISO 8601でない", () => {
+    const doc = makeValidRecipeDoc();
+    doc.source = {
+      scriptoriumId: "scr_1",
+      author: "名無しの塗装師",
+      importedAt: "2026/07/07 00:00:00",
+    };
     expect(recipeDocSchema.safeParse(doc).success).toBe(false);
   });
 });

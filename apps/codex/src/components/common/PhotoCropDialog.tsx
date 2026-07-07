@@ -1,6 +1,6 @@
 // components/common/PhotoCropDialog.tsx — 非破壊クロップUI（実装計画B-2）
 //
-// 元写真は変更せず、クロップ矩形（0〜1正規化。models/recipe.ts CropRect）のみを
+// 元写真は変更せず、クロップ矩形（0〜1正規化。@coat-codex/recipe-core CropRect）のみを
 // 親へ返す制御された表示部品。永続化（doc.photoCropsへの反映）は親の責務。
 //
 // 矩形操作: ドラッグで移動・四隅ハンドルでリサイズ（Pointer Events + setPointerCapture。
@@ -39,8 +39,6 @@ import type {
 import { useTranslation } from "react-i18next";
 import { useFocusTrap } from "./useFocusTrap";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import type { CropRect } from "../../models/recipe";
-import type { ResizeHandle } from "../../lib/cropGeometry";
 import {
   ARROW_STEP,
   ARROW_STEP_LARGE,
@@ -48,7 +46,9 @@ import {
   moveCropRect,
   resizeCropRect,
   roundCropRect,
-} from "../../lib/cropGeometry";
+  type CropRect,
+  type ResizeHandle,
+} from "@coat-codex/recipe-core";
 import styles from "./PhotoCropDialog.module.css";
 
 interface PhotoCropDialogProps {

@@ -5,7 +5,7 @@
 
 import { useTranslation } from "react-i18next";
 import PhotoUploader from "../common/PhotoUploader";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./SetupSection.module.css";
 
 interface OverviewPhotoUploaderProps {

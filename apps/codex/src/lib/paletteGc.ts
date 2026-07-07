@@ -7,7 +7,7 @@
 // 参照同一性（M4必須事項②）: 除去対象が1件もない場合は引数のdocをそのまま返す
 // （updater規約と同様、不要な再生成でPaintPicker等のvalue再同期を巻き戻さないため）。
 
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 /** baseSteps・全parts[].stepsを横断した全Stepの配列を返す（内部ヘルパー） */
 function allSteps(doc: RecipeDoc): RecipeDoc["baseSteps"] {

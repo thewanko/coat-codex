@@ -12,8 +12,7 @@ import i18next from "../../i18n";
 import PaintSlotList from "./PaintSlotList";
 import ToastHost from "../common/ToastHost";
 import { PENDING_COLOR_PREFIX } from "../../lib/pendingPaints";
-import type { MixState } from "../../lib/mixRatio";
-import type { PaletteColor } from "../../models/recipe";
+import type { MixState, PaletteColor } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");

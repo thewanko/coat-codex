@@ -9,8 +9,10 @@
 // （migrateExportFileはphotos部にもapplyMigrationsを適用し、レジストリ欠落は
 // MissingMigrationErrorをthrowするため、恒等登録を省略するとv1エクスポートファイルの
 // インポートが全滅する。CRITICAL）。
+// v3（source追加。§2.5・ST-07）: docRegistry[2] = v2Doc→v3Doc（source: null を付与）。
+// photosRegistry[2]もv3でphotos部の形状変化がないため恒等関数を登録する（上記と同じCRITICAL事情）。
 
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 /** RecipeDoc本体のバージョン間変換関数レジストリ。キーn = vn→vn+1変換 */
 export type DocMigrationRegistry = Record<number, (doc: unknown) => unknown>;
@@ -23,9 +25,11 @@ export type PhotosMigrationRegistry = Record<
 
 const docRegistry: DocMigrationRegistry = {
   1: (doc) => ({ ...(doc as object), schemaVersion: 2, photoCrops: {} }),
+  2: (doc) => ({ ...(doc as object), schemaVersion: 3, source: null }),
 };
 const photosRegistry: PhotosMigrationRegistry = {
   1: (photos) => photos,
+  2: (photos) => photos,
 };
 
 /** fromVersionがtargetVersionより新しい（未知の将来バージョンである）場合に投げる */

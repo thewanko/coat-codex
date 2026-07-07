@@ -14,8 +14,8 @@ import {
   saveRecipe,
   UnsupportedSchemaError,
 } from "./recipeStore";
-import { CURRENT_SCHEMA_VERSION } from "../models/migrations";
-import type { RecipeDoc } from "../models/recipe";
+import { CURRENT_SCHEMA_VERSION } from "@coat-codex/recipe-core";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeEach(async () => {
   await db.recipes.clear();
@@ -160,6 +160,7 @@ describe("listRecipes", () => {
       baseSteps: [],
       parts: [],
       photoCrops: {},
+      source: null,
     };
     await db.recipes.put(corrupt as unknown as RecipeDoc);
     const normal = await createDraft("normal recipe 2");
@@ -197,13 +198,14 @@ describe("loadRecipe: 存在しないid", () => {
 
 describe("loadRecipe: lazy migration（下位バージョン）", () => {
   test("schemaVersion < CURRENTの文書はmigrateRecipeDocを適用し、書き戻してから返す", async () => {
-    const migrationsModule = await import("../models/migrations");
+    const migrationsModule = await import("@coat-codex/recipe-core");
     const spy = vi
       .spyOn(migrationsModule, "migrateRecipeDoc")
       .mockImplementation((raw) => ({
         ...(raw as object),
         schemaVersion: CURRENT_SCHEMA_VERSION,
         photoCrops: {},
+        source: null,
       }));
 
     const now = new Date().toISOString();

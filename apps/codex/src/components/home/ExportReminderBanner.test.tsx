@@ -15,7 +15,7 @@ import ToastHost from "../common/ToastHost";
 import { exportRecipeToBlob } from "../../lib/exporters/json";
 import { recordRecipeExport, snoozeReminder } from "../../lib/storageHealth";
 import { downloadBlob } from "../common/downloadBlob";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -54,7 +54,7 @@ vi.mock("../common/downloadBlob", async () => {
 
 function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "赤い装甲",
     createdAt: "2026-06-01T00:00:00.000Z",
@@ -65,6 +65,7 @@ function makeRecipe(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

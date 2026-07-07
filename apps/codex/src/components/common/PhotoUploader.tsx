@@ -16,7 +16,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import CroppedPhoto from "./CroppedPhoto";
 import PhotoCropDialog from "./PhotoCropDialog";
 import Skeleton from "./Skeleton";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./PhotoUploader.module.css";
 
 interface PhotoUploaderProps {

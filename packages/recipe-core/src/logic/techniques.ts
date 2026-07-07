@@ -1,4 +1,4 @@
-// lib/techniques.ts — 技法プリセットの単一情報源（技術計画v2.2 §2.1末尾「指摘14」）
+// logic/techniques.ts — 技法プリセットの単一情報源（技術計画v2.2 §2.1末尾「指摘14」）
 //
 // 表示名はi18nキー "techniques.<presetKey>"（ja.json / en.jsonに全キー定義）で解決する。
 // presetKeyがマスタ外の場合（将来プリセットを削除した後の旧データ等）は

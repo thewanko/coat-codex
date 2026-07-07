@@ -17,7 +17,7 @@ import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import CroppedPhoto from "../common/CroppedPhoto";
 import Skeleton from "../common/Skeleton";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./PartEditorHeader.module.css";
 
 interface PartEditorHeaderProps {

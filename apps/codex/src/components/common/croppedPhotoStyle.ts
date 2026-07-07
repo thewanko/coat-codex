@@ -2,12 +2,12 @@
 // （実装計画B-3。react-refresh/only-export-components対応のためCroppedPhoto.tsxから分離。
 // partSwatch.tsの前例に倣う）
 //
-// 2段構造のCSS coverでクロップ矩形（models/recipe.ts CropRect。元画像に対する0〜1正規化矩形）を
+// 2段構造のCSS coverでクロップ矩形（@coat-codex/recipe-core CropRect。元画像に対する0〜1正規化矩形）を
 // 表示に反映するための、cropBox（中間要素）・img（実画像）それぞれへ適用するインラインstyleを
 // 算出する。詳細な導出根拠はcomputeCroppedPhotoStyleのコメントを参照。
 
 import type { CSSProperties } from "react";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 
 export interface NaturalSize {
   width: number;

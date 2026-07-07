@@ -34,7 +34,12 @@ import BackLink from "../components/common/BackLink";
 import PartEditorHeader from "../components/part-editor/PartEditorHeader";
 import StepPhotoStrip from "../components/part-editor/StepPhotoStrip";
 import StepList from "../components/part-editor/StepList";
-import type { CropRect, PaletteColor, RecipeDoc, Step } from "../models/recipe";
+import type {
+  CropRect,
+  PaletteColor,
+  RecipeDoc,
+  Step,
+} from "@coat-codex/recipe-core";
 import styles from "./PartEditorPage.module.css";
 
 interface PartEditorPageProps {

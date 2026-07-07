@@ -14,7 +14,7 @@ export type ShareContext =
   | { mode: "part"; recipe: RecipeDocLike; partId: string };
 
 /**
- * imageComposerが必要とするCropRectの最小形（models/recipe.tsのCropRectと構造的互換。
+ * imageComposerが必要とするCropRectの最小形（@coat-codex/recipe-coreのCropRectと構造的互換。
  * 元画像に対する正規化矩形。x/y/w/hはいずれも0〜1）。
  */
 export interface CropRectLike {
@@ -24,12 +24,12 @@ export interface CropRectLike {
   h: number;
 }
 
-/** imageComposerが必要とするRecipeDocの最小形（models/recipe.tsのRecipeDocと構造的互換） */
+/** imageComposerが必要とするRecipeDocの最小形（@coat-codex/recipe-coreのRecipeDocと構造的互換） */
 export interface RecipeDocLike {
   title: string;
   overviewPhotoIds: string[];
   parts: PartLike[];
-  /** まとめカード（whole）の全工程数集計に使用。models/recipe.tsのRecipeDoc.baseStepsと構造的互換 */
+  /** まとめカード（whole）の全工程数集計に使用。@coat-codex/recipe-coreのRecipeDoc.baseStepsと構造的互換 */
   baseSteps: StepLike[];
   /** まとめカード（whole）のパレット全色スウォッチに使用。RecipeDoc.paletteと構造的互換（idのみ参照） */
   palette: { id: string }[];

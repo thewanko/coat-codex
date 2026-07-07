@@ -1,7 +1,7 @@
 // components/common/CroppedPhoto.tsx — 非破壊クロップ矩形を反映した写真表示共通部品
 // （実装計画B-3 CroppedPhoto）
 //
-// 2段構造のCSS coverでクロップ矩形（models/recipe.ts CropRect。元画像に対する0〜1正規化矩形）を
+// 2段構造のCSS coverでクロップ矩形（@coat-codex/recipe-core CropRect。元画像に対する0〜1正規化矩形）を
 // 表示に反映する。ラッパー（className経由で既存サイトの寸法指定を受ける）は
 // position: relative; overflow: hiddenのまま、中間要素cropBoxをクロップ領域の実アスペクトで
 // ラッパーをcoverさせ、その内側にimgをクロップ領域がcropBoxを正確に満たす無歪みサイズ・位置で
@@ -14,7 +14,7 @@
 
 import { useState } from "react";
 import type { SyntheticEvent } from "react";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import {
   computeCroppedPhotoStyle,
   type NaturalSize,

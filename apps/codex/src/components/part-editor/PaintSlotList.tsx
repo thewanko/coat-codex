@@ -1,7 +1,7 @@
 // components/part-editor/PaintSlotList.tsx — PaintSlotの一覧本体（技術計画v2.2 §4.2 T21）
 //
 // state.paints/mixをスロット順に描画し、addPaintSlot/removePaintSlot/commitPercentInput
-// （lib/mixRatio.ts）経由でMixStateを更新する。単色（paints.length<=1）では%入力欄非表示
+// （@coat-codex/recipe-core）経由でMixStateを更新する。単色（paints.length<=1）では%入力欄非表示
 // （§2.3 値規約表）。5件到達で追加disabled、未到達は残数を併記（デザイン仕様書§4）。
 // リスト末尾にMixRatioInput（T20）を配置する。
 //
@@ -25,13 +25,13 @@
 
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { PaletteColor } from "../../models/recipe";
 import {
   addPaintSlot,
   commitPercentInput,
   removePaintSlot,
   type MixState,
-} from "../../lib/mixRatio";
+  type PaletteColor,
+} from "@coat-codex/recipe-core";
 import { PENDING_COLOR_PREFIX } from "../../lib/pendingPaints";
 import { useToast } from "../common/toastContext";
 import PaintSlot from "./PaintSlot";

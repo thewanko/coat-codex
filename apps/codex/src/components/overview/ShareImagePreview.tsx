@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import type { ComposedShareImage } from "../../lib/sns/imageComposer";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 import CroppedPhoto from "../common/CroppedPhoto";
 import styles from "./ShareImagePreview.module.css";
 

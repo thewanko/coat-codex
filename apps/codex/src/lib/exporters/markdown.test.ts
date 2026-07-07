@@ -8,7 +8,7 @@
 //     パーツ0件・palette 0件・tools 0件・混合比合計≠100警告
 
 import { describe, expect, test } from "vitest";
-import type { RecipeDoc, Step } from "../../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 import { DEFAULT_MARKDOWN_LABELS, exportRecipeToMarkdown } from "./markdown";
 
 /** テスト用Step生成ヘルパー。noteMarkdown.test.tsの慣行に倣う */
@@ -27,7 +27,7 @@ function makeStep(overrides: Partial<Step> & { id: string }): Step {
 /** テスト用RecipeDoc生成ヘルパー */
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テストレシピ",
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -38,6 +38,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

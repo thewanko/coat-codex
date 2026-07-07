@@ -8,7 +8,7 @@ import ToastHost from "../common/ToastHost";
 import { deleteRecipe, listRecipes } from "../../db/recipeStore";
 import { deletePhotosForRecipe } from "../../db/photoStore";
 import { readAllRecipeExports } from "../../lib/storageHealth";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -51,7 +51,7 @@ vi.mock("../../lib/storageHealth", async () => {
 
 function makeRecipe(id: string, title: string, updatedAt: string): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id,
     title,
     createdAt: updatedAt,
@@ -62,6 +62,7 @@ function makeRecipe(id: string, title: string, updatedAt: string): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
   };
 }
 

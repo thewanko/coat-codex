@@ -15,7 +15,7 @@ import { loadRecipe, saveRecipe } from "../db/recipeStore";
 import { deletePhoto } from "../db/photoStore";
 import { isPendingColorId, stripPendingPaints } from "../lib/pendingPaints";
 import { gcUnusedPaletteColors } from "../lib/paletteGc";
-import type { RecipeDoc, Step } from "../models/recipe";
+import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
 

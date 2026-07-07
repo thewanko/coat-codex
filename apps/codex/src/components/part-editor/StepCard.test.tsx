@@ -8,14 +8,13 @@ import "../../i18n";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import i18next from "../../i18n";
-import type { Step } from "../../models/recipe";
+import type { Step, MixState } from "@coat-codex/recipe-core";
 import {
   useRecipeStore,
   __resetRecipeStoreForTest,
 } from "../../stores/useRecipeStore";
 import ToastHost from "../common/ToastHost";
 import StepCard from "./StepCard";
-import type { MixState } from "../../lib/mixRatio";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -74,7 +73,7 @@ function renderStepCard(
 ) {
   useRecipeStore.setState({
     doc: {
-      schemaVersion: 1,
+      schemaVersion: 3,
       id: "rcp_1",
       title: "テストレシピ",
       createdAt: "2026-07-01T00:00:00.000Z",
@@ -85,6 +84,7 @@ function renderStepCard(
       baseSteps: [],
       parts: [],
       photoCrops: {},
+      source: null,
     },
   });
 
@@ -135,7 +135,7 @@ describe("StepCard — ToolSelect結線", () => {
   test("tools選択でtoolIdsがonChangeへ反映される", () => {
     useRecipeStore.setState({
       doc: {
-        schemaVersion: 1,
+        schemaVersion: 3,
         id: "rcp_1",
         title: "テストレシピ",
         createdAt: "2026-07-01T00:00:00.000Z",
@@ -146,6 +146,7 @@ describe("StepCard — ToolSelect結線", () => {
         baseSteps: [],
         parts: [],
         photoCrops: {},
+        source: null,
       },
     });
     const onChange = vi.fn();

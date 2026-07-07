@@ -24,7 +24,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { CropRect, RecipeDoc } from "../../models/recipe";
+import type { CropRect, RecipeDoc } from "@coat-codex/recipe-core";
 import PartCard from "./PartCard";
 import AddPartButton from "./AddPartButton";
 import EmptyState from "../common/EmptyState";

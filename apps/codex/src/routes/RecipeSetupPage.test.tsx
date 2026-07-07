@@ -20,7 +20,7 @@ import i18next from "../i18n";
 import RecipeSetupPage from "./RecipeSetupPage";
 import ToastHost from "../components/common/ToastHost";
 import { __resetRecipeStoreForTest } from "../stores/useRecipeStore";
-import type { RecipeDoc } from "../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
@@ -49,7 +49,7 @@ import { loadRecipe, saveRecipe } from "../db/recipeStore";
 
 function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     id: "rcp_1",
     title: "テストレシピ",
     createdAt: "2026-07-01T00:00:00.000Z",
@@ -60,6 +60,7 @@ function makeDoc(overrides: Partial<RecipeDoc> = {}): RecipeDoc {
     baseSteps: [],
     parts: [],
     photoCrops: {},
+    source: null,
     ...overrides,
   };
 }

@@ -30,7 +30,7 @@ import {
   readReminderSnooze,
   shouldShowExportReminder,
 } from "../../lib/storageHealth";
-import type { RecipeDoc } from "../../models/recipe";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import ConfirmDialog from "../common/ConfirmDialog";
 import EmptyState from "../common/EmptyState";
 import Skeleton from "../common/Skeleton";

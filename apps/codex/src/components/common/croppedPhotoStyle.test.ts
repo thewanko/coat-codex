@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { computeCroppedPhotoStyle } from "./croppedPhotoStyle";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 
 describe("computeCroppedPhotoStyle", () => {
   test("crop中央50%（正方形の中央半分）: cropBoxはaspect-ratio 1、imgは200%・-50%オフセット", () => {

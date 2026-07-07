@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import CroppedPhoto from "./CroppedPhoto";
-import type { CropRect } from "../../models/recipe";
+import type { CropRect } from "@coat-codex/recipe-core";
 
 describe("CroppedPhoto", () => {
   test("crop=nullの場合はplain imgをobject-fit: coverで表示する", () => {
