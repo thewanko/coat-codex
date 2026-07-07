@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (loop: Scriptorium S4(3/5)=ST-20 codex coverComposer 実装・未コミット)
+最終更新: 2026-07-08 (loop: Scriptorium S4(4/5)=ST-22 PostGuideページ実装・未コミット。コード先行S4完了・残ST-21のみ)
 
 ## 完了
+
+- 2026-07-08: **Scriptorium S4(4/5): ST-22 PostGuideページ**（**未コミット**・ブランチ`impl/scriptorium-s4-post-guide`・cover-composer基点にスタック） — `apps/scriptorium/src/routes/PostGuidePage.tsx`＝`<h1>`スタブ→本文付き静的コンテンツページ（§5.1: 投稿はcodexアプリから行う導線＋公開内容/削除/規約の要約）。`ContentPolicyPage`同型（`LegalPage.module.css`再利用＋`.appLink`追記）・`react-router`の`Link`で/terms・/content-policy内部リンク（footer.terms/contentPolicyキー再利用）・coat-codexアプリ外部リンク。**i18n**: en/ja両方に`postGuide.*`13キー追加（intro/appLinkLabel/stepsHeading/step1-3/publishedHeading/publishedBody/notBackupBody/deleteHeading/deleteBody/policyHeading/policyBody）＝i18n.test.ts構造完全一致緑。RTLレンダーテスト10件（heading・外部リンクhref/rel・内部Link・3手順・MemoryRouterラップ）。**opusレビュー省略裁定**（static contentページ・実績CSSモジュール再利用・RTL＋i18n一致で担保・視覚確認はST-25通しQA/ユーザーへ）。全ゲート緑: `npm run build`(tsc含む)・lint・prettier exit 0・ルート`npm test` **1390件**(+18)。**S4コード先行タスク(ST-18/19/20/22)完了。残=ST-21のみ（Turnstileウィジェット作成=ユーザーアクション待ち）**
 
 - 2026-07-08: **Scriptorium S4(3/5): ST-20 codex coverComposer**（**未コミット**・ブランチ`impl/scriptorium-s4-cover-composer`・delete-recipe基点にスタック） — `apps/codex/src/lib/coverComposer.ts`＝投稿用cover/thumb生成。**純関数＋依存注入で分解**（canvasはjsdom不動＝lessons M2-dataの定石）: `computeCropPixelRect`(crop正規化[0,1]→ソース画素矩形・境界クランプ・sw/sh最低1px)／`findWebpQualityBlob`(WebP品質二分探索・端点先行確認→残steps二分・`maxBytes`厳守・`minBytes`未満はq上げ優先)／`composeCover`(decode/encodeRegion注入・既定はcanvas `drawImage`9引数焼込＋`toBlob("image/webp",q)`)。cover=長辺≤1600px・maxBytes=400KB(450KB厳守の内側)・minBytes=200KB／thumb=長辺≤400px・≤80KB。**`computeCoverSourceRect`(sns/imageComposer)は再利用せず**（固定アスペfit用で目的違い）・`calcTargetSize`/`decodeToBitmap`/`CropRect`は再利用・`encodeFromSource`はquality0.9固定で不可。**implがtsc型検査でunion型`naturalWidth`エラーを自己捕捉**→`img.width/height`へ(decodeToBitmapがEXIF回転を画素に焼くため正)。**🖐実canvasブラウザ検証(セッション)**: ノイズ2400×1800画像で①全面cover=image/webp・**395KB**(200-400KB帯命中)・**1600×1200**(アスペ保持)・thumb 55KB ②左上crop`{0,0,0.5,0.5}`のcover=1200×900・中心画素RGB[213,35,36]=赤優勢＝**9引数drawImage焼込が正しい**。**opusレビューは省略裁定**(純クライアント変換・セキュリティ/永続化面なし・一次ロジック解析＋網羅ユニット＋実canvas検証で担保)。全ゲート緑: `npm run build`(tsc含む)・lint・prettier exit 0・ルート`npm test` **1372件**(+4)。**残**: ST-22(post-guide)コード先行可／ST-21(PublishDialog＝coverComposer＋publishedRecipeStrictSchema＋Turnstile。ユーザーアクション=Turnstileウィジェット作成待ち)
 
@@ -88,11 +90,11 @@
 
 ## 進行中
 
-- なし（S4: ST-18=PR #46マージ済み・ST-19=PR #47・ST-20=2026-07-08実装完了・**未コミット**（ブランチ`impl/scriptorium-s4-cover-composer`・delete-recipe基点スタック）・「完了」欄参照。次=ST-22のコード先行）
+- なし（S4コード先行完了: ST-18=PR #46マージ済み・ST-19=PR #47・ST-20=PR #48・ST-22=2026-07-08実装完了**未コミット**（ブランチ`impl/scriptorium-s4-post-guide`・cover-composer基点スタック）・「完了」欄参照。**残=ST-21のみ＝Turnstileウィジェット作成〔ユーザーアクション〕待ち**）
 
 ## 次の候補 (優先順)
 
-1. **Coat Scriptorium S4残（ST-22コード先行→ST-21）**（計画§7。~~ST-18 POST~~=PR #46マージ済み・~~ST-19 DELETE~~=PR #47・~~ST-20 coverComposer~~=実装済み未コミット。次=**ST-22**(`apps/scriptorium/src/routes/PostGuidePage.tsx`＝現在`<h1>`スタブ→§5.1「投稿はcodexから」導線＋ポリシー要約・EN/JA i18n・locales/en.json/ja.jsonに`postGuide.*`キー追加)。**ST-21**(codex `PublishDialog.tsx`＝§6-1: `toPublishedRecipe`変換＋削減内容プレビュー・cover選択で`coverComposer.composeCover`呼び出し・handle/削除PW入力・`publishedRecipeStrictSchema`送信前検証→`POST .../api/recipes`・完了画面URL/PWコピー・Dexie metaに`scriptoriumPost:<id>`記録。**着手前ユーザーアクション: Turnstileウィジェット作成**〔サイトキー/シークレット発行・ホスト名許可・`VITE_TURNSTILE_SITEKEY`〕)）
+1. **Coat Scriptorium S4最終: ST-21 PublishDialog（Turnstileウィジェット作成後）**（計画§7・§6-1。~~ST-18 POST~~=PR #46マージ済み・~~ST-19 DELETE~~=PR #47・~~ST-20 coverComposer~~=PR #48・~~ST-22 post-guide~~=実装済み未コミット。**残=ST-21のみ**: codex `PublishDialog.tsx`（ExportActionBar起点。`toPublishedRecipe`変換＋削減内容プレビュー・cover選択で`coverComposer.composeCover`呼び出し・handle/削除PW入力・Turnstileウィジェット〔`VITE_TURNSTILE_SITEKEY`〕・`publishedRecipeStrictSchema`送信前検証→`POST https://scriptorium.coat-codex.com/api/recipes`・完了画面で公開URL/削除PWコピー・Dexie metaに`scriptoriumPost:<recipeId>`記録〔PW非保存〕）＋`?import=`ディープリンク（§6-2）＋出典表示（§6-3）。**着手前ユーザーアクション必須: Turnstileウィジェット作成**〔Cloudflare Turnstileでサイトキー/シークレット発行・ホスト名(scriptorium.coat-codex.com)許可〕。完了条件=🖐プレビュー環境へ実投稿→公開表示・完了画面URL/PWコピー）
 1'. ~~S3残ユーザーアクション~~ **完了（2026-07-07夜。S3完了条件達成・上記「S3クローズ」参照）**
 2. ~~Coat Scriptorium S3~~ **完了（2026-07-07。PR: impl/scriptorium-s3-foundation・上記「完了」参照。ユーザーアクションのみ残）**
 2. ~~Coat Scriptorium S2~~ **完了（2026-07-07。PR: impl/scriptorium-s2-recipe-ui・上記「完了」参照）**
