@@ -11,5 +11,6 @@
 
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
+  "exclude": ["src/server", "tests/fakes"]
 }
