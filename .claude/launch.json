@@ -7,6 +7,12 @@
       "runtimeArgs": ["run", "dev"],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "scriptorium-pages-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:pages", "-w", "apps/scriptorium"],
+      "port": 8788
     }
   ]
 }
