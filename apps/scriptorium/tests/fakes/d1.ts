@@ -46,13 +46,13 @@ class FakePreparedStatement {
   }
 
   async all<T = unknown>(): Promise<{ results: T[] }> {
-    const results = this.db.execute(this.sql, this.params) as T[];
+    const results = this.db.execute(this.sql, this.params) as unknown as T[];
     return { results };
   }
 
   async first<T = unknown>(): Promise<T | null> {
-    const results = this.db.execute(this.sql, this.params) as T[];
-    return results[0] ?? null;
+    const results = this.db.execute(this.sql, this.params) as unknown as T[];
+    return (results[0] as T | undefined) ?? null;
   }
 
   async run(): Promise<{ success: boolean }> {
@@ -66,17 +66,21 @@ class FakePreparedStatement {
  * in-memory の recipes 行配列（参照共有・変更はテスト側からも見える）。
  */
 export class FakeD1Database {
-  constructor(public rows: FakeRecipeRow[]) {}
+  constructor(
+    public rows: FakeRecipeRow[],
+    public settings: Map<string, string> = new Map(),
+    public rateLimits: Map<string, number> = new Map(),
+  ) {}
 
   prepare(sql: string): FakePreparedStatement {
     return new FakePreparedStatement(this, sql);
   }
 
   /**
-   * SQL文字列の特徴からハンドラの意図（一覧 keyset / 詳細）を判別し、
-   * `rows` に対する操作を実行して結果行配列を返す。
+   * SQL文字列の特徴からハンドラの意図（一覧 keyset / 詳細 / settings / rate_limits）を
+   * 判別し、対応する in-memory ストアへの操作を実行して結果行配列を返す。
    */
-  execute(sql: string, params: D1Value[]): FakeRecipeRow[] {
+  execute(sql: string, params: D1Value[]): Record<string, unknown>[] {
     const normalized = sql.replace(/\s+/g, " ").trim();
 
     if (
@@ -88,7 +92,7 @@ export class FakeD1Database {
       const row = this.rows.find(
         (r) => r.id === id && r.status === "published",
       );
-      return row ? [row] : [];
+      return row ? [row as unknown as Record<string, unknown>] : [];
     }
 
     if (
@@ -121,7 +125,99 @@ export class FakeD1Database {
       });
 
       const limit = Number(params[params.length - 1]);
-      return candidates.slice(0, limit);
+      return candidates.slice(0, limit) as unknown as Record<string, unknown>[];
+    }
+
+    if (
+      /FROM\s+settings/i.test(normalized) &&
+      /WHERE\s+key\s*=\s*\?/i.test(normalized)
+    ) {
+      // SELECT value FROM settings WHERE key = ?
+      const [key] = params as [string];
+      return this.settings.has(key) ? [{ value: this.settings.get(key) }] : [];
+    }
+
+    if (
+      /INSERT\s+INTO\s+rate_limits/i.test(normalized) &&
+      /RETURNING\s+count/i.test(normalized)
+    ) {
+      // INSERT INTO rate_limits (bucket, period, count) VALUES (?, ?, 1)
+      // ON CONFLICT (bucket, period) DO UPDATE SET count = count + 1 RETURNING count
+      const [bucket, period] = params as [string, string];
+      const mapKey = bucket + "\n" + period;
+      const next = (this.rateLimits.get(mapKey) ?? 0) + 1;
+      this.rateLimits.set(mapKey, next);
+      return [{ count: next }];
+    }
+
+    if (/DELETE\s+FROM\s+rate_limits/i.test(normalized)) {
+      // DELETE FROM rate_limits WHERE period < ?
+      const [cutoff] = params as [string];
+      for (const k of [...this.rateLimits.keys()]) {
+        const p = k.slice(k.indexOf("\n") + 1);
+        if (p < cutoff) {
+          this.rateLimits.delete(k);
+        }
+      }
+      return [];
+    }
+
+    if (/INSERT\s+INTO\s+recipes/i.test(normalized)) {
+      // INSERT INTO recipes (id, status, handle, title, lang, schema_version,
+      //   recipe_json, cover_key, thumb_key, delete_pw_hash, report_count,
+      //   ip_hash, created_at, published_at, deleted_at) VALUES (?, ..., ?)
+      const [
+        id,
+        status,
+        handle,
+        title,
+        lang,
+        schemaVersion,
+        recipeJson,
+        coverKey,
+        thumbKey,
+        deletePwHash,
+        reportCount,
+        ipHash,
+        createdAt,
+        publishedAt,
+        deletedAt,
+      ] = params as [
+        string,
+        string,
+        string,
+        string,
+        string | null,
+        number,
+        string,
+        string | null,
+        string | null,
+        string,
+        number,
+        string,
+        string,
+        string | null,
+        string | null,
+      ];
+      const row: FakeRecipeRow = {
+        id,
+        status,
+        handle,
+        title,
+        lang,
+        schema_version: schemaVersion,
+        recipe_json: recipeJson,
+        cover_key: coverKey,
+        thumb_key: thumbKey,
+        delete_pw_hash: deletePwHash,
+        report_count: reportCount,
+        ip_hash: ipHash,
+        created_at: createdAt,
+        published_at: publishedAt,
+        deleted_at: deletedAt,
+      };
+      this.rows.push(row);
+      return [];
     }
 
     throw new Error(`FakeD1Database: unrecognized SQL pattern: ${normalized}`);

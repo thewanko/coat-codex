@@ -115,6 +115,8 @@ describe("handleRecipePage", () => {
     const response = await handleRecipePage(request, {
       DB: db as unknown as D1Database,
       BUCKET: {} as R2Bucket,
+      TURNSTILE_SECRET: "test-secret",
+      IP_HASH_SECRET: "test-ip-secret",
       ASSETS: assets,
     });
 
@@ -133,6 +135,8 @@ describe("handleRecipePage", () => {
     const response = await handleRecipePage(request, {
       DB: db as unknown as D1Database,
       BUCKET: {} as R2Bucket,
+      TURNSTILE_SECRET: "test-secret",
+      IP_HASH_SECRET: "test-ip-secret",
       ASSETS: assets,
     });
 
@@ -153,6 +157,8 @@ describe("handleRecipePage", () => {
     const response = await handleRecipePage(request, {
       DB: throwingDb as unknown as D1Database,
       BUCKET: {} as R2Bucket,
+      TURNSTILE_SECRET: "test-secret",
+      IP_HASH_SECRET: "test-ip-secret",
       ASSETS: assets,
     });
 

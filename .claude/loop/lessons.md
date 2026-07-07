@@ -8,6 +8,15 @@
 
 ---
 
+## 2026-07-07 scriptorium-s4-st18 impl委譲の完了条件にtsc型検査を課さず・vitest緑がtsc緑を代表しない [BAD]
+
+- 事象: ST-18を3波でimpl委譲した際、Wave1/2の完了条件を`npm run test`(vitest)/lint/prettierのみとし`tsc -b`(型検査)を課さなかった。vitestはisolatedModulesで型検査しないため、狭いlib/types構成の`tsconfig.server.json`（workers-types単独・DOM/node型なし）配下で型リグレッション（`globalThis.crypto`〔workers-typesは`crypto`直グローバルのみ宣言〕・`node:crypto`/`Buffer`〔@types/node無し〕・`FakeD1Database`→`D1Database`キャスト漏れ・`Record<string,unknown>`代入不可）が全て素通りした。さらにpostRecipe.tsが`@coat-codex/recipe-core`をimportしたことでバレル経由でDOM依存の`exportFile.ts`(`BlobPart`)がサーバーtsconfigに引き込まれる統合エラーも発生。これらはWave3で初めて`npm run build`を走らせたとき露見し、build緑化に追加1委譲を要した
+- 原因: ①「テスト緑＝正しい」の暗黙前提。vitest(esbuild/isolatedModules)は型を検査しないため、tscでしか出ない型エラー（グローバル型解決・lib差・キャスト規約）を見逃す ②新規ソース/テストを追加するタスクの完了条件に`tsc`(または`npm run build`)を入れ忘れた ③パッケージをまたぐ新規import（recipe-core→server）が、消費側tsconfigのlib差で被import側パッケージ源を別libで再検査する統合面を、委譲設計時に想定しなかった
+- 一般化ルール (次ループの指示文としてそのまま使える形で): **新規の.ts/.tsxソースまたはテストを追加するimpl委譲の完了条件には、必ず`tsc`型検査（`npm run build`または当該workspaceの`tsc -b`）をexit 0報告義務として含める**（`npm run test`(vitest)の緑はtscの緑を代表しない）。特にlib/typesが狭い専用tsconfig（Workers/workers-types・node専用等）配下へ新規ファイルを足すタスクでは、既存の見本ファイル（例: app.test.tsの`as unknown as D1Database`キャスト・atob方式base64・`crypto`グローバル直参照）の規約を委譲プロンプトに明示する。パッケージをまたぐimportを新設するタスクは、消費側tsconfigのlib（DOM有無）で被import側パッケージ源が型検査され得ることを想定し、DOM専用型（BlobPart等）の漏れを完了条件のbuildで検出する
+- 反映先: loop prompt（impl委譲完了条件の標準セットに`tsc`/`build`を追加）・CLAUDE.md昇格候補（同種2回目で昇格）
+- 発生回数: 1回目
+- 付記GOOD: ①各ガードの発行SQLをD1フェイクのディスパッチと**対で**委譲プロンプトに明示した結果、reviewがINSERT列順=postRecipe/seed.mjs/§3.1/フェイクの4者一致を確認でき偽緑を排除できた（D1フェイク乖離リスクへの事前対処が機能）②review M1（rate増分がgarbageに枠を食わせる＝DoS懸念）を反射的に「修正」せず、仕様のST-28自動サーキットブレーカー設計（全Turnstile通過試行をglobal-postに数える＝攻撃検知シグナル・フィルタすると信号が消える）に照らして「現状維持が正」と裁定＝レビュー指摘を設計意図に接地して採否判断した好例（1次確認ルールの応用: 指摘の前提だけでなく「その修正が仕様の別機能を無効化しないか」まで確認）
+
 ## 2026-07-07 s3-deploy Build watch pathsに未定義記法`**`を計画書へ書き全コミットskipped／「自動ビルド正常」の判断が手動リトライ産の本番を証拠にしていた [BAD]
 
 - 事象: ①技術計画§1.3に Build watch paths を `apps/codex/**` と書き（ST-03でユーザーがそのまま設定）、**Cloudflare Pagesのwatch pathsのワイルドカードは`*`のみ・かつ`/`を跨いでマッチが公式仕様**（`docs/*`が`docs/guides/setup.md`にマッチ）のため、`**`は未定義記法としてマッチ不全になり、**apps/codexを大改変したS1/S2マージまで含む全自動ビルドがskipped**になっていた（発見はユーザー「ビルドコマンド設定後から自動ビルドが全部スキップされてる」。108198f=S2マージのDetailsで Status: skipped を確定）。②その指摘の直前、セッションは「codex本番バンドル=現mainビルドとハッシュ一致」を根拠に「自動ビルドは正常」と誤裁定していた——その本番は**数分前のユーザー手動リトライが作ったもの**で、証拠が交絡イベントに汚染されていた
