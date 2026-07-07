@@ -64,10 +64,10 @@
 
 ## プロジェクト固有 (coat-codex: npm workspaces monorepo / Vite + React 19 + TypeScript SPA)
 
-- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`、共有パッケージ = `packages/*`（S1以降）。ルートは設定と委譲スクリプトのみ
+- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2予定）。ルートは設定と委譲スクリプトのみ
 - 仕様の正: codex = `docs/coat-codex_技術計画_v2.md`（v2.4）／Scriptorium = `docs/coat-scriptorium_技術計画_v1.md`。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
 - テスト: `npm test`（ルート・vitest projects経由で全workspace）
-- lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check apps "./*.{js,ts,json}"`（packages/ 新設後は apps の後に追加）
+- lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check apps packages "./*.{js,ts,json}"`
 - ビルド: `npm run build`（ルート・--workspaces委譲）
 - 触ってはいけないもの: `docs/coat-codex_要件定義.md`（原典・編集禁止）、`package-lock.json`の手編集、`apps/codex/public/_redirects`と`404.html`は**作成禁止**（§5.2 SPAフォールバック仕様）
 - 禁止パターン (selfcheck が Grep する): ハードコードされた API key / password、`console.log(` デバッグ残骸（`console.error`/`console.warn`は可）、`react-router-dom`からのimport（v7は`react-router`単体）、`@ts-ignore`・`eslint-disable`の新規追加
