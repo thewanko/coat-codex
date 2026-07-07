@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import type { Context } from "hono";
 import { listFeed, getRecipeDetail } from "./routes/feed";
 import { handlePostRecipe } from "./routes/postRecipe";
+import { handleDeleteRecipe } from "./routes/deleteRecipe";
 import { verifyTurnstile } from "./guards/turnstile";
 import { matchCache, putCache } from "./cache";
 import type { Bindings } from "./bindings";
@@ -56,6 +57,10 @@ app.post("/api/recipes", (c) =>
   }),
 );
 // screenImage は未注入（ST-29 で NSFW スクリーニング実装を結線する）
+
+app.delete("/api/recipes/:id", (c) =>
+  handleDeleteRecipe(c, { now: () => new Date() }),
+);
 
 app.get(
   "/img/:key{.+}",

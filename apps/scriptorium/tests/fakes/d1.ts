@@ -85,6 +85,18 @@ export class FakeD1Database {
 
     if (
       /FROM\s+recipes/i.test(normalized) &&
+      /WHERE\s+id\s*=\s*\?/i.test(normalized) &&
+      /delete_pw_hash/i.test(normalized)
+    ) {
+      // 削除用フェッチ: SELECT id, status, delete_pw_hash, cover_key, thumb_key
+      //   FROM recipes WHERE id = ?（status で絞らず全 status を返す）
+      const [id] = params;
+      const row = this.rows.find((r) => r.id === id);
+      return row ? [row as unknown as Record<string, unknown>] : [];
+    }
+
+    if (
+      /FROM\s+recipes/i.test(normalized) &&
       /WHERE\s+id\s*=\s*\?/i.test(normalized)
     ) {
       // 詳細: WHERE id = ? AND status = 'published'
@@ -158,6 +170,20 @@ export class FakeD1Database {
         if (p < cutoff) {
           this.rateLimits.delete(k);
         }
+      }
+      return [];
+    }
+
+    if (
+      /UPDATE\s+recipes/i.test(normalized) &&
+      /deleted_at\s*=\s*\?/i.test(normalized)
+    ) {
+      // UPDATE recipes SET status = 'deleted', deleted_at = ? WHERE id = ?
+      const [deletedAt, id] = params as [string, string];
+      const row = this.rows.find((r) => r.id === id);
+      if (row) {
+        row.status = "deleted";
+        row.deleted_at = deletedAt;
       }
       return [];
     }
