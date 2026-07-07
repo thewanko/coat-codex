@@ -6,6 +6,8 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { listFeed, getRecipeDetail } from "./routes/feed";
+import { handlePostRecipe } from "./routes/postRecipe";
+import { verifyTurnstile } from "./guards/turnstile";
 import { matchCache, putCache } from "./cache";
 import type { Bindings } from "./bindings";
 
@@ -42,6 +44,18 @@ app.get("/api/recipes/:id", async (c) => {
   }
   return response;
 });
+
+app.post("/api/recipes", (c) =>
+  handlePostRecipe(c, {
+    verifyTurnstile: (token, secret, ip) =>
+      verifyTurnstile(token, secret, ip, {
+        fetch: globalThis.fetch.bind(globalThis),
+      }),
+    now: () => new Date(),
+    randomId: () => "scr_" + crypto.randomUUID(),
+  }),
+);
+// screenImage は未注入（ST-29 で NSFW スクリーニング実装を結線する）
 
 app.get(
   "/img/:key{.+}",

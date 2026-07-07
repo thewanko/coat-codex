@@ -42,6 +42,8 @@ function makeEnv() {
   return {
     DB: new FakeD1Database([pendingRow]) as unknown as D1Database,
     BUCKET: new FakeR2Bucket() as unknown as R2Bucket,
+    TURNSTILE_SECRET: "test-secret",
+    IP_HASH_SECRET: "test-ip-secret",
     ASSETS: { fetch: assetsFetch },
   };
 }

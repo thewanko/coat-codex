@@ -140,7 +140,7 @@ export function assembleExportBlob<P extends { id: string }>(
     `"recipe":${JSON.stringify(recipe)},` +
     `"photos":[`;
 
-  const parts: BlobPart[] = [jsonHead];
+  const parts: (string | Blob)[] = [jsonHead];
 
   photosToEmbed.forEach((photo, index) => {
     if (index > 0) {
