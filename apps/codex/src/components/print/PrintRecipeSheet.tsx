@@ -9,8 +9,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import { CroppedPhoto } from "@coat-codex/recipe-ui";
-import SwatchChip from "../common/SwatchChip";
+import { CroppedPhoto, SwatchChip } from "@coat-codex/recipe-ui";
 import {
   formatMixBadge,
   isMixTotalValid,

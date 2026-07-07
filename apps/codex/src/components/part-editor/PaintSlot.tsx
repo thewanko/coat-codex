@@ -10,7 +10,7 @@ import type { ChangeEvent, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { PaletteColor } from "@coat-codex/recipe-core";
 import PaintPicker from "../paint/PaintPicker";
-import SwatchChip from "../common/SwatchChip";
+import { SwatchChip } from "@coat-codex/recipe-ui";
 import styles from "./PaintSlot.module.css";
 
 const LETTERS = ["A", "B", "C", "D", "E"] as const;
