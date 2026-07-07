@@ -1,4 +1,4 @@
-// components/common/croppedPhotoStyle.ts — CroppedPhotoの数値計算を担う純関数
+// packages/recipe-ui/src/croppedPhotoStyle.ts — CroppedPhotoの数値計算を担う純関数
 // （実装計画B-3。react-refresh/only-export-components対応のためCroppedPhoto.tsxから分離。
 // partSwatch.tsの前例に倣う）
 //

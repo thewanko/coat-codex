@@ -1,4 +1,4 @@
-// components/common/CroppedPhoto.tsx — 非破壊クロップ矩形を反映した写真表示共通部品
+// packages/recipe-ui/src/CroppedPhoto.tsx — 非破壊クロップ矩形を反映した写真表示共通部品
 // （実装計画B-3 CroppedPhoto）
 //
 // 2段構造のCSS coverでクロップ矩形（@coat-codex/recipe-core CropRect。元画像に対する0〜1正規化矩形）を

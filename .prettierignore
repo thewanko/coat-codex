@@ -1,2 +1,2 @@
 dist
-apps/codex/src/styles/theme.css
+packages/recipe-ui/src/styles/theme.css

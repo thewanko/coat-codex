@@ -18,7 +18,7 @@ import { exportRecipeToBlob } from "../../lib/exporters/json";
 import type { RecipeDoc } from "@coat-codex/recipe-core";
 import { useToast } from "../common/toastContext";
 import { downloadBlob, sanitizeFilename } from "../common/downloadBlob";
-import CroppedPhoto from "../common/CroppedPhoto";
+import { CroppedPhoto } from "@coat-codex/recipe-ui";
 import ExportPhotoChoiceDialog from "../common/ExportPhotoChoiceDialog";
 import { duplicateRecipe } from "./duplicateRecipe";
 import styles from "./RecipeCard.module.css";

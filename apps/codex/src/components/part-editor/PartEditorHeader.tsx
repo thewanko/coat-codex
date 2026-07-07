@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import CroppedPhoto from "../common/CroppedPhoto";
+import { CroppedPhoto } from "@coat-codex/recipe-ui";
 import Skeleton from "../common/Skeleton";
 import type { CropRect } from "@coat-codex/recipe-core";
 import styles from "./PartEditorHeader.module.css";

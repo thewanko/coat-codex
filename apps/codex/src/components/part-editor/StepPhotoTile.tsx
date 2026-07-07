@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "../common/toastContext";
 import ConfirmDialog from "../common/ConfirmDialog";
-import CroppedPhoto from "../common/CroppedPhoto";
+import { CroppedPhoto } from "@coat-codex/recipe-ui";
 import PhotoCropDialog from "../common/PhotoCropDialog";
 import { CropIcon } from "../common/PhotoUploader";
 import Skeleton from "../common/Skeleton";
