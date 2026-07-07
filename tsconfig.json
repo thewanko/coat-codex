@@ -4,6 +4,8 @@
     { "path": "./apps/codex/tsconfig.app.json" },
     { "path": "./apps/codex/tsconfig.node.json" },
     { "path": "./packages/recipe-core/tsconfig.json" },
-    { "path": "./packages/recipe-ui/tsconfig.json" }
+    { "path": "./packages/recipe-ui/tsconfig.json" },
+    { "path": "./apps/scriptorium/tsconfig.app.json" },
+    { "path": "./apps/scriptorium/tsconfig.node.json" }
   ]
 }

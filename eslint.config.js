@@ -21,4 +21,13 @@ export default tseslint.config(
       globals: globals.browser,
     },
   },
+  {
+    files: [
+      "apps/scriptorium/functions/**/*.ts",
+      "apps/scriptorium/src/server/**/*.ts",
+    ],
+    languageOptions: {
+      globals: globals.worker,
+    },
+  },
 );
