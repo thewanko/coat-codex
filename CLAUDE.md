@@ -56,6 +56,7 @@
 - 依存注入でスタブする外部APIには「実装と同じ非同期タイミング（マクロタスク遅延）」のスタブを最低1ケース入れる（Dexie tx罠は即時resolveスタブでは検出できない）
 - ブレークポイントでレイアウトが分岐するUI（パネル/フルページ切替等）の検証は、**全ブレークポイント幅**で「遷移後に視認している画面」への elementFromPoint ヒットテストを行う。URL遷移の成立だけで合格にしない（目的のUIが画面外・背面で操作不能なことがある） (lessons.md昇格 2026-07-04)
 - **実機入力・OS権限に依存する挙動**（clipboard・Web Share・通知・実タッチのスクロール競合/touch-action・user activation）は**previewの合成イベント/権限モデルでは代表できない**。①設計段階で「結果分岐に依存しない多段防御」（タイムアウト付きフォールバック・bodyロック等、どの経路でも意図した結果へ到達する形）を要求仕様に含め、②preview検証の限界を出口レポートに明示し「ユーザー実機確認が必須の項目」として引き渡す (lessons.md昇格 2026-07-05)
+- **デプロイ構成（Pagesのビルド設定・Functions/_worker.js検出・SPAフォールバック・リダイレクト）はローカル`wrangler pages dev`が本番Gitビルドを代表しない**（例: pages devはwrangler.toml隣接のfunctions/を拾うが、本番はRoot directory相対でしか探さない）。デプロイ構成に触れる変更は、マージ後の**本番/プレビューURLで「追加機能の正常応答」と「非APIルートのHTML 200＋root要素実在」の両方**を確認するまで完了としない。結合検証の否定アサーション（grep -c 0等）は必ず正例アサーションと対にする (lessons.md昇格 2026-07-07) 
 
 ## 安全弁
 
@@ -64,8 +65,8 @@
 
 ## プロジェクト固有 (coat-codex: npm workspaces monorepo / Vite + React 19 + TypeScript SPA)
 
-- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`・`apps/scriptorium/`（S3基盤済み 2026-07-07: SPA scaffold＋D1/R2＋Hono GET閲覧API＋Feed/Detail/法務ページ＋OGP。**Functionsはパススコープマウントのみ**=functions/api・functions/img・functions/r/[id]。catch-all `functions/[[path]].ts` は静的アセット遮蔽のため禁止）、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2切り出し済み 2026-07-07: SwatchChip注入化・CroppedPhoto・theme.css・MixBadge/TechniqueChip/StepListView・PhotoSourceProvider/usePhotoUrl・REQUIRED_I18N_KEYS。codexはApp.tsxでresolvePhotoUrlを注入）。ルートは設定と委譲スクリプトのみ
-- 仕様の正: codex = `docs/coat-codex_技術計画_v2.md`（v2.4）／Scriptorium = `docs/coat-scriptorium_技術計画_v1.md`（v1.2）。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
+- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`・`apps/scriptorium/`（S3基盤済み 2026-07-07: SPA scaffold＋D1/R2＋Hono GET閲覧API＋Feed/Detail/法務ページ＋OGP。**サーバーは`dist/_worker.js`方式（advanced mode）のみ**=src/server/worker.tsをesbuildでバンドル。`functions/`ディレクトリはRoot=`/`構成の本番Gitビルドで検出されず【ローカルpages devでは検出できる=環境差】、catch-allは静的アセット遮蔽のため、いずれも禁止）、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2切り出し済み 2026-07-07: SwatchChip注入化・CroppedPhoto・theme.css・MixBadge/TechniqueChip/StepListView・PhotoSourceProvider/usePhotoUrl・REQUIRED_I18N_KEYS。codexはApp.tsxでresolvePhotoUrlを注入）。ルートは設定と委譲スクリプトのみ
+- 仕様の正: codex = `docs/coat-codex_技術計画_v2.md`（v2.4）／Scriptorium = `docs/coat-scriptorium_技術計画_v1.md`（v1.3）。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
 - scriptoriumローカル実機: `npm run dev:pages -w apps/scriptorium`（wrangler pages dev・要事前build。ローカルD1/R2は`.wrangler/state`共有・シードは`node scripts/seed.mjs`）
 - テスト: `npm test`（ルート・vitest projects経由で全workspace）
 - lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check apps packages "./*.{js,ts,json}"`

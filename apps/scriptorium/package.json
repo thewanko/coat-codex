@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:pages": "npx wrangler pages dev",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run build:worker",
+    "build:worker": "esbuild src/server/worker.ts --bundle --format=esm --platform=browser --conditions=worker,browser --outfile=dist/_worker.js",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -27,6 +28,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",
+    "esbuild": "^0.25",
     "jsdom": "^29.1.1",
     "vite": "^7"
   }
