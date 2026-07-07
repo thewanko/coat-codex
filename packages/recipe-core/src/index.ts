@@ -1,5 +1,6 @@
 export * from "./schema/recipe";
 export * from "./schema/migrations";
+export * from "./schema/published";
 
 // logic/mixRatio.ts の StepPaint は schema/recipe.ts の StepPaint（zod由来）と
 // 名前が衝突するため（意図的な構造的互換設計。循環回避 — schema/recipe.ts冒頭コメント参照）、
@@ -25,3 +26,4 @@ export * from "./logic/recipeRefs";
 export * from "./logic/cropGeometry";
 export * from "./exchange/exportFile";
 export * from "./exchange/importPipeline";
+export * from "./convert";

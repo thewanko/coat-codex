@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {
+    "emit-json-schema": "node scripts/emit-json-schema.ts"
+  },
   "dependencies": {
     "zod": "^4"
   }

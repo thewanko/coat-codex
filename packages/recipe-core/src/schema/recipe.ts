@@ -48,6 +48,86 @@ const techniqueSchema = z.object({
   label: z.string().nullable(),
 });
 
+/**
+ * Step構造共通の不変条件チェック（INV-2/4/7/8/9相当）。recipe.tsのstepSchemaと
+ * published.tsのpublishedStepSchemaの両方から呼ぶ（技術計画v1 §2.1
+ * 「参照整合の不変条件はrecipe.tsのsuperRefineを流用」）。
+ * 対象フィールドはpaints/mix/toolIds/technique（両スキーマ共通の構造サブセット）。
+ */
+export function checkStepInvariants(
+  step: {
+    technique: { presetKey: string | null; label: string | null };
+    paints: { colorId: string }[];
+    mix: number[] | null;
+    toolIds: string[];
+  },
+  ctx: z.RefinementCtx,
+): void {
+  // INV-1: paints.length <= 5 — z.array().max(5)で担保済み（フィールド制約）
+
+  // INV-2: paints.length >= 2 => mix !== null かつ mix.length === paints.length
+  if (step.paints.length >= 2) {
+    if (step.mix === null) {
+      ctx.addIssue({
+        code: "custom",
+        message: "[INV-2] paints.length ≥ 2 のとき mix は null にできません",
+        path: ["mix"],
+      });
+    } else if (step.mix.length !== step.paints.length) {
+      ctx.addIssue({
+        code: "custom",
+        message: "[INV-2] mix.length は paints.length と一致する必要があります",
+        path: ["mix"],
+      });
+    }
+  }
+
+  // INV-3: mix !== null => 各要素は整数かつ0〜100 — z.array(z.int().min(0).max(100))で担保済み（フィールド制約）
+
+  // INV-4: paints.length <= 1 => mix = null（2と4の対で双方向を構成）
+  if (step.paints.length <= 1 && step.mix !== null) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "[INV-4] paints.length ≤ 1 のとき mix は null である必要があります",
+      path: ["mix"],
+    });
+  }
+
+  // INV-5, INV-6: 欠番（v2.2でmix再設計により統合。§2.5参照）
+
+  // INV-7: paints内のcolorIdに重複なし
+  const colorIds = step.paints.map((p) => p.colorId);
+  if (new Set(colorIds).size !== colorIds.length) {
+    ctx.addIssue({
+      code: "custom",
+      message: "[INV-7] paints[].colorId に重複があります",
+      path: ["paints"],
+    });
+  }
+
+  // INV-8: technique.presetKeyとtechnique.labelが同時に非nullでない
+  if (step.technique.presetKey !== null && step.technique.label !== null) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "[INV-8] technique.presetKey と technique.label を同時に指定できません",
+      path: ["technique"],
+    });
+  }
+
+  // INV-9: toolIds内に重複なし
+  if (new Set(step.toolIds).size !== step.toolIds.length) {
+    ctx.addIssue({
+      code: "custom",
+      message: "[INV-9] toolIds に重複があります",
+      path: ["toolIds"],
+    });
+  }
+
+  // INV-10: mix合計100は検証しない（意図的に未実装。§2.3/§2.5-10）
+}
+
 /** §2.1 Step — baseSteps / parts[].steps 共通形。配列順=工程順（orderフィールドなし） */
 export const stepSchema = z
   .object({
@@ -59,72 +139,7 @@ export const stepSchema = z
     toolIds: z.array(idSchema),
     memo: z.string(),
   })
-  .superRefine((step, ctx) => {
-    // INV-1: paints.length <= 5 — z.array().max(5)で担保済み（フィールド制約）
-
-    // INV-2: paints.length >= 2 => mix !== null かつ mix.length === paints.length
-    if (step.paints.length >= 2) {
-      if (step.mix === null) {
-        ctx.addIssue({
-          code: "custom",
-          message: "[INV-2] paints.length ≥ 2 のとき mix は null にできません",
-          path: ["mix"],
-        });
-      } else if (step.mix.length !== step.paints.length) {
-        ctx.addIssue({
-          code: "custom",
-          message:
-            "[INV-2] mix.length は paints.length と一致する必要があります",
-          path: ["mix"],
-        });
-      }
-    }
-
-    // INV-3: mix !== null => 各要素は整数かつ0〜100 — z.array(z.int().min(0).max(100))で担保済み（フィールド制約）
-
-    // INV-4: paints.length <= 1 => mix = null（2と4の対で双方向を構成）
-    if (step.paints.length <= 1 && step.mix !== null) {
-      ctx.addIssue({
-        code: "custom",
-        message:
-          "[INV-4] paints.length ≤ 1 のとき mix は null である必要があります",
-        path: ["mix"],
-      });
-    }
-
-    // INV-5, INV-6: 欠番（v2.2でmix再設計により統合。§2.5参照）
-
-    // INV-7: paints内のcolorIdに重複なし
-    const colorIds = step.paints.map((p) => p.colorId);
-    if (new Set(colorIds).size !== colorIds.length) {
-      ctx.addIssue({
-        code: "custom",
-        message: "[INV-7] paints[].colorId に重複があります",
-        path: ["paints"],
-      });
-    }
-
-    // INV-8: technique.presetKeyとtechnique.labelが同時に非nullでない
-    if (step.technique.presetKey !== null && step.technique.label !== null) {
-      ctx.addIssue({
-        code: "custom",
-        message:
-          "[INV-8] technique.presetKey と technique.label を同時に指定できません",
-        path: ["technique"],
-      });
-    }
-
-    // INV-9: toolIds内に重複なし
-    if (new Set(step.toolIds).size !== step.toolIds.length) {
-      ctx.addIssue({
-        code: "custom",
-        message: "[INV-9] toolIds に重複があります",
-        path: ["toolIds"],
-      });
-    }
-
-    // INV-10: mix合計100は検証しない（意図的に未実装。§2.3/§2.5-10）
-  });
+  .superRefine(checkStepInvariants);
 
 /** §2.1 parts[] — パーツ（配列順=表示順） */
 const partSchema = z.object({
@@ -169,6 +184,143 @@ export const recipeSourceSchema = z.object({
   importedAt: isoDateTimeSchema,
 });
 
+/**
+ * palette/tools/baseSteps/partsの参照整合チェック（INV-11/12/13/14/17相当）。
+ * recipe.tsのrecipeDocSchemaとpublished.tsのpublishedRecipeSchemaの両方が共通で持つ
+ * 構造サブセットに対する検査を1箇所へ集約する（技術計画v1 §2.1
+ * 「参照整合の不変条件はrecipe.tsのsuperRefineを流用」）。
+ * photoId/chipPhotoId/photoCrops等published非対応フィールドの検査はここに含めない
+ * （recipeDocSchema固有としてrecipe.ts側のsuperRefineに残す）。
+ */
+export function checkStructuralReferentialIntegrity(
+  doc: {
+    palette: {
+      id: string;
+      source: "preset" | "custom";
+      presetId: string | null;
+    }[];
+    tools: { id: string }[];
+    baseSteps: {
+      id: string;
+      paints: { colorId: string }[];
+      toolIds: string[];
+    }[];
+    parts: {
+      id: string;
+      steps: {
+        id: string;
+        paints: { colorId: string }[];
+        toolIds: string[];
+      }[];
+    }[];
+  },
+  ctx: z.RefinementCtx,
+): void {
+  // INV-11: palette[].id / tools[].id / parts[].id / 全Step id（baseSteps・parts横断）は各々文書内一意
+  const checkUnique = (
+    values: string[],
+    label: string,
+    path: (string | number)[],
+  ) => {
+    if (new Set(values).size !== values.length) {
+      ctx.addIssue({
+        code: "custom",
+        message: `[INV-11] ${label} が文書内で重複しています`,
+        path,
+      });
+    }
+  };
+  checkUnique(
+    doc.palette.map((c) => c.id),
+    "palette[].id",
+    ["palette"],
+  );
+  checkUnique(
+    doc.tools.map((t) => t.id),
+    "tools[].id",
+    ["tools"],
+  );
+  checkUnique(
+    doc.parts.map((p) => p.id),
+    "parts[].id",
+    ["parts"],
+  );
+  const allStepIds = [
+    ...doc.baseSteps.map((s) => s.id),
+    ...doc.parts.flatMap((p) => p.steps.map((s) => s.id)),
+  ];
+  checkUnique(allStepIds, "Step id（baseSteps・parts横断）", ["baseSteps"]);
+
+  // INV-17: parts[].id に予約語 "base" は使用できない（/recipe/:id/part/base がベース工程編集に予約）
+  doc.parts.forEach((part, index) => {
+    if (part.id === "base") {
+      ctx.addIssue({
+        code: "custom",
+        message: '[INV-17] parts[].id に "base" は使用できません',
+        path: ["parts", index, "id"],
+      });
+    }
+  });
+
+  // INV-12/13向けの参照集合
+  const colorIds = new Set(doc.palette.map((c) => c.id));
+  const toolIds = new Set(doc.tools.map((t) => t.id));
+
+  const allSteps: {
+    step: (typeof doc.baseSteps)[number];
+    path: (string | number)[];
+  }[] = [
+    ...doc.baseSteps.map((step, i) => ({
+      step,
+      path: ["baseSteps", i] as (string | number)[],
+    })),
+    ...doc.parts.flatMap((part, pi) =>
+      part.steps.map((step, si) => ({
+        step,
+        path: ["parts", pi, "steps", si] as (string | number)[],
+      })),
+    ),
+  ];
+
+  for (const { step, path } of allSteps) {
+    // INV-12: 全StepPaintのcolorId ∈ palette[].id
+    step.paints.forEach((paint, pi) => {
+      if (!colorIds.has(paint.colorId)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `[INV-12] paints[].colorId "${paint.colorId}" は palette[].id に存在しません`,
+          path: [...path, "paints", pi, "colorId"],
+        });
+      }
+    });
+
+    // INV-13: 全StepのtoolIds ⊆ tools[].id
+    step.toolIds.forEach((toolId, ti) => {
+      if (!toolIds.has(toolId)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `[INV-13] toolIds[] "${toolId}" は tools[].id に存在しません`,
+          path: [...path, "toolIds", ti],
+        });
+      }
+    });
+  }
+
+  // INV-14: palette[]: source='preset' ⇔ presetId非null（hexの形式はhexColorSchemaで担保済み）
+  doc.palette.forEach((color, index) => {
+    const isPreset = color.source === "preset";
+    const hasPresetId = color.presetId !== null;
+    if (isPreset !== hasPresetId) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          '[INV-14] palette[].source="preset" のとき、かつそのときに限り presetId は非nullである必要があります',
+        path: ["palette", index, "presetId"],
+      });
+    }
+  });
+}
+
 /** §2.1 RecipeDoc（IndexedDB内スキーマ） */
 export const recipeDocSchema = z
   .object({
@@ -189,109 +341,7 @@ export const recipeDocSchema = z
     source: recipeSourceSchema.nullable(),
   })
   .superRefine((doc, ctx) => {
-    // INV-11: palette[].id / tools[].id / parts[].id / 全Step id（baseSteps・parts横断）は各々文書内一意
-    const checkUnique = (
-      values: string[],
-      label: string,
-      path: (string | number)[],
-    ) => {
-      if (new Set(values).size !== values.length) {
-        ctx.addIssue({
-          code: "custom",
-          message: `[INV-11] ${label} が文書内で重複しています`,
-          path,
-        });
-      }
-    };
-    checkUnique(
-      doc.palette.map((c) => c.id),
-      "palette[].id",
-      ["palette"],
-    );
-    checkUnique(
-      doc.tools.map((t) => t.id),
-      "tools[].id",
-      ["tools"],
-    );
-    checkUnique(
-      doc.parts.map((p) => p.id),
-      "parts[].id",
-      ["parts"],
-    );
-    const allStepIds = [
-      ...doc.baseSteps.map((s) => s.id),
-      ...doc.parts.flatMap((p) => p.steps.map((s) => s.id)),
-    ];
-    checkUnique(allStepIds, "Step id（baseSteps・parts横断）", ["baseSteps"]);
-
-    // INV-17: parts[].id に予約語 "base" は使用できない（/recipe/:id/part/base がベース工程編集に予約）
-    doc.parts.forEach((part, index) => {
-      if (part.id === "base") {
-        ctx.addIssue({
-          code: "custom",
-          message: '[INV-17] parts[].id に "base" は使用できません',
-          path: ["parts", index, "id"],
-        });
-      }
-    });
-
-    // INV-12/13向けの参照集合
-    const colorIds = new Set(doc.palette.map((c) => c.id));
-    const toolIds = new Set(doc.tools.map((t) => t.id));
-
-    const allSteps: {
-      step: (typeof doc.baseSteps)[number];
-      path: (string | number)[];
-    }[] = [
-      ...doc.baseSteps.map((step, i) => ({
-        step,
-        path: ["baseSteps", i] as (string | number)[],
-      })),
-      ...doc.parts.flatMap((part, pi) =>
-        part.steps.map((step, si) => ({
-          step,
-          path: ["parts", pi, "steps", si] as (string | number)[],
-        })),
-      ),
-    ];
-
-    for (const { step, path } of allSteps) {
-      // INV-12: 全StepPaintのcolorId ∈ palette[].id
-      step.paints.forEach((paint, pi) => {
-        if (!colorIds.has(paint.colorId)) {
-          ctx.addIssue({
-            code: "custom",
-            message: `[INV-12] paints[].colorId "${paint.colorId}" は palette[].id に存在しません`,
-            path: [...path, "paints", pi, "colorId"],
-          });
-        }
-      });
-
-      // INV-13: 全StepのtoolIds ⊆ tools[].id
-      step.toolIds.forEach((toolId, ti) => {
-        if (!toolIds.has(toolId)) {
-          ctx.addIssue({
-            code: "custom",
-            message: `[INV-13] toolIds[] "${toolId}" は tools[].id に存在しません`,
-            path: [...path, "toolIds", ti],
-          });
-        }
-      });
-    }
-
-    // INV-14: palette[]: source='preset' ⇔ presetId非null（hexの形式はhexColorSchemaで担保済み）
-    doc.palette.forEach((color, index) => {
-      const isPreset = color.source === "preset";
-      const hasPresetId = color.presetId !== null;
-      if (isPreset !== hasPresetId) {
-        ctx.addIssue({
-          code: "custom",
-          message:
-            '[INV-14] palette[].source="preset" のとき、かつそのときに限り presetId は非nullである必要があります',
-          path: ["palette", index, "presetId"],
-        });
-      }
-    });
+    checkStructuralReferentialIntegrity(doc, ctx);
 
     // INV-15: title・palette[].name・tools[].name・parts[].name は空文字不可（z.string().min(1)で担保済み）、
     //         日時はISO 8601（z.iso.datetime()で担保済み） — フィールド制約
