@@ -1,4 +1,6 @@
-# wrangler.toml — Cloudflare Pages用設定（この3行のみ。Functions等は使用しない）
+# wrangler.toml — ローカル開発（wrangler pages dev / d1 / r2）用設定。
+# 本番PagesはRoot=/構成のためこのファイルを読まない（ビルド設定・bindingsの正は
+# dashboard側: Settings → Bindings に DB / BUCKET を設定すること）。
 name = "coat-scriptorium"
 compatibility_date = "2026-07-01"
 pages_build_output_dir = "dist"
