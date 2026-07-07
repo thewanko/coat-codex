@@ -8,5 +8,5 @@
     "types": ["@cloudflare/workers-types"],
     "resolveJsonModule": true
   },
-  "include": ["src/server", "functions", "tests/fakes"]
+  "include": ["src/server", "tests/fakes"]
 }
