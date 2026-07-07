@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-08 scriptorium-s4-st19 前ループのtsc完了条件ルールを適用し型リグレッションを実装内で自己捕捉／D1フェイクの正規表現ディスパッチは列名で新旧分岐を判別 [GOOD]
+
+- 事象: ST-19（DELETE /api/recipes/:id）のimpl委譲で、前ループ（ST-18）のBAD学び「新規ファイル追加タスクの完了条件に`npm run build`(tsc)を含める」を適用した結果、implが作業中に自らTS6133（未使用paramのtsc失敗）を検出・修正し、型リグレッションが成果物に残らなかった（ST-18ではvitest素通り→build露見→追加委譲を要したのが、ST-19では委譲内で解決）。また、既存の`status='published'`固定の詳細SELECT分岐を壊さずに「全status取得の削除用フェッチ分岐」を追加する際、両SQLが`FROM recipes`+`WHERE id=?`にマッチする衝突を、削除フェッチ側のみが持つ列名`delete_pw_hash`を判別条件にし、かつ**詳細分岐より前に配置**することで解決。review R1(M1/L2/L3)→修正→**同一レビュアーへSendMessageでRound2依頼**（文脈保持・再Read不要）→PASS(C0/H0/M0/L0)も定石どおり機能
+- 原因（GOODの機序）: ①完了条件に型検査を含めたことで、実装者の反復ループ内で型エラーが可視化され、セッションへ戻る前に自己修正された ②正規表現ディスパッチのフェイクは「新パターンが既存パターンの部分集合（同じFROM/WHEREにマッチ）」になりやすいが、新パターン固有の識別子（列名・SET句）を判別条件に足し、包含関係で限定的な方を上に置けば誤ディスパッチを防げる
+- 一般化ルール (次ループの指示文としてそのまま使える形で): impl委譲の完了条件に`tsc`/`build`を含めるルールは有効＝継続適用する（同根の失敗が再発したらCLAUDE.md昇格）。正規表現ディスパッチのテストフェイクへ新SQL分岐を足すときは、(a)新SQL固有の識別子（列名・SET/RETURNING句）を判別条件に含める (b)既存分岐とSQLパターンが包含関係にある場合は、より限定的な新分岐を既存分岐の前に置く (c)判別条件の厳格化（例: `UPDATE recipes`→`UPDATE recipes`+`deleted_at=?`）は将来のSQL追加時の誤ディスパッチ＝偽緑を予防する。レビューのRound N+1は完了済みレビュアーへのSendMessageで文脈を保って依頼する（再Read不要で高速・低コスト）
+- 反映先: loop prompt（フェイク拡張の定石・Round N+1のSendMessage運用）
+- 発生回数: 1回目（ST-18のtsc-gate BAD学びが機能した実証。同根の失敗は再発せず）
+
 ## 2026-07-07 scriptorium-s4-st18 impl委譲の完了条件にtsc型検査を課さず・vitest緑がtsc緑を代表しない [BAD]
 
 - 事象: ST-18を3波でimpl委譲した際、Wave1/2の完了条件を`npm run test`(vitest)/lint/prettierのみとし`tsc -b`(型検査)を課さなかった。vitestはisolatedModulesで型検査しないため、狭いlib/types構成の`tsconfig.server.json`（workers-types単独・DOM/node型なし）配下で型リグレッション（`globalThis.crypto`〔workers-typesは`crypto`直グローバルのみ宣言〕・`node:crypto`/`Buffer`〔@types/node無し〕・`FakeD1Database`→`D1Database`キャスト漏れ・`Record<string,unknown>`代入不可）が全て素通りした。さらにpostRecipe.tsが`@coat-codex/recipe-core`をimportしたことでバレル経由でDOM依存の`exportFile.ts`(`BlobPart`)がサーバーtsconfigに引き込まれる統合エラーも発生。これらはWave3で初めて`npm run build`を走らせたとき露見し、build緑化に追加1委譲を要した

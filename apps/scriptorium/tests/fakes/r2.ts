@@ -40,4 +40,8 @@ export class FakeR2Bucket {
       httpMetadata: { contentType: entry.contentType },
     };
   }
+
+  async delete(key: string): Promise<void> {
+    this.store.delete(key);
+  }
 }
