@@ -32,10 +32,22 @@
     "badgeWarning": "⚠ 計 {{value}}%"
   },
   "feed": {
-    "heading": "新着レシピ"
+    "heading": "新着レシピ",
+    "loading": "レシピを読み込み中…",
+    "error": "レシピの読み込みに失敗しました。",
+    "empty": "レシピはまだありません。",
+    "loadMore": "もっと見る",
+    "loadingMore": "読み込み中…"
   },
   "recipeDetail": {
-    "heading": "レシピ"
+    "heading": "レシピ",
+    "loading": "レシピを読み込み中…",
+    "notFound": "レシピが見つかりませんでした。",
+    "backToFeed": "新着レシピへ戻る",
+    "paletteHeading": "使用カラー",
+    "toolsHeading": "使用ツール",
+    "baseHeading": "ベース",
+    "importCta": "coat-codexにインポート"
   },
   "postGuide": {
     "heading": "レシピの投稿方法"

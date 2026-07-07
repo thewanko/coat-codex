@@ -32,10 +32,22 @@
     "badgeWarning": "⚠ Total {{value}}%"
   },
   "feed": {
-    "heading": "New recipes"
+    "heading": "New recipes",
+    "loading": "Loading recipes…",
+    "error": "Failed to load recipes.",
+    "empty": "No recipes yet.",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…"
   },
   "recipeDetail": {
-    "heading": "Recipe"
+    "heading": "Recipe",
+    "loading": "Loading recipe…",
+    "notFound": "This recipe was not found.",
+    "backToFeed": "Back to new recipes",
+    "paletteHeading": "Palette",
+    "toolsHeading": "Tools",
+    "baseHeading": "Base",
+    "importCta": "Import to coat-codex"
   },
   "postGuide": {
     "heading": "How to post a recipe"
