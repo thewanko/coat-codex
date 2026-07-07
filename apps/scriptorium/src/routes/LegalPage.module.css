@@ -52,3 +52,11 @@
   line-height: var(--line-height-body);
   color: var(--color-ink-muted);
 }
+
+.appLink {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  align-self: flex-start;
+}

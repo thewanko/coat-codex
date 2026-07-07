@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-08 scriptorium-s4-st22 state.md/lessons.mdを触る連続ループのPRは直前ブランチにスタックしてdocsを累積させる（同一挿入位置の衝突回避） [BAD→GOOD]
+
+- 事象: S4を1マイルストーン=1ループ=1PRで進めた（ST-18マージ済/ST-19 #47/ST-20 #48/ST-22 #49）。各ループの出口でstate.md先頭とlessons.md先頭に新エントリを**同じ挿入位置**（`## 完了\n\n`直下）へprependする。ST-20ループでmainから新ブランチを切ったとき、state.mdがmainの版（ST-19エントリ不在・ST-18は「未コミット」表記のまま＝#47未マージのため）へ戻り、このまま進めるとPR #47と#48がstate.md/lessons.mdの同一行で3-way merge衝突する状態だった。ブランチをdelete-recipe(#47)基点へ切り直して回避し、以降ST-22も直前(cover-composer #48)にスタックさせてdocsを累積させた
+- 原因: 独立した機能（scriptorium server / codex lib / scriptorium page）を並列PRにすると本来コンフリクトしないが、**全ループが共有する追記先ファイル（state.md・lessons.md）を各ブランチが先頭prependする**ため、mainから独立に切ると同一アンカーで必ず衝突する。「機能は独立」と「docsは共有単一ログ」のギャップ
+- 一般化ルール (次ループの指示文としてそのまま使える形で): state.md/lessons.md を出口で更新する連続ループを未マージのまま積むときは、各ループのブランチを**直前ループのブランチ基点（スタック）**で切り、docsを累積させる（mainから独立に切ると先頭prependが3-way衝突する）。PRのbaseはmainのままでよいが、PR本文に「#N にスタック・#N マージ後に本PRは当該ループ分へ縮約・マージ順は番号順推奨」を明記する。ユーザーが番号順にマージすれば衝突ゼロ。未追跡の成果物ファイルはcheckoutを跨いでも保持されるので、ブランチ切り直しは成果物を失わずにできる（`git checkout <base>` → `git branch -D` → `git checkout -b`）
+- 反映先: loop prompt（連続ループのPRスタック運用・docs累積）
+- 発生回数: 1回目（BADの芽をセッションが出口前に自己検出・GOODに転じた）
+
 ## 2026-07-08 scriptorium-s4-st20 canvas系タスクは純関数＋依存注入でロジックをユニット化し実canvasはブラウザで焼込画素まで検証／低リスク純変換はopusレビューを裁定省略 [GOOD]
 
 - 事象: ST-20（codex coverComposer＝crop焼込＋WebP品質二分探索）で、canvasがjsdom不動という制約に対し、lessons M2-dataの定石「①依存注入+spyでロジックをユニット ②実APIはブラウザ検証」を適用。`computeCropPixelRect`/`findWebpQualityBlob`を純関数化し、`composeCover`は`decode`/`encodeRegion`注入で二分探索の収束・dest寸法・ソース矩形をspy検算（canvas不要）。実canvasは**セッションがpreview_evalで`import('/src/lib/coverComposer.ts')`し、ノイズ実画像→composeCover→出力WebPを`createImageBitmap`で復号し、寸法(1600×1200)・サイズ(395KB=200-400KB帯命中)・thumb(55KB)に加え、左上cropのcover中心画素RGB[213,35,36]=赤優勢で「9引数drawImageの焼込が正しい」ことまで検証**。opusレビューは「純クライアント変換・セキュリティ/永続化面なし」を理由に裁定省略（一次ロジック解析＋網羅ユニット＋実canvas検証で担保）。implは今回もtsc型検査でunion型`naturalWidth`エラーを自己捕捉（tsc-gateルール3回目の実効）

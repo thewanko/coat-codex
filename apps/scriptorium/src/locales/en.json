@@ -50,7 +50,20 @@
     "importCta": "Import to coat-codex"
   },
   "postGuide": {
-    "heading": "How to post a recipe"
+    "heading": "How to post a recipe",
+    "intro": "Recipes are created, edited, and published from the coat-codex app. Coat Scriptorium is the public library where published recipes appear.",
+    "appLinkLabel": "Open the coat-codex app",
+    "stepsHeading": "Publishing steps",
+    "step1": "Create or open a recipe in the coat-codex app.",
+    "step2": "Choose “Publish to Scriptorium”, then pick a cover image, a display handle, and a deletion password.",
+    "step3": "Your recipe appears in the public feed here within a few minutes.",
+    "publishedHeading": "What gets published",
+    "publishedBody": "Only the recipe structure (colors, tools, steps, techniques and mix ratios) and a single cover image are published. Your memos, tool notes, swatch photos, step photos and timestamps stay on your device.",
+    "notBackupBody": "Because of this, a published recipe is not a full backup — keep your own export if you need one.",
+    "deleteHeading": "Deleting a recipe",
+    "deleteBody": "Keep the deletion password you set when publishing. You can remove your recipe at any time from its page; deletion takes effect within about five minutes.",
+    "policyHeading": "Terms & photos",
+    "policyBody": "Only upload photos you took yourself. See the Terms and Content Policy for details."
   },
   "terms": {
     "heading": "Terms & Disclaimer",
