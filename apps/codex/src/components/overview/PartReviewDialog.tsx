@@ -1,9 +1,9 @@
 // components/overview/PartReviewDialog.tsx — パーツ工程レビュー（読み取り専用）
 // （技術計画v2.3 §3.3 PartCard行・§3.4冒頭ブロック・§4.2 T28・T40）
 //
-// PartCardの「工程レビュー」ボタンから開く読み取り専用ビュー。工程番号・技法名
-// （resolveTechniqueLabel）・塗料行（SwatchChip sm＋名前＋formatMixBadgeバッジ）・
-// ツール名・メモ・工程写真（resolvePhotoUrl解決。欠損時はプレースホルダ縞）を表示する。
+// PartCardの「工程レビュー」ボタンから開く読み取り専用ビュー。工程本体の表示は
+// @coat-codex/recipe-ui の StepListView（工程番号・技法名・塗料行・ツール名・メモ・
+// 工程写真〔usePhotoUrl経由。欠損時はプレースホルダ縞〕）に委譲する（ST-11）。
 // フッタに「このパーツを編集」（/recipe/:id/part/:partIdへLink）と共有ボタン（「SNSに共有」
 // 1ボタン）を置く。押下でShareDialogをmode="part"で開く（X/Bluesky選択はShareDialog内部の
 // タブに委ねる。2026-07-04 FB-A: 旧X用・Bluesky用2ボタン構成を統合）。
@@ -20,7 +20,8 @@
 // （ShareDialog.tsx/module.cssはT39確定物のためスコープ外＝z-index変更不可）。
 //
 // objectURLはこのダイアログのアンマウント時にrevokeしない（photoStore.tsの共有objectURL
-// キャッシュ方針に従い、resolvePhotoUrlの解決のみ行う。§2.6）。
+// キャッシュ方針に従い、resolvePhotoUrlの解決のみ行う。§2.6。実際の解決は
+// StepListView内のusePhotoUrl→App.tsxのPhotoSourceProviderが注入したresolvePhotoUrl経由）。
 //
 // 2026-07-03: BASEカード（RecipeOverviewPage側の合成part表示）の「工程レビュー」対応として
 // partId: string | null を受け付ける（nullがbaseモード）。baseモードはrecipe.baseStepsを
@@ -31,24 +32,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { resolvePhotoUrl } from "../../db/photoStore";
-import CroppedPhoto from "../common/CroppedPhoto";
-import SwatchChip from "../common/SwatchChip";
+import { StepListView } from "@coat-codex/recipe-ui";
 import EmptyState from "../common/EmptyState";
 import { useFocusTrap } from "../common/useFocusTrap";
 import ShareDialog, { type ShareDialogContext } from "./ShareDialog";
-import {
-  formatMixBadge,
-  isMixTotalValid,
-  resolveTechniqueLabel,
-  type CropRect,
-  type RecipeDoc,
-  type Step,
-} from "@coat-codex/recipe-core";
+import type { RecipeDoc } from "@coat-codex/recipe-core";
 import styles from "./PartReviewDialog.module.css";
-
-type PaletteColor = RecipeDoc["palette"][number];
-type Tool = RecipeDoc["tools"][number];
 
 interface PartReviewDialogProps {
   recipe: RecipeDoc;
@@ -56,137 +45,6 @@ interface PartReviewDialogProps {
   partId: string | null;
   open: boolean;
   onClose: () => void;
-}
-
-interface StepPhotoProps {
-  photoId: string | null;
-  crop: CropRect | null;
-}
-
-function StepPhoto({ photoId, crop }: StepPhotoProps) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!photoId) {
-      setPhotoUrl(null);
-      return;
-    }
-    let cancelled = false;
-    void resolvePhotoUrl(photoId).then((url) => {
-      if (!cancelled) {
-        setPhotoUrl(url);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [photoId]);
-
-  if (!photoId) {
-    return null;
-  }
-
-  return (
-    <span className={styles.stepPhoto}>
-      {photoUrl ? (
-        <CroppedPhoto
-          className={styles.stepPhotoImg}
-          src={photoUrl}
-          crop={crop}
-          alt=""
-        />
-      ) : (
-        <span className={styles.stepPhotoPlaceholder} aria-hidden="true" />
-      )}
-    </span>
-  );
-}
-
-interface StepRowProps {
-  step: Step;
-  index: number;
-  palette: PaletteColor[];
-  tools: Tool[];
-  photoCrops: Record<string, CropRect>;
-}
-
-function StepRow({ step, index, palette, tools, photoCrops }: StepRowProps) {
-  const { t } = useTranslation();
-  const techniqueLabel = resolveTechniqueLabel(step.technique, t);
-  const badgeText = formatMixBadge(step.paints, step.mix);
-  const showTotalWarning = !isMixTotalValid(step.paints, step.mix);
-  const totalPercent = step.mix
-    ? step.mix.reduce((sum, value) => sum + value, 0)
-    : 0;
-  const stepTools = step.toolIds
-    .map((toolId) => tools.find((tool) => tool.id === toolId))
-    .filter((tool): tool is Tool => tool !== undefined);
-
-  return (
-    <li className={styles.stepRow} data-testid="part-review-step">
-      <div className={styles.stepHeader}>
-        <span className={styles.stepNumber}>{index + 1}</span>
-        {techniqueLabel && (
-          <span className={styles.techniqueChip}>{techniqueLabel}</span>
-        )}
-      </div>
-
-      <div className={styles.stepBody}>
-        <StepPhoto
-          photoId={step.photoId}
-          crop={step.photoId ? (photoCrops[step.photoId] ?? null) : null}
-        />
-
-        <div className={styles.stepDetails}>
-          {step.paints.length > 0 && (
-            <div className={styles.paintRow}>
-              {step.paints.map((paint) => {
-                const color = palette.find((c) => c.id === paint.colorId);
-                return (
-                  <span key={paint.colorId} className={styles.paintChip}>
-                    <SwatchChip
-                      variant={color?.chipPhotoId ? "photo" : "hex"}
-                      size="sm"
-                      hex={color?.hex ?? undefined}
-                      photoId={color?.chipPhotoId ?? undefined}
-                      name={color?.name}
-                    />
-                    <span className={styles.paintName}>
-                      {color?.name ?? ""}
-                    </span>
-                  </span>
-                );
-              })}
-              {(badgeText || showTotalWarning) && (
-                <span className={styles.badgeRow}>
-                  {badgeText && (
-                    <span className={styles.mixBadge}>{badgeText}</span>
-                  )}
-                  {showTotalWarning && (
-                    <span className={styles.mixErrorBadge}>
-                      {t("mix.badgeWarning", { value: totalPercent })}
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-          )}
-
-          {stepTools.length > 0 && (
-            <div className={styles.toolRow}>
-              {stepTools.map((tool) => (
-                <span key={tool.id} className={styles.toolChip}>
-                  {tool.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {step.memo && <p className={styles.memo}>{step.memo}</p>}
-        </div>
-      </div>
-    </li>
-  );
 }
 
 function PartReviewDialog({
@@ -270,18 +128,12 @@ function PartReviewDialog({
                 description=""
               />
             ) : (
-              <ol className={styles.stepList}>
-                {reviewSteps.map((step, index) => (
-                  <StepRow
-                    key={step.id}
-                    step={step}
-                    index={index}
-                    palette={recipe.palette}
-                    tools={recipe.tools}
-                    photoCrops={recipe.photoCrops}
-                  />
-                ))}
-              </ol>
+              <StepListView
+                steps={reviewSteps}
+                palette={recipe.palette}
+                tools={recipe.tools}
+                photoCrops={recipe.photoCrops}
+              />
             )}
           </div>
 

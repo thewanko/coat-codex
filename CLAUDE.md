@@ -64,7 +64,7 @@
 
 ## プロジェクト固有 (coat-codex: npm workspaces monorepo / Vite + React 19 + TypeScript SPA)
 
-- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2予定）。ルートは設定と委譲スクリプトのみ
+- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2切り出し済み 2026-07-07: SwatchChip注入化・CroppedPhoto・theme.css・MixBadge/TechniqueChip/StepListView・PhotoSourceProvider/usePhotoUrl・REQUIRED_I18N_KEYS。codexはApp.tsxでresolvePhotoUrlを注入）。ルートは設定と委譲スクリプトのみ
 - 仕様の正: codex = `docs/coat-codex_技術計画_v2.md`（v2.4）／Scriptorium = `docs/coat-scriptorium_技術計画_v1.md`。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
 - テスト: `npm test`（ルート・vitest projects経由で全workspace）
 - lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check apps packages "./*.{js,ts,json}"`

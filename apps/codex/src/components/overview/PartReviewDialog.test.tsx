@@ -7,8 +7,10 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import i18next from "../../i18n";
 import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
+import { PhotoSourceProvider } from "@coat-codex/recipe-ui";
 import PartReviewDialog from "./PartReviewDialog";
 import ToastHost from "../common/ToastHost";
+import { resolvePhotoUrl } from "../../db/photoStore";
 
 vi.mock("../../db/db", () => ({
   db: {
@@ -85,14 +87,16 @@ function renderDialog(
 ) {
   render(
     <ToastHost>
-      <MemoryRouter>
-        <PartReviewDialog
-          recipe={recipe}
-          partId={partId}
-          open={open}
-          onClose={onClose}
-        />
-      </MemoryRouter>
+      <PhotoSourceProvider resolvePhotoUrl={resolvePhotoUrl}>
+        <MemoryRouter>
+          <PartReviewDialog
+            recipe={recipe}
+            partId={partId}
+            open={open}
+            onClose={onClose}
+          />
+        </MemoryRouter>
+      </PhotoSourceProvider>
     </ToastHost>,
   );
   return { onClose };

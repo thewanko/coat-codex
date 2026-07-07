@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { searchColors, type PaintPresetColor } from "../../lib/paintPresets";
-import SwatchChip from "../common/SwatchChip";
+import { SwatchChip } from "@coat-codex/recipe-ui";
 import styles from "./ColorSelect.module.css";
 
 interface ColorSelectProps {

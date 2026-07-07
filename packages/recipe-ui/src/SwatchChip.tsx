@@ -1,13 +1,13 @@
-// components/common/SwatchChip.tsx — 色見本チップ（デザイン仕様書§4「SwatchChip」）
+// packages/recipe-ui/src/SwatchChip.tsx — 色見本チップ（デザイン仕様書§4「SwatchChip」）
 //
 // テーマ変更の影響を受けない中立領域。白台紙（--color-swatch-frame）＋テーマ色に依存しない
 // 枠・市松のみを使用する。variant=hex/photo/emptyの3種、size=sm16/md24/lg40/xl44。
 // md以上は名前併記、lg以上は「ブランド ・ #hex」（mono）併記。
-// variant=photoはchip写真をresolvePhotoUrlで解決し非加工でそのまま表示する。
+// variant=photoはchip写真をusePhotoUrl（ホストアプリが注入するresolvePhotoUrl経由。
+// coat-scriptorium 技術計画v1 §5.2）で解決し非加工でそのまま表示する。
 
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { resolvePhotoUrl } from "../../db/photoStore";
+import { usePhotoUrl } from "./photoSourceContext";
 import styles from "./SwatchChip.module.css";
 
 export type SwatchChipSize = "sm" | "md" | "lg" | "xl";
@@ -42,23 +42,7 @@ function SwatchChip({
   brand,
 }: SwatchChipProps) {
   const { t } = useTranslation();
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (variant !== "photo" || !photoId) {
-      setPhotoUrl(null);
-      return;
-    }
-    let cancelled = false;
-    void resolvePhotoUrl(photoId).then((url) => {
-      if (!cancelled) {
-        setPhotoUrl(url);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [variant, photoId]);
+  const photoUrl = usePhotoUrl(variant === "photo" ? photoId : undefined);
 
   const showName = size === "md" || size === "lg" || size === "xl";
   const showBrandHex = size === "lg" || size === "xl";

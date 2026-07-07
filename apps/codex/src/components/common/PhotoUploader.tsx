@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { savePhoto, resolvePhotoUrl, deletePhoto } from "../../db/photoStore";
 import { useToast } from "./toastContext";
 import ConfirmDialog from "./ConfirmDialog";
-import CroppedPhoto from "./CroppedPhoto";
+import { CroppedPhoto } from "@coat-codex/recipe-ui";
 import PhotoCropDialog from "./PhotoCropDialog";
 import Skeleton from "./Skeleton";
 import type { CropRect } from "@coat-codex/recipe-core";

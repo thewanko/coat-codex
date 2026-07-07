@@ -22,7 +22,7 @@ import {
   type PaintBrandMeta,
 } from "../../lib/paintPresets";
 import { useToast } from "../common/toastContext";
-import SwatchChip from "../common/SwatchChip";
+import { SwatchChip } from "@coat-codex/recipe-ui";
 import BrandSelect from "./BrandSelect";
 import ColorSelect from "./ColorSelect";
 import RangeFilter from "./RangeFilter";

@@ -91,12 +91,17 @@ const enBaseKeys = toBaseKeySet(enKeys);
 // node:fs（tsc -bのtype-check対象。@types/node非導入のため使用不可）の代わりに
 // Vite組み込みのimport.meta.globで生ソースを静的取得する（ビルド時のtsc型検査を
 // 通過しつつ、テスト実行時はeager評価で全文字列を読み込める）。
+// packages/recipe-ui/src配下も対象に含める（ST-10でSwatchChip等がrecipe-uiへ
+// 切り出され、そちらのt()呼び出しもja.json到達可能性判定の対象にする必要があるため）。
 
-const rawSourceModules = import.meta.glob("/src/**/*.{ts,tsx}", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-}) as Record<string, string>;
+const rawSourceModules = import.meta.glob(
+  ["/src/**/*.{ts,tsx}", "/../../packages/recipe-ui/src/**/*.{ts,tsx}"],
+  {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  },
+) as Record<string, string>;
 
 const sourceFileContents = new Map<string, string>();
 for (const [filePath, content] of Object.entries(rawSourceModules)) {

@@ -1,0 +1,10 @@
+/* TechniqueChip — 技法チップ（PartReviewDialog.module.cssの.techniqueChipを逐語移動） */
+
+.techniqueChip {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-full);
+  padding: 2px 10px;
+}

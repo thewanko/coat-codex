@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import type { ComposedShareImage } from "../../lib/sns/imageComposer";
 import type { CropRect } from "@coat-codex/recipe-core";
-import CroppedPhoto from "../common/CroppedPhoto";
+import { CroppedPhoto } from "@coat-codex/recipe-ui";
 import styles from "./ShareImagePreview.module.css";
 
 export const SHARE_IMAGE_MAX_SELECTION = 4;
