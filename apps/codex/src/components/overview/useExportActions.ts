@@ -26,6 +26,8 @@
 //       T36仕様。PDFボタンは印刷と挙動が同一だったため2026-07-03ユーザー決定で削除）。
 // SNS共有: ShareDialogをmode="whole"で開く（T40・§3.4手順1。2026-07-04 FB-A: X/Bluesky
 //       2ボタンを「SNSに投稿」1ボタンへ統合し、target選択の責務はShareDialog内部へ移した）。
+// Scriptorium投稿: PublishDialogのopen/close状態のみを持つ（送信ロジック本体は
+//       PublishDialog側・lib/publishToScriptorium.tsに委譲。技術計画v1.3 §6-1・ST-21）。
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -105,6 +107,11 @@ export interface UseExportActionsResult {
   /** ShareDialogのcontext（openがfalseの間はnull。参照安定化は不要。理由はshareDialogContext定義部コメント参照） */
   shareDialogContext: ShareDialogContext | null;
   handleCloseShareDialog: () => void;
+  /** 「Scriptoriumに公開」ボタンのonClick（PublishDialogを開く。ST-21 §6-1） */
+  handleOpenPublish: () => void;
+  /** PublishDialogのopen状態 */
+  publishDialogOpen: boolean;
+  handleClosePublish: () => void;
 }
 
 export function useExportActions(
@@ -116,6 +123,7 @@ export function useExportActions(
   const navigate = useNavigate();
   const [exportChoiceOpen, setExportChoiceOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [noteMdCopied, setNoteMdCopied] = useState(false);
   const [noteMdFallbackMarkdown, setNoteMdFallbackMarkdown] = useState<
     string | null
@@ -244,6 +252,15 @@ export function useExportActions(
     setShareOpen(false);
   }
 
+  function handleOpenPublish() {
+    if (!recipe) return;
+    setPublishOpen(true);
+  }
+
+  function handleClosePublish() {
+    setPublishOpen(false);
+  }
+
   // ShareDialogのeffectはopen/mode/recipe.id/partIdなど一次値にのみ依存し、
   // context自体の参照安定性には依存しない（ShareDialog.tsx側のrefパターン・
   // PartReviewDialogの結線と同趣旨）。そのため参照安定化のためのuseMemoは不要。
@@ -266,5 +283,8 @@ export function useExportActions(
     shareDialogOpen: shareOpen,
     shareDialogContext,
     handleCloseShareDialog,
+    handleOpenPublish,
+    publishDialogOpen: publishOpen,
+    handleClosePublish,
   };
 }

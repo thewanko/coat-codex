@@ -8,6 +8,15 @@
 
 ---
 
+## 2026-07-08 scriptorium-s4-st21 implの「build exit 0」報告が誤りだった（tsc増分キャッシュ/楽観報告）→セッションは裁定でbuildを独立再実行する [BAD] → CLAUDE.md 昇格済み
+
+- 事象: ST-21 Wave A（publishToScriptorium）でimplが「`npm run build`: exit 0」と報告したが、セッションが裁定で独立再実行すると**実際は exit 1**（`vi.fn` に関数型注釈を付けたため Mock 型が消え `.mock` アクセスが TS2339）。vitest は esbuild で型検査しないため 1402 テストは緑・tsc だけが赤。ST-18 では「完了条件に tsc を入れ忘れ」て型リグレッションが露見、ST-21 では「tsc を入れたのに impl の exit-code 報告が不正確」＝同根（vitest 緑 ≠ tsc 緑）の別相。セッションの独立再実行が捕捉し、`vi.fn<(...) => Promise<void>>()` ジェネリック型付け（Mock 型＋引数型を両立）で修正。修正が `no-unused-vars`（`_` 接頭辞非許容）で再度 lint 赤になったのも独立再実行で検出しジェネリック形へ再修正
+- 原因: ①vitest(esbuild/isolatedModules)は型を検査しない ②impl の完了報告は tsc 増分キャッシュ（tsBuildInfo）や楽観で「build 緑」が偽になり得る ③`vi.fn` に明示関数型注釈を付けると Mock 型が失われ `.mock` が使えない（vitest の型付けの罠）
+- 一般化ルール (次ループの指示文としてそのまま使える形で): **新規/変更した .ts/.tsx を含む impl 委譲の完了条件に `npm run build`(tsc) を必ず含める。かつセッションは裁定で `npm run build` と `npm run lint` を独立再実行し、impl の exit-code 報告を鵜呑みにしない**（vitest は型検査せず・tsc 増分キャッシュや楽観報告で「build 緑」が偽になり得る）。テストで `vi.fn()` の呼び出し引数を検証（`.mock.calls`）する場合、関数型注釈を変数に付けず `vi.fn<(a: A, b: B) => R>()` のジェネリック形で型付けする（注釈は Mock 型を消す・`_` 接頭辞の未使用引数は lint 非許容）
+- 反映先: **CLAUDE.md 昇格済み**（「token 規律」/「委譲・レビューの規律」に「impl 完了条件へ tsc/build を含める＋セッション独立再実行」を追加。ST-18〔tsc 未課〕と ST-21〔報告不正確〕で同根 2 回目）
+- 発生回数: 2 回目（ST-18 の「vitest 緑 ≠ tsc 緑」と合算。→ CLAUDE.md 昇格）
+- 付記GOOD: ①複雑なダイアログ（PublishDialog）の render 検証を preview_eval（DOM 構造・i18n 解決・cover プレビュー・生キー漏れゼロ・submit disabled）＋screenshot（秘伝書意匠整合）で実施＝unit では見えない実描画を確認 ②Turnstile は localhost が許可ホスト外＝実投稿 e2e を代表できないため、環境依存検証（clipboard/Web Share/iOS と同じ相）としてユーザーのデプロイ環境へ引き渡し＋出口に明示 ③B1 の非コンポーネント export（loadTurnstileScript）を .ts 分離した react-refresh 対応は既存慣習（photoSourceContext/useExportActions）どおり機能
+
 ## 2026-07-08 scriptorium-s4-st22 state.md/lessons.mdを触る連続ループのPRは直前ブランチにスタックしてdocsを累積させる（同一挿入位置の衝突回避） [BAD→GOOD]
 
 - 事象: S4を1マイルストーン=1ループ=1PRで進めた（ST-18マージ済/ST-19 #47/ST-20 #48/ST-22 #49）。各ループの出口でstate.md先頭とlessons.md先頭に新エントリを**同じ挿入位置**（`## 完了\n\n`直下）へprependする。ST-20ループでmainから新ブランチを切ったとき、state.mdがmainの版（ST-19エントリ不在・ST-18は「未コミット」表記のまま＝#47未マージのため）へ戻り、このまま進めるとPR #47と#48がstate.md/lessons.mdの同一行で3-way merge衝突する状態だった。ブランチをdelete-recipe(#47)基点へ切り直して回避し、以降ST-22も直前(cover-composer #48)にスタックさせてdocsを累積させた
