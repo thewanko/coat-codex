@@ -2,3 +2,14 @@
 name = "coat-scriptorium"
 compatibility_date = "2026-07-01"
 pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "coat-scriptorium-db"
+# ST-13時点はプレースホルダ（未ログインのためリモートDB未作成）。
+# `npx wrangler d1 create coat-scriptorium-db` 実行後、発行されたuuidへ差し替えること。
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "coat-scriptorium-images"
