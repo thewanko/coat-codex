@@ -1,0 +1,122 @@
+/* StepListView — 読み取り専用工程リスト（PartReviewDialog.module.cssの
+   .stepList〜.memo相当ブロックを逐語移動。.mixBadge/.mixErrorBadgeはMixBadgeへ、
+   .techniqueChipはTechniqueChipへ移動済みのためここには含まない） */
+
+.stepList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stepRow {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-raised);
+  padding: var(--space-3);
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.stepNumber {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  width: 20px;
+  text-align: center;
+  flex: none;
+}
+
+.stepBody {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.stepPhoto {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-line);
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+}
+
+.stepPhotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stepPhotoPlaceholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-placeholder-a) 0 9px,
+    var(--color-placeholder-b) 9px 18px
+  );
+}
+
+.stepDetails {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.paintRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.paintChip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.paintName {
+  font-size: var(--font-size-sm);
+}
+
+.badgeRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.toolRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.toolChip {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
+}
+
+.memo {
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-muted);
+  margin: 0;
+  white-space: pre-wrap;
+}

@@ -145,27 +145,6 @@
   flex-wrap: wrap;
 }
 
-.mixBadge {
-  font-family: var(--font-family-mono);
-  font-weight: var(--font-weight-medium);
-  font-size: 10.5px;
-  background: var(--color-bg-raised);
-  border: 1px solid var(--color-gold-soft);
-  border-radius: var(--radius-full);
-  padding: 2px 8px;
-}
-
-.mixErrorBadge {
-  font-family: var(--font-family-mono);
-  font-weight: var(--font-weight-medium);
-  font-size: 10.5px;
-  background: var(--color-danger-bg);
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-  border-radius: var(--radius-full);
-  padding: 2px 8px;
-}
-
 .chevron {
   color: var(--color-ink-faint);
   font-weight: var(--font-weight-bold);

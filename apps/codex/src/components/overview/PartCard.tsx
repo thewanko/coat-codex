@@ -32,7 +32,7 @@ import { useEffect, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
-import { CroppedPhoto } from "@coat-codex/recipe-ui";
+import { CroppedPhoto, MixBadge } from "@coat-codex/recipe-ui";
 import Skeleton from "../common/Skeleton";
 import {
   formatMixBadge,
@@ -117,9 +117,6 @@ function PartCard({
   const showTotalWarning = thumbInfo
     ? !isMixTotalValid(thumbInfo.step.paints, thumbInfo.step.mix)
     : false;
-  const totalPercent = thumbInfo?.step.mix
-    ? thumbInfo.step.mix.reduce((sum, value) => sum + value, 0)
-    : 0;
 
   function handleReviewClick(event: MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
@@ -191,12 +188,11 @@ function PartCard({
         )}
         {(badgeText || showTotalWarning) && (
           <span className={styles.badgeRow}>
-            {badgeText && <span className={styles.mixBadge}>{badgeText}</span>}
-            {showTotalWarning && (
-              <span className={styles.mixErrorBadge}>
-                {t("mix.badgeWarning", { value: totalPercent })}
-              </span>
-            )}
+            <MixBadge
+              paints={thumbInfo?.step.paints ?? []}
+              mix={thumbInfo?.step.mix ?? null}
+              surface="raised"
+            />
           </span>
         )}
         <span className={styles.stepsCount}>
