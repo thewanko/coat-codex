@@ -1,0 +1,49 @@
+{
+  "app": {
+    "title": "Coat Scriptorium"
+  },
+  "lang": {
+    "switcherLabel": "Language",
+    "en": "EN",
+    "ja": "JA"
+  },
+  "footer": {
+    "copyright": "© coat-codex"
+  },
+  "techniques": {
+    "prime": "Prime",
+    "basecoat": "Basecoat",
+    "layer": "Layer",
+    "wash": "Wash",
+    "drybrush": "Drybrush",
+    "edge-highlight": "Edge Highlight",
+    "glaze": "Glaze",
+    "stipple": "Stipple",
+    "masking": "Masking",
+    "varnish": "Varnish"
+  },
+  "paint": {
+    "hexUnset": "No hex"
+  },
+  "mix": {
+    "badgeWarning": "⚠ Total {{value}}%"
+  },
+  "feed": {
+    "heading": "New recipes"
+  },
+  "recipeDetail": {
+    "heading": "Recipe"
+  },
+  "postGuide": {
+    "heading": "How to post a recipe"
+  },
+  "terms": {
+    "heading": "Terms & Disclaimer"
+  },
+  "contentPolicy": {
+    "heading": "Content Policy"
+  },
+  "admin": {
+    "heading": "Admin"
+  }
+}

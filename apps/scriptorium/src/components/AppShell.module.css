@@ -1,0 +1,77 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 var(--space-6);
+  height: var(--actionbar-height);
+  background: var(--color-bg-raised);
+  border-bottom: 2px solid var(--color-gold-soft);
+}
+
+.brand {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xl);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.brand:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.langSwitcher {
+  display: flex;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.langButton {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: none;
+  background: var(--color-bg-sunken);
+  color: var(--color-ink-muted);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.langButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.langButtonSelected {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.main {
+  flex: 1;
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.footer {
+  padding: var(--space-4) var(--space-6);
+  text-align: center;
+  color: var(--color-ink-faint);
+  font-size: var(--font-size-xs);
+  border-top: 1px solid var(--color-line);
+  background: var(--color-bg-raised);
+}

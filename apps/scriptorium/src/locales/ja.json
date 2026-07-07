@@ -1,0 +1,49 @@
+{
+  "app": {
+    "title": "Coat Scriptorium"
+  },
+  "lang": {
+    "switcherLabel": "言語",
+    "en": "EN",
+    "ja": "JA"
+  },
+  "footer": {
+    "copyright": "© coat-codex"
+  },
+  "techniques": {
+    "prime": "プライマー",
+    "basecoat": "ベースコート",
+    "layer": "レイヤー",
+    "wash": "ウォッシュ",
+    "drybrush": "ドライブラシ",
+    "edge-highlight": "エッジハイライト",
+    "glaze": "グレーズ",
+    "stipple": "スティップリング",
+    "masking": "マスキング",
+    "varnish": "バーニッシュ（ニス）"
+  },
+  "paint": {
+    "hexUnset": "hex未指定"
+  },
+  "mix": {
+    "badgeWarning": "⚠ 計 {{value}}%"
+  },
+  "feed": {
+    "heading": "新着レシピ"
+  },
+  "recipeDetail": {
+    "heading": "レシピ"
+  },
+  "postGuide": {
+    "heading": "レシピの投稿方法"
+  },
+  "terms": {
+    "heading": "利用規約・免責"
+  },
+  "contentPolicy": {
+    "heading": "コンテンツポリシー"
+  },
+  "admin": {
+    "heading": "管理"
+  }
+}
