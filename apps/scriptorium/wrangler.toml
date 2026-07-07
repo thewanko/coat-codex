@@ -8,9 +8,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "coat-scriptorium-db"
-# ST-13時点はプレースホルダ（未ログインのためリモートDB未作成）。
-# `npx wrangler d1 create coat-scriptorium-db` 実行後、発行されたuuidへ差し替えること。
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "9405d72d-0de5-4acc-b23a-2b7c626e7b52"
 
 [[r2_buckets]]
 binding = "BUCKET"
