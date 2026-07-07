@@ -2,7 +2,7 @@
 
 **位置づけ**: [要件定義書](coat-codex_要件定義.md)に基づく技術計画の第2版。v1に対する3観点レビュー（要件カバレッジ／技術的正確性／データスキーマ整合性。重大度「高」10件を含む約30件の指摘）を全面反映し、多段の敵対的検証・修復を経て確定した。実装フェーズ（Opus=レビュー／Sonnet=実装）は§4のタスクを上から順に実施する。
 
-**改訂履歴**: 2026-07-02 v2.2: デザイン決定稿（[デザイン仕様書](design/coat-codex_デザイン仕様書.md)§8、検討t4/t5合意）の提案A（工程写真1枚紐づけ）・提案B（MIX%再設計）を反映。**要件定義10-3の「パーツ写真複数枚」「%とA:B比率の両保持」からの合意済み変更**（原典は改訂せず本書を正とする）。／2026-07-03 v2.3: **SNS共有を全体/パーツの2起点に変更**・投稿テキストに**URLを含めない**（Xのリンク付き投稿リーチ抑制対策）・**`#coat-codex`タグ必須**（§3.4）。プリセット3ブランド確定（§6）。**Setupの使用カラー先行登録を廃止**（要件10-1からの変更: 色は工程のPaintPickerからのみ追加され、参照0になったpalette色は保存時に自動GC=チップ写真Blob含む）。**工程のツール指定を「その場追加＋登録済み選択」に拡張**（Setupのツール登録も併存）。／2026-07-06 v2.4: ハッシュタグを`#coatcodex`へ変更（Xのハッシュタグはハイフンで途切れるため。トリム対象外＝末尾維持の仕様は不変）。
+**改訂履歴**: 2026-07-02 v2.2: デザイン決定稿（[デザイン仕様書](design/coat-codex_デザイン仕様書.md)§8、検討t4/t5合意）の提案A（工程写真1枚紐づけ）・提案B（MIX%再設計）を反映。**要件定義10-3の「パーツ写真複数枚」「%とA:B比率の両保持」からの合意済み変更**（原典は改訂せず本書を正とする）。／2026-07-03 v2.3: **SNS共有を全体/パーツの2起点に変更**・投稿テキストに**URLを含めない**（Xのリンク付き投稿リーチ抑制対策）・**`#coat-codex`タグ必須**（§3.4）。プリセット3ブランド確定（§6）。**Setupの使用カラー先行登録を廃止**（要件10-1からの変更: 色は工程のPaintPickerからのみ追加され、参照0になったpalette色は保存時に自動GC=チップ写真Blob含む）。**工程のツール指定を「その場追加＋登録済み選択」に拡張**（Setupのツール登録も併存）。／2026-07-06 v2.4: ハッシュタグを`#coatcodex`へ変更（Xのハッシュタグはハイフンで途切れるため。トリム対象外＝末尾維持の仕様は不変）。／2026-07-07 v2.5: monorepo切り出し追随（Scriptorium計画v1 §5.1/§5.2の実装記録）: schema/純ロジック/exchange/convertは`packages/recipe-core`（S1）、SwatchChip（resolvePhotoUrl注入化）・CroppedPhoto・theme.css・表示アトム（MixBadge/TechniqueChip/StepListView）・PhotoSourceProvider/usePhotoUrl・REQUIRED_I18N_KEYSは`packages/recipe-ui`（S2）へ移動。codexはApp.tsxで`photoStore.resolvePhotoUrl`を注入。PrintRecipeSheetの印刷意匠バッジはcodex残留（アトム非適用）。
 
 **採用スタック（確定。バージョン固定の単一情報源は§4.1）**: Vite + React 19 + TypeScript / Zustand v5 / Dexie.js（IndexedDB）/ zod v4 / react-i18next / @dnd-kit/core@6.x + @dnd-kit/sortable / react-router v7（declarative mode）
 
@@ -36,8 +36,9 @@ coat-codex/
 │   │   ├── PrintViewPage.tsx      # 印刷／PDF用レイアウト
 │   │   └── TermsPage.tsx          # 利用規約・免責（データ消失自己責任の明記場所）
 │   ├── components/
-│   │   ├── common/      # AppShell, LanguageSwitcher, AppFooter, ToastHost, SwatchChip,
+│   │   ├── common/      # AppShell, LanguageSwitcher, AppFooter, ToastHost,
 │   │   │                #   PhotoUploader, ConfirmDialog, EmptyState, Skeleton, ImportErrorDialog
+│   │   │                #   （v2.5: SwatchChip・CroppedPhoto・表示アトムは packages/recipe-ui へ移動）
 │   │   ├── home/        # RecipeCardGrid, RecipeCard, NewRecipeButton, ImportJsonButton,
 │   │   │                #   StorageStatusBar, ExportReminderBanner
 │   │   ├── setup/       # TitleInput, OverviewPhotoUploader, PaletteEditor, ToolListEditor,
