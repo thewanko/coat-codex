@@ -8,7 +8,10 @@
     "ja": "JA"
   },
   "footer": {
-    "copyright": "© coat-codex"
+    "copyright": "© coat-codex",
+    "terms": "利用規約・免責",
+    "contentPolicy": "コンテンツポリシー",
+    "trademarkNotice": "「Citadel Colour」「Vallejo」「AK Interactive」「Coat d'Arms」は各社の商標です。coat-codexは非公式のファンメイドツールであり、上記いずれの企業とも提携・後援関係はありません。"
   },
   "techniques": {
     "prime": "プライマー",
@@ -38,10 +41,42 @@
     "heading": "レシピの投稿方法"
   },
   "terms": {
-    "heading": "利用規約・免責"
+    "heading": "利用規約・免責",
+    "ownershipHeading": "投稿コンテンツの権利について",
+    "ownershipBody": "投稿されたレシピの権利は、投稿者ご本人に帰属します。Coat Scriptoriumへの投稿により、投稿者はcoat-codexに対し、本サイト上で投稿物を表示・保存・配信するための非独占的な許諾を与えるものとします。",
+    "deletionHeading": "投稿の削除について",
+    "deletionBody": "各投稿は、投稿時に設定した削除パスワードで保護されています。レシピページで削除パスワードを入力すれば、いつでもご自身の投稿を削除できます。削除パスワードを紛失した場合は{{email}}までご連絡ください。合理的な確認の上、削除に対応します。",
+    "deletionTtlBody": "公開ページや画像はキャッシュを介して配信されているため、削除の反映には最大5分程度かかる場合があります。キャッシュの有効期限が切れるまでは、削除前の内容が一部の閲覧者に表示されることがあります。",
+    "disclaimerHeading": "免責事項",
+    "disclaimerBody": "Coat Scriptoriumは「現状有姿（as is）」で提供され、いかなる保証も行いません。本サイトおよび掲載レシピのご利用は自己責任でお願いします。coat-codexは、本サイトの利用により生じた損害について一切の責任を負いません。",
+    "trademarkHeading": "商標について",
+    "trademarkIntro": "coat-codexは、ホビー塗装愛好家が個人で開発している非営利のファンメイドツールです。本アプリ内で言及している塗料メーカー・ブランドのいずれとも、提携・後援・公式な関係はありません。",
+    "trademarkListIntro": "coat-codex内で言及している以下のブランド名・製品名は、各社の商標または商号です。",
+    "trademarkCitadel": "Citadel Colour — Games Workshop Limitedの商標",
+    "trademarkVallejo": "Vallejo — Acrylicos Vallejo, S.L.の商標",
+    "trademarkAk": "AK Interactive — 同社の商標",
+    "trademarkCoatDarms": "Coat d'Arms — 現在の製造・販売元の商号",
+    "trademarkOwnership": "これらのブランド名・製品名の権利は、それぞれの権利者に帰属します。coat-codex内での使用は、ユーザーが自分の塗装記録のために色を識別・記録する目的に限られ、いかなる業務提携・後援・公認関係を示すものではありません。",
+    "trademarkColorNote": "coat-codexに表示される色（hex/RGB値）は、公開されている参考情報をもとに作成した実物塗料の近似デジタル値です。画面の表示設定・照明条件・製造ロットの違いにより、実物の色と異なる場合があります。",
+    "trademarkContact": "本アプリでのブランド表記について権利者の方からご懸念がある場合は、下記までご連絡ください：{{email}}"
   },
   "contentPolicy": {
-    "heading": "コンテンツポリシー"
+    "heading": "コンテンツポリシー",
+    "photoHeading": "投稿できる写真はご自身で撮影したものに限ります",
+    "photoBody": "投稿できる写真は、ご自身が塗装したミニチュアをご自身で撮影したものに限ります。公式アートワークやボックスアート、他者が撮影した写真の転載は禁止です。転載写真の使用が確認された投稿は削除されます。",
+    "reportingHeading": "投稿の通報について",
+    "reportingBody": "各レシピページには通報ボタンがあります。本ポリシーに違反する投稿を見つけた場合は、通報ボタンからご報告ください。",
+    "reportingThresholdBody": "一定数以上の異なる訪問者から通報を受けた投稿は、モデレーションが完了するまで公開一覧から自動的に非表示になります。",
+    "trademarkHeading": "商標について",
+    "trademarkIntro": "coat-codexは、ホビー塗装愛好家が個人で開発している非営利のファンメイドツールです。本アプリ内で言及している塗料メーカー・ブランドのいずれとも、提携・後援・公式な関係はありません。",
+    "trademarkListIntro": "coat-codex内で言及している以下のブランド名・製品名は、各社の商標または商号です。",
+    "trademarkCitadel": "Citadel Colour — Games Workshop Limitedの商標",
+    "trademarkVallejo": "Vallejo — Acrylicos Vallejo, S.L.の商標",
+    "trademarkAk": "AK Interactive — 同社の商標",
+    "trademarkCoatDarms": "Coat d'Arms — 現在の製造・販売元の商号",
+    "trademarkOwnership": "これらのブランド名・製品名の権利は、それぞれの権利者に帰属します。coat-codex内での使用は、ユーザーが自分の塗装記録のために色を識別・記録する目的に限られ、いかなる業務提携・後援・公認関係を示すものではありません。",
+    "trademarkColorNote": "coat-codexに表示される色（hex/RGB値）は、公開されている参考情報をもとに作成した実物塗料の近似デジタル値です。画面の表示設定・照明条件・製造ロットの違いにより、実物の色と異なる場合があります。",
+    "trademarkContact": "本アプリでのブランド表記について権利者の方からご懸念がある場合は、下記までご連絡ください：{{email}}"
   },
   "admin": {
     "heading": "管理"

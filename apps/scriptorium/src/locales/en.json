@@ -8,7 +8,10 @@
     "ja": "JA"
   },
   "footer": {
-    "copyright": "© coat-codex"
+    "copyright": "© coat-codex",
+    "terms": "Terms & Disclaimer",
+    "contentPolicy": "Content Policy",
+    "trademarkNotice": "Citadel Colour, Vallejo, AK Interactive, and Coat d'Arms are trademarks of their respective owners. coat-codex is an independent fan project and is not affiliated with, endorsed by, or sponsored by any of them."
   },
   "techniques": {
     "prime": "Prime",
@@ -38,10 +41,42 @@
     "heading": "How to post a recipe"
   },
   "terms": {
-    "heading": "Terms & Disclaimer"
+    "heading": "Terms & Disclaimer",
+    "ownershipHeading": "Ownership of submitted content",
+    "ownershipBody": "Rights to any recipe you submit remain with you, the submitter. By posting to Coat Scriptorium, you grant coat-codex a non-exclusive license to display, store, and distribute your submission on this site.",
+    "deletionHeading": "Deleting your post",
+    "deletionBody": "Each post is protected by a delete password you set at submission time. You can delete your own post at any time by entering that password on the recipe page. If you lose your delete password, contact us at {{email}} and we will assist with removal after reasonable verification.",
+    "deletionTtlBody": "Because published pages and images are served through a cache, deletion may take up to 5 minutes to be fully reflected across all viewers before the cached copies expire.",
+    "disclaimerHeading": "Disclaimer",
+    "disclaimerBody": "Coat Scriptorium is provided \"as is\", without warranty of any kind. Use of this site and any recipes found on it is at your own risk; coat-codex accepts no responsibility for any loss or damages arising from its use.",
+    "trademarkHeading": "Trademark Notice",
+    "trademarkIntro": "coat-codex is an independent, non-commercial hobby project built by a hobbyist for hobbyists. It is not affiliated with, endorsed by, sponsored by, or otherwise officially connected with any of the paint manufacturers or brands referenced within the app.",
+    "trademarkListIntro": "The following brand and product names referenced in coat-codex are trademarks or trade names of their respective owners:",
+    "trademarkCitadel": "Citadel Colour — a trademark of Games Workshop Limited",
+    "trademarkVallejo": "Vallejo — a trademark of Acrylicos Vallejo, S.L.",
+    "trademarkAk": "AK Interactive — a trademark of its manufacturer",
+    "trademarkCoatDarms": "Coat d'Arms — a trade name of its current manufacturer/distributor",
+    "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
+    "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
+    "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
   },
   "contentPolicy": {
-    "heading": "Content Policy"
+    "heading": "Content Policy",
+    "photoHeading": "Photos you post must be your own",
+    "photoBody": "Only post photos you took yourself of your own painted miniatures. Do not upload official artwork, box art, or photos taken by someone else. Posts found to use non-original photos will be removed.",
+    "reportingHeading": "Reporting a post",
+    "reportingBody": "Every recipe page has a report button. If a post violates this policy, please use it to flag the post for review.",
+    "reportingThresholdBody": "Once a post receives reports from enough distinct visitors, it is automatically hidden from the public feed pending moderation review.",
+    "trademarkHeading": "Trademark Notice",
+    "trademarkIntro": "coat-codex is an independent, non-commercial hobby project built by a hobbyist for hobbyists. It is not affiliated with, endorsed by, sponsored by, or otherwise officially connected with any of the paint manufacturers or brands referenced within the app.",
+    "trademarkListIntro": "The following brand and product names referenced in coat-codex are trademarks or trade names of their respective owners:",
+    "trademarkCitadel": "Citadel Colour — a trademark of Games Workshop Limited",
+    "trademarkVallejo": "Vallejo — a trademark of Acrylicos Vallejo, S.L.",
+    "trademarkAk": "AK Interactive — a trademark of its manufacturer",
+    "trademarkCoatDarms": "Coat d'Arms — a trade name of its current manufacturer/distributor",
+    "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
+    "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
+    "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
   },
   "admin": {
     "heading": "Admin"

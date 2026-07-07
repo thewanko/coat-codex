@@ -69,9 +69,49 @@
 
 .footer {
   padding: var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
   text-align: center;
   color: var(--color-ink-faint);
   font-size: var(--font-size-xs);
   border-top: 1px solid var(--color-line);
   background: var(--color-bg-raised);
+}
+
+.footerRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-muted);
+}
+
+.footerDiamond {
+  width: 4px;
+  height: 4px;
+  background: var(--color-gold);
+  transform: rotate(45deg);
+  flex: none;
+}
+
+.footerLink {
+  /* テキストリンクのままタップターゲット44px相当を縦padding で確保 */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-1);
+  color: var(--color-link);
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--color-link) 50%, transparent);
+}
+
+.footerTrademark {
+  margin: 0;
+  max-width: var(--container-max);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-faint);
 }

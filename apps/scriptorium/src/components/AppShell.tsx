@@ -47,7 +47,20 @@ function AppShell({ children }: { children?: ReactNode }) {
         <LanguageSwitcher />
       </header>
       <main className={styles.main}>{children}</main>
-      <footer className={styles.footer}>{t("footer.copyright")}</footer>
+      <footer className={styles.footer}>
+        <div className={styles.footerRow}>
+          <span>{t("footer.copyright")}</span>
+          <span className={styles.footerDiamond} aria-hidden="true" />
+          <Link to="/terms" className={styles.footerLink}>
+            {t("footer.terms")}
+          </Link>
+          <span className={styles.footerDiamond} aria-hidden="true" />
+          <Link to="/content-policy" className={styles.footerLink}>
+            {t("footer.contentPolicy")}
+          </Link>
+        </div>
+        <p className={styles.footerTrademark}>{t("footer.trademarkNotice")}</p>
+      </footer>
     </div>
   );
 }
