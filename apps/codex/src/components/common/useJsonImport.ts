@@ -11,30 +11,8 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { importRecipe } from "../../lib/importRecipe";
 import type { ImportIssue } from "@coat-codex/recipe-core";
-import {
-  checkPersisted,
-  readPersistRecord,
-  recordPersistResult,
-  requestPersist,
-  shouldRequestPersist,
-} from "../../lib/storageHealth";
+import { ensurePersistRequested } from "../../lib/storageHealth";
 import { useToast } from "./toastContext";
-
-/** §3.5発火条件: meta.persist未記録（または未許可のまま）の場合のみ要求し、結果を記録する */
-async function ensurePersistRequested(): Promise<void> {
-  const [record, persisted] = await Promise.all([
-    readPersistRecord(),
-    checkPersisted(),
-  ]);
-  if (!shouldRequestPersist(record, persisted)) {
-    return;
-  }
-  const granted = await requestPersist();
-  if (granted === undefined) {
-    return;
-  }
-  await recordPersistResult(granted, new Date().toISOString());
-}
 
 /** File→テキスト読み込み（FileReaderのPromiseラッパー） */
 function readFileAsText(file: File): Promise<string> {

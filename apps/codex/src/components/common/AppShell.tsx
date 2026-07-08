@@ -10,6 +10,7 @@ import {
 import LanguageSwitcher from "./LanguageSwitcher";
 import AppFooter from "./AppFooter";
 import ToastHost from "./ToastHost";
+import ImportDeepLinkHost from "./ImportDeepLinkHost";
 import sealLogo from "../../assets/seal-logo.png";
 import styles from "./AppShell.module.css";
 
@@ -75,6 +76,7 @@ function AppShell({ children }: { children?: ReactNode }) {
         <main className={styles.main}>{children ?? <Outlet />}</main>
         <AppFooter />
       </div>
+      <ImportDeepLinkHost />
     </ToastHost>
   );
 }

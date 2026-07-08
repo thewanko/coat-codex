@@ -175,7 +175,9 @@
     "exportPrint": "Imprimer",
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
-    "exportPlainMd": "MD brut"
+    "exportPlainMd": "MD brut",
+    "sourceScriptorium": "Scriptorium: @{{handle}}",
+    "sourceLinkLabel": "Original page"
   },
   "export": {
     "menuButton": "Exporter & Partager",
@@ -226,6 +228,23 @@
     "errorTooLarge": "The upload is too large.",
     "errorNetwork": "A network error occurred.",
     "errorUnknown": "An unknown error occurred while publishing."
+  },
+  "importScriptorium": {
+    "title": "Import from Scriptorium",
+    "loading": "Fetching recipe details…",
+    "author": "Author: @{{handle}}",
+    "withImage": "Include cover image ({{size}} KB)",
+    "withoutImage": "No image",
+    "coverUnavailable": "The cover image couldn't be fetched, so it will be imported without an image.",
+    "duplicateNotice": "Already imported as \"{{title}}\". Continuing will create a new duplicate.",
+    "confirm": "Import",
+    "importing": "Importing…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "invalidUrl": "This import link is invalid.",
+    "errNotFound": "Recipe not found. It may have been deleted or unpublished.",
+    "errNetwork": "Couldn't fetch the recipe. Please check your connection.",
+    "errInvalidData": "Couldn't read the recipe data."
   },
   "storageStatus": {
     "protectedLabel": "Protection des données : activée",

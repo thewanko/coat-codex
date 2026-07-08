@@ -175,7 +175,9 @@
     "exportPrint": "印刷",
     "exportNoteMd": "note MD",
     "exportJson": "JSON",
-    "exportPlainMd": "素MD"
+    "exportPlainMd": "素MD",
+    "sourceScriptorium": "Scriptorium: @{{handle}}",
+    "sourceLinkLabel": "元のページ"
   },
   "export": {
     "menuButton": "出力・共有",
@@ -226,6 +228,23 @@
     "errorTooLarge": "アップロードデータが大きすぎます。",
     "errorNetwork": "通信エラーが発生しました。",
     "errorUnknown": "公開中に不明なエラーが発生しました。"
+  },
+  "importScriptorium": {
+    "title": "Scriptoriumからインポート",
+    "loading": "レシピ情報を取得しています…",
+    "author": "作者: @{{handle}}",
+    "withImage": "カバー画像あり（{{size}} KB）",
+    "withoutImage": "画像なし",
+    "coverUnavailable": "カバー画像を取得できなかったため、画像なしでインポートします",
+    "duplicateNotice": "「{{title}}」としてインポート済みです。続行すると新しい複製が作られます",
+    "confirm": "インポート",
+    "importing": "インポート中…",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "invalidUrl": "このインポートリンクは無効です",
+    "errNotFound": "レシピが見つかりません。削除済みか非公開の可能性があります",
+    "errNetwork": "レシピを取得できませんでした。通信環境を確認してください",
+    "errInvalidData": "レシピデータを読み取れませんでした"
   },
   "storageStatus": {
     "protectedLabel": "データ保護: 有効",

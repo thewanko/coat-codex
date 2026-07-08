@@ -35,12 +35,34 @@ vi.mock("../../lib/storageHealth", async () => {
   const actual = await vi.importActual<
     typeof import("../../lib/storageHealth")
   >("../../lib/storageHealth");
+  const readPersistRecordMock = vi.fn();
+  const checkPersistedMock = vi.fn();
+  const requestPersistMock = vi.fn();
+  const recordPersistResultMock = vi.fn().mockResolvedValue(undefined);
   return {
     ...actual,
-    readPersistRecord: vi.fn(),
-    checkPersisted: vi.fn(),
-    requestPersist: vi.fn(),
-    recordPersistResult: vi.fn().mockResolvedValue(undefined),
+    readPersistRecord: readPersistRecordMock,
+    checkPersisted: checkPersistedMock,
+    requestPersist: requestPersistMock,
+    recordPersistResult: recordPersistResultMock,
+    // ensurePersistRequested（storageHealth.ts内の合成関数）はモジュール内部から直接
+    // readPersistRecord等を呼ぶため、上記の個別モックへ差し替わらない（ESMの制約）。
+    // ここで同じロジックをモック関数群の合成として再実装し、既存の呼び出しアサーション
+    // （requestPersist/recordPersistResultの検証）を変更せずに済ませる。
+    ensurePersistRequested: vi.fn(async () => {
+      const [record, persisted] = await Promise.all([
+        readPersistRecordMock(),
+        checkPersistedMock(),
+      ]);
+      if (!actual.shouldRequestPersist(record, persisted)) {
+        return;
+      }
+      const granted = await requestPersistMock();
+      if (granted === undefined) {
+        return;
+      }
+      await recordPersistResultMock(granted, new Date().toISOString());
+    }),
   };
 });
 

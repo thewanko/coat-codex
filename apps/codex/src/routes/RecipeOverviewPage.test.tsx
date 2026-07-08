@@ -196,6 +196,44 @@ describe("RecipeOverviewPage — ロード状態分岐", () => {
   });
 });
 
+describe("RecipeOverviewPage — ST-24 出典表示", () => {
+  test("source=nullのときは出典行を表示しない", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc({ source: null }));
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(screen.getByText("テストレシピ")).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Scriptorium: @/)).not.toBeInTheDocument();
+  });
+
+  test("source非nullのとき「Scriptorium: @<handle>」を表示し、リンクhrefが元ページURLを指す", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        source: {
+          scriptoriumId: "scr_abc123",
+          author: "painter_taro",
+          importedAt: "2026-07-01T00:00:00.000Z",
+        },
+      }),
+    );
+    renderPage("/recipe/rcp_1");
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Scriptorium: @painter_taro"),
+      ).toBeInTheDocument();
+    });
+
+    const link = screen.getByRole("link", { name: "元のページ" });
+    expect(link).toHaveAttribute(
+      "href",
+      "https://scriptorium.coat-codex.com/r/scr_abc123",
+    );
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+});
+
 describe("RecipeOverviewPage — PartCardListへのprops変換（updateRecipe呼び出し・参照同一性）", () => {
   test("onReorderはpartsを渡された配列で差し替える", async () => {
     const p1: RecipePart = { id: "part_1", name: "腕", steps: [] };
