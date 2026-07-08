@@ -83,7 +83,7 @@ app.get(
     const response = new Response(body, {
       status: 200,
       headers: {
-        "Content-Type": "image/webp",
+        "Content-Type": resolveImageContentType(key, object.httpMetadata),
         "Cache-Control": IMG_CACHE_CONTROL,
         "X-Content-Type-Options": "nosniff",
         "Access-Control-Allow-Origin": CORS_ORIGIN,
@@ -99,6 +99,22 @@ app.get(
 export function isAllowedImageKey(key: string): boolean {
   if (key.includes("..")) return false;
   return ALLOWED_IMG_PREFIXES.some((prefix) => key.startsWith(prefix));
+}
+
+/**
+ * 配信レスポンスの Content-Type を決定する。R2 保存時の httpMetadata を優先し、
+ * 無い場合はキー拡張子から推定する（JPEG/WebP 両受理・§4.4/§4.7）。
+ */
+export function resolveImageContentType(
+  key: string,
+  httpMetadata?: { contentType?: string },
+): string {
+  if (httpMetadata?.contentType) return httpMetadata.contentType;
+  const lowerKey = key.toLowerCase();
+  if (lowerKey.endsWith(".jpg") || lowerKey.endsWith(".jpeg")) {
+    return "image/jpeg";
+  }
+  return "image/webp";
 }
 
 export default app;

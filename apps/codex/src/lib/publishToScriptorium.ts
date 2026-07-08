@@ -37,6 +37,22 @@ export type PublishErrorCode =
   | "network"
   | "unknown";
 
+/**
+ * cover/thumb Blobのtypeから送信File名を導出する（§6-1/§3.2）。
+ * coverComposer.tsは常時image/jpegを生成するが、typeが空/不明な場合はjpeg既定に
+ * フォールバックし、image/webp（後方互換）の場合のみ.webpにする。実bytesの形式と
+ * File名/typeを一致させ、詐称（実PNG等をwebpと偽って送る）を避ける。
+ */
+function resolveImageFilePart(
+  blob: Blob,
+  baseName: "cover" | "thumb",
+): { filename: string; mimeType: string } {
+  if (blob.type === "image/webp") {
+    return { filename: `${baseName}.webp`, mimeType: "image/webp" };
+  }
+  return { filename: `${baseName}.jpg`, mimeType: "image/jpeg" };
+}
+
 /** POST /api/recipes（§4.2）の失敗応答ステータスをPublishErrorCodeへ写像する */
 function mapStatusToErrorCode(status: number): PublishErrorCode {
   switch (status) {
@@ -129,16 +145,12 @@ export async function publishToScriptorium(
     }),
   );
   if (input.cover) {
-    fd.append(
-      "cover",
-      new File([input.cover], "cover.webp", { type: "image/webp" }),
-    );
+    const { filename, mimeType } = resolveImageFilePart(input.cover, "cover");
+    fd.append("cover", new File([input.cover], filename, { type: mimeType }));
   }
   if (input.thumb) {
-    fd.append(
-      "thumb",
-      new File([input.thumb], "thumb.webp", { type: "image/webp" }),
-    );
+    const { filename, mimeType } = resolveImageFilePart(input.thumb, "thumb");
+    fd.append("thumb", new File([input.thumb], filename, { type: mimeType }));
   }
 
   const baseUrl = deps?.baseUrl ?? DEFAULT_BASE_URL;
