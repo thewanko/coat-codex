@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import sealLogo from "../assets/seal-logo.png";
 import styles from "./AppShell.module.css";
 
 const LANGS: { code: "en" | "ja"; labelKey: "lang.en" | "lang.ja" }[] = [
@@ -42,7 +43,19 @@ function AppShell({ children }: { children?: ReactNode }) {
     <div className={styles.shell}>
       <header className={styles.header}>
         <Link to="/" className={styles.brand}>
-          {t("app.title")}
+          <img
+            src={sealLogo}
+            alt=""
+            aria-hidden="true"
+            className={styles.seal}
+          />
+          <div className={styles.wordmarkGroup}>
+            <span className={styles.wordmark}>
+              <span className={styles.wordmarkInitial}>C</span>oat{" "}
+              <span className={styles.wordmarkInitial}>S</span>criptorium
+            </span>
+            <span className={styles.tagline}>{t("app.tagline")}</span>
+          </div>
         </Link>
         <LanguageSwitcher />
       </header>

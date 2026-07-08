@@ -16,10 +16,9 @@
 }
 
 .brand {
-  font-family: var(--font-family-display);
-  font-weight: var(--font-weight-medium);
-  font-size: var(--font-size-xl);
-  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   text-decoration: none;
 }
 
@@ -27,6 +26,45 @@
   outline: none;
   box-shadow: var(--focus-ring);
   border-radius: var(--radius-sm);
+}
+
+.seal {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+
+.wordmarkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wordmark {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xl);
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.wordmarkInitial {
+  color: var(--color-accent);
+}
+
+.tagline {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-jp-gloss);
+  text-indent: var(--tracking-jp-gloss);
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.tagline:lang(en) {
+  letter-spacing: normal;
+  text-indent: 0;
 }
 
 .langSwitcher {

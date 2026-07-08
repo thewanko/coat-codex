@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Coat Scriptorium"
+    "tagline": "A shared library of painting recipes"
   },
   "lang": {
     "switcherLabel": "Language",
