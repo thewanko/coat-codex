@@ -206,6 +206,7 @@
     "handlePlaceholder": "your_handle",
     "deletePwLabel": "Delete password",
     "deletePwGenerate": "Generate",
+    "deletePwHint": "At least 8 characters. Keep it to delete your recipe later.",
     "reductionNotice": "Memos, tool notes, chip photos, and step photos will not be published.",
     "notBackupNotice": "This cannot be used as a backup of your recipe.",
     "turnstileUnconfigured": "Turnstile is not configured. Publishing is disabled.",

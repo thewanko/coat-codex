@@ -262,6 +262,14 @@ describe("PublishDialog — 入力バリデーション", () => {
     setupTurnstileMock();
   });
 
+  test("削除用パスワード欄の下に「8文字以上」のヒント文言が常時表示される", () => {
+    renderDialog(makeRecipe(), { siteKey: "site_abc" });
+
+    expect(
+      screen.getByText("8文字以上。あとでレシピを削除するときに使います。"),
+    ).toBeInTheDocument();
+  });
+
   test("handle空・PW7文字は送信ボタンが無効", async () => {
     renderDialog(makeRecipe(), { siteKey: "site_abc" });
 
