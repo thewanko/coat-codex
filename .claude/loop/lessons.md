@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-09 s7-admin 背景タブではfocus()/blur()がactiveElementを変えずonBlurコミットUIの検証が偽陰性になる→React propsの1次確認＋明示focusoutで「実バグか合成イベント限界か」を切り分け [GOOD]
+
+- 事象: ST-32出口実機で数値設定のonBlurコミット（blurでPUT）がpreview_eval・preview_fillの両方で不発（D1未反映）。実バグを疑う前に①`__reactProps`から入力のcontrolled value/ハンドラ実在を確認（onChange結線は正常＝draft state更新済み）②Reactが実際に購読する下位イベント`FocusEvent('focusout')`を明示dispatch→PUT発火・D1反映を実測。真因=**背景タブ（プレビュー）ではfocus()/blur()がactiveElementを変更せずfocusout未発火**という合成イベント限界であり、実装は正常（RTLテストでも回帰固定済み）。誤って「onBlurが壊れている」とimplへ差し戻していれば不要修正＋往復浪費だった
+- 原因（GOODの機序）: 「検証の失敗＝実装のバグ」と即断せず、(a)フレームワーク内部状態（React props/state）で結線の実在を確認 (b)UIイベントの抽象（onBlur）でなくフレームワークが購読する下位イベント（focusout）を直接発火、の2段で「実装の欠陥」と「検証環境の限界」を分離した。背景タブ検証限界family（CSSアニメ停止・viewport 0×0）の姉妹相=フォーカス系
+- 一般化ルール (次ループの指示文としてそのまま使える形で): preview（背景タブ）でonBlur/onFocus起点のUI挙動が不発でも実バグと即断しない。**focus()/blur()は背景タブでactiveElementを変えずfocusout/focusinが発火しない**（クリック系.click()は動くため差分に気づきにくい）。切り分け手順=①`Object.keys(el).find(k=>k.startsWith('__reactProps'))`でハンドラ結線とcontrolled valueを確認②`el.dispatchEvent(new FocusEvent('focusout',{bubbles:true}))`等、フレームワークが購読する下位イベントを明示発火して結果状態（D1/network）を実測③RTLユニットで同経路の回帰が固定済みかを確認。3点緑なら「検証環境の限界」と記録して合格にする
+- 反映先: CLAUDE.md 実機検証の規律（背景タブfamily 3回目=フォーカス相を追記昇格）
+- 発生回数: 1回目（背景タブ検証限界family 3回目: CSSアニメ→viewport 0×0→focus/blur）
+
 ## 2026-07-08 st38-flagged-r2-delete 冪等シードが後続マイルストーンで追加された子テーブル（FK）の残骸行で破れる＝実機検証の準備段階で発見 [GOOD/BAD混合]
 
 - 事象: ST-38出口実機検証の準備で`node scripts/seed.mjs`（冪等設計・S3から運用）が**FOREIGN KEY constraint failed**で失敗。真因=S6で追加された`reports`テーブル（FK→recipes.id）にS6実機検証の残骸行が残っており、シードのrecipes再投入が親行削除でFK違反。シード自体はS3時点の冪等設計で正しかったが、**後続マイルストーンが子テーブルを追加した時点でシードの冪等性が暗黙に破れていた**。reports先行DELETEで回避し検証続行・seed.mjs是正はスコープ外としてチップ起票
