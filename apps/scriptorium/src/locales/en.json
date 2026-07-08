@@ -11,6 +11,7 @@
     "copyright": "© coat-codex",
     "terms": "Terms & Disclaimer",
     "contentPolicy": "Content Policy",
+    "privacy": "Privacy Policy",
     "trademarkNotice": "Citadel Colour, Vallejo, AK Interactive, and Coat d'Arms are trademarks of their respective owners. coat-codex is an independent fan project and is not affiliated with, endorsed by, or sponsored by any of them."
   },
   "techniques": {
@@ -142,6 +143,26 @@
     "trademarkOwnership": "All product names, brand names, and trademarks referenced here remain the property of their respective owners. They are used in coat-codex solely to help users identify, record, and reference paint colours for their own personal painting logs — not to imply any business relationship, sponsorship, or endorsement.",
     "trademarkColorNote": "Colour values (hex/RGB) shown in coat-codex are digital approximations of physical paint colours, compiled from publicly available reference sources. Actual paint colour may vary due to screen calibration, lighting conditions, and manufacturing batch variation.",
     "trademarkContact": "If you are a rights holder and have a concern about how your brand is referenced here, please contact: {{email}}"
+  },
+  "privacy": {
+    "heading": "Privacy Policy",
+    "intro": "This page explains what information Coat Scriptorium (a shared library of painting recipes) collects and how long it is retained.",
+    "collectedHeading": "Information we collect and store",
+    "collectedBody": "We collect and store the following information:",
+    "collectedList1": "Posted recipe data — display handle, recipe content, and a cover/thumbnail image. Images are stored in object storage (Cloudflare R2).",
+    "collectedList2": "Report content — the reason and any additional details you submit when reporting a post.",
+    "collectedList3": "We do not store your raw IP address. To prevent spam and abuse, it is converted into a keyed hash (HMAC-SHA256) identifier, which is used for post logging, duplicate-report prevention, and rate limiting. Rate-limit records are deleted once they expire.",
+    "collectedList4": "There is no account system. We do not collect personal information such as your name or email address.",
+    "deletePwHeading": "Deletion password",
+    "deletePwBody": "The deletion password issued when you publish a post is stored only in hashed form (PBKDF2); the original password is never stored, so we cannot recover it for you. If you lose it, contact us at {{email}}.",
+    "infraHeading": "Infrastructure we use",
+    "infraBody": "Coat Scriptorium runs on Cloudflare (Pages/D1/R2/Turnstile). We use Cloudflare Turnstile for bot protection, which is subject to Cloudflare's own privacy policy. Moderation notification emails are sent only to the site operator — we never send email to viewers or posters.",
+    "trackingHeading": "Tracking",
+    "trackingBody": "We do not use analytics, advertising, or tracking cookies. Your browser's localStorage is used only to remember your language preference.",
+    "retentionHeading": "Retention and deletion",
+    "retentionBody": "Posters may delete their own post at any time using their deletion password. Because published pages are served through a cache, deletion or unpublishing may take up to 5 minutes to be fully reflected.",
+    "contactHeading": "Contact",
+    "contactBody": "If you have any questions about this policy, contact us at {{email}}."
   },
   "admin": {
     "heading": "Admin"

@@ -6,6 +6,7 @@ import RecipeDetailPage from "./routes/RecipeDetailPage.tsx";
 import PostGuidePage from "./routes/PostGuidePage.tsx";
 import TermsPage from "./routes/TermsPage.tsx";
 import ContentPolicyPage from "./routes/ContentPolicyPage.tsx";
+import PrivacyPage from "./routes/PrivacyPage.tsx";
 import AdminPage from "./routes/AdminPage.tsx";
 
 // scriptoriumの公開形式（PublishedRecipe）には工程写真・チップ写真が存在しないため、
@@ -24,6 +25,7 @@ function App() {
           <Route path="/post-guide" element={<PostGuidePage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/content-policy" element={<ContentPolicyPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

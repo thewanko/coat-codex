@@ -71,6 +71,10 @@ function AppShell({ children }: { children?: ReactNode }) {
           <Link to="/content-policy" className={styles.footerLink}>
             {t("footer.contentPolicy")}
           </Link>
+          <span className={styles.footerDiamond} aria-hidden="true" />
+          <Link to="/privacy" className={styles.footerLink}>
+            {t("footer.privacy")}
+          </Link>
         </div>
         <p className={styles.footerTrademark}>{t("footer.trademarkNotice")}</p>
       </footer>
