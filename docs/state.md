@@ -3,17 +3,21 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (**ST-38 flagged化時R2画像削除 実装完了**〔ブランチ`impl/flagged-r2-delete-st38`・review R1 PASS C0/H0/M0/L2残置・出口実機=threshold=1→通報→flagged→/img 404全通過〕。次=ST-39 robots.txt/pages.dev noindex→その後S7 admin)
+最終更新: 2026-07-08 (**ST-39 robots.txt／*.pages.dev noindex 実装完了**〔PR #65・review R1 PASS C0/H0/M0/L1採用・ローカル実機=/robots.txt 200〕。**S8コード硬化4点（ST-36〜39）完走**。残ユーザーアクション=pages.devヘッダー本番確認＋codex分Transform Rule〔§9〕。次=S7 admin または S8残（ST-33 i18n棚卸し・ST-34 通しQA）)
 
-前回更新: 2026-07-08 (**ST-37完全クローズ**: ①最終文面ユーザー確認OK〔仕様の完了条件満了〕②任意項目=codex PublishDialogプライバシーポリシーリンク実装完了〔ブランチ`impl/publish-privacy-link`・全ゲート緑〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
+前回更新: 2026-07-08 (**ST-38 flagged化時R2画像削除 実装完了**〔ブランチ`impl/flagged-r2-delete-st38`・review R1 PASS C0/H0/M0/L2残置・出口実機=threshold=1→通報→flagged→/img 404全通過〕。次=ST-39 robots.txt/pages.dev noindex→その後S7 admin)
 
-前々回更新: 2026-07-08 (**ST-37プライバシーポリシーページ実装完了**〔ブランチ`impl/privacy-page-st37`・PR #62マージ済み・全ゲート緑・出口実機全通過〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
+前々回更新: 2026-07-08 (**ST-37完全クローズ**: ①最終文面ユーザー確認OK〔仕様の完了条件満了〕②任意項目=codex PublishDialogプライバシーポリシーリンク実装完了〔ブランチ`impl/publish-privacy-link`・全ゲート緑〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
 
-前々々回更新: 2026-07-08 (**ST-36セキュリティ応答ヘッダー実装完了**〔ブランチ`impl/security-headers-st36`・R2 PASS C0/H0/M0/L0・実機CSP検証全通過。本番URLヘッダー確認=マージ後〕。同ブランチにセキュリティ計画反映=技術計画v1.6も同乗。次=ST-37プライバシーポリシー)
+前々々回更新: 2026-07-08 (**ST-37プライバシーポリシーページ実装完了**〔ブランチ`impl/privacy-page-st37`・PR #62マージ済み・全ゲート緑・出口実機全通過〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
 
-前々々々回更新: 2026-07-08 (**公開前セキュリティチェックリスト（ユーザー提供・11節）を計画に反映＝技術計画v1.6**: 3体Explore実コード照合で入力検証/SQLi/レート制限/PBKDF2/Turnstile/XSS sink/画像マジックバイト/EXIF除去/シークレット衛生は**実装済み＆テスト済み**を確認〔付録A〕。ギャップ=セキュリティ応答ヘッダー/プライバシーポリシー/flagged画像R2残存/pages.dev noindex/履歴スキャン→**S8に統合**〔ユーザー裁定: 新規マイルストーン立てず〕でST-36〜39新設＋ST-33/34拡張。§9にHSTS/WAF/使用量アラート/D1バックアップ等のユーザーアクション追記。**S6完了=パブリックローンチゲートは達成済み**〔PR #57・本番実証: 通報→flagged→Resend実受信・iPhone本人削除→一覧消失〕。次=**S7 admin**〔ST-31/32・CF Access〕または**S8セキュリティ硬化**〔ST-36→37→38→39順次・S7非依存で独立実装可〕)
+前々々々回更新: 2026-07-08 (**ST-36セキュリティ応答ヘッダー実装完了**〔ブランチ`impl/security-headers-st36`・R2 PASS C0/H0/M0/L0・実機CSP検証全通過。本番URLヘッダー確認=マージ後〕。同ブランチにセキュリティ計画反映=技術計画v1.6も同乗。次=ST-37プライバシーポリシー)
+
+前々々々々回更新: 2026-07-08 (**公開前セキュリティチェックリスト（ユーザー提供・11節）を計画に反映＝技術計画v1.6**: 3体Explore実コード照合で入力検証/SQLi/レート制限/PBKDF2/Turnstile/XSS sink/画像マジックバイト/EXIF除去/シークレット衛生は**実装済み＆テスト済み**を確認〔付録A〕。ギャップ=セキュリティ応答ヘッダー/プライバシーポリシー/flagged画像R2残存/pages.dev noindex/履歴スキャン→**S8に統合**〔ユーザー裁定: 新規マイルストーン立てず〕でST-36〜39新設＋ST-33/34拡張。§9にHSTS/WAF/使用量アラート/D1バックアップ等のユーザーアクション追記。**S6完了=パブリックローンチゲートは達成済み**〔PR #57・本番実証: 通報→flagged→Resend実受信・iPhone本人削除→一覧消失〕。次=**S7 admin**〔ST-31/32・CF Access〕または**S8セキュリティ硬化**〔ST-36→37→38→39順次・S7非依存で独立実装可〕)
 
 ## 完了
+
+- 2026-07-08: **Scriptorium S8(4): ST-39 robots.txt／*.pages.dev noindex**（ブランチ`impl/robots-noindex-st39`・main基点・**PR #65**） — **成果物**: ①両アプリ`public/robots.txt`新設（本番index許可の最小構成）②scriptorium `worker.ts`に`withPagesDevNoindex`ヘルパー新設（hostname `.pages.dev`終端のみ`X-Robots-Tag: noindex`付与・immutable対策の複製=withSecurityHeaders同型）＋3分岐（/api・/img／/r/:id／ASSETS）をIIFEで束ねて全応答ラップ③テスト5件（3分岐付与・CSP共存・カスタムドメイン非付与・偽装ドメイン`evil-pages.dev`/`pages.dev.example.com`非付与）。**glue**: `report.ts`のprettier既存崩れ（ST-38由来・mainで再現確認済み）を再整形回収。**review R1 PASS(C0/H0/M0/L1)**: L1=偽装hostname負例テスト欠如→セッションglueで採用（レビュアーはendsWith境界・Response複製の204/304/ストリーミング・vite publicDir→dist配信経路・「robots.txt=Allow×noindexヘッダー」のSEO設計妥当性〔Disallowだとヘッダーをクローラーが読めない〕まで検証）。**🖐出口実機（pages dev）**: /robots.txt 200＋内容一致・/api 200非退行。セッション独立ゲート: build(tsc)/lint/prettier exit 0・ルート`npm test` **1635件**(+5)・diffスコープ5ファイルのみ。**残ユーザーアクション（マージ後・PR本文に明記）**: ①pages.devドメイン応答の`X-Robots-Tag: noindex`実在確認②本番カスタムドメイン非付与＋/robots.txt 200確認③codex分Transform Rule設定（§9）
 
 - 2026-07-08: **Scriptorium S8(3): ST-38 flagged化時のR2画像削除**（ブランチ`impl/flagged-r2-delete-st38`・main基点） — **成果物**: `report.ts` step 4フェッチSELECTに`cover_key, thumb_key`追加＋step 8の条件付きUPDATE `changes>0`ブロック内（notify前）にdeleteRecipe.ts step 7同型のR2 best-effort削除（try/catch・console.warn・§8-11復帰トレードオフ参照コメント）。D1フェイクの通報用フェッチ分岐を実SQLと対で返却列拡張。回帰テスト5件（遷移時削除・閾値未満非削除・既flagged再通報changes=0非削除・R2失敗でも200＋notify発火・cover_key null遷移）。**委譲前1次確認**: D1フェイクのディスパッチregex（`SELECT status, report_count`前方一致）が新SQLにマッチすること・返却列固定のため対更新必須を確認し委譲プロンプトへ固定。**review R1 PASS(C0/H0/M0/L2)**: L1=cover/thumb単一try（cover失敗でthumbスキップ）→deleteRecipe.tsと同一パターン・既存規約一貫で**残置**・L2=thumb到達検証欠如→L1従属で残置（記録のみ）。レビュアーはレース（条件付きUPDATEで遷移1回=R2削除1回）・キー鮮度（cover_key/thumb_keyはINSERT後不変をpostRecipe/deleteRecipeで裏取り）・フェイク誤マッチ（delete_pw_hash分岐と相互不包含）まで検証。**🖐出口実機（pages dev＋ローカルD1/R2）**: /img正例200（cover/thumb両方）→threshold=1→通報POST 200→**D1 status='flagged'実測**→**/img直URL両方404**→詳細API 404秘匿→非退行（plain詳細200・feed=plain/grand残存）。検証後threshold=3復元＋再シード。**シードのFK破れを発見**: S6で追加された`reports`（FK→recipes）の残骸行があるとseed.mjsの再INSERTがFOREIGN KEY constraint failedで冪等性が破れる→reports先行DELETEで回避（seed.mjs是正はチップ起票）。セッション独立ゲート: build(tsc)/lint exit 0・ルート`npm test` **1630件**(+5)・diffスコープ3ファイルのみ
 
