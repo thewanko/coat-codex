@@ -15,6 +15,10 @@
 // Resend の API キー・通知先/送信元アドレス。いずれも任意バインディングとし、
 // MAIL_API_KEY と NOTIFY_EMAIL_TO が揃っていない環境（ローカル test 等）では
 // app.ts 側で notify を注入せず、既存挙動（notify 未注入 = best-effort no-op）を維持する。
+//
+// ACCESS_DEV_BYPASS は ST-31（/api/admin/* 管理API）で追加。ローカル `.dev.vars`
+// 専用の開発用バイパス（値 "on" で Cf-Access-Jwt-Assertion ヘッダ無しでも許可）。
+// 本番Pagesの環境変数には絶対に設定しないこと（Cloudflare Access 保護が無効化される）。
 
 import type { AiRunner } from "./moderation/screenImage";
 
@@ -27,4 +31,5 @@ export interface Bindings {
   MAIL_API_KEY?: string;
   NOTIFY_EMAIL_TO?: string;
   NOTIFY_EMAIL_FROM?: string;
+  ACCESS_DEV_BYPASS?: string;
 }
