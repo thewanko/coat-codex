@@ -11,6 +11,7 @@
     "copyright": "© coat-codex",
     "terms": "利用規約・免責",
     "contentPolicy": "コンテンツポリシー",
+    "privacy": "プライバシーポリシー",
     "trademarkNotice": "「Citadel Colour」「Vallejo」「AK Interactive」「Coat d'Arms」は各社の商標です。coat-codexは非公式のファンメイドツールであり、上記いずれの企業とも提携・後援関係はありません。"
   },
   "techniques": {
@@ -142,6 +143,26 @@
     "trademarkOwnership": "これらのブランド名・製品名の権利は、それぞれの権利者に帰属します。coat-codex内での使用は、ユーザーが自分の塗装記録のために色を識別・記録する目的に限られ、いかなる業務提携・後援・公認関係を示すものではありません。",
     "trademarkColorNote": "coat-codexに表示される色（hex/RGB値）は、公開されている参考情報をもとに作成した実物塗料の近似デジタル値です。画面の表示設定・照明条件・製造ロットの違いにより、実物の色と異なる場合があります。",
     "trademarkContact": "本アプリでのブランド表記について権利者の方からご懸念がある場合は、下記までご連絡ください：{{email}}"
+  },
+  "privacy": {
+    "heading": "プライバシーポリシー",
+    "intro": "本ページでは、Coat Scriptorium（塗装レシピの共有ライブラリ）が扱う情報と、その保持方針について説明します。",
+    "collectedHeading": "収集・保存する情報",
+    "collectedBody": "当サービスでは、以下の情報を収集・保存します。",
+    "collectedList1": "投稿されたレシピデータ——表示ハンドル名、レシピ本文、カバー・サムネイル画像。画像はオブジェクトストレージ（Cloudflare R2）に保存されます。",
+    "collectedList2": "通報内容——通報時に入力された理由および補足の詳細テキスト。",
+    "collectedList3": "IPアドレスは生のまま保存しません。スパム・不正利用の防止のため、秘密鍵付きハッシュ（HMAC-SHA256）に変換した識別子のみを保存し、投稿記録・通報の重複防止・レート制限に使用します。レート制限の記録は、期限を過ぎると削除されます。",
+    "collectedList4": "アカウント登録の仕組みは存在せず、氏名・メールアドレスなどの個人情報は収集しません。",
+    "deletePwHeading": "削除用パスワードについて",
+    "deletePwBody": "投稿時に発行される削除用パスワードは、ハッシュ化（PBKDF2）した形でのみ保存され、原文は保存されないため、運営者であっても復元することはできません。紛失した場合は{{email}}までご連絡ください。",
+    "infraHeading": "利用しているインフラ",
+    "infraBody": "Coat ScriptoriumはCloudflare（Pages/D1/R2/Turnstile）上で運用されています。ボット対策としてCloudflare Turnstileを使用しており、これにはCloudflare自身のプライバシーポリシーが適用されます。モデレーション通知メールは運営者宛にのみ送信され、閲覧者・投稿者へメールを送信することはありません。",
+    "trackingHeading": "トラッキングについて",
+    "trackingBody": "アクセス解析・広告・トラッキングCookieは使用していません。ブラウザのlocalStorageには、言語設定のみを保存します。",
+    "retentionHeading": "保持期間と削除",
+    "retentionBody": "投稿者はご自身の削除用パスワードで、いつでも投稿を削除できます。公開ページはキャッシュを介して配信されているため、削除・非公開化の反映には最大5分程度かかる場合があります。",
+    "contactHeading": "お問い合わせ窓口",
+    "contactBody": "本ポリシーについてご質問がある場合は、{{email}}までご連絡ください。"
   },
   "admin": {
     "heading": "管理"
