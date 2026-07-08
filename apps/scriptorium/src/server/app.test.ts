@@ -113,6 +113,9 @@ function makeEnv() {
   bucket.put("thumbs/scr_seed_wolf.webp", new Uint8Array([4, 5, 6]), {
     httpMetadata: { contentType: "image/webp" },
   });
+  bucket.put("covers/scr_seed_jpeg.jpg", new Uint8Array([7, 8, 9]), {
+    httpMetadata: { contentType: "image/jpeg" },
+  });
   return {
     DB: new FakeD1Database(rows) as unknown as D1Database,
     BUCKET: bucket as unknown as R2Bucket,
@@ -272,6 +275,13 @@ describe("GET /img/:key", () => {
     const env = makeEnv();
     const res = await app.request("/img/thumbs/scr_seed_wolf.webp", {}, env);
     expect(res.status).toBe(200);
+  });
+
+  test("jpeg保存オブジェクトの配信はContent-Type: image/jpegを返す", async () => {
+    const env = makeEnv();
+    const res = await app.request("/img/covers/scr_seed_jpeg.jpg", {}, env);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("image/jpeg");
   });
 
   test("許可外プレフィックス secrets/x.webp は404", async () => {

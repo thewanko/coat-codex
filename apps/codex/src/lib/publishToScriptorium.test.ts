@@ -92,7 +92,7 @@ function makeSuccessResponse(body: {
 }
 
 describe("publishToScriptorium — 正常系", () => {
-  test("payload/cover/thumbが送信され、成功後にrecordMetaがdeletePasswordなしで呼ばれる", async () => {
+  test("payload/cover/thumbが送信され、成功後にrecordMetaがdeletePasswordなしで呼ばれる（cover/thumbはJPEG＝coverComposerの実出力形式）", async () => {
     let capturedFd: FormData | null = null;
     let capturedInit: RequestInit | undefined;
     const fetchStub = vi.fn(async (_url: string, init?: RequestInit) => {
@@ -110,8 +110,8 @@ describe("publishToScriptorium — 正常系", () => {
       >();
 
     const doc = makeValidRecipeDoc();
-    const cover = new Blob(["cover-bytes"], { type: "image/webp" });
-    const thumb = new Blob(["thumb-bytes"], { type: "image/webp" });
+    const cover = new Blob(["cover-bytes"], { type: "image/jpeg" });
+    const thumb = new Blob(["thumb-bytes"], { type: "image/jpeg" });
 
     const result = await publishToScriptorium(
       { doc, ...BASE_INPUT, cover, thumb },
@@ -136,8 +136,14 @@ describe("publishToScriptorium — 正常系", () => {
         .scriptoriumSchemaVersion,
     ).toBe(1);
 
-    expect(fd.get("cover")).toBeInstanceOf(File);
-    expect(fd.get("thumb")).toBeInstanceOf(File);
+    const coverFile = fd.get("cover");
+    const thumbFile = fd.get("thumb");
+    expect(coverFile).toBeInstanceOf(File);
+    expect(thumbFile).toBeInstanceOf(File);
+    expect((coverFile as File).name).toBe("cover.jpg");
+    expect((coverFile as File).type).toBe("image/jpeg");
+    expect((thumbFile as File).name).toBe("thumb.jpg");
+    expect((thumbFile as File).type).toBe("image/jpeg");
 
     // Content-Typeを手動指定していない（FormDataのまま。境界はブラウザ/実装に任せる）
     expect(capturedInit?.headers).toBeUndefined();
@@ -157,6 +163,66 @@ describe("publishToScriptorium — 正常系", () => {
       postedAt: "2026-07-08T00:00:00.000Z",
     });
     expect("deletePassword" in record).toBe(false);
+  });
+
+  test("cover/thumbがimage/webp（後方互換）の場合は.webp/image/webpのまま送信する", async () => {
+    let capturedFd: FormData | null = null;
+    const fetchStub = vi.fn(async (_url: string, init?: RequestInit) => {
+      capturedFd = init?.body as FormData;
+      return makeSuccessResponse({
+        id: "scr_webp",
+        url: "https://scriptorium.example/r/scr_webp",
+        status: "published",
+      });
+    });
+    const recordMeta = vi.fn(async () => {});
+
+    const doc = makeValidRecipeDoc();
+    const cover = new Blob(["cover-bytes"], { type: "image/webp" });
+    const thumb = new Blob(["thumb-bytes"], { type: "image/webp" });
+
+    await publishToScriptorium(
+      { doc, ...BASE_INPUT, cover, thumb },
+      { fetch: fetchStub as unknown as typeof fetch, recordMeta },
+    );
+
+    const fd = capturedFd as unknown as FormData;
+    const coverFile = fd.get("cover") as File;
+    const thumbFile = fd.get("thumb") as File;
+    expect(coverFile.name).toBe("cover.webp");
+    expect(coverFile.type).toBe("image/webp");
+    expect(thumbFile.name).toBe("thumb.webp");
+    expect(thumbFile.type).toBe("image/webp");
+  });
+
+  test("cover/thumbのtypeが空/不明な場合はjpeg既定にフォールバックする", async () => {
+    let capturedFd: FormData | null = null;
+    const fetchStub = vi.fn(async (_url: string, init?: RequestInit) => {
+      capturedFd = init?.body as FormData;
+      return makeSuccessResponse({
+        id: "scr_unknown",
+        url: "https://scriptorium.example/r/scr_unknown",
+        status: "published",
+      });
+    });
+    const recordMeta = vi.fn(async () => {});
+
+    const doc = makeValidRecipeDoc();
+    const cover = new Blob(["cover-bytes"]); // typeを指定しない
+    const thumb = new Blob(["thumb-bytes"]);
+
+    await publishToScriptorium(
+      { doc, ...BASE_INPUT, cover, thumb },
+      { fetch: fetchStub as unknown as typeof fetch, recordMeta },
+    );
+
+    const fd = capturedFd as unknown as FormData;
+    const coverFile = fd.get("cover") as File;
+    const thumbFile = fd.get("thumb") as File;
+    expect(coverFile.name).toBe("cover.jpg");
+    expect(coverFile.type).toBe("image/jpeg");
+    expect(thumbFile.name).toBe("thumb.jpg");
+    expect(thumbFile.type).toBe("image/jpeg");
   });
 
   test("cover/thumbなし: FormDataにcover/thumbパートを含めない", async () => {

@@ -1,18 +1,24 @@
 // lib/coverComposer.ts — Scriptorium投稿用のcover/thumb画像生成
-// （技術計画v1.3 §6-1「1: coverComposerがphotoCropsをcanvas焼込→長辺1600px WebP
+// （技術計画v1.3 §6-1「1: coverComposerがphotoCropsをcanvas焼込→長辺1600px JPEG
 // （品質二分探索で200–400KB）＋400pxサムネ」/ §3.2「cover長辺≤1600px・≤450KB／
 // thumb長辺≤400px・≤80KB」/ ST-20表）。
 //
+// エンコード形式はJPEG固定。iOS/デスクトップSafariはcanvas.toBlob("image/webp")の
+// WebPエンコードに非対応（最新Safariでも同様）で、非対応形式指定時は仕様どおりPNGへ
+// フォールバックする。それをimage/webpと偽って送信するとサーバーの実バイト検査で
+// 弾かれるため、全ブラウザのcanvas.toBlobが対応するJPEGを常時使う（写真coverはアルファ
+// 不要でJPEGとの相性もよく、サイズ予算にも十分収まる）。
+//
 // canvas 2Dはjsdomで動作しないため、DOM依存の処理（decode/encodeRegion）は
 // CoverComposerDepsとして注入可能にし（省略時は既定のブラウザ実装＝canvas）、
-// 純関数（computeCropPixelRect / findWebpQualityBlob）はテストから直接検証する。
+// 純関数（computeCropPixelRect / findQualityBlob）はテストから直接検証する。
 //
 // coverは「crop領域のアスペクト比を保ったまま長辺≤1600pxに縮小」する（固定アスペクトへの
 // fitではない）。既存 sns/imageComposer.ts の computeCoverSourceRect は固定アスペクトの
 // card用cover配置（destのアスペクトに合わせてsrcを中央クロップ）であり、本関数の要件
 // （crop矩形そのもののアスペクトを保って単純に縮小するだけ）とは目的が異なるため再利用しない。
 // また encodeFromSource（imageProcessing.ts）はquality 0.9固定のため、品質二分探索を行う
-// 本モジュールでは使えず、canvas.toBlob(_, "image/webp", q)を直接呼ぶ。
+// 本モジュールでは使えず、canvas.toBlob(_, "image/jpeg", q)を直接呼ぶ。
 
 import { calcTargetSize, decodeToBitmap } from "./imageProcessing";
 import type { DecodedImageSource } from "./imageProcessing";
@@ -71,7 +77,7 @@ export function computeCropPixelRect(
   };
 }
 
-/** findWebpQualityBlobの探索条件 */
+/** findQualityBlobの探索条件 */
 export interface QualityBudget {
   /** これを超えないことを保証するバイト数上限（厳守） */
   maxBytes: number;
@@ -93,7 +99,7 @@ const DEFAULT_STEPS = 7;
  * - minBytes指定時、選んだBlobがminBytes未満でかつqを上げれば増やせる場合は上げる方向を優先する
  *   （ただしmaxBytesは厳守する）
  */
-export async function findWebpQualityBlob(
+export async function findQualityBlob(
   encode: (quality: number) => Promise<Blob>,
   budget: QualityBudget,
 ): Promise<Blob> {
@@ -149,8 +155,9 @@ export interface CoverComposerDeps {
   /** Blobをデコードする（既定: decodeToBitmap） */
   decode?: (blob: Blob) => Promise<DecodedImageSource>;
   /**
-   * ソース画像のsrcRect領域をdestWidth×destHeightへ焼き込み、指定qualityでWebPエンコードする。
-   * 既定: canvas drawImage(9引数)+toBlob("image/webp", quality)
+   * ソース画像のsrcRect領域をdestWidth×destHeightへ焼き込み、指定qualityでJPEGエンコードする。
+   * 既定: canvas drawImage(9引数)+toBlob("image/jpeg", quality)
+   * （WebPはiOS/デスクトップSafariのcanvas.toBlobが非対応のためJPEGを使う）
    */
   encodeRegion?: (
     source: DecodedImageSource,
@@ -167,7 +174,7 @@ export interface ComposedCover {
   thumb: Blob;
 }
 
-/** canvas 2Dでcrop領域を焼き込みWebPエンコードする既定実装 */
+/** canvas 2Dでcrop領域を焼き込みJPEGエンコードする既定実装 */
 async function defaultEncodeRegion(
   source: DecodedImageSource,
   src: SourcePixelRect,
@@ -202,10 +209,10 @@ async function defaultEncodeRegion(
         if (result) {
           resolve(result);
         } else {
-          reject(new Error("WebPエンコードに失敗しました"));
+          reject(new Error("JPEGエンコードに失敗しました"));
         }
       },
-      "image/webp",
+      "image/jpeg",
       quality,
     );
   });
@@ -215,7 +222,7 @@ async function defaultEncodeRegion(
 const DIMENSION_FALLBACK_FACTOR = 0.8;
 /** 寸法縮小フォールバックの無限ループ防止のための最小長辺（px） */
 const MIN_TARGET_EDGE = 320;
-/** findWebpQualityBlobのqMin下限を、サーバー上限厳守のため既定(0.3)より広げる */
+/** findQualityBlobのqMin下限を、サーバー上限厳守のため既定(0.3)より広げる */
 const HARD_LIMIT_Q_MIN = 0.1;
 
 /**
@@ -238,7 +245,7 @@ async function encodeUnderHardLimit(
 
   for (;;) {
     const target = calcTargetSize(srcRect.sw, srcRect.sh, edge);
-    const blob = await findWebpQualityBlob(
+    const blob = await findQualityBlob(
       (q) => encodeRegion(img, srcRect, target.width, target.height, q),
       {
         maxBytes: targetMaxBytes,
@@ -259,8 +266,8 @@ async function encodeUnderHardLimit(
 }
 
 /**
- * source画像をcrop焼き込みし、cover（長辺≤1600px WebP・品質二分探索で200–400KB目標・
- * ≤450KB厳守）とthumb（長辺≤400px WebP・≤80KB）を生成する（§6-1・§3.2）。
+ * source画像をcrop焼き込みし、cover（長辺≤1600px JPEG・品質二分探索で200–400KB目標・
+ * ≤450KB厳守）とthumb（長辺≤400px JPEG・≤80KB）を生成する（§6-1・§3.2）。
  * サーバー側のCOVER_MAX_BYTES/THUMB_MAX_BYTES（413判定の上限）を必ず下回るよう、
  * 品質二分探索のqMin引き下げに加え、それでも超過する高精細画像は目標寸法を
  * 段階縮小して再エンコードする（encodeUnderHardLimit）。

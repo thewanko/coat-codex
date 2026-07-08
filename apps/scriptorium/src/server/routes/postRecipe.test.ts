@@ -42,7 +42,39 @@ function u16le(value: number): number[] {
   return [value & 0xff, (value >> 8) & 0xff];
 }
 
-/** VP8 (lossy) の合成フィクスチャ。長辺超過ケースの寸法検査を検証するため使う（webpHeader.test.ts と同型）。 */
+/** SOFn セグメントの中身（precision(1)/height(2 BE)/width(2 BE)/成分情報）。imageHeader.test.ts と同型。 */
+function buildSofPayload(width: number, height: number): number[] {
+  const numComponents = 3;
+  const components = [1, 0x22, 0, 2, 0x11, 1, 3, 0x11, 1];
+  return [
+    0x08,
+    (height >> 8) & 0xff,
+    height & 0xff,
+    (width >> 8) & 0xff,
+    width & 0xff,
+    numComponents,
+    ...components,
+  ];
+}
+
+/** SOI + SOF0(width×height) + EOI の最小JPEGフィクスチャ。imageHeader.test.ts と同型。 */
+function buildJpeg(width: number, height: number): Uint8Array {
+  const payload = buildSofPayload(width, height);
+  const length = payload.length + 2;
+  return new Uint8Array([
+    0xff,
+    0xd8, // SOI
+    0xff,
+    0xc0, // SOF0
+    (length >> 8) & 0xff,
+    length & 0xff,
+    ...payload,
+    0xff,
+    0xd9, // EOI
+  ]);
+}
+
+/** VP8 (lossy) の合成フィクスチャ。長辺超過ケースの寸法検査を検証するため使う（imageHeader.test.ts と同型）。 */
 function buildVP8Lossy(width: number, height: number): Uint8Array {
   const payload = [
     0x00,
@@ -106,8 +138,12 @@ function buildFormData(opts: {
   turnstileToken?: string;
   includeCover?: boolean;
   coverBytes?: Uint8Array;
+  coverFileName?: string;
+  coverMimeType?: string;
   includeThumb?: boolean;
   thumbBytes?: Uint8Array;
+  thumbFileName?: string;
+  thumbMimeType?: string;
   rawPayload?: string;
 }): FormData {
   const formData = new FormData();
@@ -125,13 +161,17 @@ function buildFormData(opts: {
   if (opts.includeCover !== false && opts.coverBytes) {
     formData.append(
       "cover",
-      new File([opts.coverBytes], "cover.webp", { type: "image/webp" }),
+      new File([opts.coverBytes], opts.coverFileName ?? "cover.webp", {
+        type: opts.coverMimeType ?? "image/webp",
+      }),
     );
   }
   if (opts.includeThumb !== false && opts.thumbBytes) {
     formData.append(
       "thumb",
-      new File([opts.thumbBytes], "thumb.webp", { type: "image/webp" }),
+      new File([opts.thumbBytes], opts.thumbFileName ?? "thumb.webp", {
+        type: opts.thumbMimeType ?? "image/webp",
+      }),
     );
   }
   return formData;
@@ -188,6 +228,38 @@ describe("POST /api/recipes 正常系", () => {
     const bucket = env.BUCKET as unknown as FakeR2Bucket;
     const stored = await bucket.get("covers/scr_test_fixed.webp");
     expect(stored).not.toBeNull();
+  });
+
+  test("有効なJPEG cover/thumbで201・R2に.jpgキー＋image/jpegで保存", async () => {
+    const env = makeEnv();
+    const testApp = buildTestApp(makeStubDeps());
+    const jpegBytes = buildJpeg(100, 100);
+    const formData = buildFormData({
+      coverBytes: jpegBytes,
+      coverFileName: "cover.jpg",
+      coverMimeType: "image/jpeg",
+      thumbBytes: jpegBytes,
+      thumbFileName: "thumb.jpg",
+      thumbMimeType: "image/jpeg",
+    });
+    const res = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: formData },
+      env,
+    );
+    expect(res.status).toBe(201);
+
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.rows[0].cover_key).toBe("covers/scr_test_fixed.jpg");
+    expect(db.rows[0].thumb_key).toBe("thumbs/scr_test_fixed.jpg");
+
+    const bucket = env.BUCKET as unknown as FakeR2Bucket;
+    const storedCover = await bucket.get("covers/scr_test_fixed.jpg");
+    expect(storedCover).not.toBeNull();
+    expect(storedCover?.httpMetadata?.contentType).toBe("image/jpeg");
+    const storedThumb = await bucket.get("thumbs/scr_test_fixed.jpg");
+    expect(storedThumb).not.toBeNull();
+    expect(storedThumb?.httpMetadata?.contentType).toBe("image/jpeg");
   });
 
   test("画像なしで201・cover_key/thumb_keyがnull", async () => {
@@ -369,6 +441,56 @@ describe("POST /api/recipes ガード失敗系", () => {
       env,
     );
     expect(res.status).toBe(400);
+  });
+
+  test("JPEG cover寸法超過(長辺1601px)で400", async () => {
+    const env = makeEnv();
+    const testApp = buildTestApp(makeStubDeps());
+    const oversizedCover = buildJpeg(1601, 100);
+    const formData = buildFormData({
+      coverBytes: oversizedCover,
+      coverFileName: "cover.jpg",
+      coverMimeType: "image/jpeg",
+    });
+    const res = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: formData },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  test("cover不正バイト列（JPEGでもWebPでもない）で400 invalid cover image", async () => {
+    const env = makeEnv();
+    const testApp = buildTestApp(makeStubDeps());
+    const garbage = new Uint8Array([0x00, 0x01, 0x02, 0x03, 0x04, 0x05]);
+    const formData = buildFormData({ coverBytes: garbage });
+    const res = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: formData },
+      env,
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("invalid cover image");
+  });
+
+  test("thumb不正バイト列（JPEGでもWebPでもない）で400 invalid thumb image", async () => {
+    const env = makeEnv();
+    const testApp = buildTestApp(makeStubDeps());
+    const garbage = new Uint8Array([0x00, 0x01, 0x02, 0x03, 0x04, 0x05]);
+    const formData = buildFormData({
+      coverBytes: VALID_COVER_BYTES,
+      thumbBytes: garbage,
+    });
+    const res = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: formData },
+      env,
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("invalid thumb image");
   });
 
   test("ガード順: circuit openかつTurnstile失敗が同時のとき403が先", async () => {

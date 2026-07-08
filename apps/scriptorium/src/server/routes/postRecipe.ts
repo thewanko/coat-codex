@@ -3,14 +3,16 @@
 // ガード順は §4.2 に厳密対応:
 //   Content-Length粗チェック → multipart parse → payload JSON parse → Turnstile
 //   → circuit breaker → rate limit(post/global) → envelope検証 → strict zod
-//   → WebP検査(cover/thumb) → NSFWフック → PBKDF2 → id/時刻/status決定
-//   → R2 put → D1 insert → 201応答
+//   → 画像ヘッダ検査(cover/thumb・JPEG/WebP両受理) → NSFWフック → PBKDF2
+//   → id/時刻/status決定 → R2 put → D1 insert → 201応答
 // cover/thumb は任意（photoless 公開レシピが存在するため、両方欠落しても投稿は成立する）。
+// iOS/デスクトップSafariは canvas.toBlob("image/webp") 非対応でPNGにフォールバックするため
+// クライアントはJPEGを送ることがある。JPEG/WebP双方を受理する（§4.4）。
 
 import type { Context } from "hono";
 import type { Bindings } from "../bindings";
 import { hashDeletePassword } from "../auth/password";
-import { parseWebPHeader } from "../images/webpHeader";
+import { parseImageHeader, imageFormatMeta } from "../images/imageHeader";
 import {
   checkAndIncrementRateLimit,
   dailyPeriod,
@@ -195,9 +197,10 @@ export async function handlePostRecipe(
 
   // 9. 画像検査（cover/thumb が存在する場合のみ。任意添付＝photoless公開レシピが存在する）
   let coverBytes: Uint8Array | undefined;
+  let coverFormat: "webp" | "jpeg" | undefined;
   if (cover) {
     coverBytes = new Uint8Array(await cover.arrayBuffer());
-    const header = parseWebPHeader(coverBytes);
+    const header = parseImageHeader(coverBytes);
     if (!header) {
       return jsonError(c, 400, "invalid cover image");
     }
@@ -207,12 +210,14 @@ export async function handlePostRecipe(
     if (coverBytes.length > COVER_MAX_BYTES) {
       return jsonError(c, 413, "cover image too large (bytes)");
     }
+    coverFormat = header.format;
   }
 
   let thumbBytes: Uint8Array | undefined;
+  let thumbFormat: "webp" | "jpeg" | undefined;
   if (thumb) {
     thumbBytes = new Uint8Array(await thumb.arrayBuffer());
-    const header = parseWebPHeader(thumbBytes);
+    const header = parseImageHeader(thumbBytes);
     if (!header) {
       return jsonError(c, 400, "invalid thumb image");
     }
@@ -222,6 +227,7 @@ export async function handlePostRecipe(
     if (thumbBytes.length > THUMB_MAX_BYTES) {
       return jsonError(c, 413, "thumb image too large (bytes)");
     }
+    thumbFormat = header.format;
   }
 
   // 10. NSFW フック（screening off または cover 無しはスキップ。unavailable は fail-open）
@@ -246,17 +252,23 @@ export async function handlePostRecipe(
   const status = mode === "approval" ? "pending" : "published";
   const publishedAt = status === "published" ? nowIso : null;
 
-  // 13. R2 put（cover/thumb ありのときのみ）
-  const coverKey = cover ? "covers/" + id + ".webp" : null;
-  const thumbKey = thumb ? "thumbs/" + id + ".webp" : null;
-  if (coverKey && coverBytes) {
+  // 13. R2 put（cover/thumb ありのときのみ。拡張子/content-typeは検出したformatから導出）
+  const coverKey =
+    cover && coverFormat
+      ? "covers/" + id + imageFormatMeta(coverFormat).ext
+      : null;
+  const thumbKey =
+    thumb && thumbFormat
+      ? "thumbs/" + id + imageFormatMeta(thumbFormat).ext
+      : null;
+  if (coverKey && coverBytes && coverFormat) {
     await c.env.BUCKET.put(coverKey, coverBytes, {
-      httpMetadata: { contentType: "image/webp" },
+      httpMetadata: { contentType: imageFormatMeta(coverFormat).contentType },
     });
   }
-  if (thumbKey && thumbBytes) {
+  if (thumbKey && thumbBytes && thumbFormat) {
     await c.env.BUCKET.put(thumbKey, thumbBytes, {
-      httpMetadata: { contentType: "image/webp" },
+      httpMetadata: { contentType: imageFormatMeta(thumbFormat).contentType },
     });
   }
 

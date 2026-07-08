@@ -6,7 +6,7 @@ import {
   THUMB_MAX_EDGE,
   composeCover,
   computeCropPixelRect,
-  findWebpQualityBlob,
+  findQualityBlob,
   type CoverComposerDeps,
 } from "./coverComposer";
 import { calcTargetSize } from "./imageProcessing";
@@ -82,7 +82,7 @@ describe("computeCropPixelRect", () => {
   });
 });
 
-describe("findWebpQualityBlob", () => {
+describe("findQualityBlob", () => {
   /** q（0〜1）に単調増加する擬似サイズのBlobを返すスタブ */
   function makeMonotonicEncode(maxSize: number) {
     return vi.fn(async (q: number) => {
@@ -95,7 +95,7 @@ describe("findWebpQualityBlob", () => {
     const maxBytes = 400 * 1024;
     const encode = makeMonotonicEncode(1_000_000);
 
-    const result = await findWebpQualityBlob(encode, { maxBytes });
+    const result = await findQualityBlob(encode, { maxBytes });
 
     expect(result.size).toBeLessThanOrEqual(maxBytes);
 
@@ -109,7 +109,7 @@ describe("findWebpQualityBlob", () => {
     const maxBytes = 100; // qMin(0.3)でも1_000_000*0.3=300,000byte相当なので必ず超過する
     const encode = makeMonotonicEncode(1_000_000);
 
-    const result = await findWebpQualityBlob(encode, { maxBytes });
+    const result = await findQualityBlob(encode, { maxBytes });
 
     const qMinBlob = await encode(0.3);
     expect(result.size).toBe(qMinBlob.size);
@@ -121,7 +121,7 @@ describe("findWebpQualityBlob", () => {
     const minBytes = 200 * 1024;
     const encode = makeMonotonicEncode(1000); // qMax(0.95)でも950byte程度
 
-    const result = await findWebpQualityBlob(encode, { maxBytes, minBytes });
+    const result = await findQualityBlob(encode, { maxBytes, minBytes });
 
     const qMaxBlob = await encode(0.95);
     expect(result.size).toBe(qMaxBlob.size);
@@ -134,7 +134,7 @@ describe("findWebpQualityBlob", () => {
     // q=1のとき500KB相当になるようスケールし、目標範囲に入るqが存在するようにする
     const encode = makeMonotonicEncode(500 * 1024);
 
-    const result = await findWebpQualityBlob(encode, { maxBytes, minBytes });
+    const result = await findQualityBlob(encode, { maxBytes, minBytes });
 
     expect(result.size).toBeLessThanOrEqual(maxBytes);
   });
@@ -144,7 +144,7 @@ describe("findWebpQualityBlob", () => {
     const minBytes = 200 * 1024;
     const encode = makeMonotonicEncode(500 * 1024);
 
-    await findWebpQualityBlob(encode, {
+    await findQualityBlob(encode, {
       maxBytes,
       minBytes,
       steps: 7,
@@ -157,7 +157,7 @@ describe("findWebpQualityBlob", () => {
     const maxBytes = 400 * 1024;
     const encode = makeMonotonicEncode(500 * 1024);
 
-    const result = await findWebpQualityBlob(encode, {
+    const result = await findQualityBlob(encode, {
       maxBytes,
       steps: 0,
     });
@@ -366,5 +366,37 @@ describe("composeCover", () => {
     promise.catch(() => {
       // 意図的に無視する
     });
+  });
+
+  test("既定encodeRegion（canvas経由）はcanvas.toBlobをimage/jpegで呼ぶ（WebP非対応Safari対策）", async () => {
+    // jsdomにはcanvas 2dの実装がないため、getContext/toBlobをスパイしてformat引数のみ検証する。
+    // defaultEncodeRegionは非exportのためcomposeCover経由（deps省略でdecodeのみ注入）で検証する。
+    const toBlobSpy = vi
+      .spyOn(HTMLCanvasElement.prototype, "toBlob")
+      .mockImplementation(function (
+        this: HTMLCanvasElement,
+        callback: BlobCallback,
+      ) {
+        callback(new Blob([new Uint8Array(1024)]));
+      });
+    const drawImageSpy = vi.fn();
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      drawImage: drawImageSpy,
+    } as unknown as CanvasRenderingContext2D);
+
+    const decode = vi
+      .fn()
+      .mockResolvedValue(makeDecodedSource(800, 600) as DecodedImageSource);
+    const source = new Blob(["original"], { type: "image/jpeg" });
+
+    await composeCover(source, null, { decode });
+
+    expect(toBlobSpy).toHaveBeenCalled();
+    for (const call of toBlobSpy.mock.calls) {
+      expect(call[1]).toBe("image/jpeg");
+    }
+
+    toBlobSpy.mockRestore();
+    vi.mocked(HTMLCanvasElement.prototype.getContext).mockRestore?.();
   });
 });
