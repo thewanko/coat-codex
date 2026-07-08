@@ -3,13 +3,17 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (**ST-37プライバシーポリシーページ実装完了**〔ブランチ`impl/privacy-page-st37`・全ゲート緑・出口実機全通過。**残=最終文面のユーザー確認**〔仕様の完了条件〕〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
+最終更新: 2026-07-08 (**ST-37完全クローズ**: ①最終文面ユーザー確認OK〔仕様の完了条件満了〕②任意項目=codex PublishDialogプライバシーポリシーリンク実装完了〔ブランチ`impl/publish-privacy-link`・全ゲート緑〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
+
+前回更新: 2026-07-08 (**ST-37プライバシーポリシーページ実装完了**〔ブランチ`impl/privacy-page-st37`・PR #62マージ済み・全ゲート緑・出口実機全通過〕。次=ST-38 flagged時R2画像削除 または ST-39 robots.txt/noindex)
 
 前々回更新: 2026-07-08 (**ST-36セキュリティ応答ヘッダー実装完了**〔ブランチ`impl/security-headers-st36`・R2 PASS C0/H0/M0/L0・実機CSP検証全通過。本番URLヘッダー確認=マージ後〕。同ブランチにセキュリティ計画反映=技術計画v1.6も同乗。次=ST-37プライバシーポリシー)
 
-前回更新: 2026-07-08 (**公開前セキュリティチェックリスト（ユーザー提供・11節）を計画に反映＝技術計画v1.6**: 3体Explore実コード照合で入力検証/SQLi/レート制限/PBKDF2/Turnstile/XSS sink/画像マジックバイト/EXIF除去/シークレット衛生は**実装済み＆テスト済み**を確認〔付録A〕。ギャップ=セキュリティ応答ヘッダー/プライバシーポリシー/flagged画像R2残存/pages.dev noindex/履歴スキャン→**S8に統合**〔ユーザー裁定: 新規マイルストーン立てず〕でST-36〜39新設＋ST-33/34拡張。§9にHSTS/WAF/使用量アラート/D1バックアップ等のユーザーアクション追記。**S6完了=パブリックローンチゲートは達成済み**〔PR #57・本番実証: 通報→flagged→Resend実受信・iPhone本人削除→一覧消失〕。次=**S7 admin**〔ST-31/32・CF Access〕または**S8セキュリティ硬化**〔ST-36→37→38→39順次・S7非依存で独立実装可〕)
+前々々回更新: 2026-07-08 (**公開前セキュリティチェックリスト（ユーザー提供・11節）を計画に反映＝技術計画v1.6**: 3体Explore実コード照合で入力検証/SQLi/レート制限/PBKDF2/Turnstile/XSS sink/画像マジックバイト/EXIF除去/シークレット衛生は**実装済み＆テスト済み**を確認〔付録A〕。ギャップ=セキュリティ応答ヘッダー/プライバシーポリシー/flagged画像R2残存/pages.dev noindex/履歴スキャン→**S8に統合**〔ユーザー裁定: 新規マイルストーン立てず〕でST-36〜39新設＋ST-33/34拡張。§9にHSTS/WAF/使用量アラート/D1バックアップ等のユーザーアクション追記。**S6完了=パブリックローンチゲートは達成済み**〔PR #57・本番実証: 通報→flagged→Resend実受信・iPhone本人削除→一覧消失〕。次=**S7 admin**〔ST-31/32・CF Access〕または**S8セキュリティ硬化**〔ST-36→37→38→39順次・S7非依存で独立実装可〕)
 
 ## 完了
+
+- 2026-07-08: **ST-37残件クローズ: 最終文面ユーザーOK＋codex PublishDialogプライバシーポリシーリンク**（ブランチ`impl/publish-privacy-link`・main基点） — **①最終文面のユーザー確認=OK**（ST-37仕様の完了条件満了・PR #62マージ済み）。**②任意項目のユーザー裁定=実施**: PublishDialogの`notBackupNotice`直下に`https://scriptorium.coat-codex.com/privacy`への外部リンク1行（`.notice`再利用・新規CSSゼロ・`target="_blank" rel="noopener noreferrer"`=完了画面リンク同型）＋`publish.privacyLinkLabel` i18n 7ロケール（en/ja実訳「公開レシピのプライバシーポリシー」＋他5 en placeholder=codex慣習）＋RTLテスト1件（href/target/rel固定）。**opusレビュー・selfcheck・実機描画とも省略裁定**（静的アンカー1行・条件分岐なし・security/永続化/意匠面なし・RTL担保。実機はマージ後の実利用で自然可視＝限界明記）。セッション独立ゲート: build(tsc)/lint exit 0・ルート`npm test` **1625件**(+1)・diffスコープ確認（9ファイル30行のみ・スコープ逸脱なし）
 
 - 2026-07-08: **Scriptorium S8(2): ST-37 プライバシーポリシーページ**（ブランチ`impl/privacy-page-st37`・main基点） — **成果物**: `routes/PrivacyPage.tsx`新設（TermsPage完全同型・LegalPage.module.css再利用・新規CSSゼロ）＋route `/privacy`＋AppShellフッター3リンク目（footerDiamond同型）＋`privacy.*` i18n 20キー実訳＋`footer.privacy`＋RTLテスト4件。**設計是正**: 仕様の「他5 en placeholder」はcodex 7ロケール慣習の混入と判定（scriptoriumは`locales/en.json`/`ja.json`の2ロケール構成を1次確認）→en/ja実訳のみが正。**記載事実は全て実装コードで委譲前1次確認**（生IP非保存=HMAC-SHA256ハッシュのみ・rate_limits期限剪定〔`pruneOldRateLimits`〕・削除PW=PBKDF2復元不可・通知メール=運営者宛のみ〔notifier.ts〕・localStorage=`scriptorium:lang`のみ・cover=R2・contact@coat-codex.com）＝過大約束なし。**opusレビュー省略裁定**（静的コンテンツページ・PostGuide前例・最終文面はユーザー確認が仕様の完了条件）。**🖐出口実機（pages dev）**: /privacy直URL=200＋root実在＋ST-36 CSPフルセット付与（curl正例）・JA/EN全セクション実描画・Feed→フッターリンク実クリック遷移（elementFromPointヒットテスト真・リンク44px）・375/1280横はみ出し0・言語切替往復・生i18nキー漏れゼロ・email補間2箇所・console違反ゼロ・スクショ意匠整合。セッション独立ゲート: build(tsc)/lint/prettier exit 0・ルート`npm test` **1624件**(+4)。**残=①最終文面のユーザー確認（仕様完了条件）②任意項目=codex PublishDialogからプライバシーポリシーへのリンク1行（未実施・ユーザー裁定待ち）**
 

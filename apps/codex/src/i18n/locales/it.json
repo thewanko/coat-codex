@@ -211,6 +211,7 @@
     "deletePwHint": "At least 8 characters. Keep it to delete your recipe later.",
     "reductionNotice": "Chip photos and step photos will not be published.",
     "notBackupNotice": "This cannot be used as a backup of your recipe.",
+    "privacyLinkLabel": "Privacy policy for published recipes",
     "turnstileUnconfigured": "Turnstile is not configured. Publishing is disabled.",
     "submit": "Publish",
     "submitting": "Publishing…",

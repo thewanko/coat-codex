@@ -211,6 +211,7 @@
     "deletePwHint": "8文字以上。あとでレシピを削除するときに使います。",
     "reductionNotice": "チップ写真・工程写真は公開されません。",
     "notBackupNotice": "この投稿はレシピのバックアップ用途には使えません。",
+    "privacyLinkLabel": "公開レシピのプライバシーポリシー",
     "turnstileUnconfigured": "Turnstileが未設定のため、投稿できません。",
     "submit": "公開する",
     "submitting": "公開中…",
