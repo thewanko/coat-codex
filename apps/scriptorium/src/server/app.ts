@@ -8,6 +8,7 @@ import type { Context } from "hono";
 import { listFeed, getRecipeDetail } from "./routes/feed";
 import { handlePostRecipe } from "./routes/postRecipe";
 import { handleDeleteRecipe } from "./routes/deleteRecipe";
+import { handleReportRecipe } from "./routes/report";
 import { verifyTurnstile } from "./guards/turnstile";
 import { matchCache, putCache } from "./cache";
 import type { Bindings } from "./bindings";
@@ -61,6 +62,17 @@ app.post("/api/recipes", (c) =>
 app.delete("/api/recipes/:id", (c) =>
   handleDeleteRecipe(c, { now: () => new Date() }),
 );
+
+app.post("/api/recipes/:id/report", (c) =>
+  handleReportRecipe(c, {
+    verifyTurnstile: (token, secret, ip) =>
+      verifyTurnstile(token, secret, ip, {
+        fetch: globalThis.fetch.bind(globalThis),
+      }),
+    now: () => new Date(),
+  }),
+);
+// notify は未注入（ST-27 で notifier を結線する）
 
 app.get(
   "/img/:key{.+}",

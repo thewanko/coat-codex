@@ -1,8 +1,8 @@
 // lib/api.test.ts — APIクライアント薄層の単体テスト（fetchはDIでスタブ）
 
 import { describe, expect, test, vi } from "vitest";
-import { fetchFeed, fetchRecipeDetail } from "./api";
-import type { FeedResponse, RecipeDetailResponse } from "./api";
+import { deleteRecipe, fetchFeed, fetchRecipeDetail } from "./api";
+import type { FeedResponse, FetchLike, RecipeDetailResponse } from "./api";
 
 function jsonResponse(body: unknown, ok = true, status = 200): Response {
   return {
@@ -58,5 +58,119 @@ describe("fetchRecipeDetail", () => {
       .mockResolvedValue(jsonResponse({ error: "not found" }, false, 404));
     const result = await fetchRecipeDetail("scr_missing", fetchImpl);
     expect(result).toBeNull();
+  });
+});
+
+describe("deleteRecipe", () => {
+  test("200正常: DELETEでid/PWを送りok:trueを返す（マクロタスク遅延スタブ）", async () => {
+    const fetchImpl = vi.fn<FetchLike>(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => resolve(jsonResponse({ id: "scr_1", status: "deleted" })),
+            0,
+          );
+        }),
+    );
+
+    const result = await deleteRecipe("scr_1", "correct-horse", fetchImpl);
+
+    expect(result).toEqual({ ok: true });
+    expect(fetchImpl).toHaveBeenCalledWith("/api/recipes/scr_1", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deletePassword: "correct-horse" }),
+    });
+  });
+
+  test("403はwrongPassword＋serverErrorを逐語格納する", async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(
+        jsonResponse({ error: "incorrect password" }, false, 403),
+      );
+
+    const result = await deleteRecipe("scr_1", "wrong", fetchImpl);
+
+    expect(result).toEqual({
+      ok: false,
+      code: "wrongPassword",
+      serverError: "incorrect password",
+    });
+  });
+
+  test("429はrateLimited＋serverErrorを逐語格納する", async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(
+        jsonResponse({ error: "rate limit exceeded" }, false, 429),
+      );
+
+    const result = await deleteRecipe("scr_1", "pw", fetchImpl);
+
+    expect(result).toEqual({
+      ok: false,
+      code: "rateLimited",
+      serverError: "rate limit exceeded",
+    });
+  });
+
+  test("404はnotFound＋serverErrorを逐語格納する", async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(jsonResponse({ error: "not found" }, false, 404));
+
+    const result = await deleteRecipe("scr_missing", "pw", fetchImpl);
+
+    expect(result).toEqual({
+      ok: false,
+      code: "notFound",
+      serverError: "not found",
+    });
+  });
+
+  test("400はbadRequest＋serverErrorを逐語格納する", async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(
+        jsonResponse({ error: "invalid deletePassword" }, false, 400),
+      );
+
+    const result = await deleteRecipe("scr_1", "", fetchImpl);
+
+    expect(result).toEqual({
+      ok: false,
+      code: "badRequest",
+      serverError: "invalid deletePassword",
+    });
+  });
+
+  test("fetch例外はnetworkを返す", async () => {
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockRejectedValue(new Error("offline"));
+
+    const result = await deleteRecipe("scr_1", "pw", fetchImpl);
+
+    expect(result).toEqual({ ok: false, code: "network" });
+  });
+
+  test("非JSON応答（json()がthrow）はnetworkを返す", async () => {
+    function invalidJsonResponse(): Response {
+      return {
+        ok: false,
+        status: 500,
+        json: async (): Promise<unknown> => {
+          throw new Error("not json");
+        },
+      } as Response;
+    }
+    const fetchImpl = vi
+      .fn<FetchLike>()
+      .mockResolvedValue(invalidJsonResponse());
+
+    const result = await deleteRecipe("scr_1", "pw", fetchImpl);
+
+    expect(result).toEqual({ ok: false, code: "network" });
   });
 });

@@ -49,6 +49,23 @@
     "baseHeading": "Base",
     "importCta": "Import to coat-codex"
   },
+  "deleteRecipe": {
+    "buttonLabel": "Delete this recipe",
+    "title": "Delete this recipe",
+    "description": "Enter the deletion password you set when publishing. This cannot be undone.",
+    "pwLabel": "Deletion password",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "submitting": "Deleting…",
+    "doneTitle": "Recipe deleted",
+    "doneBody": "This may take up to five minutes to be fully reflected across all viewers.",
+    "backToFeed": "Back to new recipes",
+    "errWrongPassword": "That deletion password is incorrect.",
+    "errRateLimited": "Too many attempts. Please try again later.",
+    "errNotFound": "This recipe was not found or has already been deleted.",
+    "errBadRequest": "The deletion password is required.",
+    "errGeneric": "Something went wrong. Please try again."
+  },
   "postGuide": {
     "heading": "How to post a recipe",
     "intro": "Recipes are created, edited, and published from the coat-codex app. Coat Scriptorium is the public library where published recipes appear.",
