@@ -165,6 +165,66 @@
     "contactBody": "If you have any questions about this policy, contact us at {{email}}."
   },
   "admin": {
-    "heading": "Admin"
+    "heading": "Admin",
+    "tabs": {
+      "pending": "Pending",
+      "flagged": "Flagged",
+      "published": "Published",
+      "deleted": "Deleted"
+    },
+    "list": {
+      "loading": "Loading…",
+      "error": "Failed to load recipes.",
+      "empty": "No recipes in this queue.",
+      "reportCount": "{{count}} report",
+      "reportCount_other": "{{count}} reports"
+    },
+    "actions": {
+      "approve": "Approve",
+      "restore": "Restore",
+      "delete": "Delete",
+      "confirmDelete": "Delete this recipe? This cannot be undone.",
+      "restoreNote": "Restoring does not bring back the cover image (it was removed when this recipe was flagged).",
+      "error": "Action failed"
+    },
+    "preview": {
+      "loading": "Loading preview…",
+      "error": "Failed to load this recipe.",
+      "created": "Created",
+      "published": "Published",
+      "viewPublic": "View public page",
+      "paletteCount": "{{count}} palette colour",
+      "paletteCount_other": "{{count}} palette colours",
+      "stepsCount": "{{count}} step",
+      "stepsCount_other": "{{count}} steps",
+      "parseError": "Could not parse this recipe's data.",
+      "rawJson": "Raw JSON"
+    },
+    "settings": {
+      "heading": "Settings",
+      "loading": "Loading settings…",
+      "loadError": "Failed to load settings.",
+      "error": "Failed to save setting",
+      "moderation_mode": "Moderation mode",
+      "circuit_breaker": "Circuit breaker",
+      "nsfw_screening": "NSFW screening",
+      "report_threshold": "Report threshold",
+      "daily_post_limit": "Daily post limit",
+      "hourly_global_limit": "Hourly global limit",
+      "values": {
+        "moderation_mode": {
+          "auto": "Auto-publish",
+          "approval": "Require approval"
+        },
+        "circuit_breaker": {
+          "closed": "Closed (accepting posts)",
+          "open": "Open (posting paused)"
+        },
+        "nsfw_screening": {
+          "off": "Off",
+          "on": "On"
+        }
+      }
+    }
   }
 }

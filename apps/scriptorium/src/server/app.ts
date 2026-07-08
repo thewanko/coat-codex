@@ -9,6 +9,16 @@ import { listFeed, getRecipeDetail } from "./routes/feed";
 import { handlePostRecipe } from "./routes/postRecipe";
 import { handleDeleteRecipe } from "./routes/deleteRecipe";
 import { handleReportRecipe } from "./routes/report";
+import {
+  isAuthorizedAdminRequest,
+  handleAdminListRecipes,
+  handleAdminGetRecipe,
+  handleAdminApproveRecipe,
+  handleAdminRestoreRecipe,
+  handleAdminDeleteRecipe,
+  handleAdminGetSettings,
+  handleAdminPutSettings,
+} from "./routes/admin";
 import { verifyTurnstile } from "./guards/turnstile";
 import { createScreenImage } from "./moderation/screenImage";
 import { createNotifier } from "./moderation/notifier";
@@ -98,6 +108,27 @@ app.post("/api/recipes/:id/report", (c) =>
     notify: buildNotify(c.env),
   }),
 );
+
+app.use("/api/admin/*", async (c, next) => {
+  if (!isAuthorizedAdminRequest(c.req.raw, c.env)) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  await next();
+});
+
+app.get("/api/admin/recipes", (c) => handleAdminListRecipes(c));
+app.get("/api/admin/recipes/:id", (c) => handleAdminGetRecipe(c));
+app.post("/api/admin/recipes/:id/approve", (c) =>
+  handleAdminApproveRecipe(c, { now: () => new Date() }),
+);
+app.post("/api/admin/recipes/:id/restore", (c) =>
+  handleAdminRestoreRecipe(c, { now: () => new Date() }),
+);
+app.post("/api/admin/recipes/:id/delete", (c) =>
+  handleAdminDeleteRecipe(c, { now: () => new Date() }),
+);
+app.get("/api/admin/settings", (c) => handleAdminGetSettings(c));
+app.put("/api/admin/settings", (c) => handleAdminPutSettings(c));
 
 app.get(
   "/img/:key{.+}",

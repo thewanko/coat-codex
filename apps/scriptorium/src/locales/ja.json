@@ -165,6 +165,66 @@
     "contactBody": "本ポリシーについてご質問がある場合は、{{email}}までご連絡ください。"
   },
   "admin": {
-    "heading": "管理"
+    "heading": "管理",
+    "tabs": {
+      "pending": "承認待ち",
+      "flagged": "通報あり",
+      "published": "公開中",
+      "deleted": "削除済み"
+    },
+    "list": {
+      "loading": "読み込み中…",
+      "error": "レシピの読み込みに失敗しました。",
+      "empty": "このキューにレシピはありません。",
+      "reportCount": "通報{{count}}件",
+      "reportCount_other": "通報{{count}}件"
+    },
+    "actions": {
+      "approve": "承認する",
+      "restore": "復帰する",
+      "delete": "削除する",
+      "confirmDelete": "このレシピを削除しますか？この操作は取り消せません。",
+      "restoreNote": "復帰してもカバー画像は戻りません（通報による非表示化時に削除されています）。",
+      "error": "操作に失敗しました"
+    },
+    "preview": {
+      "loading": "プレビューを読み込み中…",
+      "error": "このレシピの読み込みに失敗しました。",
+      "created": "作成日時",
+      "published": "公開日時",
+      "viewPublic": "公開ページを見る",
+      "paletteCount": "使用カラー{{count}}件",
+      "paletteCount_other": "使用カラー{{count}}件",
+      "stepsCount": "工程{{count}}件",
+      "stepsCount_other": "工程{{count}}件",
+      "parseError": "このレシピのデータを解析できませんでした。",
+      "rawJson": "生JSON"
+    },
+    "settings": {
+      "heading": "設定",
+      "loading": "設定を読み込み中…",
+      "loadError": "設定の読み込みに失敗しました。",
+      "error": "設定の保存に失敗しました",
+      "moderation_mode": "モデレーションモード",
+      "circuit_breaker": "サーキットブレーカー",
+      "nsfw_screening": "NSFWスクリーニング",
+      "report_threshold": "通報しきい値",
+      "daily_post_limit": "1日あたりの投稿上限",
+      "hourly_global_limit": "1時間あたりの全体投稿上限",
+      "values": {
+        "moderation_mode": {
+          "auto": "自動公開",
+          "approval": "承認制"
+        },
+        "circuit_breaker": {
+          "closed": "有効（投稿受付中）",
+          "open": "遮断（投稿停止中）"
+        },
+        "nsfw_screening": {
+          "off": "オフ",
+          "on": "オン"
+        }
+      }
+    }
   }
 }
