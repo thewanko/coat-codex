@@ -288,6 +288,74 @@ describe("composeCover", () => {
     expect(thumbCalls.length).toBeGreaterThan(0);
   });
 
+  test("full寸法ではqMin(0.1)でもCOVER_MAX_BYTESを超える高精細画像→寸法縮小して最終的に上限内へ収める", async () => {
+    // quality * destW * destH * K に比例する擬似サイズを返すスタブ。
+    // K=3.0のとき、full寸法(3000x2000→長辺1600に縮小後1600x1067)はqMin(0.1)でも
+    // 0.1*1600*1067*3.0 ≈ 512,160byte > COVER_MAX_BYTES(460,800byte)で必ず超過し、
+    // 1段縮小後(edge=1280→1280x853)は 0.1*1280*853*3.0 ≈ 327,552byte で上限内に収まる
+    // （＝このKは寸法縮小フォールバックが必ず発火することを保証する値）。
+    const K = 3.0;
+    const decode = vi.fn().mockResolvedValue(makeDecodedSource(3000, 2000));
+
+    const encodeRegion = vi.fn(
+      async (
+        _source: DecodedImageSource,
+        _src: unknown,
+        destWidth: number,
+        destHeight: number,
+        quality: number,
+      ) => {
+        const size = Math.max(
+          1,
+          Math.round(quality * destWidth * destHeight * K),
+        );
+        return new Blob([new Uint8Array(size)]);
+      },
+    );
+
+    const deps: CoverComposerDeps = { decode, encodeRegion };
+    const source = new Blob(["original"], { type: "image/jpeg" });
+
+    const result = await composeCover(source, null, deps);
+
+    // hard上限を必ず保証する
+    expect(result.cover.size).toBeLessThanOrEqual(COVER_MAX_BYTES);
+    expect(result.thumb.size).toBeLessThanOrEqual(THUMB_MAX_BYTES);
+
+    // full寸法(長辺1600)のままではhard上限を超えるため寸法縮小が発生し、
+    // COVER_MAX_EDGE未満のdestWidthでencodeRegionが呼ばれたことを確認する
+    const fullEdgeTarget = calcTargetSize(3000, 2000, COVER_MAX_EDGE);
+    const coverCallsBelowFullEdge = encodeRegion.mock.calls.filter(
+      (call) =>
+        Math.max(call[2] as number, call[3] as number) <
+        Math.max(fullEdgeTarget.width, fullEdgeTarget.height),
+    );
+    expect(coverCallsBelowFullEdge.length).toBeGreaterThan(0);
+  });
+
+  test("full寸法で既に上限内なら寸法縮小せず、full寸法のままエンコードされる（回帰防止）", async () => {
+    const { deps, encodeRegion } = makeSpyDeps(4000, 3000);
+    const source = new Blob(["original"], { type: "image/jpeg" });
+
+    await composeCover(source, null, deps);
+
+    const expectedCoverTarget = calcTargetSize(4000, 3000, COVER_MAX_EDGE);
+    const expectedThumbTarget = calcTargetSize(4000, 3000, THUMB_MAX_EDGE);
+
+    // encodeRegionに渡ったdestサイズが常にfull寸法（縮小なし）であることを確認する
+    for (const call of encodeRegion.mock.calls) {
+      const destWidth = call[2] as number;
+      const destHeight = call[3] as number;
+      const isCoverSize =
+        destWidth === expectedCoverTarget.width &&
+        destHeight === expectedCoverTarget.height;
+      const isThumbSize =
+        destWidth === expectedThumbTarget.width &&
+        destHeight === expectedThumbTarget.height;
+      expect(isCoverSize || isThumbSize).toBe(true);
+    }
+  });
+
   test("既定deps省略時（decode/encodeRegion未指定）は型エラーなくPromiseを返す（呼び出し可能性のみ確認）", () => {
     // 実canvasが動くかどうかはブラウザ検証側の責務。ここではdeps省略時に例外を投げずに
     // Promiseオブジェクトを返す（jsdom未対応で最終的にrejectしても構わない）ことのみ確認する。

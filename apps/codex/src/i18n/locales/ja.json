@@ -206,6 +206,7 @@
     "handlePlaceholder": "your_handle",
     "deletePwLabel": "削除用パスワード",
     "deletePwGenerate": "自動生成",
+    "deletePwHint": "8文字以上。あとでレシピを削除するときに使います。",
     "reductionNotice": "メモ・ツールのnote・チップ写真・工程写真は公開されません。",
     "notBackupNotice": "この投稿はレシピのバックアップ用途には使えません。",
     "turnstileUnconfigured": "Turnstileが未設定のため、投稿できません。",

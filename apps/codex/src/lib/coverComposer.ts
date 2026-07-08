@@ -211,9 +211,59 @@ async function defaultEncodeRegion(
   });
 }
 
+/** サーバー上限（hard limit）超過時に目標寸法を段階縮小する際の縮小率 */
+const DIMENSION_FALLBACK_FACTOR = 0.8;
+/** 寸法縮小フォールバックの無限ループ防止のための最小長辺（px） */
+const MIN_TARGET_EDGE = 320;
+/** findWebpQualityBlobのqMin下限を、サーバー上限厳守のため既定(0.3)より広げる */
+const HARD_LIMIT_Q_MIN = 0.1;
+
+/**
+ * 長辺maxEdgeを起点に、encodeRegion(quality二分探索)の結果がhardMaxBytesを
+ * 超える場合は目標寸法をDIMENSION_FALLBACK_FACTORずつ縮小して再エンコードし、
+ * 最終的にhardMaxBytes以下のBlobを保証する（MIN_TARGET_EDGEまで縮小しても
+ * 超過する場合はその時点のBlobを返す＝理論上到達しない安全弁）。
+ * 通常写真（1回目のループでhardMaxBytes以下）は寸法を縮小せず、挙動は不変。
+ */
+async function encodeUnderHardLimit(
+  img: DecodedImageSource,
+  srcRect: SourcePixelRect,
+  maxEdge: number,
+  hardMaxBytes: number,
+  targetMaxBytes: number,
+  targetMinBytes: number | undefined,
+  encodeRegion: NonNullable<CoverComposerDeps["encodeRegion"]>,
+): Promise<Blob> {
+  let edge = maxEdge;
+
+  for (;;) {
+    const target = calcTargetSize(srcRect.sw, srcRect.sh, edge);
+    const blob = await findWebpQualityBlob(
+      (q) => encodeRegion(img, srcRect, target.width, target.height, q),
+      {
+        maxBytes: targetMaxBytes,
+        minBytes: targetMinBytes,
+        qMin: HARD_LIMIT_Q_MIN,
+      },
+    );
+
+    if (blob.size <= hardMaxBytes || edge <= MIN_TARGET_EDGE) {
+      return blob;
+    }
+
+    edge = Math.max(
+      MIN_TARGET_EDGE,
+      Math.round(edge * DIMENSION_FALLBACK_FACTOR),
+    );
+  }
+}
+
 /**
  * source画像をcrop焼き込みし、cover（長辺≤1600px WebP・品質二分探索で200–400KB目標・
  * ≤450KB厳守）とthumb（長辺≤400px WebP・≤80KB）を生成する（§6-1・§3.2）。
+ * サーバー側のCOVER_MAX_BYTES/THUMB_MAX_BYTES（413判定の上限）を必ず下回るよう、
+ * 品質二分探索のqMin引き下げに加え、それでも超過する高精細画像は目標寸法を
+ * 段階縮小して再エンコードする（encodeUnderHardLimit）。
  */
 export async function composeCover(
   source: Blob,
@@ -232,16 +282,24 @@ export async function composeCover(
 
   const srcRect = computeCropPixelRect(naturalWidth, naturalHeight, crop);
 
-  const coverTarget = calcTargetSize(srcRect.sw, srcRect.sh, COVER_MAX_EDGE);
-  const cover = await findWebpQualityBlob(
-    (q) => encodeRegion(img, srcRect, coverTarget.width, coverTarget.height, q),
-    { maxBytes: COVER_TARGET_MAX_BYTES, minBytes: COVER_TARGET_MIN_BYTES },
+  const cover = await encodeUnderHardLimit(
+    img,
+    srcRect,
+    COVER_MAX_EDGE,
+    COVER_MAX_BYTES,
+    COVER_TARGET_MAX_BYTES,
+    COVER_TARGET_MIN_BYTES,
+    encodeRegion,
   );
 
-  const thumbTarget = calcTargetSize(srcRect.sw, srcRect.sh, THUMB_MAX_EDGE);
-  const thumb = await findWebpQualityBlob(
-    (q) => encodeRegion(img, srcRect, thumbTarget.width, thumbTarget.height, q),
-    { maxBytes: THUMB_MAX_BYTES },
+  const thumb = await encodeUnderHardLimit(
+    img,
+    srcRect,
+    THUMB_MAX_EDGE,
+    THUMB_MAX_BYTES,
+    THUMB_MAX_BYTES,
+    undefined,
+    encodeRegion,
   );
 
   return { cover, thumb };

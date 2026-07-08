@@ -374,6 +374,7 @@ export default function PublishDialog({
                 {t("publish.deletePwGenerate")}
               </button>
             </div>
+            <p className={styles.hint}>{t("publish.deletePwHint")}</p>
           </div>
 
           <p className={styles.notice}>{t("publish.reductionNotice")}</p>
