@@ -23,6 +23,19 @@ const RECIPE_PAGE_PATTERN = /^\/r\/[^/]+\/?$/;
 
 export type WorkerEnv = RecipePageBindings;
 
+// *.pages.dev のプレビュー/デフォルトドメインは検索エンジンに拾わせない（技術計画v1 §7 ST-39）。
+// カスタムドメイン（本番）では noindex を付けない。
+function withPagesDevNoindex(response: Response, hostname: string): Response {
+  if (!hostname.endsWith(".pages.dev")) {
+    return response;
+  }
+
+  // 上流応答はヘッダーが immutable のことがあるため、securityHeaders.ts と同型で複製する。
+  const wrapped = new Response(response.body, response);
+  wrapped.headers.set("X-Robots-Tag", "noindex");
+  return wrapped;
+}
+
 export default {
   async fetch(
     request: Request,
@@ -31,14 +44,21 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/img/")) {
-      return app.fetch(request, env, ctx);
-    }
+    const response = await (async () => {
+      if (
+        url.pathname.startsWith("/api/") ||
+        url.pathname.startsWith("/img/")
+      ) {
+        return app.fetch(request, env, ctx);
+      }
 
-    if (request.method === "GET" && RECIPE_PAGE_PATTERN.test(url.pathname)) {
-      return withSecurityHeaders(await handleRecipePage(request, env));
-    }
+      if (request.method === "GET" && RECIPE_PAGE_PATTERN.test(url.pathname)) {
+        return withSecurityHeaders(await handleRecipePage(request, env));
+      }
 
-    return withSecurityHeaders(await env.ASSETS.fetch(request));
+      return withSecurityHeaders(await env.ASSETS.fetch(request));
+    })();
+
+    return withPagesDevNoindex(response, url.hostname);
   },
 };

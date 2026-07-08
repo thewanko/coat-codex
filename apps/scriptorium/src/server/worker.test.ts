@@ -116,4 +116,56 @@ describe("_worker.js ディスパッチ", () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("asset:/");
   });
+
+  test("*.pages.dev（/api分岐）は X-Robots-Tag: noindex が付与される（ST-39）", async () => {
+    const env = makeEnv();
+    const request = new Request(
+      "https://coat-scriptorium.pages.dev/api/recipes",
+    );
+
+    const response = await worker.fetch(request, env, executionCtx);
+
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+  });
+
+  test("*.pages.dev（ASSETS分岐）は X-Robots-Tag: noindex とCSPヘッダーが共存する（ST-39）", async () => {
+    const env = makeEnv();
+    const request = new Request("https://coat-scriptorium.pages.dev/terms");
+
+    const response = await worker.fetch(request, env, executionCtx);
+
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(response.headers.get("Content-Security-Policy")).not.toBeNull();
+  });
+
+  test("*.pages.dev のプレビューサブドメイン（/r/:id 分岐）も X-Robots-Tag: noindex が付与される（ST-39）", async () => {
+    const env = makeEnv();
+    const request = new Request(
+      "https://xyz.coat-scriptorium.pages.dev/r/scr_seed_pending",
+    );
+
+    const response = await worker.fetch(request, env, executionCtx);
+
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+  });
+
+  test("カスタムドメインでは X-Robots-Tag が付与されない（ST-39）", async () => {
+    const env = makeEnv();
+    const request = new Request("https://scriptorium.example/terms");
+
+    const response = await worker.fetch(request, env, executionCtx);
+
+    expect(response.headers.get("X-Robots-Tag")).toBeNull();
+  });
+
+  test("偽装ドメイン（evil-pages.dev / pages.dev.example.com）には X-Robots-Tag が付与されない（ST-39）", async () => {
+    for (const host of ["evil-pages.dev", "pages.dev.example.com"]) {
+      const env = makeEnv();
+      const request = new Request(`https://${host}/terms`);
+
+      const response = await worker.fetch(request, env, executionCtx);
+
+      expect(response.headers.get("X-Robots-Tag")).toBeNull();
+    }
+  });
 });

@@ -180,7 +180,9 @@ export async function handleReportRecipe(
           await c.env.BUCKET.delete(row.thumb_key);
         }
       } catch {
-        console.warn("R2 object deletion failed (best-effort); orphan retained");
+        console.warn(
+          "R2 object deletion failed (best-effort); orphan retained",
+        );
       }
 
       // 実際に行が変わった（=このリクエストで遷移が起きた）ときのみ通知（best-effort）
