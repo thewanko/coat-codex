@@ -104,8 +104,9 @@ publishedRecipeSchema = z.object({
 
 ### §2.2 削減規則（RecipeDoc → PublishedRecipe）
 
-除外: `Step.memo`・`Step.photoId`・`Tool.note`・`PaletteColor.chipPhotoId`・`createdAt`/`updatedAt`・`overviewPhotoIds`・`photoCrops`。
-写真は cover 1 枚のみで **recipe_json の外**（API レスポンス envelope の `coverUrl`/`thumbUrl`）に置く。この形式単体ではフルバックアップとして機能しない（倉庫化防止）。投稿 UI に「バックアップ用途には使えない」旨を明記する（§6-1）。
+除外: `Step.photoId`・`PaletteColor.chipPhotoId`・`createdAt`/`updatedAt`・`overviewPhotoIds`・`photoCrops`。
+**`Step.memo`・`Tool.note` は公開に含める**（2026-07-08 ユーザー裁定で改訂。工程メモ・ツールノートは共有価値の高いテキストのため公開・共有する。published スキーマで memo/note を optional に追加〔旧レコード後方互換〕・strict 検証で 2000 字上限＋禁止パターン〔URL・`<`・javascript:〕を適用・scriptorium 詳細で表示〔memo は StepListView・note は RecipeDetailPage〕）。
+写真は cover 1 枚のみで **recipe_json の外**（API レスポンス envelope の `coverUrl`/`thumbUrl`）に置く。この形式単体では（写真を含まないため）フルバックアップとして機能しない（倉庫化防止）。投稿 UI に「バックアップ用途には使えない」旨を明記する（§6-1）。
 
 ### §2.3 strict 検証（サーバーと codex 投稿 UI で共有）
 

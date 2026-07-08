@@ -109,10 +109,12 @@ export async function publishToScriptorium(
   const parsed = publishedRecipeStrictSchema.safeParse(published);
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0];
-    throw new PublishError(
-      "validation",
-      firstIssue?.message ?? "投稿内容の検証に失敗しました",
-    );
+    const rawMessage = firstIssue?.message ?? "投稿内容の検証に失敗しました";
+    // 内部タグ [STRICT-TEXT] 等を除去してユーザー向けに整える
+    const cleanMessage = rawMessage.replace(/^\[STRICT-[A-Z]+\]\s*/, "");
+    const path = firstIssue?.path?.join(".") ?? "";
+    const detail = path ? `${cleanMessage}（該当箇所: ${path}）` : cleanMessage;
+    throw new PublishError("validation", detail);
   }
 
   const fd = new FormData();

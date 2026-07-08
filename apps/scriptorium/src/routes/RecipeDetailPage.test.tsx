@@ -43,7 +43,7 @@ const PUBLISHED_RECIPE: PublishedRecipe = {
       hex: "#888888",
     },
   ],
-  tools: [{ id: "tool_1", name: "Small brush" }],
+  tools: [{ id: "tool_1", name: "Small brush", note: "size 0" }],
   baseSteps: [
     {
       id: "step_base_1",
@@ -114,6 +114,9 @@ describe("RecipeDetailPage", () => {
 
     // カスタム技法label（presetKey:null, label:"Custom stippling"）
     expect(screen.getByText("Custom stippling")).toBeInTheDocument();
+
+    // ツールのnoteが表示される
+    expect(screen.getByText("size 0")).toBeInTheDocument();
 
     // coverUrl非null → cover画像を表示
     const coverImg = document.querySelector(
