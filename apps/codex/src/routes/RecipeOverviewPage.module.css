@@ -16,6 +16,27 @@
   margin: 0;
 }
 
+.sourceLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: calc(var(--space-3) * -1) 0 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+.sourceLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-2);
+  margin: 0 calc(var(--space-2) * -1);
+  color: var(--color-link);
+  text-decoration: underline dotted;
+  text-decoration-color: rgba(90, 58, 36, 0.5);
+}
+
 .baseSection {
   display: flex;
   flex-direction: column;

@@ -194,3 +194,19 @@ export function shouldRequestPersist(
   }
   return record.granted === false && persisted !== true;
 }
+
+/** §3.5発火条件: meta.persist未記録（または未許可のまま）の場合のみ要求し、結果を記録する */
+export async function ensurePersistRequested(): Promise<void> {
+  const [record, persisted] = await Promise.all([
+    readPersistRecord(),
+    checkPersisted(),
+  ]);
+  if (!shouldRequestPersist(record, persisted)) {
+    return;
+  }
+  const granted = await requestPersist();
+  if (granted === undefined) {
+    return;
+  }
+  await recordPersistResult(granted, new Date().toISOString());
+}

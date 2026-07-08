@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-08 scriptorium-s5-import レビュアーの修正提案自体を1次確認し欠陥を検出（提案regexが`..`素通り）／CORS環境ギャップを設計段階でdevプロキシに折り込みローカル往復e2eを成立 [GOOD]
+
+- 事象: ①S5レビューR1のL1指摘（coverUrl検証強化）でレビュアーが提案した `/^\/img\/[A-Za-z0-9._/-]+$/` は、文字クラスに`.`と`/`を両方含むため肝心の`..`（path traversal）が素通りする欠陥があった。セッションが修正委譲前に提案regexを机上検証（反例`/img/../../x`を当てる）して検出し、`refine((v) => !v.includes("..") && !v.includes("//"))`の明示排除へ変えて委譲。R2で同一レビュアーが実キー形式（postRecipe.ts/feed.ts/seed.mjs）との突き合わせまで行いPASS ②本番CORSがACAO: `coat-codex.com`固定＝localhostから実fetch不可という環境ギャップを、S4コーデック教訓「環境ギャップは設計段階で潰す」の適用としてdesignの1次確認（サーバーACAO実装のRead）で特定し、vite devプロキシ（`/__scriptorium`→wrangler:8788）＋`import.meta.env.DEV`分岐のAPI baseを実装要件に組み込んだ。結果、出口実機検証で「実fetch→実サーバー→実D1/R2→実dataURL化→実Dexie書込→実遷移」のローカル往復e2eが成立（Turnstileの時=全面ユーザー引き渡し、と違いpreview検証が本番経路の大部分を代表できた。残ギャップ=本番ACAO/https/iOS実タッチのみをST-25へ引き渡し）
+- 原因（GOODの機序）: ①レビュー指摘の「指摘内容の事実」だけでなく「修正提案そのもの」も1次確認の対象にした（1次確認ルールの新しい相。regex・エスケープ・丸めを含む提案は反例1つの机上検証が安い）②環境ギャップは出口検証で発覚してから対処すると手戻りだが、design段階で特定すれば「検証可能性そのもの」を設計に組み込める
+- 一般化ルール (次ループの指示文としてそのまま使える形で): レビュー指摘を修正委譲するとき、レビュアーの修正提案（正規表現・エスケープ・境界値・丸め）はそのまま委譲プロンプトへ貼らず、**セッションが反例を1つ当てる机上検証をしてから**採否・修正して渡す。外部サービスへのfetchを含む新機能のdesignでは、CORS/認証/コーデック等の環境ギャップを1次確認し、「ローカル検証をどう本番経路に近づけるか」（dev専用プロキシ・注入可能なAPI base）を実装要件に含める（検証手段の設計はコードの設計と同時に行う）
+- 反映先: loop prompt（1次確認ルールの適用対象を「レビュアーの修正提案」へ拡張・環境ギャップの設計折込み）
+- 発生回数: 1回目（1次確認ルールfamily 6回目の実証・新しい相=修正提案の検証）
+
 ## 2026-07-08 cover-jpeg 出力フォーマット指定Web API（canvas.toBlob("image/webp")）のブラウザ対応を設計段階で未確認＝Chromiumプレビュー検証が実機Safariを代表せず、本番投稿が400 [BAD] → CLAUDE.md 昇格済み（実機検証の規律に追記）
 
 - 事象: ST-20/21で投稿cover/thumbをWebP（canvas.toBlob("image/webp", q)）で生成する設計にしたが、**iOS/デスクトップSafariはcanvasのWebPエンコードに非対応**（Safari 26/27でも未対応・caniuse実測）。toBlobは仕様上「非対応形式はPNGへ暗黙フォールバック」のため例外も出ず、実体PNGが`image/webp`詐称Fileで送信され、サーバーの実バイト検査（parseWebPHeader）で400 `invalid cover image`。Chromium系プレビューはWebPエンコード可のため全検証を素通りし、ユーザーのiPhone実投稿で初めて露見（クロップtouch/clipboardと同じ「preview≠実機Safari」ギャップのコーデック版）
@@ -156,13 +164,13 @@
 - 反映先: loop prompt
 - 発生回数: 1 回目
 
-## 2026-07-03 M5-export preview環境のCSSアニメーション停止 [BAD]
+## 2026-07-03 M5-export preview環境のCSSアニメーション停止 [BAD] → CLAUDE.md 昇格済み
 
 - 事象: ボトムシートが「開かない」ように見えた（translateY(100%)のまま座標検証が全滅）。実バグではなく、previewタブが `document.hidden=true` のときブラウザがCSSアニメーションのタイムラインを進めない環境制約だった（`getAnimations()`で `playState: running / currentTime: 0` を確認）
 - 原因: 非表示タブではレンダリングパイプラインが止まり、`animation:`起点の開閉UIは初期キーフレーム位置に留まる。fill-mode未指定だと「閉じ位置で固まって見える」
 - 一般化ルール (次ループの指示文としてそのまま使える形で): previewでアニメーション付きオーバーレイUIの座標検証を行う前に `el.getAnimations().forEach(a => a.finish())` で最終状態へ送る。「開かない・位置がおかしい」ように見えたら、コードを疑う前に `document.hidden` と `getAnimations()` の currentTime を確認する
-- 反映先: loop prompt / CLAUDE.md 昇格候補（検証の忠実度不足entryと合わせてpreview検証の落とし穴が2件目）
-- 発生回数: 1 回目
+- 反映先: loop prompt → **CLAUDE.md 昇格済み**（実機検証の規律へviewport相を追記 2026-07-08）
+- 発生回数: 2 回目（2026-07-08 S5出口: **背景タブがviewport 0×0のままレイアウトされず`elementFromPoint`が全対象null**＝ヒットテスト偽陰性。preview_screenshotは正常描画＝「スクショは生きているがevalの座標系が死んでいる」乖離が起きる。preview_resize＋再evalで回復。同根「非表示タブのレンダリング停止」のviewport相 → 昇格）
 
 ## 2026-07-03 mobile-ux-feedback 検証の忠実度不足 [BAD]
 

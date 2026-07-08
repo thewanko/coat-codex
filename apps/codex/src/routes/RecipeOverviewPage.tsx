@@ -28,6 +28,7 @@ import {
   readReminderSnooze,
   shouldShowExportReminder,
 } from "../lib/storageHealth";
+import { buildScriptoriumPageUrl } from "../lib/importFromScriptorium";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
@@ -299,6 +300,20 @@ function RecipeOverviewPage() {
         <BackLink to="/" label={t("nav.backToLibrary")} />
 
         <h1 className={styles.title}>{doc.title}</h1>
+
+        {doc.source !== null && (
+          <p className={styles.sourceLine}>
+            {t("overview.sourceScriptorium", { handle: doc.source.author })}
+            <a
+              className={styles.sourceLink}
+              href={buildScriptoriumPageUrl(doc.source.scriptoriumId)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("overview.sourceLinkLabel")}
+            </a>
+          </p>
+        )}
 
         {showReminderCompact && (
           <ExportReminderBanner
