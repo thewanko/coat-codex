@@ -37,7 +37,10 @@ const pendingRow: FakeRecipeRow = {
 function makeEnv() {
   const assetsFetch = vi.fn(async (input: Request | string | URL) => {
     const url = input instanceof Request ? input.url : input.toString();
-    return new Response(`asset:${new URL(url).pathname}`, { status: 200 });
+    return new Response(`asset:${new URL(url).pathname}`, {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
   });
   return {
     DB: new FakeD1Database([pendingRow]) as unknown as D1Database,
@@ -71,9 +74,10 @@ describe("_worker.js ディスパッチ", () => {
 
     expect(env.ASSETS.fetch).toHaveBeenCalledTimes(1);
     expect(await response.text()).toBe("asset:/");
+    expect(response.headers.get("Content-Security-Policy")).not.toBeNull();
   });
 
-  test("それ以外（/terms 等）は ASSETS.fetch へそのまま委譲される", async () => {
+  test("それ以外（/terms 等）は ASSETS.fetch へそのまま委譲され、CSPヘッダーが付与される", async () => {
     const env = makeEnv();
     const request = new Request("https://scriptorium.example/terms");
 
@@ -82,6 +86,8 @@ describe("_worker.js ディスパッチ", () => {
     expect(env.ASSETS.fetch).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("asset:/terms");
+    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(response.headers.get("Content-Security-Policy")).not.toBeNull();
   });
 
   test("POST /r/:id は recipePage 側にマッチせず ASSETS.fetch へ落ちる（メソッド保存）", async () => {
