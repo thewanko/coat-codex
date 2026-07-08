@@ -277,6 +277,126 @@ describe("POST /api/recipes/:id/report 正常系", () => {
     const db = env.DB as unknown as FakeD1Database;
     expect(db.rows[0].status).toBe("flagged");
   });
+
+  test("flagged遷移時にR2のcover/thumbが削除される", async () => {
+    const row = makeRow({
+      cover_key: "covers/x.jpg",
+      thumb_key: "thumbs/x.jpg",
+    });
+    const env = await makeEnv([row], { report_threshold: "1" });
+    const bucket = env.BUCKET as unknown as FakeR2Bucket;
+    await bucket.put("covers/x.jpg", new Uint8Array([1, 2, 3]));
+    await bucket.put("thumbs/x.jpg", new Uint8Array([4, 5, 6]));
+    const testApp = buildTestApp(makeStubDeps());
+
+    const res = await testApp.request(
+      "/api/recipes/scr_target/report",
+      reportRequest(VALID_BODY, { "CF-Connecting-IP": "10.10.10.1" }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.rows[0].status).toBe("flagged");
+    expect(await bucket.get("covers/x.jpg")).toBeNull();
+    expect(await bucket.get("thumbs/x.jpg")).toBeNull();
+  });
+
+  test("閾値未満はR2削除されずstatusもpublishedのまま", async () => {
+    const row = makeRow({
+      cover_key: "covers/y.jpg",
+      thumb_key: "thumbs/y.jpg",
+    });
+    const env = await makeEnv([row], { report_threshold: "3" });
+    const bucket = env.BUCKET as unknown as FakeR2Bucket;
+    await bucket.put("covers/y.jpg", new Uint8Array([1, 2, 3]));
+    await bucket.put("thumbs/y.jpg", new Uint8Array([4, 5, 6]));
+    const testApp = buildTestApp(makeStubDeps());
+
+    const res = await testApp.request(
+      "/api/recipes/scr_target/report",
+      reportRequest(VALID_BODY, { "CF-Connecting-IP": "10.10.10.2" }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.rows[0].status).toBe("published");
+    expect(await bucket.get("covers/y.jpg")).not.toBeNull();
+    expect(await bucket.get("thumbs/y.jpg")).not.toBeNull();
+  });
+
+  test("既にflaggedな行への再通報（changes=0）はR2削除されない", async () => {
+    const row = makeRow({
+      status: "flagged",
+      report_count: 3,
+      cover_key: "covers/z.jpg",
+      thumb_key: "thumbs/z.jpg",
+    });
+    const env = await makeEnv([row], { report_threshold: "3" });
+    const bucket = env.BUCKET as unknown as FakeR2Bucket;
+    await bucket.put("covers/z.jpg", new Uint8Array([1, 2, 3]));
+    await bucket.put("thumbs/z.jpg", new Uint8Array([4, 5, 6]));
+    const testApp = buildTestApp(makeStubDeps());
+
+    const res = await testApp.request(
+      "/api/recipes/scr_target/report",
+      reportRequest(VALID_BODY, { "CF-Connecting-IP": "10.10.10.3" }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    expect(await bucket.get("covers/z.jpg")).not.toBeNull();
+    expect(await bucket.get("thumbs/z.jpg")).not.toBeNull();
+  });
+
+  test("R2削除が失敗しても200・statusはflagged・notifyも発火", async () => {
+    const row = makeRow({
+      cover_key: "covers/w.jpg",
+      thumb_key: "thumbs/w.jpg",
+    });
+    const env = await makeEnv([row], { report_threshold: "1" });
+    const bucket = env.BUCKET as unknown as FakeR2Bucket;
+    await bucket.put("covers/w.jpg", new Uint8Array([1, 2, 3]));
+    await bucket.put("thumbs/w.jpg", new Uint8Array([4, 5, 6]));
+    (bucket as unknown as { delete: () => Promise<void> }).delete =
+      async () => {
+        throw new Error("r2 down");
+      };
+    const notify = vi
+      .fn<(event: ModerationEvent) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    const testApp = buildTestApp(makeStubDeps({ notify }));
+
+    const res = await testApp.request(
+      "/api/recipes/scr_target/report",
+      reportRequest(VALID_BODY, { "CF-Connecting-IP": "10.10.10.4" }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { ok: boolean };
+    expect(body).toEqual({ ok: true });
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.rows[0].status).toBe("flagged");
+    expect(notify).toHaveBeenCalledTimes(1);
+  });
+
+  test("cover_key/thumb_keyがnullの遷移はdelete未呼び出しで例外なし", async () => {
+    const row = makeRow({ cover_key: null, thumb_key: null });
+    const env = await makeEnv([row], { report_threshold: "1" });
+    const testApp = buildTestApp(makeStubDeps());
+
+    const res = await testApp.request(
+      "/api/recipes/scr_target/report",
+      reportRequest(VALID_BODY, { "CF-Connecting-IP": "10.10.10.5" }),
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.rows[0].status).toBe("flagged");
+  });
 });
 
 describe("POST /api/recipes/:id/report 400系", () => {
