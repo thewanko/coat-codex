@@ -71,6 +71,11 @@
 }
 
 .reasonOptionLabel {
+  /* labelを行全域へ広げてタッチ領域44pxを実効化（radio本体18pxのみでは規律不足） */
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-height: var(--size-touch-target);
   font-family: var(--font-family-body);
   font-size: var(--font-size-sm);
   color: var(--color-ink);
