@@ -1,80 +1,71 @@
-# T43④ 実機フィードバック対応ループ（2026-07-04 ユーザーiPhone実機テスト起点）
+# 公開前セキュリティ硬化（S8統合・技術計画v1.6）
 
-7件の指摘。FB-A〜FB-Gとして管理。ユーザー承認済み（2026-07-04・4決定含む）。
+2026-07-08 ユーザー提供の公開前セキュリティチェックリスト（11節）を実装と突き合わせ、ギャップを S8 に統合。
+ユーザー裁定: ①新規マイルストーンは立てず S8 リリース仕上げに統合 ②コード硬化4点すべて今回スコープ。
+仕様の正 = `docs/coat-scriptorium_技術計画_v1.md`（v1.6・S8節／付録A・B）。
 
-進捗: **Wave 1（FB-B/FB-D）完了=863ed55** ・ **Wave 2（FB-E/FB-F）完了**（R1 PASS M2/L2→修正バッチ→R2 PASS L0。
-実機検出2件〔pe:none素通し・z序列〕も解消。glue: 失敗トースト二重通知の廃止）・ Wave 3（FB-A）着手。
+進捗: **ST-36 実装完了**（R2 PASS・実機CSP検証全通過・PR提出）。次=ST-37 プライバシーポリシー。
 
-Wave 4への申し送り: MobileExportRootの`onClose`インライン関数が毎レンダー新参照になり、シート表示中の
-状態変化（ダイアログ閉等）でExportSheetのフォーカスeffectが再実行され✕にフォーカスが奪われる既存の癖
-（実機で確認・iOSはタップでフォーカスを持たないため実害小）。FB-GでExportActionBarを触る際にuseCallback安定化で解消すること。
+## 実装済み・確認済み（対応不要）
 
-## FB-A: 合成画像の一括DL → 個別DL化 [優先: 高]
+3体 Explore で全11節を実コード照合。入力検証・SQLi・レート制限・PBKDF2・Turnstile fail-closed・
+XSS sink・画像マジックバイト・EXIF除去・シークレット衛生は**実装済み＆テスト済み**（技術計画 付録A）。
 
-- [ ] 原因確定済み: `ShareDialog.handleDownloadImages` が選択画像を50ms間隔の連続 `anchor.click()` で逐次DL → iOS Safariは2件目以降で「新たにダウンロードを開始しますか？（進行中のDLは停止）」確認を出す
-- [ ] ShareImagePreviewの各候補カードに個別「この画像をDL」ボタンを追加（1タップ=1DL）
-- [ ] 一括DLボタン（share.downloadImages）は削除し個別DLへ置換（上限4枚なので個別で苦にならない）
-- [ ] B系統手順ガイド文言（step1Download）を個別DL前提に改訂
-- [ ] 【決定 2026-07-04】SNS導線統合も実施: X/Bluesky 2ボタン→「SNSに投稿」1ボタンへ統合し、ShareDialog内にX/Bluesky切替タブ（文字数カウンタ280/300・Intent URLが追従）。ExportActionBar/ExportSheet/PartReviewDialogの3起点全てを統合形へ。第1弾（個別DL）と同ループ内で実施
+## ST-36: セキュリティ応答ヘッダー（CSP等） [優先: 高] — ✅実装完了（2026-07-08・R2 PASS C0/H0/M0/L0）
 
-## FB-B: PartCardモバイル3段組（パーツ名1文字問題） [優先: 高]
+- [x] scriptorium=`securityHeaders.ts`新設＋`worker.ts` ラップ（ASSETS.fetch HTML＋handleRecipePage HTML。/api・/img 非ラップ）
+- [x] codex=`apps/codex/public/_headers` 新設（`connect-src` に scriptorium 追加）
+- [x] CSP フルセット＋Referrer-Policy・X-Frame-Options: DENY・Permissions-Policy
+- [x] script に `'unsafe-inline'` なし（両 dist のインラインscriptゼロ実測）
+- [x] 🖐 両アプリ pages dev で主要フロー通し=コンソール CSP 違反ゼロ（scriptorium: Feed/Detail/通報の実Turnstile完全往復/削除/Fonts/OGP ・ codex: PublishDialog=Turnstileトークン実発行/SNS共有/Fonts。レビューH2件=connect-src指摘はCF公式docs＋実機で棄却確定）
+- [ ] **マージ後**: 本番/プレビュー URL の応答ヘッダー実在を curl（正例＋非APIルート HTML 200＋root 実在）＋実機ブラウザ再確認
 
-- [ ] 原因確定済み: 1行flexに 名前+工程数+混合バッジ(25%+75%(1:3))+工程レビューボタン+chevron を詰めており、モバイルでnameのellipsisが極端に潰れる
-- [ ] <768pxでカード本体を縦3段化: ①パーツ名（フル幅）②使用カラーのスウォッチ四角並び ③「工程N」＋「工程レビュー」行
-- [ ] スウォッチ = part.steps[].paints を palette から hex解決・重複除去・出現順・上限8個+「+N」（提案値）
-- [ ] 混合バッジ・比率・警告バッジはモバイルでは非表示（色配合は不要=ユーザー指定）。PC幅は現状維持
-- [ ] PartCardへ palette（またはswatch解決済み配列）propを追加（PartCardList/RecipeOverviewPage/BASEカード呼び出し元も更新。BASE合成partも自動で同型になる）
+## ST-37: プライバシーポリシーページ [優先: 高]
 
-## FB-C: 全体画像の後日UP/変更動線 [優先: 中]
+- [ ] `apps/scriptorium/src/routes/PrivacyPage.tsx`（Terms/ContentPolicy 同型・LegalPage.module.css 再利用）＋route `/privacy`＋footer リンク
+- [ ] 記載必須（§10）: IPハッシュ一時保持（生IP非保存・保持期間）／削除PW（PBKDF2・復元不可）／Cloudflare（D1/R2/Turnstile）／トラッキング無し／cover保存／contact@coat-codex.com
+- [ ] `privacy.*` i18n（en/ja 実訳＋他5 en placeholder）・i18n.test 構造一致
+- [ ] RTL レンダーテスト（heading・contactリンク・内部Link）
+- [ ] 🖐 /privacy 描画・フッター導線。**最終文面はユーザー確認**
+- [ ] （任意）codex PublishDialog から scriptorium プライバシーポリシーへのリンク1行
 
-- [ ] Setup全体写真セクションに説明文「完成画像は後からアップロード・変更できます」（i18n ja/en）
-- [ ] 【決定 2026-07-04】その場ダイアログ案: OverviewHeader付近に「全体写真を変更」ボタン→ダイアログ内でPhotoUploader再利用（overviewPhotoIds編集・updateRecipe結線は既存機構）。useFocusTrap適用・条件付きマウント形態のテストを含める（lessons 2026-07-04参照）
+## ST-38: flagged 化時の R2 画像削除 [優先: 中]
 
-## FB-D: 印刷画面モバイルのヘッダ/フッタ切れ [優先: 中]
+- [ ] `report.ts`: published→flagged 実遷移時のみ（changes>0）cover/thumb を R2 best-effort 削除（deleteRecipe 同型・失敗は console.warn 継続）
+- [ ] キーは flagged 前 SELECT or RETURNING で取得
+- [ ] 復帰トレードオフ（画像は復帰しない）を §8-11・プライバシーに記載済み
+- [ ] 回帰テスト（遷移時削除・未満は非削除・R2失敗でも通報成功）
+- [ ] 🖐 threshold=1→通報→flagged→/img 直URL 404
 
-- [ ] 原因確定済み: PrintRecipeSheetが幅794px固定でモバイルビューポートを横にはみ出す。AppShellヘッダ・PrintToolbar・フッタはビューポート幅のため途中で切れて見える
-- [ ] 画面表示のみシートをビューポート幅へ自動スケール（transform: scale(vw/794)・高さ補正ラッパー。倍率算出はリサイズ追従の小さなJS。CSS calc数値除算はSafari互換が不安定なため不採用）
-- [ ] @media print（width:auto）は不変 → 実印刷・PDF出力に影響なし
+## ST-39: robots.txt／*.pages.dev noindex [優先: 中]
 
-## FB-E: noteMDボタン「動作していない」 [優先: 中]
+- [ ] 両アプリ `public/robots.txt`（本番 index 許可）
+- [ ] scriptorium=`worker.ts` で hostname が `.pages.dev` 終端なら `X-Robots-Tag: noindex`（ST-36 と同一ファイル）
+- [ ] codex 分の pages.dev noindex は Transform Rule（§9 ユーザーアクション）
+- [ ] 🖐 /robots.txt 200・pages.dev 応答に noindex（scriptorium）
 
-- [ ] 実装上はclipboardコピー＋toast＋DLフォールバック済み。iOS実機で無反応に見える原因の切り分けが必要（toast視認性 or clipboard失敗→DLフォールバックの複合）
-- [ ] noteMD=クリップボードコピーに一本化（ユーザー方針どおり）。フィードバック強化: ボタン自体を「コピーしました✓」状態表示＋toast併用
-- [ ] コピー失敗時はテキスト全文表示ダイアログ（手動選択コピー）へフォールバック（iOSで確実）
+## ST-33 拡張（S8仕上げ・S7後）
 
-## FB-F: 素MDボタン → .mdファイルDL化 [優先: 中]
+- [ ] i18n 棚卸しに `privacy.*` を含めた en/ja 網羅機械チェック＋エラーメッセージ最終
 
-- [ ] 素MD=クリップボード経路を削除し `downloadBlob`（`<タイトル>.md`）直行へ変更
-- [ ] 【決定 2026-07-04】構造を印刷ビュー（PrintRecipeSheet）と同構造へ改訂:
-      - `# タイトル` 直下に「全N工程・Nパーツ」の概要行と日付
-      - `## PALETTE — 使用カラー`: 色名・ブランド・**hex併記**（印刷のパレット行と同情報）
-      - `## TOOLS — 使用ツール`
-      - `## BASE — ベース工程（全体）`: 工程は番号付きリスト、行内に技法名・塗料（hex・混合バッジ・≠100警告）・ツール・メモ（印刷の工程行と同情報）
-      - `## PART I — パーツ名（工程N)`: パーツごとにローマ数字番号＋工程数、以下同工程形式
-      - 写真はMDに埋め込めないため「写真あり」注記は現行維持（印刷の写真セル相当は省略）
-      - note MD側（noteMarkdown.ts）は変更しない（note実対応記法制約が別仕様のため）
+## ST-34 拡張（S8仕上げ・S7後）＝攻撃者視点E2E（技術計画 付録B）
 
-## FB-G: モバイル「出力・共有」ボタン配置 [優先: 低（検討）]
+- [ ] 巨大JSON/巨大画像/偽MIME（.jpg名乗るHTML・SVG）→拒否
+- [ ] `<script>`/`onerror` 投稿→禁止パターン拒否・通過分は一覧/詳細/codexインポート後の3画面で非発火
+- [ ] 削除PW総当たり→429・Turnstileなし/使い回し→拒否・通報連打→閾値flagged・削除済み画像URL 404
+- [ ] （S7後）未ログイン管理URL直叩き→拒否
+- [ ] gitleaks 履歴スキャン（`gitleaks git`）→検出時キーローテーション
 
-- [ ] 現状: position:fixed bottomの浮きピル → フッター商標表記に重なる
-- [ ] 【決定 2026-07-04】sticky方式: 「出力・共有」ボタンをコンテンツ末尾（パーツ追加の下）へ移し `position: sticky; bottom: 0`。スクロール中は画面下に張り付き、フッター到達で押し上げられ商標表記と重ならない
-- [ ] position:fixedの現行.mobileRoot構造を廃止する際、ShareDialogリフトアップ（z:300・pointer-events打ち消し）の暗黙前提を壊さないこと（CLAUDE.md「委譲・レビューの規律」のオーバーレイDOM位置変更ルール適用・出口で全ヒットテスト再確認）
+## ユーザーアクション（Cloudflareダッシュボード・§9に一覧化済み）
 
-## 実施順・委譲計画
+- [ ] HTTPS強制＋HSTS ／ WAF無料ルール＋Bot Fight Mode
+- [ ] codex分 *.pages.dev noindex Transform Rule（hostname contains .pages.dev → X-Robots-Tag: noindex）
+- [ ] 使用量アラート（Workers/D1/R2）／D1バックアップ（Time Travel＋定期エクスポート）文書化
+- [ ] Secret設定確認（TURNSTILE_SECRET/MAIL_API_KEY/IP_HASH_SECRET・VITE_TURNSTILE_SITEKEY・NOTIFY_EMAIL_*）
+- [ ] バインディング最小権限 ／ gitleaks を CI/git hook 統合（推奨）
 
-- FB-A統合の決定によりA/E+F/Gが出力系ファイル（useExportActions・ExportActionBar）で重なるため、出力系は直列化する
-- Wave 1（並列可・成果物不可侵）: FB-B（PartCard*・PartCardList・RecipeOverviewPageのBASEカード呼び出し）／ FB-D（PrintViewPage*・PrintRecipeSheet.module.css）
-- Wave 2: FB-E+F（markdown.ts・useExportActions.ts・i18n）
-- Wave 3: FB-A（ShareDialog*・ShareImagePreview*・useExportActions・ExportActionBar・PartReviewDialog・sns/types・i18n）— 本ループ最大。SNS導線統合＋個別DL化
-- Wave 4: FB-G（ExportActionBar*・RecipeOverviewPage）→ FB-C（OverviewHeader・新ダイアログ・RecipeSetupPage・i18n）の順で直列（RecipeOverviewPage・i18nが重なるため）
-- 各Wave: impl委譲→selfcheck→opusレビュー（UI層観点: デザイン仕様突き合わせ・a11y・修正が無効化する暗黙の前提）→実機ヒットテスト＋実ピクセル検証（iOS再現はviewport 375px＋タッチ系はelementFromPoint 4方向）
+## ループ運用
 
-## レビュー結果（2026-07-04 全Wave完了）
-
-- Wave 1（FB-B/FB-D）: R1 PASS(M1/L3)→glue2件（flow-root高さ補正・reviewButton 44px）→R2 PASS(L2残置)。863ed55
-- Wave 2（FB-E/FB-F）: R1 PASS(M2/L2)→修正バッチ5件→R2 PASS(L0)。実機検出2件（pe:none素通し・z序列）＋glue（失敗トースト二重通知廃止）。228274c
-- Wave 3（FB-A）: R1 PASS(M1/L2=44pxクリップ罠再発ほか)→修正バッチ3件→R2 PASS(L0)。397837f
-- Wave 4（FB-G/FB-C）: R1 PASS(L2)→glue2件（stale宣言削除・initialFocusRef）。a18c2a4
-- 実機検証はレビューが構造的に見えない5件（BASEボタン潰れ・pe継承素通し・z序列・トースト残存の
-  タップ遮蔽・onCloseフォーカス奪取）を検出。うち根本修正4件＋既知バグ修正1件を同ループ内で解消
-- 全FB-A〜G完了・計960テスト・全ゲート緑。残: ユーザーのiPhone実機での再確認
+- 1 ST = 1 impl委譲 = 1 PR。ST-36→37→38→39 順次。ブランチはスタック（state.md/lessons.md の3-way衝突回避）・PR本文にマージ順明記
+- 完了条件に build(tsc)/lint/test。セッションは裁定で build/lint 独立再実行
+- ST-33/34 は S7 完了後の S8 仕上げで実施

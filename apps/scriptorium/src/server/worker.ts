@@ -17,6 +17,7 @@
 
 import app from "./app";
 import { handleRecipePage, type RecipePageBindings } from "./recipePage";
+import { withSecurityHeaders } from "./securityHeaders";
 
 const RECIPE_PAGE_PATTERN = /^\/r\/[^/]+\/?$/;
 
@@ -35,9 +36,9 @@ export default {
     }
 
     if (request.method === "GET" && RECIPE_PAGE_PATTERN.test(url.pathname)) {
-      return handleRecipePage(request, env);
+      return withSecurityHeaders(await handleRecipePage(request, env));
     }
 
-    return env.ASSETS.fetch(request);
+    return withSecurityHeaders(await env.ASSETS.fetch(request));
   },
 };
