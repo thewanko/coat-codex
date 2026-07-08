@@ -131,6 +131,9 @@ function RecipeDetailPage() {
             {doc.tools.map((tool) => (
               <li key={tool.id} className={styles.toolChip}>
                 {tool.name}
+                {tool.note && (
+                  <span className={styles.toolNote}>{tool.note}</span>
+                )}
               </li>
             ))}
           </ul>

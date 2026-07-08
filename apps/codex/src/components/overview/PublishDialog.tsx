@@ -98,6 +98,7 @@ export default function PublishDialog({
   const [retryCount, setRetryCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [result, setResult] = useState<PublishResult | null>(null);
   const [copiedField, setCopiedField] = useState<"url" | "password" | null>(
     null,
@@ -147,6 +148,7 @@ export default function PublishDialog({
     }
     setSubmitting(true);
     setErrorKey(null);
+    setErrorDetail(null);
 
     try {
       let cover: Blob | undefined;
@@ -183,6 +185,12 @@ export default function PublishDialog({
       const code =
         error instanceof PublishError ? error.code : ("unknown" as const);
       setErrorKey(errorCodeToI18nKey(code));
+      // validation（＋想定外）は具体メッセージが有用なので併記する
+      setErrorDetail(
+        error instanceof PublishError && error.code === "validation"
+          ? error.message
+          : null,
+      );
       setToken(null);
       setRetryCount((prev) => prev + 1);
       setSubmitting(false);
@@ -393,7 +401,15 @@ export default function PublishDialog({
           )}
 
           {errorKey !== null && (
-            <p className={styles.errorNotice}>{t(errorKey)}</p>
+            <p className={styles.errorNotice}>
+              {t(errorKey)}
+              {errorDetail !== null && (
+                <>
+                  <br />
+                  {errorDetail}
+                </>
+              )}
+            </p>
           )}
 
           <button

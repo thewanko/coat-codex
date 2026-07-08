@@ -1,8 +1,9 @@
 // schema/published.ts — PublishedRecipe v1（技術計画v1 §2.1/§2.3）
 //
 // scriptoriumへ公開するレシピの交換フォーマット。RecipeDocのサブセットで、
-// codex専用フィールド（memo・photoId・note・chipPhotoId・createdAt/updatedAt・
-// overviewPhotoIds・photoCrops）を除外する（§2.2 削減規則）。
+// codex専用フィールド（photoId・chipPhotoId・createdAt/updatedAt・
+// overviewPhotoIds・photoCrops）を除外する（§2.2 削減規則。memo・Tool.noteは
+// §2.2改訂〔ユーザー裁定〕で公開に含める）。
 //
 // 参照整合の不変条件（INV-2/7/9/11/12/13/14/17相当）はrecipe.tsの
 // checkStepInvariants / checkStructuralReferentialIntegrityを流用する
@@ -31,10 +32,14 @@ export const publishedPaletteColorSchema = z.object({
     .nullable(),
 });
 
-/** §2.1 tools[] から note を除外したもの */
+/**
+ * §2.1 tools[]。noteはoptional（§2.2改訂で公開に含める。旧レコード〔note無し〕との
+ * 後方互換のためoptionalとし、必須にはしない）
+ */
 export const publishedToolSchema = z.object({
   id: idSchema,
   name: z.string().min(1),
+  note: z.string().nullable().optional(),
 });
 
 const publishedStepPaintSchema = z.object({
@@ -46,7 +51,11 @@ const publishedTechniqueSchema = z.object({
   label: z.string().nullable(),
 });
 
-/** §2.1 Step から photoId・memo を除外したもの。mix整合検査はcheckStepInvariantsで維持する */
+/**
+ * §2.1 Step から photoId を除外したもの（memo は §2.2改訂〔ユーザー裁定〕で公開に含める）。
+ * memoはoptional（旧レコード〔memo無し〕との後方互換のためoptionalとし、必須にはしない）。
+ * mix整合検査はcheckStepInvariantsで維持する。
+ */
 export const publishedStepSchema = z
   .object({
     id: idSchema,
@@ -54,6 +63,7 @@ export const publishedStepSchema = z
     paints: z.array(publishedStepPaintSchema).max(5),
     mix: z.array(z.int().min(0).max(100)).nullable(),
     toolIds: z.array(idSchema),
+    memo: z.string().optional(),
   })
   .superRefine(checkStepInvariants);
 
@@ -91,6 +101,8 @@ const PARTS_MAX = 50;
 const STEPS_TOTAL_MAX = 200;
 const PALETTE_MAX = 100;
 const SERIALIZED_BYTES_MAX = 64 * 1024;
+// §2.2改訂: memo・Tool.noteは公開に含めるため、他の自由テキストと同様にstrict検証の対象にする
+const MEMO_MAX = 2000;
 
 const FORBIDDEN_TEXT_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /https?:\/\//i, label: "URL" },
@@ -171,6 +183,16 @@ export const publishedRecipeStrictSchema = publishedRecipeSchema.superRefine(
         ctx,
       );
       checkForbiddenText(tool.name, ["tools", i, "name"], ctx);
+      if (tool.note != null) {
+        checkMaxLength(
+          tool.note,
+          MEMO_MAX,
+          "tools[].note",
+          ["tools", i, "note"],
+          ctx,
+        );
+        checkForbiddenText(tool.note, ["tools", i, "note"], ctx);
+      }
     });
 
     doc.parts.forEach((part, pi) => {
@@ -231,6 +253,16 @@ export const publishedRecipeStrictSchema = publishedRecipeSchema.superRefine(
           [...path, "technique", "presetKey"],
           ctx,
         );
+      }
+      if (step.memo) {
+        checkMaxLength(
+          step.memo,
+          MEMO_MAX,
+          "step.memo",
+          [...path, "memo"],
+          ctx,
+        );
+        checkForbiddenText(step.memo, [...path, "memo"], ctx);
       }
     }
 

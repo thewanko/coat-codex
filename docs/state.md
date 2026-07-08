@@ -3,9 +3,11 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (loop: ST-21実投稿FB=cover 413修正＋PWヒント・未コミット。S4実装完了〔#46-50マージ済〕)
+最終更新: 2026-07-08 (loop: memo/note公開＋validationエラー具体化=PR #52。実投稿400ブロッカー診断継続中〔memory: scriptorium-s4-publish-status〕)
 
 ## 完了
+
+- 2026-07-08: **ST-21実投稿FB(2): memo/note公開（§2.2改訂）＋validationエラー具体化**（**未コミット**・ブランチ`feat/publish-include-memo-note`・main基点。ユーザーFB2件起点） — **①memo/note公開**（ユーザー裁定「テキストデータなら公開していい」）: `Step.memo`・`Tool.note`を公開レシピに含める（§2.2から除外を外す）。`published.ts`にmemo/note optional追加〔旧レコード後方互換〕＋strict検証`MEMO_MAX=2000`＋禁止パターン適用・`toPublishedRecipe`/`publishedToExportFile`双方向対応・scriptorium `RecipeDetailPage`にツールnote表示追加〔memoは既存StepListViewが描画〕・codex `reductionNotice`とscriptorium `publishedBody`の注記更新〔非公開→公開へ移動〕・JSON Schema再生成。**②validationエラー具体化**（ユーザーが本番投稿で「レシピの検証に失敗」の理由不明でブロック起点）: `PublishDialog`がPublishError.codeだけ見て汎用文言を出し具体情報を捨てていた真因を、`publishToScriptorium`が失敗issueの`path`＋メッセージ（`[STRICT-*]`タグ除去）をPublishError.messageへ格納＋`PublishDialog`が`validation`時に詳細行を併記するよう修正。**🖐実ブラウザ検証**: memo/note公開（`memo:"薄めに2回塗る"`・`note:"エア圧低め"`がtoPublishedRecipe出力に含まれstrict PASS）・エラー具体化（URL入りカラー名→`"URLを含むテキストは許可されません（該当箇所: palette.0.name）"`と表示）。全ゲート緑: build(tsc含む)/lint/prettier exit 0・ルート`npm test` **1433件**。**設計メモ**: ユーザーの本番validation失敗は**テキスト欄のURL/`<`が原因**の可能性大（strict禁止パターン）＝エラー具体化で自己診断可能に。§2.2改訂済み
 
 - 2026-07-08: **ST-21実投稿FB対応: cover画像413（大きすぎ）修正＋削除PW「8文字以上」ヒント**（**未コミット**・ブランチ`fix/scriptorium-cover-size-and-pw-hint`・main基点。ユーザー本番実投稿で「アップロードデータが大きすぎます」＝413起点） — **真因**: `coverComposer.composeCover`がcover/thumbのWebP品質二分探索でq下限0.3固定・単一解像度エンコードのみ＝**サーバー上限（cover450KB/thumb80KB）超過blobをそのまま返す**（「目標」は持つが「上限内」を保証しない設計欠陥。**セッションが純ノイズ3000×2000でcover574KB>450を実測再現**）。**修正**: `encodeUnderHardLimit`新設＝q下限0.1へ引き下げ＋それでも超過なら**寸法を0.8倍ずつ段階縮小して再エンコード**（MIN_TARGET_EDGE=320安全弁）→cover≤450KB・thumb≤80KB**保証**。通常写真は1回目ループで返る＝挙動不変（黒狼335KB・寸法1600維持・回帰テスト付き）。あわせて**PublishDialogに`publish.deletePwHint`「8文字以上」ヒント**（無効理由が伝わらないFB対応・7ロケール）。**🖐実canvas再検証**: 純ノイズ574KB→**367KB≤450**・黒狼335KB(1600維持)・thumb76KB・PWヒント描画。全ゲート緑: build(tsc含む)/lint/prettier exit 0・ルート`npm test` **1422件**。**設計メモ**: JSON/gzip圧縮ではこの413は解決しない（大きいのは既圧縮のWebP画像・recipe_jsonは64KB上限で既に小）。上限内保証は品質/寸法縮小のみが有効。thumb=一覧用低解像度・cover=詳細用の分離は既存実装済み。**残オプション**: カバー画質優先なら`COVER_MAX_BYTES`＋composer目標値の引き上げ（例800KB・R2容量とのトレードオフ）も可（ユーザー裁定待ち）
 

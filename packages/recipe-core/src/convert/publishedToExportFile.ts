@@ -2,8 +2,10 @@
 //
 // 既存importRecipeパイプライン（exchange/importPipeline.ts の runImportPipeline）を
 // そのまま再利用するためのブリッジ。PublishedRecipeが持たないcodex専用フィールド
-// （memo・photoId・note・chipPhotoId・timestamps）を補完し、coverDataUrlがあれば
+// （photoId・chipPhotoId・timestamps）を補完し、coverDataUrlがあれば
 // 単一のcover写真（id: "ph_cover"）としてphotos[]・overviewPhotoIdsへ差し込む。
+// memo・noteはpub側の値（optionalのため無ければ""/null）をそのまま使う
+// （§2.2改訂〔ユーザー裁定〕でmemo・Tool.noteは公開に含まれるため）。
 
 import { CURRENT_SCHEMA_VERSION } from "../schema/migrations";
 import type {
@@ -32,14 +34,15 @@ function toDocStep(step: PublishedStep): Step {
     paints: step.paints,
     mix: step.mix,
     toolIds: step.toolIds,
-    memo: "",
+    memo: step.memo ?? "",
   };
 }
 
 /**
  * PublishedRecipeをRecipeExportFileへ変換する（§2.4 ブリッジ関数）。
- * memo=""・note=null・chipPhotoId=null・timestamps=nowを補完し、coverDataUrlがあれば
- * photos:[{id:"ph_cover", dataUrl}]＋overviewPhotoIds:["ph_cover"]を生成する。
+ * photoId=null・chipPhotoId=null・timestamps=nowを補完し、memo・noteはpub側の値
+ * （旧レコードでoptionalフィールドが無ければmemo=""・note=null）を使う。coverDataUrlが
+ * あれば photos:[{id:"ph_cover", dataUrl}]＋overviewPhotoIds:["ph_cover"]を生成する。
  * sourceにはmetaを埋め、schemaVersion=CURRENT_SCHEMA_VERSIONとする。
  * 返り値はrecipeExportFileSchemaを通ること（＝有効なRecipeExportFile）を保証する
  * （呼び出し側のrunImportPipelineが内部でこのスキーマにより再検証する）。
@@ -79,7 +82,7 @@ export function publishedToExportFile(
     tools: pub.tools.map((tool) => ({
       id: tool.id,
       name: tool.name,
-      note: null,
+      note: tool.note ?? null,
     })),
     baseSteps: pub.baseSteps.map(toDocStep),
     parts: pub.parts.map((part) => ({

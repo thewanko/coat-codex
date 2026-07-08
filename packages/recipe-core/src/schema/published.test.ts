@@ -104,7 +104,7 @@ describe("published非対応フィールドの除外", () => {
     }
   });
 
-  test("publishedToolSchemaはnoteを持たない（余剰キーはstrip）", () => {
+  test("publishedToolSchemaはnoteを保持する（§2.2改訂で公開に含める）", () => {
     const result = publishedToolSchema.safeParse({
       id: "tool_1",
       name: "エアブラシ",
@@ -112,11 +112,19 @@ describe("published非対応フィールドの除外", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect("note" in result.data).toBe(false);
+      expect(result.data.note).toBe("0.3mm");
     }
   });
 
-  test("publishedStepSchemaはphotoId・memoを持たない（余剰キーはstrip）", () => {
+  test("publishedToolSchemaはnote省略でも受理する（旧レコード後方互換）", () => {
+    const result = publishedToolSchema.safeParse({
+      id: "tool_1",
+      name: "エアブラシ",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  test("publishedStepSchemaはphotoIdを持たないがmemoは保持する（§2.2改訂で公開に含める）", () => {
     const result = publishedStepSchema.safeParse({
       id: "stp_1",
       technique: { presetKey: null, label: null },
@@ -129,8 +137,19 @@ describe("published非対応フィールドの除外", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect("photoId" in result.data).toBe(false);
-      expect("memo" in result.data).toBe(false);
+      expect(result.data.memo).toBe("メモ");
     }
+  });
+
+  test("publishedStepSchemaはmemo省略でも受理する（旧レコード後方互換）", () => {
+    const result = publishedStepSchema.safeParse({
+      id: "stp_1",
+      technique: { presetKey: null, label: null },
+      paints: [],
+      mix: null,
+      toolIds: [],
+    });
+    expect(result.success).toBe(true);
   });
 });
 
@@ -246,6 +265,66 @@ describe("strict: name系文字数上限（≤80）", () => {
       publishedRecipeStrictSchema.safeParse(doc),
       "[STRICT-LEN]",
     );
+  });
+});
+
+describe("strict: memo/note文字数上限（≤2000）と禁止パターン（§2.2改訂）", () => {
+  test("受理: tools[].noteが2000文字", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.tools[0].note = "あ".repeat(2000);
+    expect(publishedRecipeStrictSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("拒否: tools[].noteが2001文字", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.tools[0].note = "あ".repeat(2001);
+    expectIssueMessage(
+      publishedRecipeStrictSchema.safeParse(doc),
+      "[STRICT-LEN]",
+    );
+  });
+
+  test("拒否: tools[].noteにURLを含む", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.tools[0].note = "詳細は https://example.com/spam へ";
+    expectIssueMessage(
+      publishedRecipeStrictSchema.safeParse(doc),
+      "[STRICT-TEXT]",
+    );
+  });
+
+  test("受理: tools[].note省略でも受理される（optional・後方互換）", () => {
+    const doc = makeValidPublishedRecipe();
+    expect(publishedRecipeStrictSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("受理: step.memoが2000文字", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.parts[0].steps[0].memo = "あ".repeat(2000);
+    expect(publishedRecipeStrictSchema.safeParse(doc).success).toBe(true);
+  });
+
+  test("拒否: step.memoが2001文字", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.parts[0].steps[0].memo = "あ".repeat(2001);
+    expectIssueMessage(
+      publishedRecipeStrictSchema.safeParse(doc),
+      "[STRICT-LEN]",
+    );
+  });
+
+  test("拒否: step.memoに<script>を含む", () => {
+    const doc = makeValidPublishedRecipe();
+    doc.parts[0].steps[0].memo = "<script>alert(1)</script>";
+    expectIssueMessage(
+      publishedRecipeStrictSchema.safeParse(doc),
+      "[STRICT-TEXT]",
+    );
+  });
+
+  test("受理: step.memo省略でも受理される（optional・後方互換）", () => {
+    const doc = makeValidPublishedRecipe();
+    expect(publishedRecipeStrictSchema.safeParse(doc).success).toBe(true);
   });
 });
 

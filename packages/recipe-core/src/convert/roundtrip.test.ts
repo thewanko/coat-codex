@@ -90,10 +90,10 @@ function makeFullRecipeDoc(): RecipeDoc {
 }
 
 describe("toPublishedRecipe — 削減規則§2.2の個別検証", () => {
-  test("Step.memoが除外される", () => {
+  test("Step.memoは公開に含まれる（§2.2改訂）", () => {
     const pub = toPublishedRecipe(makeFullRecipeDoc());
-    expect("memo" in pub.baseSteps[0]).toBe(false);
-    expect("memo" in pub.parts[0].steps[0]).toBe(false);
+    expect(pub.baseSteps[0].memo).toBe("下地は薄く2度吹き");
+    expect(pub.parts[0].steps[0].memo).toBe("境界をぼかす");
   });
 
   test("Step.photoIdが除外される", () => {
@@ -102,9 +102,9 @@ describe("toPublishedRecipe — 削減規則§2.2の個別検証", () => {
     expect("photoId" in pub.parts[0].steps[0]).toBe(false);
   });
 
-  test("Tool.noteが除外される", () => {
+  test("Tool.noteは公開に含まれる（§2.2改訂）", () => {
     const pub = toPublishedRecipe(makeFullRecipeDoc());
-    expect("note" in pub.tools[0]).toBe(false);
+    expect(pub.tools[0].note).toBe("0.3mm・低圧");
   });
 
   test("PaletteColor.chipPhotoIdが除外される", () => {
@@ -129,7 +129,7 @@ describe("toPublishedRecipe — 削減規則§2.2の個別検証", () => {
     expect("photoCrops" in pub).toBe(false);
   });
 
-  test("維持されるフィールド: title・palette色情報・tools名・parts構造・steps技法/配合/工具", () => {
+  test("維持されるフィールド: title・palette色情報・tools名/note・parts構造・steps技法/配合/工具/memo", () => {
     const pub = toPublishedRecipe(makeFullRecipeDoc());
     expect(pub.scriptoriumSchemaVersion).toBe(1);
     expect(pub.title).toBe("Space Marine Captain");
@@ -141,13 +141,18 @@ describe("toPublishedRecipe — 削減規則§2.2の個別検証", () => {
       presetId: "citadel:mephiston-red",
       hex: "#960F0F",
     });
-    expect(pub.tools[0]).toEqual({ id: "tool_1", name: "エアブラシ" });
+    expect(pub.tools[0]).toEqual({
+      id: "tool_1",
+      name: "エアブラシ",
+      note: "0.3mm・低圧",
+    });
     expect(pub.parts[0].steps[0]).toEqual({
       id: "stp_1",
       technique: { presetKey: "basecoat", label: null },
       paints: [{ colorId: "col_1" }, { colorId: "col_2" }],
       mix: [60, 40],
       toolIds: ["tool_1"],
+      memo: "境界をぼかす",
     });
   });
 });
@@ -158,7 +163,7 @@ const META: PublishedToExportFileMeta = {
   importedAt: "2026-07-05T00:00:00.000Z",
 };
 
-describe("publishedToExportFile — memo/note/chipPhotoId補完・cover写真・schemaValidity", () => {
+describe("publishedToExportFile — memo/note復元・chipPhotoId補完・cover写真・schemaValidity", () => {
   test("cover写真なし: overviewPhotoIds=[]・photos=[]", () => {
     const pub = toPublishedRecipe(makeFullRecipeDoc());
     const file = publishedToExportFile(pub, META);
@@ -175,14 +180,38 @@ describe("publishedToExportFile — memo/note/chipPhotoId補完・cover写真・
     expect(recipeExportFileSchema.safeParse(file).success).toBe(true);
   });
 
-  test("memo=''・note=null・chipPhotoId=nullが補完される", () => {
+  test("memo/noteはpub値から復元され、chipPhotoIdはnullで補完される", () => {
     const pub = toPublishedRecipe(makeFullRecipeDoc());
     const file = publishedToExportFile(pub, META);
-    expect(file.recipe.baseSteps[0].memo).toBe("");
-    expect(file.recipe.parts[0].steps[0].memo).toBe("");
-    expect(file.recipe.tools[0].note).toBeNull();
+    expect(file.recipe.baseSteps[0].memo).toBe("下地は薄く2度吹き");
+    expect(file.recipe.parts[0].steps[0].memo).toBe("境界をぼかす");
+    expect(file.recipe.tools[0].note).toBe("0.3mm・低圧");
     expect(file.recipe.palette[0].chipPhotoId).toBeNull();
     expect(file.recipe.palette[1].chipPhotoId).toBeNull();
+  });
+
+  test("memo省略（optional）のpublishedRecipeはmemo=''・note=nullで補完される（旧レコード後方互換）", () => {
+    const pub = toPublishedRecipe(makeFullRecipeDoc());
+    // 旧レコード相当: memo/noteフィールド自体が無いケースをシミュレートする
+    const legacyTools = pub.tools.map((tool) => ({
+      id: tool.id,
+      name: tool.name,
+    }));
+    const legacyBaseSteps = pub.baseSteps.map((step) => ({
+      id: step.id,
+      technique: step.technique,
+      paints: step.paints,
+      mix: step.mix,
+      toolIds: step.toolIds,
+    }));
+    const legacyPub = {
+      ...pub,
+      tools: legacyTools,
+      baseSteps: legacyBaseSteps,
+    };
+    const file = publishedToExportFile(legacyPub, META);
+    expect(file.recipe.baseSteps[0].memo).toBe("");
+    expect(file.recipe.tools[0].note).toBeNull();
   });
 
   test("sourceにmetaが保存され、schemaVersion=CURRENT", () => {
@@ -201,7 +230,7 @@ describe("publishedToExportFile — memo/note/chipPhotoId補完・cover写真・
 });
 
 describe("往復: RecipeDoc → toPublishedRecipe → publishedToExportFile → runImportPipeline", () => {
-  test("cover写真なし: source保存・ID再採番・memo/note/chipPhotoId補完値がインポート結果に反映される", async () => {
+  test("cover写真なし: source保存・ID再採番・memo/note維持・chipPhotoId補完値がインポート結果に反映される", async () => {
     const original = makeFullRecipeDoc();
     const pub = toPublishedRecipe(original);
     const file = publishedToExportFile(pub, META);
@@ -219,9 +248,9 @@ describe("往復: RecipeDoc → toPublishedRecipe → publishedToExportFile → 
     expect(result.recipe.tools[0].id).not.toBe("tool_1");
     expect(result.recipe.parts[0].id).not.toBe("part_1");
 
-    // memo/note/chipPhotoId補完値の維持
-    expect(result.recipe.baseSteps[0].memo).toBe("");
-    expect(result.recipe.tools[0].note).toBeNull();
+    // memo/noteは公開に含まれ往復で維持される（§2.2改訂）。chipPhotoIdはnullで補完される
+    expect(result.recipe.baseSteps[0].memo).toBe("下地は薄く2度吹き");
+    expect(result.recipe.tools[0].note).toBe("0.3mm・低圧");
     expect(result.recipe.palette[0].chipPhotoId).toBeNull();
 
     // cover写真なしなのでphotosは空
