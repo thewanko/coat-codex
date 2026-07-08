@@ -7,3 +7,5 @@ export { default as MixBadge } from "./MixBadge";
 export { default as TechniqueChip } from "./TechniqueChip";
 export { default as StepListView } from "./StepListView";
 export { REQUIRED_I18N_KEYS } from "./requiredI18nKeys";
+export { default as TurnstileWidget } from "./TurnstileWidget";
+export type { TurnstileWidgetProps } from "./TurnstileWidget";

@@ -6,13 +6,23 @@
 
 import "../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { PhotoSourceProvider } from "@coat-codex/recipe-ui";
 import type { PublishedRecipe } from "@coat-codex/recipe-core";
 import i18next from "../i18n";
 import RecipeDetailPage from "./RecipeDetailPage";
 import type { RecipeDetailResponse } from "../lib/api";
+
+// recipe-uiのTurnstileWidgetのみをスタブに差し替える（SwatchChip/StepListView等の
+// 他exportはimportOriginalでそのまま透過し、本ページの表示検証を壊さない）。
+vi.mock("@coat-codex/recipe-ui", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@coat-codex/recipe-ui")>();
+  return {
+    ...actual,
+    TurnstileWidget: () => null,
+  };
+});
 
 async function resolveNoPhoto(): Promise<string | null> {
   return null;
@@ -175,6 +185,54 @@ describe("RecipeDetailPage", () => {
       name: "Back to new recipes",
     });
     expect(backLink).toHaveAttribute("href", "/");
+
+    vi.unstubAllGlobals();
+  });
+
+  test("削除ボタンクリックでDeleteRecipeDialogが開く（role=dialog出現）", async () => {
+    const detail: RecipeDetailResponse = {
+      id: "scr_1",
+      handle: "painter1",
+      lang: "en",
+      publishedAt: "2026-07-01T00:00:00.000Z",
+      coverUrl: null,
+      thumbUrl: null,
+      recipe: PUBLISHED_RECIPE,
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(detail)));
+
+    renderDetailPage();
+
+    await screen.findByText("Weathered Tank");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("delete-recipe-button"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  test("通報ボタンクリックでReportDialogが開く（role=dialog出現）", async () => {
+    const detail: RecipeDetailResponse = {
+      id: "scr_1",
+      handle: "painter1",
+      lang: "en",
+      publishedAt: "2026-07-01T00:00:00.000Z",
+      coverUrl: null,
+      thumbUrl: null,
+      recipe: PUBLISHED_RECIPE,
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(detail)));
+
+    renderDetailPage();
+
+    await screen.findByText("Weathered Tank");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("report-recipe-button"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

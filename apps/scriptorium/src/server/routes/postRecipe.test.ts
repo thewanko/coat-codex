@@ -1,13 +1,14 @@
 // @vitest-environment node
 // src/server/routes/postRecipe.test.ts — POST /api/recipes 統合テスト（技術計画v1 §4.2/§4.4/§3.1/§3.2/§2.3）
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { Hono } from "hono";
 import type { Bindings } from "../bindings";
 import { handlePostRecipe, hashIp, type PostRecipeDeps } from "./postRecipe";
 import app from "../app";
 import { FakeD1Database, type FakeRecipeRow } from "../../../tests/fakes/d1";
 import { FakeR2Bucket } from "../../../tests/fakes/r2";
+import type { ModerationEvent } from "../moderation/events";
 
 const NOW = new Date("2026-07-08T09:00:00Z");
 
@@ -505,6 +506,144 @@ describe("POST /api/recipes ガード失敗系", () => {
       env,
     );
     expect(res.status).toBe(403);
+  });
+});
+
+describe("POST /api/recipes サーキットブレーカー自動遷移（ST-28）", () => {
+  test("global超過でレスポンス不変(429)＋circuit_breaker='open'化＋notify1回", async () => {
+    const env = makeEnv({
+      hourly_global_limit: "1",
+      circuit_breaker: "closed",
+    });
+    const notify = vi.fn<(event: ModerationEvent) => Promise<void>>(
+      async () => {},
+    );
+    const testApp = buildTestApp(makeStubDeps({ notify }));
+
+    const res1 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "a" }), headers: {} },
+      env,
+    );
+    expect(res1.status).toBe(201);
+
+    const res2 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "b" }), headers: {} },
+      env,
+    );
+    expect(res2.status).toBe(429);
+    const body = (await res2.json()) as { error: string };
+    expect(body.error).toBe("rate limit exceeded");
+
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.settings.get("circuit_breaker")).toBe("open");
+    expect(notify).toHaveBeenCalledTimes(1);
+    expect(notify.mock.calls[0][0]).toEqual({
+      type: "circuitOpen",
+      count: 2,
+      period: "2026-07-08T09",
+    });
+  });
+
+  test("既にcircuit_breaker='open'のときは503（circuitガード）で再通知なし", async () => {
+    const env = makeEnv({
+      hourly_global_limit: "1",
+      circuit_breaker: "open",
+    });
+    const notify = vi.fn<(event: ModerationEvent) => Promise<void>>(
+      async () => {},
+    );
+    const testApp = buildTestApp(makeStubDeps({ notify }));
+
+    const res = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({}) },
+      env,
+    );
+    expect(res.status).toBe(503);
+    expect(notify).not.toHaveBeenCalled();
+  });
+
+  test("per-IP日次超過(daily_post_limit)のみのときsettings不変・notify呼ばれず", async () => {
+    const env = makeEnv({
+      daily_post_limit: "1",
+      circuit_breaker: "closed",
+    });
+    const notify = vi.fn<(event: ModerationEvent) => Promise<void>>(
+      async () => {},
+    );
+    const testApp = buildTestApp(makeStubDeps({ notify }));
+    const headers = { "CF-Connecting-IP": "1.1.1.1" };
+
+    const res1 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({}), headers },
+      env,
+    );
+    expect(res1.status).toBe(201);
+
+    const res2 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({}), headers },
+      env,
+    );
+    expect(res2.status).toBe(429);
+
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.settings.get("circuit_breaker")).toBe("closed");
+    expect(notify).not.toHaveBeenCalled();
+  });
+
+  test("notifyがthrowしてもレスポンスは不変(429)", async () => {
+    const env = makeEnv({
+      hourly_global_limit: "1",
+      circuit_breaker: "closed",
+    });
+    const notify = vi.fn<(event: ModerationEvent) => Promise<void>>(
+      async () => {
+        throw new Error("smtp down");
+      },
+    );
+    const testApp = buildTestApp(makeStubDeps({ notify }));
+
+    await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "a" }) },
+      env,
+    );
+    const res2 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "b" }) },
+      env,
+    );
+    expect(res2.status).toBe(429);
+
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.settings.get("circuit_breaker")).toBe("open");
+  });
+
+  test("notify未注入でも従来どおり429（例外なし）", async () => {
+    const env = makeEnv({
+      hourly_global_limit: "1",
+      circuit_breaker: "closed",
+    });
+    const testApp = buildTestApp(makeStubDeps());
+
+    await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "a" }) },
+      env,
+    );
+    const res2 = await testApp.request(
+      "/api/recipes",
+      { method: "POST", body: buildFormData({ handle: "b" }) },
+      env,
+    );
+    expect(res2.status).toBe(429);
+
+    const db = env.DB as unknown as FakeD1Database;
+    expect(db.settings.get("circuit_breaker")).toBe("open");
   });
 });
 

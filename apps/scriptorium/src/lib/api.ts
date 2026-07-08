@@ -76,3 +76,125 @@ export async function fetchRecipeDetail(
     return null;
   }
 }
+
+export type DeleteRecipeErrorCode =
+  "wrongPassword" | "rateLimited" | "notFound" | "badRequest" | "network";
+
+export type ReportRecipeErrorCode =
+  "turnstile" | "rateLimited" | "notFound" | "badRequest" | "network";
+
+export type ReportRecipeResult =
+  | { ok: true }
+  | { ok: false; code: ReportRecipeErrorCode; serverError?: string };
+
+export interface ReportRecipePayload {
+  reason: "spam" | "nsfw" | "copyright" | "other";
+  detail?: string;
+  turnstileToken: string;
+}
+
+export type DeleteRecipeResult =
+  | { ok: true }
+  | { ok: false; code: DeleteRecipeErrorCode; serverError?: string };
+
+/**
+ * DELETE /api/recipes/:id — 本人削除（技術計画v1 §4.5・S6 ST-35）。
+ * 応答ステータスを判別unionのcodeへ写像し、body.errorがあれば逐語をserverErrorへ
+ * 格納する（ユーザー報告を診断入力に変える観測性設計）。fetch throw・非JSON応答は
+ * networkへ落とす。
+ */
+export async function deleteRecipe(
+  id: string,
+  deletePassword: string,
+  fetchImpl: FetchLike = fetch,
+): Promise<DeleteRecipeResult> {
+  let response: Response;
+  try {
+    response = await fetchImpl(`/api/recipes/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deletePassword }),
+    });
+  } catch {
+    return { ok: false, code: "network" };
+  }
+
+  if (response.ok) {
+    return { ok: true };
+  }
+
+  let serverError: string | undefined;
+  try {
+    const body = (await response.json()) as { error?: unknown };
+    if (typeof body.error === "string") {
+      serverError = body.error;
+    }
+  } catch {
+    return { ok: false, code: "network" };
+  }
+
+  switch (response.status) {
+    case 403:
+      return { ok: false, code: "wrongPassword", serverError };
+    case 429:
+      return { ok: false, code: "rateLimited", serverError };
+    case 404:
+      return { ok: false, code: "notFound", serverError };
+    case 400:
+      return { ok: false, code: "badRequest", serverError };
+    default:
+      return { ok: false, code: "network", serverError };
+  }
+}
+
+/**
+ * POST /api/recipes/:id/report — 通報（技術計画v1 §4.2・S6 ST-30）。
+ * 応答ステータスを判別unionのcodeへ写像し、body.errorがあれば逐語をserverErrorへ
+ * 格納する（deleteRecipeと同じイディオム）。fetch throw・非JSON応答はnetworkへ落とす。
+ */
+export async function reportRecipe(
+  id: string,
+  payload: ReportRecipePayload,
+  fetchImpl: FetchLike = fetch,
+): Promise<ReportRecipeResult> {
+  let response: Response;
+  try {
+    response = await fetchImpl(
+      `/api/recipes/${encodeURIComponent(id)}/report`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+  } catch {
+    return { ok: false, code: "network" };
+  }
+
+  if (response.ok) {
+    return { ok: true };
+  }
+
+  let serverError: string | undefined;
+  try {
+    const body = (await response.json()) as { error?: unknown };
+    if (typeof body.error === "string") {
+      serverError = body.error;
+    }
+  } catch {
+    return { ok: false, code: "network" };
+  }
+
+  switch (response.status) {
+    case 403:
+      return { ok: false, code: "turnstile", serverError };
+    case 429:
+      return { ok: false, code: "rateLimited", serverError };
+    case 404:
+      return { ok: false, code: "notFound", serverError };
+    case 400:
+      return { ok: false, code: "badRequest", serverError };
+    default:
+      return { ok: false, code: "network", serverError };
+  }
+}

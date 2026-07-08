@@ -1,0 +1,137 @@
+/* DeleteRecipeDialog — 本人削除ダイアログ（技術計画v1 S6 ST-35）
+   codex ConfirmDialog/PublishDialogと同じ意匠（backdrop --color-bg-backdrop、
+   本体 --color-bg-raised・radius-md・shadow-3）を踏襲する。 */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 100;
+}
+
+.dialog {
+  background: var(--color-bg-raised);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: var(--space-5);
+  max-width: 420px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-gold-soft);
+}
+
+.description {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+  margin: 0 0 var(--space-4);
+}
+
+.pwLabel {
+  display: block;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+  margin-bottom: var(--space-2);
+}
+
+.pwInput {
+  width: 100%;
+  min-height: var(--size-touch-target);
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+}
+
+.pwInput:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.errorNotice {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+
+.errorDetail {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.cancel {
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-gold-soft);
+  border-radius: var(--radius-sm);
+  color: var(--color-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.confirm {
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-4);
+  background: var(--color-danger);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-contrast);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.cancel:disabled,
+.confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel:focus-visible,
+.confirm:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-touch-target);
+  padding: 0 var(--space-2);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  text-decoration: underline dotted;
+}

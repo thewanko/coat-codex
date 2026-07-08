@@ -117,8 +117,16 @@
   color: var(--color-ink-muted);
 }
 
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
 .importButton {
-  align-self: center;
   min-height: var(--size-touch-target);
   display: inline-flex;
   align-items: center;
@@ -132,5 +140,53 @@
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-md);
   text-decoration: none;
-  margin-top: var(--space-4);
+}
+
+.deleteButton {
+  min-height: var(--size-touch-target);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-5);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.deleteButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.reportButton {
+  min-height: var(--size-touch-target);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-ink-faint);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.reportButton:hover {
+  color: var(--color-ink-muted);
+}
+
+.reportButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }

@@ -1,4 +1,4 @@
-// components/common/turnstileScript.ts — Cloudflare Turnstile スクリプト読込
+// packages/recipe-ui/src/turnstileScript.ts — Cloudflare Turnstile スクリプト読込
 // （TurnstileWidget.tsxから分離。react-refresh/only-export-componentsルール対応:
 // .tsxはコンポーネントのみexportする慣習に合わせ、非コンポーネント関数はこの.tsへ）
 

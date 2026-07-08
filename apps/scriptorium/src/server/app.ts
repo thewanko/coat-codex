@@ -8,7 +8,11 @@ import type { Context } from "hono";
 import { listFeed, getRecipeDetail } from "./routes/feed";
 import { handlePostRecipe } from "./routes/postRecipe";
 import { handleDeleteRecipe } from "./routes/deleteRecipe";
+import { handleReportRecipe } from "./routes/report";
 import { verifyTurnstile } from "./guards/turnstile";
+import { createScreenImage } from "./moderation/screenImage";
+import { createNotifier } from "./moderation/notifier";
+import type { ModerationEvent } from "./moderation/events";
 import { matchCache, putCache } from "./cache";
 import type { Bindings } from "./bindings";
 
@@ -21,6 +25,25 @@ const IMG_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const ALLOWED_IMG_PREFIXES = ["covers/", "thumbs/"];
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+/**
+ * MAIL_API_KEY・NOTIFY_EMAIL_TO が揃っている環境（本番）でのみ notify 関数を生成する。
+ * 未設定環境（ローカル test 等）では undefined を返し、呼び出し元ハンドラの
+ * best-effort 分岐（notify 未注入時は何もしない）に委ねる（既存挙動不変）。
+ * postRecipe（circuitOpen通知・ST-28）と report（flagged通知・ST-27）で共用する。
+ */
+function buildNotify(
+  env: Bindings,
+): ((event: ModerationEvent) => Promise<void>) | undefined {
+  return env.MAIL_API_KEY && env.NOTIFY_EMAIL_TO
+    ? createNotifier({
+        fetch: globalThis.fetch.bind(globalThis),
+        apiKey: env.MAIL_API_KEY,
+        to: env.NOTIFY_EMAIL_TO,
+        from: env.NOTIFY_EMAIL_FROM ?? "onboarding@resend.dev",
+      })
+    : undefined;
+}
 
 app.get("/api/recipes", async (c) => {
   const cached = await matchCache(c.req.raw);
@@ -54,12 +77,26 @@ app.post("/api/recipes", (c) =>
       }),
     now: () => new Date(),
     randomId: () => "scr_" + crypto.randomUUID(),
+    // AI バインディング未設定の環境（ローカル test 等）では undefined のままにし、
+    // postRecipe.ts 側の fail-open 分岐（screening on かつフック未注入）に委ねる。
+    screenImage: c.env.AI ? createScreenImage(c.env.AI) : undefined,
+    notify: buildNotify(c.env),
   }),
 );
-// screenImage は未注入（ST-29 で NSFW スクリーニング実装を結線する）
 
 app.delete("/api/recipes/:id", (c) =>
   handleDeleteRecipe(c, { now: () => new Date() }),
+);
+
+app.post("/api/recipes/:id/report", (c) =>
+  handleReportRecipe(c, {
+    verifyTurnstile: (token, secret, ip) =>
+      verifyTurnstile(token, secret, ip, {
+        fetch: globalThis.fetch.bind(globalThis),
+      }),
+    now: () => new Date(),
+    notify: buildNotify(c.env),
+  }),
 );
 
 app.get(

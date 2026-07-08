@@ -33,6 +33,14 @@ export interface FakeRecipeRow {
 
 type D1Value = string | number | null;
 
+export interface FakeReportRow {
+  recipe_id: string;
+  reason: string;
+  detail: string | null;
+  ip_hash: string;
+  created_at: string;
+}
+
 /** D1PreparedStatement 相当の最小実装。 */
 class FakePreparedStatement {
   constructor(
@@ -46,19 +54,24 @@ class FakePreparedStatement {
   }
 
   async all<T = unknown>(): Promise<{ results: T[] }> {
-    const results = this.db.execute(this.sql, this.params) as unknown as T[];
-    return { results };
+    const { rows } = this.db.execute(this.sql, this.params);
+    return { results: rows as unknown as T[] };
   }
 
   async first<T = unknown>(): Promise<T | null> {
-    const results = this.db.execute(this.sql, this.params) as unknown as T[];
-    return (results[0] as T | undefined) ?? null;
+    const { rows } = this.db.execute(this.sql, this.params);
+    return (rows[0] as unknown as T | undefined) ?? null;
   }
 
-  async run(): Promise<{ success: boolean }> {
-    this.db.execute(this.sql, this.params);
-    return { success: true };
+  async run(): Promise<{ success: boolean; meta: { changes: number } }> {
+    const { changes } = this.db.execute(this.sql, this.params);
+    return { success: true, meta: { changes } };
   }
+}
+
+interface FakeExecuteResult {
+  rows: Record<string, unknown>[];
+  changes: number;
 }
 
 /**
@@ -70,6 +83,7 @@ export class FakeD1Database {
     public rows: FakeRecipeRow[],
     public settings: Map<string, string> = new Map(),
     public rateLimits: Map<string, number> = new Map(),
+    public reports: FakeReportRow[] = [],
   ) {}
 
   prepare(sql: string): FakePreparedStatement {
@@ -77,10 +91,11 @@ export class FakeD1Database {
   }
 
   /**
-   * SQL文字列の特徴からハンドラの意図（一覧 keyset / 詳細 / settings / rate_limits）を
-   * 判別し、対応する in-memory ストアへの操作を実行して結果行配列を返す。
+   * SQL文字列の特徴からハンドラの意図（一覧 keyset / 詳細 / settings / rate_limits /
+   * reports）を判別し、対応する in-memory ストアへの操作を実行して結果を返す。
+   * `changes` は UPDATE/INSERT が実際に行を変更した件数（run() の meta.changes 相当）。
    */
-  execute(sql: string, params: D1Value[]): Record<string, unknown>[] {
+  execute(sql: string, params: D1Value[]): FakeExecuteResult {
     const normalized = sql.replace(/\s+/g, " ").trim();
 
     if (
@@ -92,7 +107,27 @@ export class FakeD1Database {
       //   FROM recipes WHERE id = ?（status で絞らず全 status を返す）
       const [id] = params;
       const row = this.rows.find((r) => r.id === id);
-      return row ? [row as unknown as Record<string, unknown>] : [];
+      return {
+        rows: row ? [row as unknown as Record<string, unknown>] : [],
+        changes: 0,
+      };
+    }
+
+    if (
+      /SELECT\s+status,\s*report_count/i.test(normalized) &&
+      /FROM\s+recipes/i.test(normalized) &&
+      /WHERE\s+id\s*=\s*\?/i.test(normalized)
+    ) {
+      // 通報用フェッチ: SELECT status, report_count FROM recipes WHERE id = ?
+      //   （status で絞らず全 status を返す＝published/flagged 以外はハンドラ側で404判定）
+      const [id] = params;
+      const row = this.rows.find((r) => r.id === id);
+      return {
+        rows: row
+          ? [{ status: row.status, report_count: row.report_count }]
+          : [],
+        changes: 0,
+      };
     }
 
     if (
@@ -104,7 +139,10 @@ export class FakeD1Database {
       const row = this.rows.find(
         (r) => r.id === id && r.status === "published",
       );
-      return row ? [row as unknown as Record<string, unknown>] : [];
+      return {
+        rows: row ? [row as unknown as Record<string, unknown>] : [],
+        changes: 0,
+      };
     }
 
     if (
@@ -137,7 +175,27 @@ export class FakeD1Database {
       });
 
       const limit = Number(params[params.length - 1]);
-      return candidates.slice(0, limit) as unknown as Record<string, unknown>[];
+      return {
+        rows: candidates.slice(0, limit) as unknown as Record<
+          string,
+          unknown
+        >[],
+        changes: 0,
+      };
+    }
+
+    if (
+      /UPDATE\s+settings/i.test(normalized) &&
+      /value\s*=\s*'open'/i.test(normalized)
+    ) {
+      // UPDATE settings SET value = 'open' WHERE key = 'circuit_breaker' AND value <> 'open'
+      //   （条件付き＝既に'open'の行・未設定キーは変化なし＝changes=0）
+      const current = this.settings.get("circuit_breaker");
+      if (current !== undefined && current !== "open") {
+        this.settings.set("circuit_breaker", "open");
+        return { rows: [], changes: 1 };
+      }
+      return { rows: [], changes: 0 };
     }
 
     if (
@@ -146,7 +204,10 @@ export class FakeD1Database {
     ) {
       // SELECT value FROM settings WHERE key = ?
       const [key] = params as [string];
-      return this.settings.has(key) ? [{ value: this.settings.get(key) }] : [];
+      return {
+        rows: this.settings.has(key) ? [{ value: this.settings.get(key) }] : [],
+        changes: 0,
+      };
     }
 
     if (
@@ -159,19 +220,94 @@ export class FakeD1Database {
       const mapKey = bucket + "\n" + period;
       const next = (this.rateLimits.get(mapKey) ?? 0) + 1;
       this.rateLimits.set(mapKey, next);
-      return [{ count: next }];
+      return { rows: [{ count: next }], changes: 1 };
     }
 
     if (/DELETE\s+FROM\s+rate_limits/i.test(normalized)) {
       // DELETE FROM rate_limits WHERE period < ?
       const [cutoff] = params as [string];
+      let changes = 0;
       for (const k of [...this.rateLimits.keys()]) {
         const p = k.slice(k.indexOf("\n") + 1);
         if (p < cutoff) {
           this.rateLimits.delete(k);
+          changes += 1;
         }
       }
-      return [];
+      return { rows: [], changes };
+    }
+
+    if (/INSERT\s+OR\s+IGNORE\s+INTO\s+reports/i.test(normalized)) {
+      // INSERT OR IGNORE INTO reports (recipe_id, reason, detail, ip_hash, created_at)
+      //   VALUES (?, ?, ?, ?, ?)（UNIQUE(recipe_id, ip_hash)＝同一IP多重通報は無視）
+      const [recipeId, reason, detail, ipHash, createdAt] = params as [
+        string,
+        string,
+        string | null,
+        string,
+        string,
+      ];
+      const VALID_REPORT_REASONS = ["spam", "nsfw", "copyright", "other"];
+      if (!VALID_REPORT_REASONS.includes(reason)) {
+        // 実D1のCHECK(reason IN (...))制約を代表させる。ハンドラ層のreason検証が
+        // 将来退行してもこのフェイクで検出できるようにする。
+        throw new Error("CHECK constraint failed: reports.reason");
+      }
+      const exists = this.reports.some(
+        (r) => r.recipe_id === recipeId && r.ip_hash === ipHash,
+      );
+      if (exists) {
+        return { rows: [], changes: 0 };
+      }
+      this.reports.push({
+        recipe_id: recipeId,
+        reason,
+        detail,
+        ip_hash: ipHash,
+        created_at: createdAt,
+      });
+      return { rows: [], changes: 1 };
+    }
+
+    if (
+      /SELECT\s+COUNT\(\*\)\s+AS\s+cnt/i.test(normalized) &&
+      /FROM\s+reports/i.test(normalized)
+    ) {
+      // SELECT COUNT(*) AS cnt FROM reports WHERE recipe_id = ?
+      const [recipeId] = params as [string];
+      const cnt = this.reports.filter((r) => r.recipe_id === recipeId).length;
+      return { rows: [{ cnt }], changes: 0 };
+    }
+
+    if (
+      /UPDATE\s+recipes/i.test(normalized) &&
+      /report_count\s*=\s*\?/i.test(normalized)
+    ) {
+      // UPDATE recipes SET report_count = ? WHERE id = ?
+      const [reportCount, id] = params as [number, string];
+      const row = this.rows.find((r) => r.id === id);
+      if (row) {
+        row.report_count = reportCount;
+        return { rows: [], changes: 1 };
+      }
+      return { rows: [], changes: 0 };
+    }
+
+    if (
+      /UPDATE\s+recipes/i.test(normalized) &&
+      /status\s*=\s*'flagged'/i.test(normalized)
+    ) {
+      // UPDATE recipes SET status = 'flagged' WHERE id = ? AND status = 'published'
+      //   （条件付き＝既に flagged/pending/deleted の行は変化なし）
+      const [id] = params as [string];
+      const row = this.rows.find(
+        (r) => r.id === id && r.status === "published",
+      );
+      if (row) {
+        row.status = "flagged";
+        return { rows: [], changes: 1 };
+      }
+      return { rows: [], changes: 0 };
     }
 
     if (
@@ -184,8 +320,9 @@ export class FakeD1Database {
       if (row) {
         row.status = "deleted";
         row.deleted_at = deletedAt;
+        return { rows: [], changes: 1 };
       }
-      return [];
+      return { rows: [], changes: 0 };
     }
 
     if (/INSERT\s+INTO\s+recipes/i.test(normalized)) {
@@ -243,7 +380,7 @@ export class FakeD1Database {
         deleted_at: deletedAt,
       };
       this.rows.push(row);
-      return [];
+      return { rows: [], changes: 1 };
     }
 
     throw new Error(`FakeD1Database: unrecognized SQL pattern: ${normalized}`);
