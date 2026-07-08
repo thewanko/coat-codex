@@ -10,6 +10,7 @@ import { handlePostRecipe } from "./routes/postRecipe";
 import { handleDeleteRecipe } from "./routes/deleteRecipe";
 import { handleReportRecipe } from "./routes/report";
 import { verifyTurnstile } from "./guards/turnstile";
+import { createScreenImage } from "./moderation/screenImage";
 import { matchCache, putCache } from "./cache";
 import type { Bindings } from "./bindings";
 
@@ -55,9 +56,11 @@ app.post("/api/recipes", (c) =>
       }),
     now: () => new Date(),
     randomId: () => "scr_" + crypto.randomUUID(),
+    // AI バインディング未設定の環境（ローカル test 等）では undefined のままにし、
+    // postRecipe.ts 側の fail-open 分岐（screening on かつフック未注入）に委ねる。
+    screenImage: c.env.AI ? createScreenImage(c.env.AI) : undefined,
   }),
 );
-// screenImage は未注入（ST-29 で NSFW スクリーニング実装を結線する）
 
 app.delete("/api/recipes/:id", (c) =>
   handleDeleteRecipe(c, { now: () => new Date() }),

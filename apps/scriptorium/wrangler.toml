@@ -13,3 +13,8 @@ database_id = "9405d72d-0de5-4acc-b23a-2b7c626e7b52"
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "coat-scriptorium-images"
+
+# AI は ST-29（NSFW スクリーニング）用。本番は dashboard 側 Settings → Bindings で
+# Workers AI を設定すること（このファイルはローカル開発専用・上部コメント参照）。
+[ai]
+binding = "AI"

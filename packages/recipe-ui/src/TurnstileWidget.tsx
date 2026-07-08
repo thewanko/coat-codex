@@ -1,4 +1,4 @@
-// components/common/TurnstileWidget.tsx — Cloudflare Turnstile ウィジェット
+// packages/recipe-ui/src/TurnstileWidget.tsx — Cloudflare Turnstile ウィジェット
 // （PublishDialog から利用。仕様の正: docs/coat-scriptorium_技術計画_v1.md §6-1
 // 「Turnstile ウィジェット（サイトキー VITE_TURNSTILE_SITEKEY）」。explicit render 方式）
 // スクリプト読込・型宣言は turnstileScript.ts へ分離

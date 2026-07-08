@@ -1,6 +1,6 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
-import TurnstileWidget from "./TurnstileWidget";
+import { TurnstileWidget } from "@coat-codex/recipe-ui";
 
 interface RenderCallOptions {
   sitekey: string;

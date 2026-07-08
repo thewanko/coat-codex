@@ -154,6 +154,11 @@ export async function handleReportRecipe(
   const cnt = countRow?.cnt ?? 0;
 
   // 7. report_count同期（非正規化列）
+  // 注: このUPDATEと直後の8.のUPDATEは非トランザクション（D1は単文コミット）。
+  // 中間状態（report_count更新後・flagged未遷移）が観測される可能性はあるが、
+  // report_countは次回通報時にCOUNT再計算で自己修復し、flagged遷移は条件付き
+  // UPDATE（WHERE status='published'）で冪等なため許容する。
+  // まとめて原子化するならD1のbatch()を使う。
   await c.env.DB.prepare("UPDATE recipes SET report_count = ? WHERE id = ?")
     .bind(cnt, recipeId)
     .run();

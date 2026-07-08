@@ -166,3 +166,27 @@
   outline: none;
   box-shadow: var(--focus-ring);
 }
+
+.reportButton {
+  min-height: var(--size-touch-target);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-ink-faint);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.reportButton:hover {
+  color: var(--color-ink-muted);
+}
+
+.reportButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

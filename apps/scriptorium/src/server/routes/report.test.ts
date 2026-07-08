@@ -205,6 +205,9 @@ describe("POST /api/recipes/:id/report 正常系", () => {
       env,
     );
     expect(notify).not.toHaveBeenCalled();
+    expect((env.DB as unknown as FakeD1Database).rows[0].status).toBe(
+      "published",
+    );
     const res3 = await testApp.request(
       "/api/recipes/scr_target/report",
       reportRequest(VALID_BODY, { "CF-Connecting-IP": "3.3.3.3" }),

@@ -12,6 +12,7 @@ import { SwatchChip, StepListView } from "@coat-codex/recipe-ui";
 import { fetchRecipeDetail, type RecipeDetailResponse } from "../lib/api";
 import { buildImportLink } from "../lib/importLink";
 import DeleteRecipeDialog from "../components/DeleteRecipeDialog";
+import ReportDialog from "../components/ReportDialog";
 import styles from "./RecipeDetailPage.module.css";
 
 type LoadState = "loading" | "ready" | "notFound";
@@ -33,6 +34,7 @@ function RecipeDetailPage() {
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [detail, setDetail] = useState<RecipeDetailResponse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   // 早期returnより前に置く（フック順序維持）。publishedToExportFileは
   // randomUUID/Date生成を伴うため、detailが変わったときのみ再変換する
@@ -184,12 +186,26 @@ function RecipeDetailPage() {
         >
           {t("deleteRecipe.buttonLabel")}
         </button>
+        <button
+          type="button"
+          className={styles.reportButton}
+          data-testid="report-recipe-button"
+          onClick={() => setReportDialogOpen(true)}
+        >
+          {t("report.buttonLabel")}
+        </button>
       </div>
 
       <DeleteRecipeDialog
         open={deleteDialogOpen}
         recipeId={detail.id}
         onClose={() => setDeleteDialogOpen(false)}
+      />
+
+      <ReportDialog
+        open={reportDialogOpen}
+        recipeId={detail.id}
+        onClose={() => setReportDialogOpen(false)}
       />
     </div>
   );

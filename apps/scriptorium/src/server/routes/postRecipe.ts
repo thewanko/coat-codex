@@ -48,7 +48,7 @@ export interface PostRecipeDeps {
   ) => Promise<boolean>;
   screenImage?: (
     bytes: Uint8Array,
-  ) => Promise<{ verdict: "ok" | "flag" | "unavailable" }>;
+  ) => Promise<{ verdict: "pass" | "flag" | "unavailable" }>;
   now: () => Date;
   randomId: () => string; // 'scr_' + UUID 形式の完全な id を返す
 }

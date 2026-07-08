@@ -233,6 +233,12 @@ export class FakeD1Database {
         string,
         string,
       ];
+      const VALID_REPORT_REASONS = ["spam", "nsfw", "copyright", "other"];
+      if (!VALID_REPORT_REASONS.includes(reason)) {
+        // 実D1のCHECK(reason IN (...))制約を代表させる。ハンドラ層のreason検証が
+        // 将来退行してもこのフェイクで検出できるようにする。
+        throw new Error("CHECK constraint failed: reports.reason");
+      }
       const exists = this.reports.some(
         (r) => r.recipe_id === recipeId && r.ip_hash === ipHash,
       );
