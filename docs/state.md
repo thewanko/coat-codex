@@ -3,7 +3,7 @@
 セッションは毎ループの入口で本ファイルを Read し、出口で更新する。
 モデルはセッションを跨ぐと忘れるが、このファイルは忘れない。
 
-最終更新: 2026-07-08 (**S6実装完了=パブリックローンチゲートのコード側全達成**: ST-26〜30＋35全6タスク・review 3ラウンド全PASS・ローカル実機E2E〔通報→flagged→404秘匿・削除・自動circuit open〕実証。ブランチ`impl/scriptorium-s6-moderation`→PR。残=ユーザーアクション〔`NOTIFY_EMAIL_TO`・`VITE_TURNSTILE_SITEKEY`設定→マージ→デプロイ→**Resend実受信テスト**〕。次=S7 admin または S8仕上げ)
+最終更新: 2026-07-08 (**S6完了=パブリックローンチゲート達成**: PR #57マージ→ユーザー本番実証〔通報→flagged→**Resend実受信メール確認**・iPhone実タッチで**本人削除→一覧消失**〕。テストレシピ復旧・threshold=3戻し済み。**scriptoriumはパブリックローンチ可能な状態**。次=**S7 admin**〔ST-31/32・CF Access〕または**S8仕上げ**〔ST-33 i18n棚卸し・ST-34通しQA〕)
 
 ## 完了
 
@@ -102,7 +102,7 @@
 
 ## 進行中
 
-- **S6のPRマージ待ち＋デプロイ後検証**（ブランチ`impl/scriptorium-s6-moderation`。ユーザーアクション: `NOTIFY_EMAIL_TO`・`VITE_TURNSTILE_SITEKEY`設定→マージ→Resend実受信テスト。詳細は「完了」欄S6エントリ末尾）
+- なし（**S6完了**: PR #57マージ＋2026-07-08ユーザー本番実証。①Resend実受信=threshold 1化→iPhone通報→flaggedメール受信〔recipeId/reportCount/復旧手順の整形どおり〕②本人削除=iPhone実タッチで誤PW403文言→正PW→完了表示→一覧消失。事後処理済み=テストレシピpublished復旧→削除・reports掃除・threshold=3復帰。**パブリックローンチゲート満了**）
 
 ## 次の候補 (優先順)
 
