@@ -386,6 +386,15 @@ export default function PublishDialog({
 
           <p className={styles.notice}>{t("publish.reductionNotice")}</p>
           <p className={styles.notice}>{t("publish.notBackupNotice")}</p>
+          <p className={styles.notice}>
+            <a
+              href="https://scriptorium.coat-codex.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("publish.privacyLinkLabel")}
+            </a>
+          </p>
 
           {siteKeyMissing ? (
             <p className={styles.errorNotice}>

@@ -301,6 +301,20 @@ describe("PublishDialog — 入力バリデーション", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "公開する" })).toBeDisabled();
   });
+
+  test("プライバシーポリシーへのリンクが表示され、外部リンクとして正しく設定されている", () => {
+    renderDialog(makeRecipe(), { siteKey: "site_abc" });
+
+    const link = screen.getByRole("link", {
+      name: "公開レシピのプライバシーポリシー",
+    });
+    expect(link).toHaveAttribute(
+      "href",
+      "https://scriptorium.coat-codex.com/privacy",
+    );
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
 });
 
 describe("PublishDialog — 完了画面のコピー・閉じる", () => {
