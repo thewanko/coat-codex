@@ -5,7 +5,9 @@
 //   → フェッチ(published/flagged以外は一律404で存在秘匿) → INSERT OR IGNORE reports
 //   （UNIQUE(recipe_id, ip_hash)で同一IP多重通報は黙って無視）→ distinct IP数カウント
 //   → report_count同期 → 閾値到達時のみ status='flagged'（冪等・レース安全な条件付きUPDATE）
-//   → 実際に遷移が起きたときのみ notify を best-effort 発火 → 200応答（flagged有無は漏らさない）
+//   → 実際に遷移が起きたときのみ R2 cover/thumb を best-effort 削除（§8-11・S7 adminで
+//   ステータス復帰は可能だが画像は戻らないトレードオフをユーザー裁定済み）→ notify を
+//   best-effort 発火 → 200応答（flagged有無は漏らさない）
 
 import type { Context } from "hono";
 import type { Bindings } from "../bindings";
@@ -42,6 +44,8 @@ interface ReportPayload {
 interface ReportFetchRow {
   status: string;
   report_count: number;
+  cover_key: string | null;
+  thumb_key: string | null;
 }
 
 function isValidReason(value: unknown): value is ReportReason {
@@ -124,7 +128,7 @@ export async function handleReportRecipe(
 
   // 4. フェッチ（published/flagged以外は一律404で存在秘匿）
   const row = await c.env.DB.prepare(
-    "SELECT status, report_count FROM recipes WHERE id = ?",
+    "SELECT status, report_count, cover_key, thumb_key FROM recipes WHERE id = ?",
   )
     .bind(recipeId)
     .first<ReportFetchRow>();
@@ -166,6 +170,19 @@ export async function handleReportRecipe(
       .bind(recipeId)
       .run();
     if (updateResult.meta?.changes && updateResult.meta.changes > 0) {
+      // 実際に行が変わった（=このリクエストで遷移が起きた）ときのみ R2 削除（best-effort）。
+      // §8-11: flagged はS7 adminで復帰可能だが画像は戻らないトレードオフをユーザー裁定済み。
+      try {
+        if (row.cover_key) {
+          await c.env.BUCKET.delete(row.cover_key);
+        }
+        if (row.thumb_key) {
+          await c.env.BUCKET.delete(row.thumb_key);
+        }
+      } catch {
+        console.warn("R2 object deletion failed (best-effort); orphan retained");
+      }
+
       // 実際に行が変わった（=このリクエストで遷移が起きた）ときのみ通知（best-effort）
       try {
         await deps.notify?.({

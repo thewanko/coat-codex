@@ -118,13 +118,21 @@ export class FakeD1Database {
       /FROM\s+recipes/i.test(normalized) &&
       /WHERE\s+id\s*=\s*\?/i.test(normalized)
     ) {
-      // 通報用フェッチ: SELECT status, report_count FROM recipes WHERE id = ?
+      // 通報用フェッチ: SELECT status, report_count, cover_key, thumb_key
+      //   FROM recipes WHERE id = ?
       //   （status で絞らず全 status を返す＝published/flagged 以外はハンドラ側で404判定）
       const [id] = params;
       const row = this.rows.find((r) => r.id === id);
       return {
         rows: row
-          ? [{ status: row.status, report_count: row.report_count }]
+          ? [
+              {
+                status: row.status,
+                report_count: row.report_count,
+                cover_key: row.cover_key,
+                thumb_key: row.thumb_key,
+              },
+            ]
           : [],
         changes: 0,
       };
