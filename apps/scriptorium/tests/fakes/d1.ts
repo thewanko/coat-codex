@@ -185,6 +185,20 @@ export class FakeD1Database {
     }
 
     if (
+      /UPDATE\s+settings/i.test(normalized) &&
+      /value\s*=\s*'open'/i.test(normalized)
+    ) {
+      // UPDATE settings SET value = 'open' WHERE key = 'circuit_breaker' AND value <> 'open'
+      //   （条件付き＝既に'open'の行・未設定キーは変化なし＝changes=0）
+      const current = this.settings.get("circuit_breaker");
+      if (current !== undefined && current !== "open") {
+        this.settings.set("circuit_breaker", "open");
+        return { rows: [], changes: 1 };
+      }
+      return { rows: [], changes: 0 };
+    }
+
+    if (
       /FROM\s+settings/i.test(normalized) &&
       /WHERE\s+key\s*=\s*\?/i.test(normalized)
     ) {

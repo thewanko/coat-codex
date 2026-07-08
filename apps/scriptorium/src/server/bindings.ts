@@ -10,6 +10,11 @@
 // 厳密な run() オーバーロードを持ち、汎用の `AiRunner`（screenImage.ts）とは
 // 構造的に噛み合わないため、ここでは screenImage.ts 側の緩い `AiRunner` 型を採用する。
 // 未設定環境（ローカル test 等）では undefined のままになる（既存挙動不変）。
+//
+// MAIL_API_KEY・NOTIFY_EMAIL_TO・NOTIFY_EMAIL_FROM は ST-27（notifier.ts）で追加。
+// Resend の API キー・通知先/送信元アドレス。いずれも任意バインディングとし、
+// MAIL_API_KEY と NOTIFY_EMAIL_TO が揃っていない環境（ローカル test 等）では
+// app.ts 側で notify を注入せず、既存挙動（notify 未注入 = best-effort no-op）を維持する。
 
 import type { AiRunner } from "./moderation/screenImage";
 
@@ -19,4 +24,7 @@ export interface Bindings {
   TURNSTILE_SECRET: string;
   IP_HASH_SECRET: string;
   AI?: AiRunner;
+  MAIL_API_KEY?: string;
+  NOTIFY_EMAIL_TO?: string;
+  NOTIFY_EMAIL_FROM?: string;
 }

@@ -19,7 +19,7 @@ import {
   hourlyPeriod,
   pruneOldRateLimits,
 } from "../guards/rateLimit";
-import { isCircuitOpen } from "../guards/circuitBreaker";
+import { isCircuitOpen, openCircuitIfClosed } from "../guards/circuitBreaker";
 import {
   getModerationMode,
   getNsfwScreening,
@@ -29,6 +29,7 @@ import {
   publishedRecipeStrictSchema,
   SCRIPTORIUM_SCHEMA_VERSION,
 } from "@coat-codex/recipe-core";
+import type { ModerationEvent } from "../moderation/events";
 
 const PUBLIC_BASE_URL = "https://scriptorium.coat-codex.com";
 const CORS_ORIGIN = "https://coat-codex.com";
@@ -51,6 +52,7 @@ export interface PostRecipeDeps {
   ) => Promise<{ verdict: "pass" | "flag" | "unavailable" }>;
   now: () => Date;
   randomId: () => string; // 'scr_' + UUID 形式の完全な id を返す
+  notify?: (event: ModerationEvent) => Promise<void>;
 }
 
 interface PostRecipePayload {
@@ -165,6 +167,23 @@ export async function handlePostRecipe(
     limitGlobal,
   );
   if (!postResult.allowed || !globalResult.allowed) {
+    if (!globalResult.allowed) {
+      // global-post バケット（全体レート）の超過のみサーキットを開放する対象。
+      // per-IP日次超過（postResult）は個別IPの問題でありサーキット全体を開く理由にならない。
+      const opened = await openCircuitIfClosed(c.env.DB);
+      if (opened) {
+        // 実際に closed→open の遷移が起きたときのみ通知（best-effort。応答は不変）
+        try {
+          await deps.notify?.({
+            type: "circuitOpen",
+            count: globalResult.count,
+            period: hourlyPeriod(nowIso),
+          });
+        } catch {
+          console.warn("moderation notify failed (best-effort)");
+        }
+      }
+    }
     return jsonError(c, 429, "rate limit exceeded");
   }
 

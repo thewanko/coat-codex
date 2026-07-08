@@ -4,11 +4,8 @@
 import { describe, expect, test, vi } from "vitest";
 import { Hono } from "hono";
 import type { Bindings } from "../bindings";
-import {
-  handleReportRecipe,
-  type ReportDeps,
-  type ModerationEvent,
-} from "./report";
+import { handleReportRecipe, type ReportDeps } from "./report";
+import type { ModerationEvent } from "../moderation/events";
 import app from "../app";
 import { FakeD1Database, type FakeRecipeRow } from "../../../tests/fakes/d1";
 import { FakeR2Bucket } from "../../../tests/fakes/r2";

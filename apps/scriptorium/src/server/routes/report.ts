@@ -16,18 +16,12 @@ import {
 } from "../guards/rateLimit";
 import { getNumericSetting } from "../settings";
 import { hashIp } from "./postRecipe";
+import type { ModerationEvent } from "../moderation/events";
 
 const REPORT_DAILY_LIMIT = 10;
 const DETAIL_MAX = 1000;
 const VALID_REASONS = ["spam", "nsfw", "copyright", "other"] as const;
 type ReportReason = (typeof VALID_REASONS)[number];
-
-/** モデレーション通知イベント。ST-27/28 が種類を拡張できる union 形にしておく。 */
-export type ModerationEvent = {
-  type: "flagged";
-  recipeId: string;
-  reportCount: number;
-};
 
 export interface ReportDeps {
   now: () => Date;
