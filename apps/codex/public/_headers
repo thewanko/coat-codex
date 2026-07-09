@@ -4,3 +4,11 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Permissions-Policy: geolocation=(), camera=(), microphone=()
+
+# *.pages.dev のみ検索エンジン非indexにする（本番カスタムドメインには付かない・ST-39補完）
+# 書式はCloudflare Pages公式のホスト指定プレースホルダー（:project/:version）
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
