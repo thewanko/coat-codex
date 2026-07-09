@@ -48,10 +48,10 @@ gitleaks git --no-banner --redact
 
 以下は各STの出口でpages dev実機検証済み（証跡=state.md）だが、**本番環境固有のギャップ**（本番CORS `coat-codex.com`固定・https・実Turnstileトークン・iOS Safari実タッチ・Resend実メール受信）はpreviewが代表しない。ユーザーのiPhone実機での最終通しQAで確認する項目:
 
-- [ ] 投稿→閲覧→通報→（自己通報でflagged）→削除の一連フローをiPhone Safariで実タッチ通し
-- [ ] 実Turnstileウィジェット（本番sitekey）でトークン発行→投稿/通報が成立
-- [ ] flagged化時のResend実メール受信（threshold=1にすると自己通報で手軽・確認後戻す）
-- [ ] 本番 /admin をCF Access越しでログイン→承認/復帰/削除の管理フロー（要CF Accessアプリ作成＝§9・未設定なら未認証302も確認）
-- [ ] 削除済みレシピの /img 直URLが本番で404
+- [x] 投稿→閲覧→通報→（自己通報でflagged）→削除の一連フローをiPhone Safariで実タッチ通し
+- [x] 実Turnstileウィジェット（本番sitekey）でトークン発行→投稿/通報が成立
+- [x] flagged化時のResend実メール受信（threshold=1にすると自己通報で手軽・確認後戻す）
+- [x] 本番 /admin をCF Access越しでログイン→承認/復帰/削除の管理フロー（要CF Accessアプリ作成＝§9・未設定なら未認証302も確認）
+- [x] 削除済みレシピの /img 直URLが本番で404
 
-補足: S5のコア通しQA（投稿→閲覧→インポート→再編集）は2026-07-08にユーザーiPhoneで通過済み（state.md）。本ST-34で残るのは上記の攻撃者視点＋管理フローのiPhone確認。
+補足: S5のコア通しQA（投稿→閲覧→インポート→再編集）は2026-07-08にユーザーiPhoneで通過済み（state.md）。**上記5項目は2026-07-09にユーザー実機で全完了**（CF Accessアプリ作成・HSTS含む§9必須項目も同日完了。実施中の「flaggedレシピ削除が公開中へ移動」報告は復帰ボタンの押し間違いと確定＝delete実装は正常）。さらにcodex分pages.dev noindex（PR #68・`_headers`ホスト指定方式）もマージ後の本番curlで期待値を確認＝**ST-34完全クローズ・全マイルストーン完了**。
