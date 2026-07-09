@@ -41,7 +41,6 @@
     "loadingMore": "Loading…"
   },
   "recipeDetail": {
-    "heading": "Recipe",
     "loading": "Loading recipe…",
     "notFound": "This recipe was not found.",
     "backToFeed": "Back to new recipes",
