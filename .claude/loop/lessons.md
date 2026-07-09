@@ -8,6 +8,22 @@
 
 ---
 
+## 2026-07-09 st34-followup 計画に書かれたダッシュボード手順（Transform Ruleでpages.dev noindex）を実行前に1次確認→自ゾーン外には効かず実現不可と確定・公式`_headers`ホスト指定へ是正／ユーザー障害報告はUI結線とサーバー実装の照合で「押し間違い」と確定し不要修正ゼロ [GOOD]
+
+- 事象: ①§9ユーザーアクション「codex分pages.dev noindex=Transform Rule」の手順を案内する前に適用範囲を1次確認: Transform Ruleは自ゾーン（coat-codex.com）のトラフィックにのみ適用され、Cloudflare所有ゾーン`*.pages.dev`への応答には効かない＝**計画の手順自体が実現不可**。CF Pages公式docsで`_headers`のホスト指定プレースホルダー（`https://:project.pages.dev/*`→`X-Robots-Tag: noindex`）がまさにこの用途の公式例と確認し、ダッシュボード作業からコード管理（`apps/codex/public/_headers` 4行）へ是正＝計画v1.7。scriptorium分は本番curl（pages.dev=noindexあり・カスタムドメイン=なし）で完了確認 ②ユーザー報告「管理画面でflaggedレシピを削除しても削除されず公開中に入った」を、修正へ走らずAdminPage結線（flaggedタブ=復帰/削除の2ボタン・削除のみconfirmあり）とadmin.ts（deleteはstatus='deleted'のみ・publishedになる経路なし）を照合→「flagged→published」は復帰(restore)の挙動そのものと確定し「復帰ボタンの押し間違い（確認ダイアログの有無が判別子）」と診断→ユーザーがリカバリ手順（公開中タブ→削除）で解決を確認＝実装修正ゼロ
+- 原因（GOODの機序）: ①計画書のユーザーアクション欄も「タスク前提の事実」＝実行手順を案内する前にプラットフォームの適用スコープを1次確認する（CSPのiframeスコープ誤認と同族＝プラットフォーム仕様断定の相。計画に書いてあっても間違っていることがある——書いた時点で未検証のダッシュボード手順は特に）②障害報告の「観測された遷移」（flagged→published）を実装の状態遷移表と突き合わせると、どの操作なら起きるかが一意に決まる＝観測事実から逆算する診断
+- 一般化ルール (次ループの指示文としてそのまま使える形で): §9等の**ユーザーアクション（ダッシュボード手順）を案内・実行する前に、その手順のプラットフォーム適用スコープを1次確認**する（Transform Rule/Page Rule/WAF=自ゾーンのみ・`*.pages.dev`はCloudflare所有ゾーンで対象外。pages.devへのヘッダー付与は`_headers`のホスト指定`https://:project.pages.dev/*`か worker注入の2択）。ユーザーの操作起因バグ報告は、観測された**状態遷移**（どこからどこへ移ったか）を実装の遷移表（どのアクションがどの遷移を起こすか）と突き合わせ、一致するアクションが別にあるなら「押し間違い/操作違い」を修正委譲より先に確認する（判別子=確認ダイアログの有無等のUI差分をユーザーに聞く）
+- 反映先: loop prompt（1次確認family=計画記載のダッシュボード手順の適用スコープ・障害報告の状態遷移逆算）
+- 発生回数: 1回目（1次確認family 11回目の実証・新相=計画自体のユーザーアクション手順の誤り）
+
+## 2026-07-09 st34-qa 通しQA（攻撃者視点E2E）は「実装＋回帰テスト＋各ST出口実機の証跡集約」で機械照合し、実機やり直しでなくiPhone固有ギャップのみ引き渡す＝altitude裁定 [GOOD]
+
+- 事象: ST-34（付録B攻撃者視点E2E＋gitleaks履歴スキャン）は全STを対象とする最終QA。各攻撃ベクトル（偽MIME・XSS・削除PW総当たり・Turnstile fail-closed・通報flagged・削除済み画像404・Access 401・circuit・CORS・413）は既にS4〜S8の各実装STで回帰テスト＋出口pages dev実機で個別に固定済み。ST-34ではこれらを**やり直さず**、①防御実装をRead②回帰テストのit名を`grep -E "^\s*(it|test)\("`で抽出③各ST出口の実機証跡（state.md）を紐付け、の3点で「固定されている」ことをチェックリスト（`docs/scriptorium/ST-34-通しQAチェックリスト.md`）に集約した。新規実施はgitleaks履歴スキャン（`gitleaks git`で190コミット no leaks found）と全ゲート独立再実行（1678件）のみ。iPhone実機固有ギャップ（本番CORS固定・https・実Turnstileトークン・Resend実受信・CF Access越し）だけを§3で引き渡し明示。XSSの「通過分3画面非発火」は`dangerouslySetInnerHTML`/`innerHTML`の**使用箇所ゼロ**を全src grepで担保（sink不在＝React自動エスケープ）＝実機再現でなく静的な不在証明で足りる相
+- 原因（GOODの機序）: 最終QAタスクの付加価値は「各STで検証済みの項目を再実行すること」ではなく「全項目が固定されている証跡を1箇所に集約し、まだ埋まっていない穴（gitleaks・iPhone通し）を可視化すること」。個別STが出口で実機検証を積んでいれば、統合QAは証跡のインデックス化＋新規項目の実施＋残ギャップの引き渡しに畳める。altitude裁定family（低リスク項目は検証の段数を根拠付きで省略）の統合QA版
+- 一般化ルール (次ループの指示文としてそのまま使える形で): 複数の実装STを束ねる「通しQA/最終QA」タスクは、(a)各攻撃ベクトル・要件の防御実装をRead＋回帰テストのit名を機械抽出＋各ST出口の実機証跡（state.md）を紐付けてチェックリスト化し、(b)**個別STで検証済みの項目は再実行せず証跡集約に畳む**、(c)そのQAで**新規に生じる項目のみ実施**（履歴スキャン等）、(d)previewが代表しない本番固有ギャップ（実機タッチ・本番CORS・実外部サービス）を「ユーザー引き渡し項目」として明示する。XSS等の「通過分が非発火」系は実機再現より**sink（dangerouslySetInnerHTML/innerHTML/eval）の使用箇所ゼロを全src grep**で不在証明する方が確実。gitleaksは`brew install gitleaks`→`gitleaks git --no-banner --redact`で全コミット履歴スキャン（exit 0＝リークなし）
+- 反映先: loop prompt（統合QAタスクの証跡集約パターン・altitude裁定family=st20/st37/publish-privacy-linkに続く統合QA相）
+- 発生回数: 1回目（altitude裁定family 4回目の実証・新相=通しQAの証跡集約）
+
 ## 2026-07-09 st33-i18n メタテスト（検証器が成果物）の裁定は変異検査で検証力を実測する／変異検査の復元にgit checkoutを使い未コミットimpl成果を破壊 [GOOD/BAD混合]
 
 - 事象GOOD: ST-33のi18n棚卸しテスト（usedKeys.test.ts）の裁定で、正例ゲート（全緑）に加えて**変異検査**を実施: ①架空孤児キー追加→孤児テスト赤 ②使用キーをjaから削除→静的キーテスト赤 ③レビューM1修正後に未結線動的キー`admin.settings.newToggle`追加→孤児テスト赤（修正前はプレフィックス免罪で素通り＝修正の効果を差分で実測）。「テストが緑」ではなく「検出すべき欠陥を実際に検出する」ことを証拠化でき、レビューR2への引き継ぎ材料にもなった
