@@ -8,6 +8,21 @@
 
 ---
 
+## 2026-07-14 m9-part-delete 並列impl委譲中のgit stash -uが他implの編集中docsを巻き込み（同根2回目→CLAUDE.md昇格）／implの「テスト全滅」報告をNodeバージョン切り分けで環境起因と確定し不要修正ゼロ [BAD→GOOD]
+
+- 事象BAD: T49担当implが環境切り分けのため`git stash -u`を実行し、並列実行中のT48担当implが編集中だった`docs/coat-codex_技術計画_v2.md`まで一時的にHEADへ巻き戻した（stash popはコンフリクトで失敗→自分の3ファイルのみ`git checkout stash@{0} --`でピンポイント復元して回避）。両implが自力復旧しセッションのgrep/diff照合でも欠損なしだったが、T48側はEditツールの「file modified on disk」警告と「編集済み区間が元に戻る事象」を複数回観測＝一歩間違えば成果物の静かな消失。ST-33の「git checkoutで未コミット孤児削除を巻き戻し」と同根（未コミット成果物があるツリーでのgit復元操作）2回目→**CLAUDE.md委譲・レビューの規律へ昇格**（禁止＋cpバックアップ方式＋impl委譲プロンプトへの明記義務）
+- 事象GOOD: 同implの「`npm test`がベースラインから全滅（67ファイル失敗）」報告を、セッションが`.nvmrc`（=20）とデフォルトnode（v25.6.1）の乖離として切り分け: fnmでNode 20を有効化→全緑1686件。真因=node v25のjsdom localStorage非互換（`--localstorage-file`警告と符合）でi18n import経由の全テストがcollectionクラッシュ。実装修正ゼロ・以後の全ゲート実行をNode 20固定（CLAUDE.mdプロジェクト固有へ追記）。また全件実行での2件赤（ShareDialog/StepPhotoTile）は「単独2回＋全件再実行」で並列時flaky（PaintPicker既知family）と確定し無修正
+- 一般化ルール (次ループの指示文としてそのまま使える形で): impl委譲プロンプトに「`git stash`・`git checkout <path>`等のツリー復元操作は禁止（一時退避はcpで）」と「テスト実行前に`eval "$(fnm env)" && fnm use`でNode 20有効化」を必ず含める。implの「ベースラインから壊れている」報告は、ランタイムバージョン（node --version vs .nvmrc）の照合を切り分けの最初に行う（ツールチェーンのバージョン乖離は「変更と無関係の全滅」という特徴的なシグネチャを持つ）
+- 反映先: CLAUDE.md（委譲・レビューの規律=git復元操作禁止・プロジェクト固有=Node 20固定）
+- 発生回数: git復元操作family 2回目（ST-33 checkout→今回stash）=昇格済み／Node乖離は1回目
+
+## 2026-07-14 m9-part-delete 背景タブのスクロール凍結（scrollTo無効・scrollHeightがコンテンツ実高未満で固まる）でビューポート外要素のヒットテストが全null偽陰性→ビューポート高をコンテンツ全高へresizeして回避 [GOOD]
+
+- 事象: M9出口実機でパーツ削除✕のelementFromPointが全てnull。調査でボタンy=1290に対しvh=720・`document.scrollingElement.scrollHeight`が720のまま（実コンテンツは1760）＝背景タブでレイアウト/スクロールが凍結し`scrollTo`/`scrollIntoView`が無効と確定。スクロールを諦め**ビューポート高をコンテンツ全高（1800）へresize**して全対象を視界内に入れ、ヒットテスト全真を実測。背景タブ検証限界family 4回目（CSSアニメ→viewport 0×0→focus/blur→スクロール凍結）としてCLAUDE.md実機検証の規律へ追記。またpreview_startのdevサーバー起動が無出力ハング（2回再現）→Bash直接起動で即ready＝preview管理外サーバーで検証続行、というフォールバックも機能
+- 一般化ルール (次ループの指示文としてそのまま使える形で): 背景タブでビューポート外要素のヒットテストをする前に`document.scrollingElement.scrollHeight`とコンテンツ実高（要素のgetBoundingClientRect().bottom最大値）を突き合わせ、凍結していたらスクロールでなく**resize（高さ=コンテンツ全高）**で全要素を視界内に入れる。preview_startが「running報告なのにポート未開放・ログ皆無」なら2回で見切り、Bash直接起動（ログをscratchpadへ）に切り替えて検証を続行する
+- 反映先: CLAUDE.md 実機検証の規律（背景タブfamily 4回目=スクロール凍結相を追記昇格）
+- 発生回数: 1回目（背景タブ検証限界family 4回目）
+
 ## 2026-07-09 st34-followup 計画に書かれたダッシュボード手順（Transform Ruleでpages.dev noindex）を実行前に1次確認→自ゾーン外には効かず実現不可と確定・公式`_headers`ホスト指定へ是正／ユーザー障害報告はUI結線とサーバー実装の照合で「押し間違い」と確定し不要修正ゼロ [GOOD]
 
 - 事象: ①§9ユーザーアクション「codex分pages.dev noindex=Transform Rule」の手順を案内する前に適用範囲を1次確認: Transform Ruleは自ゾーン（coat-codex.com）のトラフィックにのみ適用され、Cloudflare所有ゾーン`*.pages.dev`への応答には効かない＝**計画の手順自体が実現不可**。CF Pages公式docsで`_headers`のホスト指定プレースホルダー（`https://:project.pages.dev/*`→`X-Robots-Tag: noindex`）がまさにこの用途の公式例と確認し、ダッシュボード作業からコード管理（`apps/codex/public/_headers` 4行）へ是正＝計画v1.7。scriptorium分は本番curl（pages.dev=noindexあり・カスタムドメイン=なし）で完了確認 ②ユーザー報告「管理画面でflaggedレシピを削除しても削除されず公開中に入った」を、修正へ走らずAdminPage結線（flaggedタブ=復帰/削除の2ボタン・削除のみconfirmあり）とadmin.ts（deleteはstatus='deleted'のみ・publishedになる経路なし）を照合→「flagged→published」は復帰(restore)の挙動そのものと確定し「復帰ボタンの押し間違い（確認ダイアログの有無が判別子）」と診断→ユーザーがリカバリ手順（公開中タブ→削除）で解決を確認＝実装修正ゼロ

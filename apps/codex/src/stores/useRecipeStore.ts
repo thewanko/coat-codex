@@ -15,6 +15,7 @@ import { loadRecipe, saveRecipe } from "../db/recipeStore";
 import { deletePhoto } from "../db/photoStore";
 import { isPendingColorId, stripPendingPaints } from "../lib/pendingPaints";
 import { gcUnusedPaletteColors } from "../lib/paletteGc";
+import { collectReferencedPhotoIds } from "../lib/photoRefs";
 import type { RecipeDoc, Step } from "@coat-codex/recipe-core";
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -127,22 +128,15 @@ function withStrippedPending(doc: RecipeDoc): RecipeDoc {
 }
 
 /**
- * doc.photoCrops のうち、overviewPhotoIds・全step（baseSteps＋parts[].steps）のphotoIdの
- * いずれからも参照されていないキーを除去した新しい文書を返す（純関数。写真削除の各UI経路
- * （StepPhotoTile/PhotoUploader等）を個別に変更せず、保存時GCで一元的にdangling cropを掃除
- * する設計。palette[].chipPhotoIdはクロップ対象外仕様のため参照集合に含めない）。
+ * doc.photoCrops のうち、collectReferencedPhotoIds（overviewPhotoIds・全step＝baseSteps＋
+ * parts[].stepsのphotoId）のいずれからも参照されていないキーを除去した新しい文書を返す
+ * （純関数。写真削除の各UI経路（StepPhotoTile/PhotoUploader等）を個別に変更せず、保存時GCで
+ * 一元的にdangling cropを掃除する設計。palette[].chipPhotoIdはクロップ対象外仕様のため
+ * 参照集合に含めない＝collectReferencedPhotoIdsのdocコメント参照）。
  * 除去対象が無ければdocをそのまま返す（M4必須事項②の参照同一性方針に倣う）。
  */
 function gcUnusedPhotoCrops(doc: RecipeDoc): RecipeDoc {
-  const referencedPhotoIds = new Set<string>(doc.overviewPhotoIds);
-  for (const step of [
-    ...doc.baseSteps,
-    ...doc.parts.flatMap((part) => part.steps),
-  ]) {
-    if (step.photoId !== null) {
-      referencedPhotoIds.add(step.photoId);
-    }
-  }
+  const referencedPhotoIds = collectReferencedPhotoIds(doc);
 
   const cropEntries = Object.entries(doc.photoCrops);
   const nextEntries = cropEntries.filter(([photoId]) =>

@@ -39,6 +39,8 @@ vi.mock("../db/recipeStore", () => ({
   saveRecipe: vi.fn(),
 }));
 
+const deletePhotoMock = vi.fn<(id: string) => Promise<void>>();
+
 vi.mock("../db/photoStore", async () => {
   const actual =
     await vi.importActual<typeof import("../db/photoStore")>(
@@ -47,6 +49,7 @@ vi.mock("../db/photoStore", async () => {
   return {
     ...actual,
     resolvePhotoUrl: vi.fn().mockResolvedValue(null),
+    deletePhoto: (id: string) => deletePhotoMock(id),
   };
 });
 
@@ -194,6 +197,8 @@ beforeEach(() => {
   vi.mocked(saveRecipe).mockImplementation((doc: RecipeDoc) =>
     Promise.resolve(doc),
   );
+  deletePhotoMock.mockReset();
+  deletePhotoMock.mockResolvedValue(undefined);
   __resetRecipeStoreForTest();
 });
 
@@ -362,6 +367,69 @@ describe("PartEditorPage — StepListへのprops変換（updateRecipe呼び出�
     expect(nextDoc?.palette).toHaveLength(2);
     expect(nextDoc?.palette[0]).toBe(existingColor);
     expect(nextDoc?.palette[1].id).toBe("col_new");
+  });
+});
+
+describe("PartEditorPage — 工程削除時の写真Blob回収（T49）", () => {
+  test("写真つき工程の削除でdeletePhotoが該当photoIdで呼ばれる", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        baseSteps: [
+          makeStep({ id: "stp_1", photoId: "ph_1" }),
+          makeStep({ id: "stp_2" }),
+        ],
+      }),
+    );
+    renderPage("/recipe/rcp_1/part/base");
+
+    await screen.findByTestId("step-list-stub");
+    fireEvent.click(screen.getByText("delete-step-0"));
+
+    await waitFor(() => {
+      expect(deletePhotoMock).toHaveBeenCalledWith("ph_1");
+    });
+  });
+
+  test("写真なし工程の削除ではdeletePhotoが呼ばれない", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        baseSteps: [
+          makeStep({ id: "stp_1", photoId: null }),
+          makeStep({ id: "stp_2" }),
+        ],
+      }),
+    );
+    renderPage("/recipe/rcp_1/part/base");
+
+    await screen.findByTestId("step-list-stub");
+    fireEvent.click(screen.getByText("delete-step-0"));
+
+    await waitFor(() => {
+      const nextDoc = useRecipeStore.getState().doc;
+      expect(nextDoc?.baseSteps).toHaveLength(1);
+    });
+    expect(deletePhotoMock).not.toHaveBeenCalled();
+  });
+
+  test("同じphotoIdを他stepからも参照している場合はdeletePhotoが呼ばれない", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(
+      makeDoc({
+        baseSteps: [
+          makeStep({ id: "stp_1", photoId: "ph_shared" }),
+          makeStep({ id: "stp_2", photoId: "ph_shared" }),
+        ],
+      }),
+    );
+    renderPage("/recipe/rcp_1/part/base");
+
+    await screen.findByTestId("step-list-stub");
+    fireEvent.click(screen.getByText("delete-step-0"));
+
+    await waitFor(() => {
+      const nextDoc = useRecipeStore.getState().doc;
+      expect(nextDoc?.baseSteps).toHaveLength(1);
+    });
+    expect(deletePhotoMock).not.toHaveBeenCalled();
   });
 });
 

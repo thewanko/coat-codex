@@ -27,7 +27,8 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
-import { StorageQuotaError } from "../db/photoStore";
+import { StorageQuotaError, deletePhoto } from "../db/photoStore";
+import { collectReferencedPhotoIds } from "../lib/photoRefs";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
@@ -172,15 +173,38 @@ function PartEditorPage({ isBaseMode = false }: PartEditorPageProps) {
   }
 
   function handleStepDelete(index: number) {
+    const loadedDoc = doc as RecipeDoc;
+    const currentSteps = isBaseMode
+      ? loadedDoc.baseSteps
+      : (targetPart?.steps ?? []);
+    const deletedPhotoId = currentSteps[index]?.photoId ?? null;
+
     updateRecipe((current) => {
-      const currentSteps = isBaseMode
+      const steps = isBaseMode
         ? current.baseSteps
         : (current.parts.find((part) => part.id === partId)?.steps ?? []);
-      const nextSteps = currentSteps.filter((_, i) => i !== index);
+      const nextSteps = steps.filter((_, i) => i !== index);
       return isBaseMode
         ? replaceBaseSteps(current, nextSteps)
         : replacePartSteps(current, partId as string, nextSteps);
     });
+
+    // 削除された工程が写真を持ち、更新後の文書内のどこからも参照されなくなった場合のみ
+    // Blobを回収する（同一photoIdを他stepが参照している場合は削除しない＝孤児化バグ修正）。
+    if (deletedPhotoId !== null) {
+      const nextDoc = useRecipeStore.getState().doc;
+      if (
+        nextDoc !== null &&
+        !collectReferencedPhotoIds(nextDoc).has(deletedPhotoId)
+      ) {
+        deletePhoto(deletedPhotoId).catch((error: unknown) => {
+          console.warn(
+            `[PartEditorPage] 削除した工程の写真Blob回収に失敗しました（photoId=${deletedPhotoId}）`,
+            error,
+          );
+        });
+      }
+    }
   }
 
   function handleStepReorder(nextSteps: Step[]) {

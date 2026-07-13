@@ -22,16 +22,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Outlet, useMatch, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
-import { StorageQuotaError } from "../db/photoStore";
+import { StorageQuotaError, deletePhoto } from "../db/photoStore";
 import {
   readRecipeExport,
   readReminderSnooze,
   shouldShowExportReminder,
 } from "../lib/storageHealth";
 import { buildScriptoriumPageUrl } from "../lib/importFromScriptorium";
+import { collectReferencedPhotoIds } from "../lib/photoRefs";
 import { useToast } from "../components/common/toastContext";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import OverviewHeader from "../components/overview/OverviewHeader";
 import OverviewPhotoDialog from "../components/overview/OverviewPhotoDialog";
 import OverviewPhotoStrip from "../components/overview/OverviewPhotoStrip";
@@ -135,6 +137,11 @@ function RecipeOverviewPage() {
   // レビュー対象。BASE_PART_ID("base")の場合はBASEカードのレビュー（PartReviewDialogの
   // baseモード=partId:null相当）。実パーツはparts[].id（"base"予約語のため衝突しない）。
   const [reviewTarget, setReviewTarget] = useState<string | null>(null);
+  // 削除確認対象のパーツ（partId）。ConfirmDialogの流儀（StepCard等）に合わせ、
+  // 確定操作はhandleDeletePartで一元的に行う。
+  const [pendingDeletePart, setPendingDeletePart] = useState<RecipePart | null>(
+    null,
+  );
   // FB-C 2026-07-04: 全体写真の後日変更ダイアログ開閉状態
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
   // §3.5コンパクト帯: 当該レシピの未バックアップ判定に必要な状態（recipeExport:<id>とスヌーズ期限）
@@ -237,6 +244,51 @@ function RecipeOverviewPage() {
 
   function handleReorderParts(nextParts: RecipePart[]) {
     updateRecipe((current) => ({ ...current, parts: nextParts }));
+  }
+
+  function handleRequestDeletePart(partId: string) {
+    const target = doc?.parts.find((part) => part.id === partId) ?? null;
+    setPendingDeletePart(target);
+  }
+
+  function handleCancelDeletePart() {
+    setPendingDeletePart(null);
+  }
+
+  function handleConfirmDeletePart() {
+    const target = pendingDeletePart;
+    if (target === null) {
+      return;
+    }
+    setPendingDeletePart(null);
+
+    const deletedPhotoIds = target.steps
+      .map((step) => step.photoId)
+      .filter((photoId): photoId is string => photoId !== null);
+
+    updateRecipe((current) => ({
+      ...current,
+      parts: current.parts.filter((part) => part.id !== target.id),
+    }));
+
+    // 削除されたパーツが写真を持ち、更新後の文書内のどこからも参照されなくなった場合のみ
+    // Blobを回収する（PartEditorPage.handleStepDeleteと同型のパターン）。
+    if (deletedPhotoIds.length > 0) {
+      const nextDoc = useRecipeStore.getState().doc;
+      if (nextDoc !== null) {
+        const referencedPhotoIds = collectReferencedPhotoIds(nextDoc);
+        for (const photoId of deletedPhotoIds) {
+          if (!referencedPhotoIds.has(photoId)) {
+            deletePhoto(photoId).catch((error: unknown) => {
+              console.warn(
+                `[RecipeOverviewPage] 削除したパーツの写真Blob回収に失敗しました（photoId=${photoId}）`,
+                error,
+              );
+            });
+          }
+        }
+      }
+    }
   }
 
   function handleAddPart(part: RecipePart) {
@@ -371,6 +423,7 @@ function RecipeOverviewPage() {
             onReview={handleReviewPart}
             onReorder={handleReorderParts}
             onAdd={handleAddPart}
+            onRequestDelete={handleRequestDeletePart}
           />
         </section>
 
@@ -388,6 +441,16 @@ function RecipeOverviewPage() {
             onClose={() => setReviewTarget(null)}
           />
         )}
+
+        <ConfirmDialog
+          open={pendingDeletePart !== null}
+          title={t("overview.deletePartTitle", {
+            name: pendingDeletePart?.name ?? "",
+          })}
+          description={t("overview.deletePartMessage")}
+          onConfirm={handleConfirmDeletePart}
+          onCancel={handleCancelDeletePart}
+        />
 
         {photoDialogOpen && (
           <OverviewPhotoDialog
