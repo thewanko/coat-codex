@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import styles from "./EmptyState.module.css";
 
-export type EmptyStateVariant = "home" | "parts" | "steps";
+export type EmptyStateVariant = "home" | "parts" | "steps" | "tools";
 
 interface EmptyStateProps {
   variant: EmptyStateVariant;

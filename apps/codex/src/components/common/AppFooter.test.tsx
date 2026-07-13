@@ -54,4 +54,16 @@ describe("AppFooter — 封蝋ロゴ", () => {
       "/help",
     );
   });
+
+  test("ツールライブラリへのリンクが表示される", () => {
+    render(
+      <MemoryRouter>
+        <AppFooter />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "ツールライブラリ" }),
+    ).toHaveAttribute("href", "/tools");
+  });
 });

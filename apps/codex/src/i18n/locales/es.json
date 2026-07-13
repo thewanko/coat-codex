@@ -6,7 +6,8 @@
     "terms": "Términos y aviso legal",
     "help": "Guía de uso y preguntas frecuentes",
     "backToOverview": "Volver a la vista general",
-    "backToLibrary": "Volver a la biblioteca"
+    "backToLibrary": "Volver a la biblioteca",
+    "tools": "Tool Library"
   },
   "techniques": {
     "prime": "Imprimación",
@@ -449,5 +450,15 @@
         "a": "Una función que copia toda tu receta en un formato que puedes pegar directamente en un artículo de note."
       }
     }
+  },
+  "tools": {
+    "title": "Tool Library",
+    "description": "Manage your tools locally on this device. Deleting a tool from the library does not affect saved recipes.",
+    "addPlaceholder": "Enter tool name",
+    "addButton": "Add",
+    "emptyTitle": "No tools yet",
+    "emptyDescription": "Enter a tool name to add one.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteMessage": "This will not be removed from saved recipes."
   }
 }
