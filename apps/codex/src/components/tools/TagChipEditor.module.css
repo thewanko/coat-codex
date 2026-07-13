@@ -1,0 +1,78 @@
+/* TagChipEditor — タグチップ列（デザイン仕様書「ToolsPage / TagChipEditor」節）
+   各チップは raised面faint枠・小円radius-full・mono 11px。新規トークンは作らない。 */
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 24px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+}
+
+.chipLabel {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-muted);
+  font-size: 12px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  opacity: 1;
+}
+
+.removeButton:focus-visible {
+  outline: none;
+  opacity: 1;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 767px) {
+  .removeButton {
+    width: var(--size-touch-target);
+    height: var(--size-touch-target);
+  }
+}
+
+.input {
+  flex: 1;
+  min-width: 88px;
+  min-height: 24px;
+  padding: 0 var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}

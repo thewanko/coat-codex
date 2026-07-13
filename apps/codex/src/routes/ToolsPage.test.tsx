@@ -127,4 +127,36 @@ describe("ToolsPage", () => {
       await screen.findByText("ツールがまだありません"),
     ).toBeInTheDocument();
   });
+
+  test("タグ付与→Dexie userTools.tagsに反映され、除去でも反映される", async () => {
+    renderToolsPage();
+    await screen.findByText("ツールがまだありません");
+
+    await addTool("筆");
+    await waitFor(() => {
+      expect(screen.getByText("筆")).toBeInTheDocument();
+    });
+
+    const tagInput = screen.getByLabelText("筆 にタグを追加");
+    fireEvent.change(tagInput, { target: { value: "#面相" } });
+    fireEvent.keyDown(tagInput, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(screen.getByText("#面相")).toBeInTheDocument();
+    });
+    await waitFor(async () => {
+      const stored = await db.userTools.toArray();
+      expect(stored.find((tool) => tool.name === "筆")?.tags).toEqual(["面相"]);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "面相 タグを除去 筆" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("#面相")).not.toBeInTheDocument();
+    });
+    await waitFor(async () => {
+      const stored = await db.userTools.toArray();
+      expect(stored.find((tool) => tool.name === "筆")?.tags).toEqual([]);
+    });
+  });
 });

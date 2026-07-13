@@ -458,6 +458,9 @@
     "emptyTitle": "ツールがまだありません",
     "emptyDescription": "ツール名を入力して追加してください。",
     "deleteTitle": "「{{name}}」を削除しますか？",
-    "deleteMessage": "登録済みレシピからは削除されません。"
+    "deleteMessage": "登録済みレシピからは削除されません。",
+    "tagPlaceholder": "タグを追加",
+    "tagAdd": "{{name}} にタグを追加",
+    "tagRemoveAria": "{{tag}} タグを除去 {{name}}"
   }
 }

@@ -5,19 +5,20 @@
 // （削除してもレシピ側には一切影響しない）。手動load方式（初回useEffect＋変異後に再list）
 // を採る（db/toolStore.tsはリアクティブなsubscribeを持たないため）。
 //
-// タグ管理（TagChipEditor）・エクスポート/インポートはT53/T54スコープのため本タスクでは
-// 実装しない（デザイン仕様書「ToolsPage一覧行」はTagChipEditorを内包する構成だが、
-// 未実装機能の置き場を空ける必要はない、とT52仕様に明記されている）。
+// タグ管理はT53でTagChipEditorを行内に組み込む（デザイン仕様書「ToolsPage一覧行」）。
+// エクスポート/インポートはT54スコープのため本タスクでは実装しない。
 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BackLink from "../components/common/BackLink";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import EmptyState from "../components/common/EmptyState";
+import TagChipEditor from "../components/tools/TagChipEditor";
 import {
   deleteUserTool,
   listUserTools,
   registerUserTool,
+  updateUserToolTags,
 } from "../db/toolStore";
 import type { UserToolRecord } from "../db/db";
 import styles from "./ToolsPage.module.css";
@@ -54,6 +55,11 @@ function ToolsPage() {
       event.preventDefault();
       void handleAdd();
     }
+  }
+
+  async function handleTagsChange(id: string, next: string[]) {
+    await updateUserToolTags(id, next);
+    await refresh();
   }
 
   async function handleConfirmDelete() {
@@ -104,6 +110,13 @@ function ToolsPage() {
           {tools.map((tool) => (
             <li key={tool.id} className={styles.row}>
               <span className={styles.name}>{tool.name}</span>
+              <div className={styles.tags}>
+                <TagChipEditor
+                  toolName={tool.name}
+                  tags={tool.tags}
+                  onChange={(next) => void handleTagsChange(tool.id, next)}
+                />
+              </div>
               <button
                 type="button"
                 className={styles.deleteButton}

@@ -458,6 +458,9 @@
     "emptyTitle": "No tools yet",
     "emptyDescription": "Enter a tool name to add one.",
     "deleteTitle": "Delete “{{name}}”?",
-    "deleteMessage": "This will not be removed from saved recipes."
+    "deleteMessage": "This will not be removed from saved recipes.",
+    "tagPlaceholder": "Add tag",
+    "tagAdd": "Add tag to {{name}}",
+    "tagRemoveAria": "Remove tag {{tag}} {{name}}"
   }
 }
