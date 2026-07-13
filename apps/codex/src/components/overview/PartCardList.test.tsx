@@ -34,12 +34,14 @@ function renderList(
   overrides: Partial<{
     onReorder: (next: RecipePart[]) => void;
     onAdd: (part: RecipePart) => void;
+    onRequestDelete: (partId: string) => void;
   }> = {},
 ) {
   const onOpen = vi.fn();
   const onReview = vi.fn();
   const onReorder = vi.fn(overrides.onReorder);
   const onAdd = vi.fn(overrides.onAdd);
+  const onRequestDelete = vi.fn(overrides.onRequestDelete);
 
   render(
     <PartCardList
@@ -49,10 +51,11 @@ function renderList(
       onReview={onReview}
       onReorder={onReorder}
       onAdd={onAdd}
+      onRequestDelete={onRequestDelete}
     />,
   );
 
-  return { onOpen, onReview, onReorder, onAdd };
+  return { onOpen, onReview, onReorder, onAdd, onRequestDelete };
 }
 
 describe("PartCardList — 上下移動ボタン", () => {
@@ -160,5 +163,22 @@ describe("PartCardList — AddPartButton（1件以上時）", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "＋ パーツを追加" }));
     expect(onAdd).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("PartCardList — 削除ボタン", () => {
+  test("各パーツに削除ボタンが描画され、クリックで対象partIdのonRequestDeleteが呼ばれる", () => {
+    const parts = [makePart("part_a", "腕"), makePart("part_b", "胴体")];
+    const { onRequestDelete } = renderList(parts);
+
+    const deleteButtons = screen.getAllByRole("button", {
+      name: /を削除$/,
+    });
+    expect(deleteButtons).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "胴体を削除" }));
+
+    expect(onRequestDelete).toHaveBeenCalledTimes(1);
+    expect(onRequestDelete).toHaveBeenCalledWith("part_b");
   });
 });

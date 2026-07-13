@@ -66,7 +66,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 
 ### Card
 - **recipe（Home）**: 折丁カード。`--color-bg-raised`＋1px `--color-line`＋二重枠inset（レシピ参照: theme.css実装メモ）＋`--shadow-1`。padding 9px、写真は内側に1px枠＋`--radius-sm`。タイトル中央・明朝。メタ = mono `VOL.012 ・ 更新 ・ 工程n`。未バックアップ ● 8px `--color-danger` をタイトル左。⋮は右上の円形iconボタン（写真上では `rgba(--color-bg-raised, .92)` 面）
-- **part（Overview）**: 二重枠(soft)＋行構成 `⋮⋮ハンドル → ローマ数字(朱) → サムネ52px → 名前+工程n → バッジ列 → ›`
+- **part（Overview）**: 二重枠(soft)＋行構成 `⋮⋮ハンドル → ローマ数字(朱) → サムネ52px → 名前+工程n → バッジ列 → ›`。**（v2.6追加）** controls列（`⋮⋮ハンドル`・↑↓ボタン）の末尾に削除✕（icon danger・円形28–32px・44pxタッチターゲット維持）を追加。押下は`ConfirmDialog`（danger確定ボタン＋「取り消しできません」注記＝下記Dialog/Modal規約を適用）を起動する
 - **step（Editor）**: §「StepCard」参照
 - dragging（全カード共通）: `--shadow-3`＋`rotate(-1deg)`＋枠を `--color-gold-soft`。挿入位置 = 2px `--color-accent` 線＋左端6px円ドット
 
@@ -140,6 +140,12 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - raised面ピル行: SwatchChip(md)＋ブランドmono＋右端に count バッジ＋✕円
 - in-use: ✕ opacity .45 + disabled、行下に注記「↳ 工程で使用中のため削除できません（工程側で外すと削除可）」
 - 未使用: 「未使用」バッジ（faint枠）＋✕活性
+- **（v2.6追加）**`ToolSelect`（工程エディタ）内のdoc.tools行も同一皮を適用する（in-use=使用中の工程でチェック中の意）
+
+### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定）
+- **ToolsPage一覧行**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
+- **TagChipEditor**: 各チップは`#`＋タグ名（mono 11px）・raised面faint枠・小円radius-full・末尾に除去✕（12px・opacity .6→hover 1）。追加inputは同列末尾に配置し、Enter確定・重複無視は無音（トースト不要）
+- **削除確認**: ToolsPage・PartCard・ToolSelectいずれの削除✕も上記Dialog/Modal規約（confirm=dangerボタン＋「取り消しできません」注記）を適用する。ライブラリ削除のdescriptionは「登録済みレシピからは削除されません」、パーツ削除は「工程と写真も削除されます」と、影響範囲をdescriptionで明記する（注記自体は共通・description文言のみ画面ごとに差し替え）
 
 ### ActionBar
 - export(PC): ヘッダ右にピル群。グループ区切りは**菱** `--color-gold`: `[印刷][PDF] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]`
@@ -228,6 +234,12 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - **各スロットに%入力**。合計100で有効。**合計≠100はエラー**: %枠error皮＋`計 n%`(danger)＋メッセージ「合計が100%になるよう調整してください」。autosaveは継続、エラーは出力（バッジ/印刷/共有）へ警告として継承
 - 比率欄は導出/入力補助: `5:3:2` 入力→%へ展開（丸め剰余は末尾スロット）／%直接編集→自動約分して再表示（約分不能は素値のまま）／合計≠100中は「—」
 - バッジ書式: `60% + 40% (3:2)`・`50% + 30% + 20% (5:3:2)`・約分不能時は比率省略
+
+### C. ツールライブラリ＋パーツ削除の意匠（v2.6追加・2026-07-13ユーザーFB裁定。技術計画v2.6 §2.8/§3.1/§3.3対応）
+- **新規画面 `/tools`（ToolsPage）**: 既存画面と同じ紙面トーン（羊皮紙面・二重枠なしの単純raisedリスト）で構成する。新規トークンは作らない（既存 `--color-bg-raised`・`--color-gold-soft`・`--radius-sm`等を流用）
+- **PartCard削除ボタン**: 上記「Card」節のとおり、controls列（ドラッグハンドル・↑↓）の末尾に削除✕を並べる。44pxタッチターゲットを維持し、ドラッグハンドル・↑↓・✕の3ボタンが密集しても誤タップ距離を確保する（実機検証はドラッグハンドルと削除✕の誤タップ距離を含める）
+- **タグチップ**: 上記「ToolsPage / TagChipEditor」節のとおり`#名`表示＋除去✕。ライブラリ専用データのため、レシピ側（Setup/StepCard）の意匠には影響しない
+- **削除確認ダイアログ**は全箇所で既存「Dialog / Modal」節のconfirm=dangerボタン＋「取り消しできません」注記をそのまま適用し、本改訂で新規のダイアログ皮は作らない
 
 ## 9. アクセシビリティ・チェックリスト
 

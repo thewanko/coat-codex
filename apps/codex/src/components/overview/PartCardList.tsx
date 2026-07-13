@@ -41,6 +41,7 @@ interface PartCardListProps {
   onReview: (partId: string) => void;
   onReorder: (nextParts: RecipePart[]) => void;
   onAdd: (part: RecipePart) => void;
+  onRequestDelete: (partId: string) => void;
 }
 
 interface SortablePartCardProps {
@@ -54,6 +55,7 @@ interface SortablePartCardProps {
   onReview: (partId: string) => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onRequestDelete: () => void;
 }
 
 function SortablePartCard({
@@ -67,6 +69,7 @@ function SortablePartCard({
   onReview,
   onMoveUp,
   onMoveDown,
+  onRequestDelete,
 }: SortablePartCardProps) {
   const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -114,6 +117,14 @@ function SortablePartCard({
         >
           ↓
         </button>
+        <button
+          type="button"
+          className={styles.deleteButton}
+          aria-label={t("overview.deletePart", { name: part.name })}
+          onClick={onRequestDelete}
+        >
+          ✕
+        </button>
       </div>
       <div className={styles.cardWrap}>
         <PartCard
@@ -137,6 +148,7 @@ function PartCardList({
   onReview,
   onReorder,
   onAdd,
+  onRequestDelete,
 }: PartCardListProps) {
   const { t } = useTranslation();
 
@@ -207,6 +219,7 @@ function PartCardList({
                 onReview={onReview}
                 onMoveUp={() => moveItem(index, -1)}
                 onMoveDown={() => moveItem(index, 1)}
+                onRequestDelete={() => onRequestDelete(part.id)}
               />
             ))}
           </ul>
