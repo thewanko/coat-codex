@@ -10,17 +10,17 @@
 // 自動除去する（§4.2 M4必須事項③）。
 
 import { useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useRecipeStore } from "../stores/useRecipeStore";
 import Skeleton from "../components/common/Skeleton";
 import BackLink from "../components/common/BackLink";
 import TitleInput from "../components/setup/TitleInput";
 import OverviewPhotoUploader from "../components/setup/OverviewPhotoUploader";
-import ToolListEditor from "../components/setup/ToolListEditor";
 import MakeCodexButton from "../components/setup/MakeCodexButton";
 import ImportJsonSection from "../components/setup/ImportJsonSection";
 import styles from "./RecipeSetupPage.module.css";
+import sectionStyles from "../components/setup/SetupSection.module.css";
 
 function RecipeSetupPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +98,15 @@ function RecipeSetupPage() {
         }
       />
 
-      <ToolListEditor doc={doc} onUpdate={updateRecipe} />
+      <section className={sectionStyles.section}>
+        <h2 className={sectionStyles.heading}>{t("setup.toolsLabel")}</h2>
+        <p className={styles.toolLibraryHint}>
+          {t("setup.toolLibraryHint")}{" "}
+          <Link to="/tools" className={styles.toolLibraryHintLink}>
+            {t("nav.tools")}
+          </Link>
+        </p>
+      </section>
 
       <ImportJsonSection />
 
