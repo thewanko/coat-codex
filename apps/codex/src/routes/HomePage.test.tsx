@@ -223,7 +223,7 @@ describe("HomePage", () => {
     });
   });
 
-  test("レシピ1件以上のとき、ヘッダーにツールライブラリボタンを表示し/toolsへ遷移する", async () => {
+  test("レシピ1件以上のとき、アクション行にツールライブラリボタンを表示する（/tools遷移は出口実機で検証）", async () => {
     vi.mocked(listRecipes).mockResolvedValue([
       makeRecipe("rcp_1", "既存レシピ"),
     ]);
