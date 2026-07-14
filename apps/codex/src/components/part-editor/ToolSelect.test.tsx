@@ -302,7 +302,8 @@ describe("ToolSelect", () => {
     expect(onChange).toHaveBeenCalledWith([storeTools[0].id]);
   });
 
-  test("doc.toolsに同名（大小文字違い）が既にあるライブラリツールは候補に出ない（dedupe）", async () => {
+  test("doc.toolsに同名（大小文字違い）が既にあるライブラリツールも候補に出る（v2.8 T62: dedupe廃止）。クリックすると新規コピーは作られず既存idがチェックされる", async () => {
+    const onChange = vi.fn();
     vi.mocked(listUserTools).mockResolvedValue([
       makeLibraryTool({ id: "utool_1", name: "Airbrush" }),
       makeLibraryTool({ id: "utool_2", name: "スポンジ" }),
@@ -312,14 +313,130 @@ describe("ToolSelect", () => {
         tools: [{ id: "tool_1", name: "airbrush", note: null }],
       }),
     });
-    renderWithRouter(<ToolSelect value={[]} onChange={vi.fn()} />);
+    renderWithRouter(<ToolSelect value={[]} onChange={onChange} />);
 
     expect(
       await screen.findByRole("button", { name: "スポンジ" }),
     ).toBeInTheDocument();
+    const airbrushButton = screen.getByRole("button", { name: "Airbrush" });
+    expect(airbrushButton).toBeInTheDocument();
+
+    fireEvent.click(airbrushButton);
+
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+    expect(onChange).toHaveBeenCalledWith(["tool_1"]);
+  });
+
+  test("全ツールが候補表示される（ライブラリ3件・doc.toolsに2件同名でも候補は3件）", async () => {
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆" }),
+      makeLibraryTool({ id: "utool_2", name: "スポンジ" }),
+      makeLibraryTool({ id: "utool_3", name: "エアブラシ" }),
+    ]);
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [
+          { id: "tool_1", name: "丸筆", note: null },
+          { id: "tool_2", name: "スポンジ", note: null },
+        ],
+      }),
+    });
+    renderWithRouter(<ToolSelect value={[]} onChange={vi.fn()} />);
+
     expect(
-      screen.queryByRole("button", { name: "Airbrush" }),
-    ).not.toBeInTheDocument();
+      await screen.findByRole("button", { name: "丸筆" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "スポンジ" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "エアブラシ" }),
+    ).toBeInTheDocument();
+  });
+
+  test("同名候補クリック: onChangeへ既存ツールidが渡され、doc.toolsは増えない（v2.8 T62）", async () => {
+    const onChange = vi.fn();
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆" }),
+    ]);
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [{ id: "tool_1", name: "丸筆", note: null }],
+      }),
+    });
+    renderWithRouter(<ToolSelect value={[]} onChange={onChange} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "丸筆" }));
+
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+    expect(storeTools[0].id).toBe("tool_1");
+    expect(onChange).toHaveBeenCalledWith(["tool_1"]);
+  });
+
+  test("同名かつ当該工程で既にチェック済みの候補はaria-pressed=trueで、クリックしても変化しない（v2.8 T62）", async () => {
+    const onChange = vi.fn();
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆" }),
+    ]);
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [{ id: "tool_1", name: "丸筆", note: null }],
+      }),
+    });
+    renderWithRouter(<ToolSelect value={["tool_1"]} onChange={onChange} />);
+
+    const button = await screen.findByRole("button", { name: "丸筆" });
+    expect(button).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(button);
+
+    expect(onChange).not.toHaveBeenCalled();
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+  });
+
+  test("同名なしの候補クリックは従来どおりdoc.toolsへコピーされ当該工程へチェックされる（回帰）", async () => {
+    const onChange = vi.fn();
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆", note: "細め" }),
+    ]);
+    useRecipeStore.setState({ doc: makeDoc({ tools: [] }) });
+    renderWithRouter(<ToolSelect value={[]} onChange={onChange} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "丸筆" }));
+
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+    expect(storeTools[0].name).toBe("丸筆");
+    expect(storeTools[0].note).toBe("細め");
+    expect(storeTools[0].id).toMatch(/^tool_/);
+    expect(onChange).toHaveBeenCalledWith([storeTools[0].id]);
+  });
+
+  test("NFC合成形と分解形の同名ライブラリ候補でも既存として扱われ、新規コピーは作られない（v2.8 T62）", async () => {
+    // "\u304C"（NFC合成形の"が"）と"\u304B\u3099"（NFD分解形: "か"+結合濁点）は
+    // 見た目・意味は同一だがcode point列が異なる。
+    const composed = "\u304C";
+    const decomposed = "\u304B\u3099";
+    const onChange = vi.fn();
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: composed }),
+    ]);
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [{ id: "tool_1", name: decomposed, note: null }],
+      }),
+    });
+    renderWithRouter(<ToolSelect value={[]} onChange={onChange} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: composed }));
+
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+    expect(storeTools[0].id).toBe("tool_1");
+    expect(onChange).toHaveBeenCalledWith(["tool_1"]);
   });
 
   test("draft入力で候補名の部分一致絞り込みができる（typeahead兼務）", async () => {
@@ -444,7 +561,7 @@ describe("ToolSelect", () => {
     ).toBeInTheDocument();
   });
 
-  test("タグ選択→当該タグの唯一の候補をコピーしても、絞り込みがstuckにならず残り候補が表示され続ける（review R1 L1）", async () => {
+  test("タグ選択→当該タグの唯一の候補をコピーしても、絞り込みがstuckにならず候補・タグとも表示され続ける（review R1 L1・v2.8 T62でdedupe廃止後も回帰確認）", async () => {
     vi.mocked(listUserTools).mockResolvedValue([
       makeLibraryTool({ id: "utool_1", name: "丸筆", tags: ["筆"] }),
       makeLibraryTool({
@@ -464,9 +581,15 @@ describe("ToolSelect", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "丸筆" }));
 
-    expect(
-      screen.queryByRole("button", { name: "丸筆" }),
-    ).not.toBeInTheDocument();
+    // v2.8 T62: dedupe廃止によりコピー後も候補・タグは消えず表示され続ける
+    // （selectedTagが存在しないタグを指してstuckになる旧不具合が再発していないことの確認。
+    // このテストのvalueは固定propで再レンダー間で更新されないためaria-pressedの
+    // 検証は別テストで行い、ここでは表示継続のみ確認する）。
+    expect(screen.getByRole("button", { name: "丸筆" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "#筆" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "#筆" }));
+
     expect(
       screen.getByRole("button", { name: "スポンジ" }),
     ).toBeInTheDocument();

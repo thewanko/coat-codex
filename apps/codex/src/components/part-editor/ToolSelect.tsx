@@ -15,11 +15,19 @@
 // 差し替え、baseSteps/parts/palette等は元のdocの参照をそのまま返す（ToolListEditorと同方針）。
 //
 // v2.6 T56: 追加フォームの上に「ツールライブラリからのサジェスト」節を挿入する。
-// 候補はdoc.toolsに同名（toolNameKey比較）が存在しないライブラリツールで、draft入力を
-// typeaheadとして名前部分一致絞り込みに再利用し、ライブラリ候補のタグ集合（単一選択
-// トグル）でさらに絞り込める。候補クリックでライブラリの{name, note}をdoc.toolsへ
-// コピーする（tagsはライブラリ専用でdoc.toolsへは載せない＝§2.8）。ライブラリツール
-// 自体が0件のときのみ節ごと非表示にする（絞り込み結果が0件の場合と区別する）。
+// draft入力をtypeaheadとして名前部分一致絞り込みに再利用し、ライブラリ候補の
+// タグ集合（単一選択トグル）でさらに絞り込める。ライブラリツール自体が0件の
+// ときのみ節ごと非表示にする（絞り込み結果が0件の場合と区別する）。
+//
+// v2.8 T62: 候補は「doc.toolsに同名がないライブラリツール」のみに絞る旧仕様（dedupe）
+// を廃止し、ライブラリの全ツールを常に候補表示する（M12一括移行後の旧レシピは
+// ライブラリ全ツールがdoc.toolsと同名になり、dedupeだとサジェストが常に0件へ
+// 縮退して見えたため。ユーザーFB裁定2026-07-14）。候補クリック時はtoolNameKey
+// 同名がdoc.toolsに既にあれば新規Toolを作らず既存ツールのidを当該工程のtoolIds
+// へチェックするのみ（doc.toolsは不変・重複コピーを作らない）。同名がなければ
+// 従来どおりライブラリの{name, note}をdoc.toolsへコピーする（tagsはライブラリ
+// 専用でdoc.toolsへは載せない＝§2.8）。同名かつ当該工程で既にチェック済みの
+// 候補はaria-pressed="true"で視覚区別する。
 //
 // v2.6 T57: 各行にdoc.tools削除✕を追加する（技術計画§4.2 T57・§2.6）。
 // countToolUsage(doc, tool.id)===0のときのみ活性（ToolListEditorと同じfilter・
@@ -83,10 +91,9 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
     };
   }, []);
 
-  const existingKeys = new Set(tools.map((tool) => toolNameKey(tool.name)));
-  const suggestBase = libraryTools.filter(
-    (libTool) => !existingKeys.has(toolNameKey(libTool.name)),
-  );
+  // v2.8 T62: dedupe（doc.toolsに同名のあるライブラリツールを除外する処理）を廃止し、
+  // ライブラリ全ツールを候補ベースとする。
+  const suggestBase = libraryTools;
   const suggestTags = collectAllTags(suggestBase);
   // selectedTagがサジェスト候補コピー等でsuggestTagsから消えた場合に絞り込みが
   // 解除不能な固着状態にならないよう、実効タグは派生値として都度再計算する（L1）。
@@ -108,6 +115,16 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
   }
 
   function handleSuggestionClick(libTool: UserToolRecord) {
+    const key = toolNameKey(libTool.name);
+    const existing = tools.find((tool) => toolNameKey(tool.name) === key);
+    if (existing) {
+      // 同名が既にdoc.toolsにある場合は新規コピーを作らず、既存ツールを
+      // 当該工程へチェックするのみ（トグルオフはしない・doc.toolsは不変）。
+      if (!value.includes(existing.id)) {
+        onChange([...value, existing.id]);
+      }
+      return;
+    }
     const newTool: Tool = {
       id: `tool_${crypto.randomUUID()}`,
       name: libTool.name,
@@ -247,16 +264,26 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
           )}
           {suggestCandidates.length > 0 && (
             <div className={styles.suggestList}>
-              {suggestCandidates.map((libTool) => (
-                <button
-                  key={libTool.id}
-                  type="button"
-                  className={styles.suggestButton}
-                  onClick={() => handleSuggestionClick(libTool)}
-                >
-                  {libTool.name}
-                </button>
-              ))}
+              {suggestCandidates.map((libTool) => {
+                // v2.8 T62: 同名が既にdoc.toolsにあり、かつ当該工程で
+                // チェック済みの候補はaria-pressedで視覚区別する。
+                const existing = tools.find(
+                  (tool) =>
+                    toolNameKey(tool.name) === toolNameKey(libTool.name),
+                );
+                const checked = existing ? value.includes(existing.id) : false;
+                return (
+                  <button
+                    key={libTool.id}
+                    type="button"
+                    className={styles.suggestButton}
+                    aria-pressed={checked}
+                    onClick={() => handleSuggestionClick(libTool)}
+                  >
+                    {libTool.name}
+                  </button>
+                );
+              })}
             </div>
           )}
           <Link to="/tools" className={styles.manageLink}>
