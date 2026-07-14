@@ -6,14 +6,16 @@
 // を採る（db/toolStore.tsはリアクティブなsubscribeを持たないため）。
 //
 // タグ管理はT53でTagChipEditorを行内に組み込む（デザイン仕様書「ToolsPage一覧行」）。
-// エクスポート/インポートはT54スコープのため本タスクでは実装しない。
+// エクスポート/インポートは専用ファイル形式（lib/toolLibraryFile.ts）を使う（§2.8 T54）。
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BackLink from "../components/common/BackLink";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import EmptyState from "../components/common/EmptyState";
 import TagChipEditor from "../components/tools/TagChipEditor";
+import { downloadBlob } from "../components/common/downloadBlob";
+import { useToast } from "../components/common/toastContext";
 import {
   deleteUserTool,
   listUserTools,
@@ -21,15 +23,43 @@ import {
   updateUserToolTags,
 } from "../db/toolStore";
 import type { UserToolRecord } from "../db/db";
+import {
+  applyMergeUpdates,
+  buildToolLibraryExport,
+  mergeImportedTools,
+  parseToolLibraryFile,
+} from "../lib/toolLibraryFile";
 import styles from "./ToolsPage.module.css";
+
+/** File→テキスト読み込み（FileReaderのPromiseラッパー。useJsonImport.tsと同型） */
+function readFileAsText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("readFileAsText: 読み込み結果が文字列ではありません"));
+      }
+    };
+    reader.onerror = () => {
+      reject(
+        reader.error ?? new Error("readFileAsText: 読み込みに失敗しました"),
+      );
+    };
+    reader.readAsText(file);
+  });
+}
 
 function ToolsPage() {
   const { t } = useTranslation();
+  const toast = useToast();
   const [tools, setTools] = useState<UserToolRecord[]>([]);
   const [draft, setDraft] = useState("");
   const [pendingDelete, setPendingDelete] = useState<UserToolRecord | null>(
     null,
   );
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   async function refresh() {
     const list = await listUserTools();
@@ -71,6 +101,63 @@ function ToolsPage() {
     await refresh();
   }
 
+  function handleExport() {
+    const file = buildToolLibraryExport(tools);
+    const blob = new Blob([JSON.stringify(file, null, 2)], {
+      type: "application/json",
+    });
+    downloadBlob(blob, "coat-codex-tools.json");
+  }
+
+  function handleImportClick() {
+    importInputRef.current?.click();
+  }
+
+  async function handleImportFileSelected(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
+    // 同じファイルを連続選択してもonChangeが発火するようにinputをリセットする
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+
+    let jsonText: string;
+    try {
+      jsonText = await readFileAsText(file);
+    } catch {
+      toast.error(t("tools.importInvalid", { error: "invalid-json" }));
+      return;
+    }
+
+    const parsed = parseToolLibraryFile(jsonText);
+    if (!parsed.ok) {
+      toast.error(t("tools.importInvalid", { error: parsed.error }));
+      return;
+    }
+
+    const current = await listUserTools();
+    const merge = mergeImportedTools(current, parsed.file.tools);
+
+    for (const entry of merge.added) {
+      await registerUserTool({
+        name: entry.name,
+        note: entry.note,
+        tags: entry.tags,
+      });
+    }
+    await applyMergeUpdates(merge.updates);
+
+    await refresh();
+    toast.success(
+      t("tools.importSuccess", {
+        added: merge.addedCount,
+        merged: merge.mergedCount,
+      }),
+    );
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.backLink}>
@@ -79,6 +166,33 @@ function ToolsPage() {
 
       <h1 className={styles.title}>{t("tools.title")}</h1>
       <p className={styles.description}>{t("tools.description")}</p>
+
+      <div className={styles.fileActionsRow}>
+        <button
+          type="button"
+          className={styles.fileActionButton}
+          disabled={tools.length === 0}
+          onClick={handleExport}
+        >
+          {t("tools.export")}
+        </button>
+        <button
+          type="button"
+          className={styles.fileActionButton}
+          onClick={handleImportClick}
+        >
+          {t("tools.import")}
+        </button>
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          className={styles.hiddenInput}
+          onChange={(event) => void handleImportFileSelected(event)}
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+      </div>
 
       <div className={styles.addRow}>
         <input

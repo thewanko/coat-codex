@@ -462,6 +462,10 @@
     "deleteMessage": "This will not be removed from saved recipes.",
     "tagPlaceholder": "Add tag",
     "tagAdd": "Add tag to {{name}}",
-    "tagRemoveAria": "Remove tag {{tag}} {{name}}"
+    "tagRemoveAria": "Remove tag {{tag}} {{name}}",
+    "export": "Export",
+    "import": "Import",
+    "importSuccess": "Added {{added}}, merged {{merged}}",
+    "importInvalid": "Import failed ({{error}})"
   }
 }

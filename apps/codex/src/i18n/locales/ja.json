@@ -461,6 +461,10 @@
     "deleteMessage": "登録済みレシピからは削除されません。",
     "tagPlaceholder": "タグを追加",
     "tagAdd": "{{name}} にタグを追加",
-    "tagRemoveAria": "{{tag}} タグを除去 {{name}}"
+    "tagRemoveAria": "{{tag}} タグを除去 {{name}}",
+    "export": "エクスポート",
+    "import": "インポート",
+    "importSuccess": "{{added}}件追加・{{merged}}件マージしました",
+    "importInvalid": "インポートに失敗しました（{{error}}）"
   }
 }
