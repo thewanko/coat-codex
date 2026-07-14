@@ -27,9 +27,17 @@
 // 工程レビューボタン。混合バッジ・警告バッジはモバイルではCSS非表示（DOM構造は共通のまま）。
 // PC幅は現状レイアウトを変更しない。paletteは新規propで受け取る。スウォッチ解決ロジックは
 // react-refresh/only-export-components対応のためpartSwatch.tsへ分離（exportSheetDrag.tsに倣う）。
+//
+// v2.7 T61: パーツ操作列（⋮⋮ドラッグハンドル・↑↓移動・✕削除）をPartCardList.tsxの外付け
+// .controls列からPartCard自身へ内包した（デザイン仕様書§Card part行v2.7改訂）。全て
+// optional propsとして受け取り、未指定時は一切描画しない（BASEカード等・既存呼び出し互換）。
+// ⋮⋮はdnd-kit useSortableのattributes+listenersをそのまま受け、クリックはstopPropagation
+// でカードのonOpenと干渉しないようにする（工程レビューボタンと同型）。↑↓✕も同様に
+// click/keydown双方でstopPropagationする。カードroot onKeyDownは子ボタンからのEnter/Space
+// keydownバブルでonOpenを誤発火しないよう、target!==currentTargetガードを追加した。
 
 import { useEffect, useState } from "react";
-import type { KeyboardEvent, MouseEvent } from "react";
+import type { HTMLAttributes, KeyboardEvent, MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { resolvePhotoUrl } from "../../db/photoStore";
 import { CroppedPhoto, MixBadge } from "@coat-codex/recipe-ui";
@@ -54,6 +62,13 @@ interface PartCardProps {
   photoCrops?: Record<string, CropRect>;
   onOpen: (partId: string) => void;
   onReview: (partId: string) => void;
+  /** dnd-kit useSortableのattributes+listenersを展開して渡す（⋮⋮ドラッグハンドル） */
+  dragHandleProps?: HTMLAttributes<HTMLElement>;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  moveUpDisabled?: boolean;
+  moveDownDisabled?: boolean;
+  onRequestDelete?: () => void;
 }
 
 interface ThumbStepInfo {
@@ -78,6 +93,12 @@ function PartCard({
   photoCrops = {},
   onOpen,
   onReview,
+  dragHandleProps,
+  onMoveUp,
+  onMoveDown,
+  moveUpDisabled,
+  moveDownDisabled,
+  onRequestDelete,
 }: PartCardProps) {
   const { t } = useTranslation();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -124,11 +145,21 @@ function PartCard({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.target !== event.currentTarget) {
+      // 子ボタン（工程レビュー・↑↓✕等）からのkeydownバブルはカードのonOpenを
+      // 誤発火させない（v2.7 T61: 操作列内包に伴う安全化）。
+      return;
+    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onOpen(part.id);
     }
   }
+
+  const showControls =
+    onMoveUp !== undefined ||
+    onMoveDown !== undefined ||
+    onRequestDelete !== undefined;
 
   return (
     <div
@@ -139,6 +170,20 @@ function PartCard({
       onKeyDown={handleKeyDown}
       data-testid="part-card"
     >
+      {dragHandleProps && (
+        <span
+          className={styles.dragHandle}
+          aria-label={t("overview.dragHandle")}
+          {...dragHandleProps}
+          onClick={(event) => {
+            event.stopPropagation();
+            dragHandleProps.onClick?.(event);
+          }}
+        >
+          ⋮⋮
+        </span>
+      )}
+
       {order !== undefined && (
         <span className={styles.order} aria-hidden="true">
           {order}
@@ -212,6 +257,55 @@ function PartCard({
       <span className={styles.chevron} aria-hidden="true">
         ›
       </span>
+
+      {showControls && (
+        <span className={styles.cardControls}>
+          {onMoveUp !== undefined && (
+            <button
+              type="button"
+              className={styles.moveButton}
+              aria-label={t("overview.movePartUp")}
+              disabled={moveUpDisabled}
+              onClick={(event) => {
+                event.stopPropagation();
+                onMoveUp();
+              }}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              ↑
+            </button>
+          )}
+          {onMoveDown !== undefined && (
+            <button
+              type="button"
+              className={styles.moveButton}
+              aria-label={t("overview.movePartDown")}
+              disabled={moveDownDisabled}
+              onClick={(event) => {
+                event.stopPropagation();
+                onMoveDown();
+              }}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              ↓
+            </button>
+          )}
+          {onRequestDelete !== undefined && (
+            <button
+              type="button"
+              className={styles.deleteButton}
+              aria-label={t("overview.deletePart", { name: part.name })}
+              onClick={(event) => {
+                event.stopPropagation();
+                onRequestDelete();
+              }}
+              onKeyDown={(event) => event.stopPropagation()}
+            >
+              ✕
+            </button>
+          )}
+        </span>
+      )}
     </div>
   );
 }

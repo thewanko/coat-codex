@@ -10,6 +10,7 @@ import "../../i18n";
 import { beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
+import type { HTMLAttributes } from "react";
 import type { RecipeDoc } from "@coat-codex/recipe-core";
 import PartCardList from "./PartCardList";
 
@@ -19,9 +20,61 @@ beforeAll(() => {
   void i18next.changeLanguage("ja");
 });
 
+// PartCardList自身は「⋮⋮ドラッグハンドル・↑↓✕」をPartCardへ委譲する（v2.7 T61）ため、
+// スタブは実コンポーネントのaria-label・disabled結線を模してテストの対象イベントを再現する。
+interface PartCardStubProps {
+  part: RecipePart;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  moveUpDisabled?: boolean;
+  moveDownDisabled?: boolean;
+  onRequestDelete?: () => void;
+  dragHandleProps?: HTMLAttributes<HTMLElement>;
+}
+
 vi.mock("./PartCard", () => ({
-  default: ({ part }: { part: RecipePart }) => (
-    <div data-testid={`part-card-stub-${part.id}`}>{part.name}</div>
+  default: ({
+    part,
+    onMoveUp,
+    onMoveDown,
+    moveUpDisabled,
+    moveDownDisabled,
+    onRequestDelete,
+    dragHandleProps,
+  }: PartCardStubProps) => (
+    <div data-testid={`part-card-stub-${part.id}`}>
+      {part.name}
+      {dragHandleProps && <span {...dragHandleProps}>⋮⋮</span>}
+      {onMoveUp && (
+        <button
+          type="button"
+          aria-label="パーツを上へ移動"
+          disabled={moveUpDisabled}
+          onClick={onMoveUp}
+        >
+          ↑
+        </button>
+      )}
+      {onMoveDown && (
+        <button
+          type="button"
+          aria-label="パーツを下へ移動"
+          disabled={moveDownDisabled}
+          onClick={onMoveDown}
+        >
+          ↓
+        </button>
+      )}
+      {onRequestDelete && (
+        <button
+          type="button"
+          aria-label={`${part.name}を削除`}
+          onClick={onRequestDelete}
+        >
+          ✕
+        </button>
+      )}
+    </div>
   ),
 }));
 
