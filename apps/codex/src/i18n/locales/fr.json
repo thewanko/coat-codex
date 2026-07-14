@@ -156,7 +156,8 @@
     "toolAddButton": "Ajouter",
     "toolSuggestLabel": "Add from library",
     "toolTagFilterLabel": "Filter by tag",
-    "toolManageLink": "Manage tool library"
+    "toolManageLink": "Manage tool library",
+    "toolListHint": "Tools currently used in a step can't be deleted (remove them from the step first). Tool references here will eventually move fully to the tool library."
   },
   "overview": {
     "baseOverline": "BASE",
@@ -469,6 +470,8 @@
     "export": "Export",
     "import": "Import",
     "importSuccess": "Added {{added}}, merged {{merged}}",
-    "importInvalid": "Import failed ({{error}})"
+    "importInvalid": "Import failed ({{error}})",
+    "importFromRecipes": "Import from recipes",
+    "importFromRecipesResult": "Added {{added}}, merged {{merged}}"
   }
 }

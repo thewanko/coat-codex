@@ -226,6 +226,119 @@ describe("PartCard — order省略（BASEカード用途）", () => {
   });
 });
 
+describe("PartCard — 操作列（⋮⋮ドラッグハンドル・↑↓✕）の内包（v2.7 T61）", () => {
+  test("props未指定ではハンドル・↑↓✕を描画しない", () => {
+    const part = makePart({ id: "part_1" });
+    render(
+      <PartCard part={part} order={1} onOpen={vi.fn()} onReview={vi.fn()} />,
+    );
+
+    expect(
+      screen.queryByLabelText("ドラッグで並び替え"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "パーツを上へ移動" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "パーツを下へ移動" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /を削除$/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("props指定で描画され、↑↓✕クリックが各コールバックを呼び、onOpenは呼ばれない", () => {
+    const part = makePart({ id: "part_1", name: "腕" });
+    const onOpen = vi.fn();
+    const onMoveUp = vi.fn();
+    const onMoveDown = vi.fn();
+    const onRequestDelete = vi.fn();
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        onOpen={onOpen}
+        onReview={vi.fn()}
+        dragHandleProps={{}}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+        onRequestDelete={onRequestDelete}
+      />,
+    );
+
+    expect(screen.getByLabelText("ドラッグで並び替え")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "パーツを上へ移動" }));
+    fireEvent.click(screen.getByRole("button", { name: "パーツを下へ移動" }));
+    fireEvent.click(screen.getByRole("button", { name: "腕を削除" }));
+
+    expect(onMoveUp).toHaveBeenCalledTimes(1);
+    expect(onMoveDown).toHaveBeenCalledTimes(1);
+    expect(onRequestDelete).toHaveBeenCalledTimes(1);
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  test("✕ボタンでEnterキー操作してもonOpenは呼ばれない（keydownバブルガード）", () => {
+    const part = makePart({ id: "part_1", name: "腕" });
+    const onOpen = vi.fn();
+    const onRequestDelete = vi.fn();
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        onOpen={onOpen}
+        onReview={vi.fn()}
+        onRequestDelete={onRequestDelete}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "腕を削除" }), {
+      key: "Enter",
+    });
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  test("moveUpDisabled/moveDownDisabledがボタンのdisabledに結線される", () => {
+    const part = makePart({ id: "part_1" });
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        onOpen={vi.fn()}
+        onReview={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+        moveUpDisabled
+        moveDownDisabled={false}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "パーツを上へ移動" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "パーツを下へ移動" }),
+    ).not.toBeDisabled();
+  });
+
+  test("ハンドルのクリックはonOpenを発火しない（stopPropagation）", () => {
+    const part = makePart({ id: "part_1" });
+    const onOpen = vi.fn();
+    render(
+      <PartCard
+        part={part}
+        order={1}
+        onOpen={onOpen}
+        onReview={vi.fn()}
+        dragHandleProps={{}}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("ドラッグで並び替え"));
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+});
+
 describe("resolveSwatchHexes — モバイル2段目スウォッチ解決（純関数）", () => {
   test("0色: 工程にpaintsがなければ空配列・overflow 0を返す", () => {
     const steps = [makeStep({ id: "stp_1" })];

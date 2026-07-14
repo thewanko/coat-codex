@@ -31,6 +31,80 @@
   box-shadow: var(--focus-ring);
 }
 
+/* v2.7 T61: パーツ操作列（⋮⋮・↑↓✕）をPartCardList外付けからカード内へ統合。
+   PC（min-width:768px）は`.chevron`の後ろに横並びグループ、モバイルは右端の縦列
+   （✕上・↑↓下）とする（デザイン仕様書§Card part行v2.7改訂）。 */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-muted);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.dragHandle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.cardControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+.moveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.moveButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.moveButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-danger);
+  cursor: pointer;
+  padding: 0;
+}
+
+.deleteButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .order {
   font-family: var(--font-family-display);
   font-weight: var(--font-weight-bold);
@@ -176,17 +250,24 @@
  * 本来`.body`の外にあるreviewButtonともgrid-areaで同じ行（footer）に配置できる。
  * 1段目=name、2段目=swatchRow、3段目=stepsCount+reviewButton。badgeRow（混合バッジ・
  * ≠100警告）はモバイルでは非表示（ユーザー指定）。order・thumb・chevronは左列/右列に維持する。
+ * v2.7 T61: 行頭に⋮⋮ドラッグハンドル列、右端に↑↓✕の縦列（cardControls）を追加した。
  */
 @media (max-width: 767px) {
   .card {
     display: grid;
-    grid-template-columns: 22px 52px 1fr auto auto;
+    grid-template-columns: auto 22px 52px 1fr auto auto auto;
     grid-template-areas:
-      "order thumb name name name"
-      "order thumb swatch swatch swatch"
-      "order thumb stepsCount reviewButton chevron";
+      "handle order thumb name name name controls"
+      "handle order thumb swatch swatch swatch controls"
+      "handle order thumb stepsCount reviewButton chevron controls";
     align-items: center;
     row-gap: var(--space-1);
+  }
+
+  .dragHandle {
+    grid-area: handle;
+    width: 28px;
+    height: 100%;
   }
 
   .order {
@@ -238,5 +319,34 @@
 
   .chevron {
     grid-area: chevron;
+  }
+
+  /* cardControls: 右端の縦列（✕上・↑↓下）。ボタン視覚は28pxに縮小し、::beforeの疑似要素
+     拡張（inset: -8px）で実効タッチ44pxを確保する。gapはvar(--space-4)=16pxとし、
+     28px(視覚)+16px(gap)=44pxのpitchで縦隣接ボタンの拡張ヒット領域が重ならないようにする。 */
+  .cardControls {
+    grid-area: controls;
+    flex-direction: column;
+    gap: var(--space-4);
+    justify-self: end;
+    align-self: center;
+  }
+
+  .deleteButton {
+    order: -1;
+  }
+
+  .moveButton,
+  .deleteButton {
+    position: relative;
+    width: 28px;
+    height: 28px;
+  }
+
+  .moveButton::before,
+  .deleteButton::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
   }
 }

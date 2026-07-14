@@ -156,7 +156,8 @@
     "toolAddButton": "追加",
     "toolSuggestLabel": "ライブラリから追加",
     "toolTagFilterLabel": "タグで絞り込み",
-    "toolManageLink": "ツールライブラリを管理"
+    "toolManageLink": "ツールライブラリを管理",
+    "toolListHint": "工程で使用中のツールは削除できません（工程側で外すと削除可）。ツールは今後ツールライブラリへ完全移行予定です。"
   },
   "overview": {
     "baseOverline": "BASE",
@@ -468,6 +469,8 @@
     "export": "エクスポート",
     "import": "インポート",
     "importSuccess": "{{added}}件追加・{{merged}}件マージしました",
-    "importInvalid": "インポートに失敗しました（{{error}}）"
+    "importInvalid": "インポートに失敗しました（{{error}}）",
+    "importFromRecipes": "レシピから取り込む",
+    "importFromRecipesResult": "{{added}}件追加・{{merged}}件マージしました"
   }
 }

@@ -5,6 +5,10 @@
 // 無効表示）。並び替えのkeyはPart.id（配列indexをkeyにしない）。
 //
 // パーツ0件時はEmptyState(partsバリアント。D-5)＋AddPartButtonのみを表示する。
+//
+// v2.7 T61: 外付けの`.controls`列（⋮⋮・↑↓・✕）を廃止し、PartCard自身へ内包した
+// （デザイン仕様書§Card part行v2.7改訂）。useSortableのattributes+listenersは
+// dragHandlePropsとしてPartCardへ渡す。
 
 import { useTranslation } from "react-i18next";
 import {
@@ -71,7 +75,6 @@ function SortablePartCard({
   onMoveDown,
   onRequestDelete,
 }: SortablePartCardProps) {
-  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: part.id });
 
@@ -90,42 +93,6 @@ function SortablePartCard({
       className={styles.item}
       data-testid={`part-list-item-${index}`}
     >
-      <div className={styles.controls}>
-        <span
-          className={styles.dragHandle}
-          aria-label={t("overview.dragHandle")}
-          {...attributes}
-          {...listeners}
-        >
-          ⋮⋮
-        </span>
-        <button
-          type="button"
-          className={styles.moveButton}
-          aria-label={t("overview.movePartUp")}
-          disabled={isFirst}
-          onClick={onMoveUp}
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          className={styles.moveButton}
-          aria-label={t("overview.movePartDown")}
-          disabled={isLast}
-          onClick={onMoveDown}
-        >
-          ↓
-        </button>
-        <button
-          type="button"
-          className={styles.deleteButton}
-          aria-label={t("overview.deletePart", { name: part.name })}
-          onClick={onRequestDelete}
-        >
-          ✕
-        </button>
-      </div>
       <div className={styles.cardWrap}>
         <PartCard
           part={part}
@@ -134,6 +101,12 @@ function SortablePartCard({
           photoCrops={photoCrops}
           onOpen={onOpen}
           onReview={onReview}
+          dragHandleProps={{ ...attributes, ...listeners }}
+          onMoveUp={onMoveUp}
+          onMoveDown={onMoveDown}
+          moveUpDisabled={isFirst}
+          moveDownDisabled={isLast}
+          onRequestDelete={onRequestDelete}
         />
       </div>
     </li>

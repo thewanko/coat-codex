@@ -27,6 +27,9 @@ import { db } from "../db/db";
 import ToastHost from "../components/common/ToastHost";
 import ToolsPage from "./ToolsPage";
 import { downloadBlob } from "../components/common/downloadBlob";
+import { createDraft, listRecipes, saveRecipe } from "../db/recipeStore";
+import { registerUserTool } from "../db/toolStore";
+import type { Tool } from "@coat-codex/recipe-core";
 
 vi.mock("../components/common/downloadBlob", async () => {
   const actual = await vi.importActual<
@@ -38,13 +41,26 @@ vi.mock("../components/common/downloadBlob", async () => {
   };
 });
 
+vi.mock("../db/recipeStore", async () => {
+  const actual =
+    await vi.importActual<typeof import("../db/recipeStore")>(
+      "../db/recipeStore",
+    );
+  return {
+    ...actual,
+    listRecipes: vi.fn(actual.listRecipes),
+  };
+});
+
 beforeAll(() => {
   void i18next.changeLanguage("ja");
 });
 
 beforeEach(async () => {
   await db.userTools.clear();
+  await db.recipes.clear();
   vi.mocked(downloadBlob).mockClear();
+  vi.mocked(listRecipes).mockClear();
 });
 
 afterEach(() => {
@@ -59,6 +75,19 @@ function renderToolsPage() {
       </ToastHost>
     </MemoryRouter>,
   );
+}
+
+/** レシピを作成しdoc.toolsを差し替えて保存する（recipeStore.test.tsのcreateDraft/saveRecipe流儀） */
+async function createRecipeWithTools(
+  title: string,
+  tools: Tool[],
+): Promise<void> {
+  const draft = await createDraft(title);
+  await saveRecipe({ ...draft, tools });
+}
+
+function makeTool(id: string, name: string, note: string | null): Tool {
+  return { id, name, note };
 }
 
 async function addTool(name: string) {
@@ -253,5 +282,133 @@ describe("ToolsPage", () => {
 
     const stored = await db.userTools.toArray();
     expect(stored).toHaveLength(0);
+  });
+
+  describe("レシピから取り込む（T59・§2.8一括移行）", () => {
+    test("複数レシピ横断でdoc.toolsを重複排除して取り込み、トースト件数と一致する", async () => {
+      await createRecipeWithTools("レシピA", [
+        makeTool("tool_a1", "筆", "細筆"),
+        makeTool("tool_a2", "スポンジ", null),
+      ]);
+      await createRecipeWithTools("レシピB", [
+        makeTool("tool_b1", "筆", "細筆"),
+        makeTool("tool_b2", "エアブラシ", "0.3mm"),
+      ]);
+
+      renderToolsPage();
+      await screen.findByText("ツールがまだありません");
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "レシピから取り込む" }),
+      );
+
+      expect(
+        await screen.findByText("3件追加・0件マージしました"),
+      ).toBeInTheDocument();
+
+      const stored = await db.userTools.toArray();
+      expect(stored.map((tool) => tool.name).sort()).toEqual(
+        ["エアブラシ", "スポンジ", "筆"].sort(),
+      );
+    });
+
+    test("既存ライブラリに同名（大小違い）＋タグ付きがある場合はタグを温存しnoteをnull時のみ補完してマージ扱いになる", async () => {
+      await registerUserTool({ name: "Brush", tags: ["面相"] });
+      await createRecipeWithTools("レシピA", [
+        makeTool("tool_a1", "brush", "細筆"),
+      ]);
+
+      renderToolsPage();
+      await waitFor(() => {
+        expect(screen.getByText("Brush")).toBeInTheDocument();
+      });
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "レシピから取り込む" }),
+      );
+
+      expect(
+        await screen.findByText("0件追加・1件マージしました"),
+      ).toBeInTheDocument();
+
+      const stored = await db.userTools.toArray();
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({
+        name: "Brush",
+        note: "細筆",
+        tags: ["面相"],
+      });
+    });
+
+    test("レシピ0件（doc.tools全空）は0件追加・0件マージのトーストを表示しuserToolsは不変", async () => {
+      await createRecipeWithTools("レシピA", []);
+
+      renderToolsPage();
+      await screen.findByText("ツールがまだありません");
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "レシピから取り込む" }),
+      );
+
+      expect(
+        await screen.findByText("0件追加・0件マージしました"),
+      ).toBeInTheDocument();
+
+      const stored = await db.userTools.toArray();
+      expect(stored).toHaveLength(0);
+    });
+
+    test("再実行しても冪等（2回目は0件追加・件数不変のNマージ）", async () => {
+      await createRecipeWithTools("レシピA", [
+        makeTool("tool_a1", "筆", null),
+        makeTool("tool_a2", "スポンジ", null),
+      ]);
+
+      renderToolsPage();
+      await screen.findByText("ツールがまだありません");
+
+      const importButton = screen.getByRole("button", {
+        name: "レシピから取り込む",
+      });
+      fireEvent.click(importButton);
+      expect(
+        await screen.findByText("2件追加・0件マージしました"),
+      ).toBeInTheDocument();
+
+      const afterFirst = await db.userTools.toArray();
+      expect(afterFirst).toHaveLength(2);
+
+      fireEvent.click(importButton);
+      expect(
+        await screen.findByText("0件追加・2件マージしました"),
+      ).toBeInTheDocument();
+
+      const afterSecond = await db.userTools.toArray();
+      expect(afterSecond).toHaveLength(2);
+      expect(afterSecond.map((tool) => tool.name).sort()).toEqual(
+        afterFirst.map((tool) => tool.name).sort(),
+      );
+    });
+
+    test("取り込み中にエラーが起きた場合はエラートーストを表示し、ボタンを再活性する", async () => {
+      renderToolsPage();
+      await screen.findByText("ツールがまだありません");
+
+      const importButton = screen.getByRole("button", {
+        name: "レシピから取り込む",
+      });
+
+      vi.mocked(listRecipes).mockRejectedValueOnce(new Error("db-broken"));
+
+      fireEvent.click(importButton);
+
+      expect(
+        await screen.findByText("インポートに失敗しました（db-broken）"),
+      ).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(importButton).not.toBeDisabled();
+      });
+    });
   });
 });

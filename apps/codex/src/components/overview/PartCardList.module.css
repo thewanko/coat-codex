@@ -1,5 +1,5 @@
 /* PartCardList — dnd-kit SortableでPartCardを並び替え（技術計画v2.2 §3.2(2)・§4.2 T28）
-   StepList.module.cssと同一パターン（D&Dハンドル＋↑↓ボタン併設）。 */
+   v2.7 T61: ⋮⋮ドラッグハンドル・↑↓✕はPartCard内へ統合し、外付けの.controls列は廃止した。 */
 
 .root {
   display: flex;
@@ -20,86 +20,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.dragHandle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-touch-target);
-  height: var(--size-touch-target);
-  border-radius: var(--radius-sm);
-  color: var(--color-ink-muted);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.dragHandle:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.moveButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-line);
-  background: transparent;
-  color: var(--color-ink-muted);
-  cursor: pointer;
-}
-
-@media (max-width: 767px) {
-  .moveButton {
-    width: var(--size-touch-target);
-    height: var(--size-touch-target);
-  }
-}
-
-.moveButton:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.moveButton:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.deleteButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-line);
-  background: transparent;
-  color: var(--color-danger);
-  cursor: pointer;
-}
-
-@media (max-width: 767px) {
-  .deleteButton {
-    width: var(--size-touch-target);
-    height: var(--size-touch-target);
-  }
-}
-
-.deleteButton:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
 }
 
 .cardWrap {
