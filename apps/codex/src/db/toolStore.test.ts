@@ -106,8 +106,11 @@ describe("version(1)→version(2)昇格", () => {
   test("version(1)相当のDBに既存データを入れた後、本番dbで開き直しても無傷＋userToolsが使える", async () => {
     // 本番db singletonへの最初のアクセス前にv1セットアップを終える必要があるため、
     // このテストケースの冒頭でのみ別インスタンスを作りcloseする。
-    // 他のdescribeブロックのbeforeEachで既に本番dbはopen済みなので、いったんcloseする。
+    // 他のdescribeブロックのbeforeEachで既に本番dbはopen済み（＝IndexedDBは既にv2）なので、
+    // いったんcloseし、DB自体を削除してからv1相当DBを新規作成する。削除しないと
+    // LegacyDB(v1宣言)が既存v2 DBをそのまま開くだけになり、真のv1→v2昇格遷移を通らない。
     await db.close();
+    await Dexie.delete("coat-codex");
 
     class LegacyDB extends Dexie {
       constructor() {

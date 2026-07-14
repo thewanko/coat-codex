@@ -146,7 +146,7 @@ export function mergeImportedTools(
   const added: MergeAddedTool[] = [];
   const updates: MergeUpdatedTool[] = [];
 
-  // インポート内部の同名重複を先に1件へ畳む（後勝ちでタグ/noteをマージ）
+  // インポート内部の同名重複を先に1件へ畳む（タグはunion・note/名前表記は先勝ち＝先頭エントリ優先）
   const dedupedByKey = new Map<string, MergeAddedTool>();
   for (const entry of imported) {
     const key = toolNameKey(entry.name);
