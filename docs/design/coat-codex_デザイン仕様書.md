@@ -143,8 +143,9 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - **（v2.6追加）**`ToolSelect`（工程エディタ）内のdoc.tools行も同一皮を適用する（in-use=使用中の工程でチェック中の意）
 - **（v2.7改訂: 2026-07-14ユーザーFB裁定）** ただし`ToolSelect`（工程エディタ・doc.tools行）は上記`ToolListEditor`（Setup側）と異なり、行内✕disabled＋行内注記の運用を**廃止**する。in-use行は✕自体を**非描画**（disabledでなく非表示）とし、削除可能（未使用）行のみ✕を表示する。行内個別の注記も廃止し、代わりにリスト下へ**一元ヒント1行**（「↳ 工程で使用中のツールは削除できません。ツールは今後ツールライブラリへ完全移行予定です」相当・faint文字色・sans 11–12px）を1つだけ配置する（技術計画v2.7 T60）。`ToolListEditor`（Setup側）は従来どおりdisabled＋行内注記のまま変更しない
 
-### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定）
-- **ToolsPage一覧行**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
+### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定／v2.8改訂: 2026-07-14ユーザーFB裁定）
+- **ToolsPage一覧行（PC・768px〜）**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（radius-full・SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
+- **ToolsPage一覧行（モバイル・<768px。v2.8改訂）**: 実ツール名の折返しでピル角が巨大カプセル化し✕の位置が折返し順依存で不定になる不具合に対し、2段組gridへ再構成する。1段目=ツール名（左・折返し可）＋削除✕（右上固定）、2段目=`TagChipEditor`（全幅）。角丸はカプセルでなくカード相当の`--radius-md`。削除✕円は視覚28px（PartCard`.deleteButton`の皮を踏襲）＋`::before`疑似要素`inset:-8px`で実効44pxタッチターゲットを確保し、2段目タグ行のクリック領域とは8px以上のクリアランスを保つ（row-gapに`--space-4`を採用）。PCの削除✕（視覚32px・inset-8pxなし＝タッチ非対応PCのため実効拡張は不要）とはブレークポイントで意匠を分ける
 - **TagChipEditor**: 各チップは`#`＋タグ名（mono 11px）・raised面faint枠・小円radius-full・末尾に除去✕（12px・opacity .6→hover 1）。追加inputは同列末尾に配置し、Enter確定・重複無視は無音（トースト不要）
 - **fileActionsRow（v2.7追加: 2026-07-14ユーザーFB裁定）**: 一覧の下にエクスポート／インポートボタンと並べて「レシピから取り込む」ボタン（secondary）を1行に配置する。押下で全レシピの`doc.tools`を一括取り込みし、結果件数（追加/マージ）をToastで報告する（技術計画v2.7 §2.8/T59）
 - **削除確認**: ToolsPage・PartCardの削除✕は上記Dialog/Modal規約（confirm=dangerボタン＋「取り消しできません」注記）を適用する。ライブラリ削除のdescriptionは「登録済みレシピからは削除されません」、パーツ削除は「工程と写真も削除されます」と、影響範囲をdescriptionで明記する（注記自体は共通・description文言のみ画面ごとに差し替え）。**ToolSelect（工程エディタ）のdoc.tools削除✕はレシピ内ローカル削除（ライブラリ無影響）のため確認ダイアログなし＝Setup（ToolListEditor）と同一UX（技術計画v2.6 T57）**

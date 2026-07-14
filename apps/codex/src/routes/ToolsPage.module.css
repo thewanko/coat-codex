@@ -128,6 +128,10 @@
   list-style: none;
 }
 
+/* PC（既定）: ピル1行（radius-full）。名前→タグ→削除✕の順で末尾配置。
+   モバイル（<768px）: 2段組grid（デザイン仕様書v2.8「ToolsPage一覧行」）。
+   1段目=名前+削除✕（右上固定）、2段目=タグ行（全幅）。radius-mdの角丸カードとし、
+   長い実ツール名でも巨大カプセル化・✕位置の折返し依存を起こさない。 */
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -141,7 +145,7 @@
 
 .name {
   flex: 1 1 auto;
-  min-width: 88px;
+  min-width: 0;
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-medium);
   color: var(--color-ink);
@@ -169,14 +173,52 @@
   cursor: pointer;
 }
 
-@media (max-width: 767px) {
-  .deleteButton {
-    width: var(--size-touch-target);
-    height: var(--size-touch-target);
-  }
-}
-
 .deleteButton:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 767px) {
+  /* 2段組grid化。row-gap=space-4(16px)は削除✕の::before拡張(視覚28px+inset-8px=実効44px)
+     と2段目タグ行のクリアランスを8px以上確保するための値（28+8+16-28-8=8px余裕）。 */
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name delete"
+      "tags tags";
+    align-items: start;
+    row-gap: var(--space-4);
+    column-gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .name {
+    grid-area: name;
+    align-self: center;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .tags {
+    grid-area: tags;
+    flex: none;
+  }
+
+  .deleteButton {
+    grid-area: delete;
+    position: relative;
+    width: 28px;
+    height: 28px;
+    justify-self: end;
+    align-self: start;
+  }
+
+  .deleteButton::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
 }

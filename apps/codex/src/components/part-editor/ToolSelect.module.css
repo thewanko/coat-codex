@@ -169,6 +169,12 @@
   border-color: var(--color-line-strong);
 }
 
+/* v2.8 T62: 同名が既にdoc.toolsにあり当該工程でチェック済みの候補（tagChipの
+   [aria-pressed="true"]イディオムに倣う）。 */
+.suggestButton[aria-pressed="true"] {
+  border-color: var(--color-accent);
+}
+
 .suggestButton:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
