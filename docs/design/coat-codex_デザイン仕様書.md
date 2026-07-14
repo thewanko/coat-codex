@@ -66,7 +66,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 
 ### Card
 - **recipe（Home）**: 折丁カード。`--color-bg-raised`＋1px `--color-line`＋二重枠inset（レシピ参照: theme.css実装メモ）＋`--shadow-1`。padding 9px、写真は内側に1px枠＋`--radius-sm`。タイトル中央・明朝。メタ = mono `VOL.012 ・ 更新 ・ 工程n`。未バックアップ ● 8px `--color-danger` をタイトル左。⋮は右上の円形iconボタン（写真上では `rgba(--color-bg-raised, .92)` 面）
-- **part（Overview）**: 二重枠(soft)＋行構成 `⋮⋮ハンドル → ローマ数字(朱) → サムネ52px → 名前+工程n → バッジ列 → ›`。**（v2.6追加）** controls列（`⋮⋮ハンドル`・↑↓ボタン）の末尾に削除✕（icon danger・円形28–32px・44pxタッチターゲット維持）を追加。押下は`ConfirmDialog`（danger確定ボタン＋「取り消しできません」注記＝下記Dialog/Modal規約を適用）を起動する
+- **part（Overview）**: 二重枠(soft)＋行構成 `⋮⋮ハンドル → ローマ数字(朱) → サムネ52px → 名前+工程n → バッジ列 → ›`。**（v2.6追加）** controls列（`⋮⋮ハンドル`・↑↓ボタン）の末尾に削除✕（icon danger・円形28–32px・44pxタッチターゲット維持）を追加。押下は`ConfirmDialog`（danger確定ボタン＋「取り消しできません」注記＝下記Dialog/Modal規約を適用）を起動する。**（v2.7改訂: 2026-07-14ユーザーFB裁定）** カード高（150px）を超えていた左カラム独立controls列（v2.6）は**廃止**し、操作ボタンをカード内へ統合する: `⋮⋮ハンドル`は行頭に残す（原設計どおり）。↑↓✕は**PC（768px〜）はカード右端の横並びグループ（`›`の後・視覚32px）**、**モバイルはカード右端の縦列（✕上・↑↓下・視覚28px＋擬似要素で実効タッチ44pxまで拡張）**として描画する。ドラッグハンドルと↑↓✕が同一カード内に密集するため、実機検証はブレークポイントごとの誤タップ距離（ドラッグ発火・カードタップ誤発火・↑↓✕の押し間違い）を含める（技術計画v2.7 T61）
 - **step（Editor）**: §「StepCard」参照
 - dragging（全カード共通）: `--shadow-3`＋`rotate(-1deg)`＋枠を `--color-gold-soft`。挿入位置 = 2px `--color-accent` 線＋左端6px円ドット
 
@@ -141,10 +141,12 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - in-use: ✕ opacity .45 + disabled、行下に注記「↳ 工程で使用中のため削除できません（工程側で外すと削除可）」
 - 未使用: 「未使用」バッジ（faint枠）＋✕活性
 - **（v2.6追加）**`ToolSelect`（工程エディタ）内のdoc.tools行も同一皮を適用する（in-use=使用中の工程でチェック中の意）
+- **（v2.7改訂: 2026-07-14ユーザーFB裁定）** ただし`ToolSelect`（工程エディタ・doc.tools行）は上記`ToolListEditor`（Setup側）と異なり、行内✕disabled＋行内注記の運用を**廃止**する。in-use行は✕自体を**非描画**（disabledでなく非表示）とし、削除可能（未使用）行のみ✕を表示する。行内個別の注記も廃止し、代わりにリスト下へ**一元ヒント1行**（「↳ 工程で使用中のツールは削除できません。ツールは今後ツールライブラリへ完全移行予定です」相当・faint文字色・sans 11–12px）を1つだけ配置する（技術計画v2.7 T60）。`ToolListEditor`（Setup側）は従来どおりdisabled＋行内注記のまま変更しない
 
 ### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定）
 - **ToolsPage一覧行**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
 - **TagChipEditor**: 各チップは`#`＋タグ名（mono 11px）・raised面faint枠・小円radius-full・末尾に除去✕（12px・opacity .6→hover 1）。追加inputは同列末尾に配置し、Enter確定・重複無視は無音（トースト不要）
+- **fileActionsRow（v2.7追加: 2026-07-14ユーザーFB裁定）**: 一覧の下にエクスポート／インポートボタンと並べて「レシピから取り込む」ボタン（secondary）を1行に配置する。押下で全レシピの`doc.tools`を一括取り込みし、結果件数（追加/マージ）をToastで報告する（技術計画v2.7 §2.8/T59）
 - **削除確認**: ToolsPage・PartCardの削除✕は上記Dialog/Modal規約（confirm=dangerボタン＋「取り消しできません」注記）を適用する。ライブラリ削除のdescriptionは「登録済みレシピからは削除されません」、パーツ削除は「工程と写真も削除されます」と、影響範囲をdescriptionで明記する（注記自体は共通・description文言のみ画面ごとに差し替え）。**ToolSelect（工程エディタ）のdoc.tools削除✕はレシピ内ローカル削除（ライブラリ無影響）のため確認ダイアログなし＝Setup（ToolListEditor）と同一UX（技術計画v2.6 T57）**
 
 ### ActionBar
@@ -237,7 +239,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 
 ### C. ツールライブラリ＋パーツ削除の意匠（v2.6追加・2026-07-13ユーザーFB裁定。技術計画v2.6 §2.8/§3.1/§3.3対応）
 - **新規画面 `/tools`（ToolsPage）**: 既存画面と同じ紙面トーン（羊皮紙面・二重枠なしの単純raisedリスト）で構成する。新規トークンは作らない（既存 `--color-bg-raised`・`--color-gold-soft`・`--radius-sm`等を流用）
-- **PartCard削除ボタン**: 上記「Card」節のとおり、controls列（ドラッグハンドル・↑↓）の末尾に削除✕を並べる。44pxタッチターゲットを維持し、ドラッグハンドル・↑↓・✕の3ボタンが密集しても誤タップ距離を確保する（実機検証はドラッグハンドルと削除✕の誤タップ距離を含める）
+- **PartCard削除ボタン**: 上記「Card」節のとおり、controls列（ドラッグハンドル・↑↓）の末尾に削除✕を並べる。44pxタッチターゲットを維持し、ドラッグハンドル・↑↓・✕の3ボタンが密集しても誤タップ距離を確保する（実機検証はドラッグハンドルと削除✕の誤タップ距離を含める）。**（v2.7でカード内統合へ改訂。本節は左カラムcontrols列を採用していたv2.6時点の記録として据え置く。現行の正は本文§4「Card」節のpart（Overview）行を参照）**
 - **タグチップ**: 上記「ToolsPage / TagChipEditor」節のとおり`#名`表示＋除去✕。ライブラリ専用データのため、レシピ側（Setup/StepCard）の意匠には影響しない
 - **削除確認ダイアログ**は全箇所で既存「Dialog / Modal」節のconfirm=dangerボタン＋「取り消しできません」注記をそのまま適用し、本改訂で新規のダイアログ皮は作らない
 
