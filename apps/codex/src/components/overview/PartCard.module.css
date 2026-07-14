@@ -255,7 +255,7 @@
 @media (max-width: 767px) {
   .card {
     display: grid;
-    grid-template-columns: 28px 22px 52px 1fr auto auto auto;
+    grid-template-columns: auto 22px 52px 1fr auto auto auto;
     grid-template-areas:
       "handle order thumb name name name controls"
       "handle order thumb swatch swatch swatch controls"
@@ -266,7 +266,7 @@
 
   .dragHandle {
     grid-area: handle;
-    width: 100%;
+    width: 28px;
     height: 100%;
   }
 

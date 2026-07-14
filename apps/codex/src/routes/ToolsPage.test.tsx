@@ -27,7 +27,7 @@ import { db } from "../db/db";
 import ToastHost from "../components/common/ToastHost";
 import ToolsPage from "./ToolsPage";
 import { downloadBlob } from "../components/common/downloadBlob";
-import { createDraft, saveRecipe } from "../db/recipeStore";
+import { createDraft, listRecipes, saveRecipe } from "../db/recipeStore";
 import { registerUserTool } from "../db/toolStore";
 import type { Tool } from "@coat-codex/recipe-core";
 
@@ -41,6 +41,17 @@ vi.mock("../components/common/downloadBlob", async () => {
   };
 });
 
+vi.mock("../db/recipeStore", async () => {
+  const actual =
+    await vi.importActual<typeof import("../db/recipeStore")>(
+      "../db/recipeStore",
+    );
+  return {
+    ...actual,
+    listRecipes: vi.fn(actual.listRecipes),
+  };
+});
+
 beforeAll(() => {
   void i18next.changeLanguage("ja");
 });
@@ -49,6 +60,7 @@ beforeEach(async () => {
   await db.userTools.clear();
   await db.recipes.clear();
   vi.mocked(downloadBlob).mockClear();
+  vi.mocked(listRecipes).mockClear();
 });
 
 afterEach(() => {
@@ -376,6 +388,27 @@ describe("ToolsPage", () => {
       expect(afterSecond.map((tool) => tool.name).sort()).toEqual(
         afterFirst.map((tool) => tool.name).sort(),
       );
+    });
+
+    test("取り込み中にエラーが起きた場合はエラートーストを表示し、ボタンを再活性する", async () => {
+      renderToolsPage();
+      await screen.findByText("ツールがまだありません");
+
+      const importButton = screen.getByRole("button", {
+        name: "レシピから取り込む",
+      });
+
+      vi.mocked(listRecipes).mockRejectedValueOnce(new Error("db-broken"));
+
+      fireEvent.click(importButton);
+
+      expect(
+        await screen.findByText("インポートに失敗しました（db-broken）"),
+      ).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(importButton).not.toBeDisabled();
+      });
     });
   });
 });

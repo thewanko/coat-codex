@@ -200,6 +200,12 @@ function ToolsPage() {
           merged: merge.mergedCount,
         }),
       );
+    } catch (error) {
+      toast.error(
+        t("tools.importInvalid", {
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      );
     } finally {
       setImportingFromRecipes(false);
     }
