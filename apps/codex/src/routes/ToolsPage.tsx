@@ -23,11 +23,13 @@ import {
   updateUserToolTags,
 } from "../db/toolStore";
 import type { UserToolRecord } from "../db/db";
+import { listRecipes } from "../db/recipeStore";
 import {
   applyMergeUpdates,
   buildToolLibraryExport,
   mergeImportedTools,
   parseToolLibraryFile,
+  type ToolLibraryExportEntry,
 } from "../lib/toolLibraryFile";
 import styles from "./ToolsPage.module.css";
 
@@ -59,6 +61,7 @@ function ToolsPage() {
   const [pendingDelete, setPendingDelete] = useState<UserToolRecord | null>(
     null,
   );
+  const [importingFromRecipes, setImportingFromRecipes] = useState(false);
   const importInputRef = useRef<HTMLInputElement>(null);
 
   async function refresh() {
@@ -158,6 +161,50 @@ function ToolsPage() {
     );
   }
 
+  /**
+   * 一括移行（§2.8「一括移行」・T59）: 全レシピのdoc.toolsをToolLibraryExportEntry形へ整形し、
+   * mergeImportedTools（T54）でuserToolsへ一括マージする。片方向（doc.tools→ライブラリ）のみで、
+   * レシピ側は一切変更しない。
+   */
+  async function handleImportFromRecipes() {
+    if (importingFromRecipes) {
+      return;
+    }
+    setImportingFromRecipes(true);
+    try {
+      const recipes = await listRecipes();
+      const entries: ToolLibraryExportEntry[] = recipes.flatMap((recipe) =>
+        recipe.tools.map((tool) => ({
+          name: tool.name,
+          note: tool.note,
+          tags: [],
+        })),
+      );
+
+      const current = await listUserTools();
+      const merge = mergeImportedTools(current, entries);
+
+      for (const entry of merge.added) {
+        await registerUserTool({
+          name: entry.name,
+          note: entry.note,
+          tags: entry.tags,
+        });
+      }
+      await applyMergeUpdates(merge.updates);
+
+      await refresh();
+      toast.success(
+        t("tools.importFromRecipesResult", {
+          added: merge.addedCount,
+          merged: merge.mergedCount,
+        }),
+      );
+    } finally {
+      setImportingFromRecipes(false);
+    }
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.backLink}>
@@ -182,6 +229,14 @@ function ToolsPage() {
           onClick={handleImportClick}
         >
           {t("tools.import")}
+        </button>
+        <button
+          type="button"
+          className={styles.fileActionButton}
+          disabled={importingFromRecipes}
+          onClick={() => void handleImportFromRecipes()}
+        >
+          {t("tools.importFromRecipes")}
         </button>
         <input
           ref={importInputRef}

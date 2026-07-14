@@ -23,11 +23,14 @@
 //
 // v2.6 T57: 各行にdoc.tools削除✕を追加する（技術計画§4.2 T57・§2.6）。
 // countToolUsage(doc, tool.id)===0のときのみ活性（ToolListEditorと同じfilter・
-// 確認ダイアログなし）。使用中は✕disabled＋行下にsetup.inUseNoteを表示する
-// （デザイン仕様書「PaletteEditor / ToolListEditor行」節・ToolSelect同一皮）。
-// 単体テストではdocに現在編集中のstepが反映されない場合があるため、
-// countToolUsageに加えvalue（当該工程でチェック中）も使用中判定に含める。
-// レシピ内ローカル削除（ツールライブラリには一切影響しない）。
+// 確認ダイアログなし）。単体テストではdocに現在編集中のstepが反映されない
+// 場合があるため、countToolUsageに加えvalue（当該工程でチェック中）も
+// 使用中判定に含める。レシピ内ローカル削除（ツールライブラリには一切影響しない）。
+//
+// v2.7 T60: 使用中（inUse）行の✕は非描画に変更（disabled運用を廃止）。
+// 行内のsetup.inUseNote注記も廃止し、リスト下に一元ヒント1行
+// （editor.toolListHint。削除条件＋doc.tools完全移行予告）を新設した
+// （デザイン仕様書「ToolSelect」節参照）。
 //
 // 制御コンポーネント（value=toolIds/onChange）で、選択状態自体は持たない。
 
@@ -197,22 +200,23 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
                   />
                   {tool.name}
                 </label>
-                <button
-                  type="button"
-                  className={styles.removeButton}
-                  aria-label={`${t("photo.delete")} ${tool.name}`}
-                  disabled={inUse}
-                  onClick={() => handleRemove(tool.id)}
-                >
-                  ✕
-                </button>
-                {inUse && (
-                  <p className={styles.inUseNote}>{t("setup.inUseNote")}</p>
+                {!inUse && (
+                  <button
+                    type="button"
+                    className={styles.removeButton}
+                    aria-label={`${t("photo.delete")} ${tool.name}`}
+                    onClick={() => handleRemove(tool.id)}
+                  >
+                    ✕
+                  </button>
                 )}
               </div>
             );
           })}
         </div>
+      )}
+      {tools.length > 0 && (
+        <p className={styles.listHint}>{t("editor.toolListHint")}</p>
       )}
       {libraryTools.length > 0 && (
         <div className={styles.suggestSection}>

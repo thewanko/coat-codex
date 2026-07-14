@@ -415,7 +415,7 @@ describe("ToolSelect", () => {
     expect(storeTools[0].id).toBe("tool_2");
   });
 
-  test("他の工程で使用中のツールは✕がdisabledになり使用中注記が表示される（T57）", () => {
+  test("他の工程で使用中のツールは✕が非表示になり一元ヒントが表示される（T60）", () => {
     useRecipeStore.setState({
       doc: makeDoc({
         tools: [{ id: "tool_1", name: "丸筆", note: null }],
@@ -434,11 +434,12 @@ describe("ToolSelect", () => {
     });
     render(<ToolSelect value={[]} onChange={vi.fn()} />);
 
-    const removeButton = screen.getByRole("button", { name: "削除 丸筆" });
-    expect(removeButton).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: "削除 丸筆" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText(
-        "↳ 工程で使用中のため削除できません（工程側で外すと削除可）",
+        "工程で使用中のツールは削除できません（工程側で外すと削除可）。ツールは今後ツールライブラリへ完全移行予定です。",
       ),
     ).toBeInTheDocument();
   });
@@ -495,7 +496,7 @@ describe("ToolSelect", () => {
     expect(registerUserTool).not.toHaveBeenCalled();
   });
 
-  test("当該工程でチェック中（value含む）のツールも✕がdisabledになる（T57）", () => {
+  test("当該工程でチェック中（value含む）のツールも✕が非表示になる（T60）", () => {
     useRecipeStore.setState({
       doc: makeDoc({
         tools: [{ id: "tool_1", name: "丸筆", note: null }],
@@ -503,12 +504,48 @@ describe("ToolSelect", () => {
     });
     render(<ToolSelect value={["tool_1"]} onChange={vi.fn()} />);
 
-    const removeButton = screen.getByRole("button", { name: "削除 丸筆" });
-    expect(removeButton).toBeDisabled();
     expect(
-      screen.getByText(
-        "↳ 工程で使用中のため削除できません（工程側で外すと削除可）",
+      screen.queryByRole("button", { name: "削除 丸筆" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("tools0件のときは一元ヒントを表示しない（T60）", () => {
+    useRecipeStore.setState({ doc: makeDoc({ tools: [] }) });
+    render(<ToolSelect value={[]} onChange={vi.fn()} />);
+
+    expect(
+      screen.queryByText(
+        "工程で使用中のツールは削除できません（工程側で外すと削除可）。ツールは今後ツールライブラリへ完全移行予定です。",
       ),
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
+  });
+
+  test("tools複数件でも一元ヒントは1箇所のみ表示される（T60）", () => {
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [
+          { id: "tool_1", name: "丸筆", note: null },
+          { id: "tool_2", name: "スポンジ", note: null },
+        ],
+        baseSteps: [
+          {
+            id: "stp_1",
+            technique: { presetKey: null, label: null },
+            photoId: null,
+            paints: [],
+            mix: null,
+            toolIds: ["tool_1"],
+            memo: "",
+          },
+        ],
+      }),
+    });
+    render(<ToolSelect value={[]} onChange={vi.fn()} />);
+
+    expect(
+      screen.getAllByText(
+        "工程で使用中のツールは削除できません（工程側で外すと削除可）。ツールは今後ツールライブラリへ完全移行予定です。",
+      ),
+    ).toHaveLength(1);
   });
 });

@@ -41,9 +41,9 @@
   accent-color: var(--color-accent);
 }
 
-/* v2.6 T57: doc.tools削除✕（ToolListEditorのremoveButton意匠に倣う。
-   in-use: opacity .45 + disabled + 行下注記＝デザイン仕様書「PaletteEditor /
-   ToolListEditor行」節のToolSelect同一皮） */
+/* v2.6 T57 / v2.7 T60: doc.tools削除✕（ToolListEditorのremoveButton意匠に倣う）。
+   使用中（inUse）行は✕自体を非描画とし、注記はリスト下の一元ヒント
+   （.listHint）へ集約する（デザイン仕様書「ToolSelect」節）。 */
 .itemRow {
   display: inline-flex;
   align-items: center;
@@ -77,18 +77,14 @@
   }
 }
 
-.removeButton:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
 .removeButton:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
 
-.inUseNote {
-  flex-basis: 100%;
+/* v2.7 T60: リスト直下の一元ヒント（削除条件＋完全移行予告）。
+   ToolListEditorのinUseNoteに倣ったfaint系スタイル。 */
+.listHint {
   margin: 0;
   font-size: var(--font-size-xs);
   color: var(--color-ink-muted);
