@@ -1,0 +1,77 @@
+/* UpdatesPage — 更新履歴ページ。HelpPageのhero（オーバーライン＋明朝見出し）と
+   TermsPageのsection構造を踏襲し、各エントリに日付（mono小・gold）を添える。 */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-8);
+  gap: var(--space-5);
+}
+
+.backLink {
+  margin-bottom: var(--space-2);
+}
+
+.hero {
+  text-align: center;
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.overline {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-overline);
+  text-indent: var(--tracking-overline);
+  color: var(--color-gold);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-display);
+  color: var(--color-ink);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.date {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-overline);
+  color: var(--color-gold);
+  margin: 0;
+}
+
+.heading {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.body {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+  color: var(--color-ink-muted);
+  margin: 0;
+}

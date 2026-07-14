@@ -8,6 +8,7 @@ import PrintViewPage from "./routes/PrintViewPage.tsx";
 import TermsPage from "./routes/TermsPage.tsx";
 import HelpPage from "./routes/HelpPage.tsx";
 import ToolsPage from "./routes/ToolsPage.tsx";
+import UpdatesPage from "./routes/UpdatesPage.tsx";
 
 function AppRouter() {
   return (
@@ -31,6 +32,7 @@ function AppRouter() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/tools" element={<ToolsPage />} />
+        <Route path="/updates" element={<UpdatesPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
