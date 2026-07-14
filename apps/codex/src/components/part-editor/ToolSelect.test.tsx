@@ -443,6 +443,58 @@ describe("ToolSelect", () => {
     ).toBeInTheDocument();
   });
 
+  test("タグ選択→当該タグの唯一の候補をコピーしても、絞り込みがstuckにならず残り候補が表示され続ける（review R1 L1）", async () => {
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆", tags: ["筆"] }),
+      makeLibraryTool({
+        id: "utool_2",
+        name: "スポンジ",
+        tags: ["スポンジ系"],
+      }),
+    ]);
+    useRecipeStore.setState({ doc: makeDoc({ tools: [] }) });
+    renderWithRouter(<ToolSelect value={[]} onChange={vi.fn()} />);
+
+    await screen.findByRole("button", { name: "丸筆" });
+    fireEvent.click(screen.getByRole("button", { name: "#筆" }));
+    expect(
+      screen.queryByRole("button", { name: "スポンジ" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "丸筆" }));
+
+    expect(
+      screen.queryByRole("button", { name: "丸筆" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "スポンジ" }),
+    ).toBeInTheDocument();
+  });
+
+  test("NFC合成形と分解形の同名ツールは既存として扱われ、新規Toolは作られない（review R1 L2）", () => {
+    // "\u304C"（NFC合成形の"が"）と"\u304B\u3099"（NFD分解形: "か"+結合濁点）は
+    // 見た目・意味は同一だがcode point列が異なる。
+    const composed = "\u304C";
+    const decomposed = "\u304B\u3099";
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [{ id: "tool_1", name: decomposed, note: null }],
+      }),
+    });
+    render(<ToolSelect value={[]} onChange={vi.fn()} />);
+
+    fireEvent.change(
+      screen.getByPlaceholderText("ツール名（例: 筆、エアブラシ）"),
+      { target: { value: composed } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "追加" }));
+
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+    expect(storeTools[0].id).toBe("tool_1");
+    expect(registerUserTool).not.toHaveBeenCalled();
+  });
+
   test("当該工程でチェック中（value含む）のツールも✕がdisabledになる（T57）", () => {
     useRecipeStore.setState({
       doc: makeDoc({

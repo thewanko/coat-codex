@@ -85,6 +85,12 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
     (libTool) => !existingKeys.has(toolNameKey(libTool.name)),
   );
   const suggestTags = collectAllTags(suggestBase);
+  // selectedTagがサジェスト候補コピー等でsuggestTagsから消えた場合に絞り込みが
+  // 解除不能な固着状態にならないよう、実効タグは派生値として都度再計算する（L1）。
+  const activeTag =
+    selectedTag !== null && suggestTags.includes(selectedTag)
+      ? selectedTag
+      : null;
   let suggestCandidates = suggestBase;
   const draftKey = toolNameKey(draft);
   if (draftKey !== "") {
@@ -92,11 +98,9 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
       toolNameKey(libTool.name).includes(draftKey),
     );
   }
-  if (selectedTag !== null) {
+  if (activeTag !== null) {
     suggestCandidates = suggestCandidates.filter((libTool) =>
-      libTool.tags.some(
-        (tag) => tag.toLowerCase() === selectedTag.toLowerCase(),
-      ),
+      libTool.tags.some((tag) => tag.toLowerCase() === activeTag.toLowerCase()),
     );
   }
 
@@ -136,8 +140,9 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
     if (trimmed === "") {
       return;
     }
+    const trimmedKey = toolNameKey(trimmed);
     const existing = tools.find(
-      (tool) => tool.name.toLowerCase() === trimmed.toLowerCase(),
+      (tool) => toolNameKey(tool.name) === trimmedKey,
     );
     if (existing) {
       handleToggle(existing.id, true);
@@ -225,7 +230,7 @@ function ToolSelect({ value, onChange }: ToolSelectProps) {
                     key={tag}
                     type="button"
                     className={styles.tagChip}
-                    aria-pressed={selectedTag === tag}
+                    aria-pressed={activeTag === tag}
                     onClick={() =>
                       setSelectedTag((prev) => (prev === tag ? null : tag))
                     }
