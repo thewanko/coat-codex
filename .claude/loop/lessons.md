@@ -8,6 +8,14 @@
 
 ---
 
+## 2026-07-14 m11-editor-integration 出口実機の合成検証データが「暗黙のコピー元選定＋条件ガード」で変異空振り→実装バグでない偽陰性を最小再現で確定／selfcheckのテスト全滅・grep欠落報告を両方偽陽性と1次確認で棄却 [BAD→GOOD]
+
+- 事象BAD→GOOD: M11出口実機の「JSONインポート非自動登録」検証で、インポートファイルをDexie実レシピのコピーから合成した際、コピー元を暗黙に`recipes[最後]`で選定（実際は工程0件の既存レシピ）→`if (baseSteps.length > 0)`ガードでtoolIds変異が入らないままインポートが成功し、後から見た「toolIds=[]」を一瞬「importPipelineのremap破損」と誤認しかけた。remap実装Read＋パスしている単体テストと観測の矛盾から検証データ側を疑い、完全統制の最小ファイル（送信前に変異内容をassert・コピー元を「工程>0かつtools>0」の形状条件でfind）で再実行→remap正常（旧ID→新ID・toolIds追随）を正例実証し、実装異常なしと確定。実装修正ゼロ
+- 事象GOOD: selfcheckの2フラグ（①`npm test`11件失敗②`editor.toolSuggestLabel`7ロケール欠落）を両方1次確認で偽陽性と棄却。①はlocalStorage TypeError=Node v25シグネチャ（selfcheckがプロンプトのfnm指示を実行しなかった）→セッションのNode 20独立再実行で1752件全緑。②はJSONネストキーに対する`editor.`プレフィックス付き逐語grepの偽陰性→`"toolSuggestLabel"`単体grepで7ファイル存在。m9のNode乖離切り分けルール（impl報告向け）がselfcheck報告にもそのまま効いた=Node乖離family 2回目だがCLAUDE.mdの独立再実行ルールで既にカバー済み
+- 一般化ルール (次ループの指示文としてそのまま使える形で): 実機検証用の合成データ（インポートファイル・シード）を既存データのコピーから組むときは、(a)コピー元を「暗黙の並び順の端」でなく**必要な形状条件（steps>0等）を満たすfind**で選定し、(b)条件付きで加えた変異は**送信・投入の直前にassert**して空振りを検出する（ガード付き変異の空振りは「機能が壊れている」偽陰性として現れ、真因追跡コストが高い）。「実装バグか検証データ不良か」は、パスしている単体テストと観測の矛盾が出た時点で検証データ側を先に疑い、完全統制の最小再現で切り分ける。subagentの「テスト全滅」報告へのNode照合（m9ルール）はimpl以外（selfcheck）にも適用する。Grepでネスト構造のキー存在を照合するときはプレフィックス連結の逐語でなく**キー名単体**で引く
+- 反映先: loop prompt（合成検証データの形状条件find＋投入前assert・selfcheck報告のNode照合・ネストキーgrep）
+- 発生回数: 1回目（Node乖離family 2回目=既存独立再実行ルールでカバー済みのため昇格なし・偽陰性family新相=検証データ構築）
+
 ## 2026-07-14 m10-tool-library シングルトンDBのDexieマイグレーションテストはbeforeEachが先にDBを開くと空回り（旧バージョン宣言でも既存新版DBを開くだけ）→物理DB削除で真の昇格遷移を通し変異検査で実効実証 [GOOD]
 
 - 事象: review R1のM1指摘=T51の「version(1)→(2)昇格テスト」が実効的に空回り。トップレベル`beforeEach`の`db.recipes.clear()`が本番singleton dbを先に開くため、テスト到達時点でIndexedDB "coat-codex"は既にv2。その後`db.close()`→LegacyDB(v1宣言)で開き直しても**既存v2 DBをそのまま開くだけ**で、真のv1→v2アップグレード遷移を一度も通らない（version(2)が壊れても緑になり得る）。セッションが前提をRead 1次確認して事実と確定→`await db.close()`直後に`await Dexie.delete("coat-codex")`1行glueで物理DBを削除しv1 DBを新規作成させる形へ修正。実効性は変異検査で実証（db.tsのversion(2)を一時無効化→8件赤→cp復元で緑）＝ST-33の「検証器が成果物のタスクは変異検査」ルールの2回目適用。R2で「Dexie.deleteの他テストへの影響」（接続block・後続beforeEach前提）まで観点指定し複合作用なしを確認
