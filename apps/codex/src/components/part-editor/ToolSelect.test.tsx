@@ -1,4 +1,5 @@
 import "../../i18n";
+import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
@@ -30,6 +31,26 @@ vi.mock("../../db/toolStore", async () => {
 
 function renderWithRouter(ui: React.ReactElement) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
+}
+
+// review R1 L2回帰用: valueを固定propで持つ直接renderでは「クリック後の再レンダーで
+// aria-pressedがtrueへ遷移する」ことを検証できないため、親stateでvalueを保持し
+// onChangeで更新する制御コンポーネントとしてToolSelectを描画するラッパー。
+function ControlledToolSelect({
+  onChangeSpy,
+}: {
+  onChangeSpy: (next: string[]) => void;
+}) {
+  const [value, setValue] = useState<string[]>([]);
+  return (
+    <ToolSelect
+      value={value}
+      onChange={(next) => {
+        onChangeSpy(next);
+        setValue(next);
+      }}
+    />
+  );
 }
 
 function makeLibraryTool(
@@ -393,6 +414,34 @@ describe("ToolSelect", () => {
     fireEvent.click(button);
 
     expect(onChange).not.toHaveBeenCalled();
+    const storeTools = useRecipeStore.getState().doc?.tools ?? [];
+    expect(storeTools).toHaveLength(1);
+  });
+
+  test("同名あり×未チェックの候補をクリックすると、再レンダー後にaria-pressedがtrueへ遷移する（review R1 L2）", async () => {
+    const onChangeSpy = vi.fn<(next: string[]) => void>();
+    vi.mocked(listUserTools).mockResolvedValue([
+      makeLibraryTool({ id: "utool_1", name: "丸筆" }),
+    ]);
+    useRecipeStore.setState({
+      doc: makeDoc({
+        tools: [{ id: "tool_1", name: "丸筆", note: null }],
+      }),
+    });
+    renderWithRouter(<ControlledToolSelect onChangeSpy={onChangeSpy} />);
+
+    const button = await screen.findByRole("button", { name: "丸筆" });
+    expect(button).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "丸筆" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+    expect(onChangeSpy).toHaveBeenCalledWith(["tool_1"]);
     const storeTools = useRecipeStore.getState().doc?.tools ?? [];
     expect(storeTools).toHaveLength(1);
   });
