@@ -259,7 +259,12 @@ function PartCard({
       </span>
 
       {showControls && (
-        <span className={styles.cardControls}>
+        // ボタン間の数px（拡張ヒット領域の境界の丸め誤差）をタップしたとき、
+        // カードrootへバブルしてonOpenが誤発火しないようコンテナでも伝播を止める
+        <span
+          className={styles.cardControls}
+          onClick={(event) => event.stopPropagation()}
+        >
           {onMoveUp !== undefined && (
             <button
               type="button"
