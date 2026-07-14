@@ -179,7 +179,10 @@
 }
 
 .manageLink {
+  display: inline-flex;
+  align-items: center;
   align-self: flex-start;
+  min-height: 44px;
   font-size: var(--font-size-xs);
   color: var(--color-link);
   text-decoration: underline dotted;
@@ -189,6 +192,10 @@
 @media (min-width: 768px) {
   .tagChip,
   .suggestButton {
+    min-height: 32px;
+  }
+
+  .manageLink {
     min-height: 32px;
   }
 }
