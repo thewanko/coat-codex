@@ -6,7 +6,8 @@
     "terms": "Terms & Disclaimer",
     "help": "사용법 & Q&A",
     "backToOverview": "전체 보기로",
-    "backToLibrary": "레시피 목록으로"
+    "backToLibrary": "레시피 목록으로",
+    "tools": "Tool Library"
   },
   "techniques": {
     "prime": "프라이밍",
@@ -448,5 +449,22 @@
         "a": "note 게시글에 그대로 붙여넣을 수 있는 형식으로 레시피 전문을 복사하는 기능입니다."
       }
     }
+  },
+  "tools": {
+    "title": "Tool Library",
+    "description": "Manage your tools locally on this device. Deleting a tool from the library does not affect saved recipes.",
+    "addPlaceholder": "Enter tool name",
+    "addButton": "Add",
+    "emptyTitle": "No tools yet",
+    "emptyDescription": "Enter a tool name to add one.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteMessage": "This will not be removed from saved recipes.",
+    "tagPlaceholder": "Add tag",
+    "tagAdd": "Add tag to {{name}}",
+    "tagRemoveAria": "Remove tag {{tag}} {{name}}",
+    "export": "Export",
+    "import": "Import",
+    "importSuccess": "Added {{added}}, merged {{merged}}",
+    "importInvalid": "Import failed ({{error}})"
   }
 }

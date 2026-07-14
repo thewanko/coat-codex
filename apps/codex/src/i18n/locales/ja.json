@@ -6,7 +6,8 @@
     "terms": "利用規約・免責",
     "help": "使い方・Q&A",
     "backToOverview": "全体表示へ",
-    "backToLibrary": "レシピ一覧へ"
+    "backToLibrary": "レシピ一覧へ",
+    "tools": "ツールライブラリ"
   },
   "techniques": {
     "prime": "プライマー",
@@ -448,5 +449,22 @@
         "a": "noteの記事にそのまま貼り付けられる形式で、レシピ全文をコピーする機能です。"
       }
     }
+  },
+  "tools": {
+    "title": "ツールライブラリ",
+    "description": "使用ツールを端末ローカルで管理します。ライブラリから削除しても、登録済みレシピには影響しません。",
+    "addPlaceholder": "ツール名を入力",
+    "addButton": "追加",
+    "emptyTitle": "ツールがまだありません",
+    "emptyDescription": "ツール名を入力して追加してください。",
+    "deleteTitle": "「{{name}}」を削除しますか？",
+    "deleteMessage": "登録済みレシピからは削除されません。",
+    "tagPlaceholder": "タグを追加",
+    "tagAdd": "{{name}} にタグを追加",
+    "tagRemoveAria": "{{tag}} タグを除去 {{name}}",
+    "export": "エクスポート",
+    "import": "インポート",
+    "importSuccess": "{{added}}件追加・{{merged}}件マージしました",
+    "importInvalid": "インポートに失敗しました（{{error}}）"
   }
 }

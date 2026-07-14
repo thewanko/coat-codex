@@ -19,6 +19,10 @@ function AppFooter() {
         <Link to="/help" className={styles.link}>
           {t("nav.help")}
         </Link>
+        <span className={styles.diamond} aria-hidden="true" />
+        <Link to="/tools" className={styles.link}>
+          {t("nav.tools")}
+        </Link>
       </div>
       <p className={styles.trademark}>{t("footer.trademarkNotice")}</p>
     </footer>

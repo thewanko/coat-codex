@@ -6,7 +6,8 @@
     "terms": "Termini e Disclaimer",
     "help": "Guida all'uso e Q&A",
     "backToOverview": "Torna alla panoramica",
-    "backToLibrary": "Torna alla libreria"
+    "backToLibrary": "Torna alla libreria",
+    "tools": "Tool Library"
   },
   "techniques": {
     "prime": "Primer",
@@ -449,5 +450,22 @@
         "a": "Una funzione che copia l'intera ricetta in un formato che puoi incollare direttamente in un articolo note."
       }
     }
+  },
+  "tools": {
+    "title": "Tool Library",
+    "description": "Manage your tools locally on this device. Deleting a tool from the library does not affect saved recipes.",
+    "addPlaceholder": "Enter tool name",
+    "addButton": "Add",
+    "emptyTitle": "No tools yet",
+    "emptyDescription": "Enter a tool name to add one.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "deleteMessage": "This will not be removed from saved recipes.",
+    "tagPlaceholder": "Add tag",
+    "tagAdd": "Add tag to {{name}}",
+    "tagRemoveAria": "Remove tag {{tag}} {{name}}",
+    "export": "Export",
+    "import": "Import",
+    "importSuccess": "Added {{added}}, merged {{merged}}",
+    "importInvalid": "Import failed ({{error}})"
   }
 }

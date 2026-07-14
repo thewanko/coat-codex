@@ -1,8 +1,10 @@
-// db/db.ts — Dexieテーブル定義（技術計画v2.2 §2.7）
+// db/db.ts — Dexieテーブル定義（技術計画v2.6 §2.7）
 //
-// recipes / photos / meta の3テーブル。version()はインデックス構造の変更専用で、
-// 文書内容の形状変更はRecipeDocのschemaVersion＋lazy migration（recipeStore.ts）で行う
-// （全レコード一括書き換えのupgrade()は使わない。§2.7）。
+// version()はインデックス構造の変更・新規テーブル追加専用（v2.6: userTools追加のため
+// version(2)を追加）。文書内容の形状変更はRecipeDocのschemaVersion＋lazy migration
+// （recipeStore.ts）で行う（全レコード一括書き換えのupgrade()は使わない。§2.7）。
+// この使い分けは不変: インデックス構造変更＋テーブル追加＝version() ／
+// 文書内容の形状変更＝schemaVersion。
 
 import Dexie, { type Table } from "dexie";
 import type { RecipeDoc } from "@coat-codex/recipe-core";
@@ -31,10 +33,26 @@ export interface MetaRecord {
   value: string | { requestedAt: string; granted: boolean };
 }
 
+/**
+ * userToolsテーブルのレコード形状（v2.6新設・§2.8）。
+ * レシピ横断でユーザーが使い回すツール（筆・スポンジ等）の端末ローカルライブラリ。
+ * idは `utool_${crypto.randomUUID()}`（doc.tools側の `tool_` プレフィックスと
+ * 衝突しないよう区別する）。
+ */
+export interface UserToolRecord {
+  id: string;
+  name: string;
+  note: string | null;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 class CoatCodexDB extends Dexie {
   recipes!: Table<RecipeRecord, string>;
   photos!: Table<PhotoRecord, string>;
   meta!: Table<MetaRecord, string>;
+  userTools!: Table<UserToolRecord, string>; // v2.6追加（§2.8）
 
   constructor() {
     super("coat-codex");
@@ -42,6 +60,9 @@ class CoatCodexDB extends Dexie {
       recipes: "id, updatedAt", // 主キー: id / 一覧ソート用インデックス: updatedAt
       photos: "id, recipeId", // 主キー: id / レシピ削除GC・エクスポート収集用: recipeId
       meta: "key", // 主キー: key（アプリ状態のKVストア）
+    });
+    this.version(2).stores({
+      userTools: "id, updatedAt", // 主キー: id / 一覧ソート用インデックス: updatedAt（§2.8）
     });
   }
 }
