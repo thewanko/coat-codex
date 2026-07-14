@@ -18,6 +18,7 @@ beforeEach(async () => {
   await db.recipes.clear();
   await db.photos.clear();
   await db.meta.clear();
+  await db.userTools.clear();
 });
 
 afterEach(() => {
@@ -180,5 +181,17 @@ describe("importRecipe: Dexie rwトランザクション書き込み", () => {
         .count();
       expect(photoCount).toBe(2);
     }
+  });
+
+  test("回帰: レシピのJSONインポートはツールライブラリへ自動登録しない（技術計画v2.6 §2.8）", async () => {
+    const recipe = makeRecipe({
+      tools: [{ id: "tool_1", name: "エアブラシ", note: null }],
+    });
+    const json = JSON.stringify(makeExportFile(recipe));
+
+    const result = await importRecipe(json, noopDeps);
+
+    expect(result.ok).toBe(true);
+    expect(await db.userTools.count()).toBe(0);
   });
 });

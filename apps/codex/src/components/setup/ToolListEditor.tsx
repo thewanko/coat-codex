@@ -16,6 +16,7 @@ import {
   type RecipeDoc,
   type Tool,
 } from "@coat-codex/recipe-core";
+import { registerUserTool } from "../../db/toolStore";
 import styles from "./EditorRow.module.css";
 import sectionStyles from "./SetupSection.module.css";
 
@@ -48,6 +49,11 @@ function ToolListEditor({ doc, onUpdate }: ToolListEditorProps) {
       ...current,
       tools: [...current.tools, newTool],
     }));
+    // 新規追加時のツールライブラリ自動登録（技術計画v2.6 §4.2 T55・§2.8）。
+    // Setupのユーザー操作起点の新規追加のみ対象（重複early-return経路は対象外）。
+    void registerUserTool({ name: trimmed }).catch((err) =>
+      console.warn("tool auto-register failed", err),
+    );
     setDraft("");
   }
 

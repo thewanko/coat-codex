@@ -153,7 +153,10 @@
     "stepPhotoStripItemLabel": "STEP {{n}}の写真へ移動",
     "toolAdd": "＋ツールを追加",
     "toolNamePlaceholder": "ツール名（例: 筆、エアブラシ）",
-    "toolAddButton": "追加"
+    "toolAddButton": "追加",
+    "toolSuggestLabel": "ライブラリから追加",
+    "toolTagFilterLabel": "タグで絞り込み",
+    "toolManageLink": "ツールライブラリを管理"
   },
   "overview": {
     "baseOverline": "BASE",

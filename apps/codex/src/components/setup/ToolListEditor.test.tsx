@@ -3,14 +3,25 @@
 // 追加（重複防止含む）・使用中削除ガード・使用数0削除の各実質ケースを検証する。
 
 import "../../i18n";
-import { beforeAll, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import i18next from "../../i18n";
 import ToolListEditor from "./ToolListEditor";
+import { registerUserTool } from "../../db/toolStore";
 import type { RecipeDoc, Step, Tool } from "@coat-codex/recipe-core";
+
+vi.mock("../../db/toolStore", () => ({
+  registerUserTool: vi
+    .fn()
+    .mockResolvedValue({ tool: { id: "utool_1" }, created: true }),
+}));
 
 beforeAll(() => {
   void i18next.changeLanguage("ja");
+});
+
+afterEach(() => {
+  vi.mocked(registerUserTool).mockClear();
 });
 
 function makeTool(overrides: Partial<Tool> = {}): Tool {
@@ -131,5 +142,34 @@ describe("ToolListEditor", () => {
     const next = updater(doc);
     expect(next.tools).toHaveLength(1);
     expect(next.tools[0]).toBe(toolB);
+  });
+
+  test("新規名を追加するとregisterUserToolがtrim後の名前で1回呼ばれる（技術計画v2.6 T55）", () => {
+    const doc = makeDoc();
+    const onUpdate = vi.fn();
+
+    render(<ToolListEditor doc={doc} onUpdate={onUpdate} />);
+
+    fireEvent.change(screen.getByPlaceholderText("ツール名"), {
+      target: { value: "スポンジ" },
+    });
+    fireEvent.click(screen.getByText("＋ ツールを追加"));
+
+    expect(registerUserTool).toHaveBeenCalledTimes(1);
+    expect(registerUserTool).toHaveBeenCalledWith({ name: "スポンジ" });
+  });
+
+  test("大文字小文字違いの重複追加操作ではregisterUserToolを呼ばない（T55）", () => {
+    const existing = makeTool({ id: "tool_a", name: "Brush" });
+    const doc = makeDoc({ tools: [existing] });
+    const onUpdate = vi.fn();
+    render(<ToolListEditor doc={doc} onUpdate={onUpdate} />);
+
+    fireEvent.change(screen.getByPlaceholderText("ツール名"), {
+      target: { value: "brush" },
+    });
+    fireEvent.click(screen.getByText("＋ ツールを追加"));
+
+    expect(registerUserTool).not.toHaveBeenCalled();
   });
 });

@@ -153,7 +153,10 @@
     "stepPhotoStripItemLabel": "STEP {{n}} 사진으로 이동",
     "toolAdd": "+ 도구 추가",
     "toolNamePlaceholder": "도구명 (예: 붓, 에어브러시)",
-    "toolAddButton": "추가"
+    "toolAddButton": "추가",
+    "toolSuggestLabel": "Add from library",
+    "toolTagFilterLabel": "Filter by tag",
+    "toolManageLink": "Manage tool library"
   },
   "overview": {
     "baseOverline": "BASE",

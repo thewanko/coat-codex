@@ -496,11 +496,13 @@ describe("runScriptoriumImport — 実importRecipe経由（fake-indexeddb）", (
   beforeEach(async () => {
     await db.recipes.clear();
     await db.photos.clear();
+    await db.userTools.clear();
   });
 
   afterEach(async () => {
     await db.recipes.clear();
     await db.photos.clear();
+    await db.userTools.clear();
   });
 
   test("実importRecipeでDexieへ書き込まれ、source.scriptoriumIdが保存される", async () => {
@@ -520,5 +522,16 @@ describe("runScriptoriumImport — 実importRecipe経由（fake-indexeddb）", (
         }),
       );
     }
+  });
+
+  test("回帰: Scriptoriumインポートはツールライブラリへ自動登録しない（技術計画v2.6 §2.8）", async () => {
+    const detail = makeDetail({ id: "scr_seed_wolf", handle: "painter_taro" });
+    const result = await runScriptoriumImport({
+      detail,
+      scriptoriumId: "scr_seed_wolf",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(await db.userTools.count()).toBe(0);
   });
 });
