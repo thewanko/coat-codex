@@ -8,6 +8,13 @@
 
 ---
 
+## 2026-07-14 m10-tool-library シングルトンDBのDexieマイグレーションテストはbeforeEachが先にDBを開くと空回り（旧バージョン宣言でも既存新版DBを開くだけ）→物理DB削除で真の昇格遷移を通し変異検査で実効実証 [GOOD]
+
+- 事象: review R1のM1指摘=T51の「version(1)→(2)昇格テスト」が実効的に空回り。トップレベル`beforeEach`の`db.recipes.clear()`が本番singleton dbを先に開くため、テスト到達時点でIndexedDB "coat-codex"は既にv2。その後`db.close()`→LegacyDB(v1宣言)で開き直しても**既存v2 DBをそのまま開くだけ**で、真のv1→v2アップグレード遷移を一度も通らない（version(2)が壊れても緑になり得る）。セッションが前提をRead 1次確認して事実と確定→`await db.close()`直後に`await Dexie.delete("coat-codex")`1行glueで物理DBを削除しv1 DBを新規作成させる形へ修正。実効性は変異検査で実証（db.tsのversion(2)を一時無効化→8件赤→cp復元で緑）＝ST-33の「検証器が成果物のタスクは変異検査」ルールの2回目適用。R2で「Dexie.deleteの他テストへの影響」（接続block・後続beforeEach前提）まで観点指定し複合作用なしを確認
+- 一般化ルール (次ループの指示文としてそのまま使える形で): シングルトン接続を使うDB（Dexie/IndexedDB）のマイグレーション・昇格テストは、「テスト実行時点で物理DBがまだ旧バージョンであること」を自分で成立させる——共有beforeEachや他テストが先にDBを開いていれば、旧バージョン宣言のインスタンスは**既存新版DBを開くだけで昇格経路を通らない**（写経テストの兄弟相=経路素通り）。`db.close()`→`Dexie.delete(dbName)`→旧版宣言で作成→データput→close→本番open、の順を委譲プロンプトの完了条件に明示する。マイグレーションテストの裁定には変異検査（当のマイグレーション定義を一時無効化→赤の実測→cp復元）を必ず含める
+- 反映先: loop prompt（Dexie昇格テストの物理DB前提・変異検査family 2回目）
+- 発生回数: 1回目（変異検査family 2回目の実証。付記: 背景タブfocus相の新変種〔クリックでfocusが移らずcomputer typeが不発・activeElement=BODY〕も同ループで確認=既存ルール〔reactProps確認+下位イベント明示発火〕で切り分け成功・実バグ誤診ゼロ）
+
 ## 2026-07-14 m9-part-delete 並列impl委譲中のgit stash -uが他implの編集中docsを巻き込み（同根2回目→CLAUDE.md昇格）／implの「テスト全滅」報告をNodeバージョン切り分けで環境起因と確定し不要修正ゼロ [BAD→GOOD]
 
 - 事象BAD: T49担当implが環境切り分けのため`git stash -u`を実行し、並列実行中のT48担当implが編集中だった`docs/coat-codex_技術計画_v2.md`まで一時的にHEADへ巻き戻した（stash popはコンフリクトで失敗→自分の3ファイルのみ`git checkout stash@{0} --`でピンポイント復元して回避）。両implが自力復旧しセッションのgrep/diff照合でも欠損なしだったが、T48側はEditツールの「file modified on disk」警告と「編集済み区間が元に戻る事象」を複数回観測＝一歩間違えば成果物の静かな消失。ST-33の「git checkoutで未コミット孤児削除を巻き戻し」と同根（未コミット成果物があるツリーでのgit復元操作）2回目→**CLAUDE.md委譲・レビューの規律へ昇格**（禁止＋cpバックアップ方式＋impl委譲プロンプトへの明記義務）
