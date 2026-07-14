@@ -145,7 +145,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 ### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定）
 - **ToolsPage一覧行**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
 - **TagChipEditor**: 各チップは`#`＋タグ名（mono 11px）・raised面faint枠・小円radius-full・末尾に除去✕（12px・opacity .6→hover 1）。追加inputは同列末尾に配置し、Enter確定・重複無視は無音（トースト不要）
-- **削除確認**: ToolsPage・PartCard・ToolSelectいずれの削除✕も上記Dialog/Modal規約（confirm=dangerボタン＋「取り消しできません」注記）を適用する。ライブラリ削除のdescriptionは「登録済みレシピからは削除されません」、パーツ削除は「工程と写真も削除されます」と、影響範囲をdescriptionで明記する（注記自体は共通・description文言のみ画面ごとに差し替え）
+- **削除確認**: ToolsPage・PartCardの削除✕は上記Dialog/Modal規約（confirm=dangerボタン＋「取り消しできません」注記）を適用する。ライブラリ削除のdescriptionは「登録済みレシピからは削除されません」、パーツ削除は「工程と写真も削除されます」と、影響範囲をdescriptionで明記する（注記自体は共通・description文言のみ画面ごとに差し替え）。**ToolSelect（工程エディタ）のdoc.tools削除✕はレシピ内ローカル削除（ライブラリ無影響）のため確認ダイアログなし＝Setup（ToolListEditor）と同一UX（技術計画v2.6 T57）**
 
 ### ActionBar
 - export(PC): ヘッダ右にピル群。グループ区切りは**菱** `--color-gold`: `[印刷][PDF] ◆ [X][Bluesky][note MD] ◆ [JSON|素MD]`

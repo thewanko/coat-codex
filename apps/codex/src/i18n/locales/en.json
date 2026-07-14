@@ -153,7 +153,10 @@
     "stepPhotoStripItemLabel": "Jump to STEP {{n}} photo",
     "toolAdd": "+ Add tool",
     "toolNamePlaceholder": "Tool name (e.g. brush, airbrush)",
-    "toolAddButton": "Add"
+    "toolAddButton": "Add",
+    "toolSuggestLabel": "Add from library",
+    "toolTagFilterLabel": "Filter by tag",
+    "toolManageLink": "Manage tool library"
   },
   "overview": {
     "baseOverline": "BASE",

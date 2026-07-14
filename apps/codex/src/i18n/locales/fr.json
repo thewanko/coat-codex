@@ -153,7 +153,10 @@
     "stepPhotoStripItemLabel": "Aller à la photo du STEP {{n}}",
     "toolAdd": "+ Ajouter un outil",
     "toolNamePlaceholder": "Nom de l'outil (ex. pinceau, aérographe)",
-    "toolAddButton": "Ajouter"
+    "toolAddButton": "Ajouter",
+    "toolSuggestLabel": "Add from library",
+    "toolTagFilterLabel": "Filter by tag",
+    "toolManageLink": "Manage tool library"
   },
   "overview": {
     "baseOverline": "BASE",

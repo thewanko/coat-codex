@@ -41,6 +41,158 @@
   accent-color: var(--color-accent);
 }
 
+/* v2.6 T57: doc.tools削除✕（ToolListEditorのremoveButton意匠に倣う。
+   in-use: opacity .45 + disabled + 行下注記＝デザイン仕様書「PaletteEditor /
+   ToolListEditor行」節のToolSelect同一皮） */
+.itemRow {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.removeButton {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+/* モバイル(<768px)は視覚サイズを維持し、不可視のヒット領域を44px相当に拡張する
+   （デザイン仕様書§a11y: タッチ44px。行末の単独ボタンで隣接インタラクティブ要素なし） */
+@media (max-width: 767px) {
+  .removeButton::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+}
+
+.removeButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.removeButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.inUseNote {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+.suggestSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+}
+
+.suggestLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-link);
+}
+
+.tagFilterRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tagFilterLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+}
+
+.tagChip[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+.tagChip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.suggestList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.suggestButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-sunken);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.suggestButton:hover {
+  border-color: var(--color-line-strong);
+}
+
+.suggestButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.manageLink {
+  align-self: flex-start;
+  font-size: var(--font-size-xs);
+  color: var(--color-link);
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .tagChip,
+  .suggestButton {
+    min-height: 32px;
+  }
+}
+
 .addRow {
   display: flex;
   flex-direction: column;
