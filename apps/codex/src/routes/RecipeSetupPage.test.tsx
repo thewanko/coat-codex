@@ -200,4 +200,31 @@ describe("RecipeSetupPage", () => {
     const link = screen.getByRole("link", { name: /レシピ一覧へ/ });
     expect(link).toHaveAttribute("href", "/");
   });
+
+  test("ツール追加用の入力欄は表示されない（T66: ToolListEditor廃止）", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage();
+
+    await screen.findByRole("textbox", { name: "タイトル" });
+    expect(screen.queryByPlaceholderText("ツール名")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "＋ ツールを追加" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("ツールライブラリへの誘導文言と/toolsへのリンクが表示される（T66）", async () => {
+    vi.mocked(loadRecipe).mockResolvedValue(makeDoc());
+    renderPage();
+
+    await screen.findByRole("textbox", { name: "タイトル" });
+    expect(
+      screen.getByText(
+        "ツールはツールライブラリまたは各工程のツール欄から登録できます。",
+      ),
+    ).toBeInTheDocument();
+    const toolLibraryLink = screen.getByRole("link", {
+      name: "ツールライブラリ",
+    });
+    expect(toolLibraryLink).toHaveAttribute("href", "/tools");
+  });
 });

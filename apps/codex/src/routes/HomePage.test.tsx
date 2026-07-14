@@ -223,6 +223,30 @@ describe("HomePage", () => {
     });
   });
 
+  test("レシピ1件以上のとき、アクション行にツールライブラリボタンを表示する（/tools遷移は出口実機で検証）", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([
+      makeRecipe("rcp_1", "既存レシピ"),
+    ]);
+
+    renderHome();
+
+    const toolLibraryButton = await screen.findByRole("button", {
+      name: "ツールライブラリ",
+    });
+    expect(toolLibraryButton).toBeInTheDocument();
+  });
+
+  test("レシピ0件時はEmptyStateにツールライブラリボタンを表示しない", async () => {
+    vi.mocked(listRecipes).mockResolvedValue([]);
+
+    renderHome();
+
+    await screen.findByText("まだ秘伝書がありません");
+    expect(
+      screen.queryByRole("button", { name: "ツールライブラリ" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("使い方ガイドへの導線リンクを表示する", async () => {
     vi.mocked(listRecipes).mockResolvedValue([]);
 

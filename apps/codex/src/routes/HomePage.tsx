@@ -12,6 +12,7 @@ import { Link } from "react-router";
 import RecipeCardGrid from "../components/home/RecipeCardGrid";
 import NewRecipeButton from "../components/home/NewRecipeButton";
 import ImportJsonButton from "../components/home/ImportJsonButton";
+import ToolLibraryButton from "../components/home/ToolLibraryButton";
 import StorageStatusBar from "../components/home/StorageStatusBar";
 import ExportReminderBanner from "../components/home/ExportReminderBanner";
 import type { RecipeDoc } from "@coat-codex/recipe-core";
@@ -51,6 +52,7 @@ function HomePage() {
         <div className={styles.actions}>
           <NewRecipeButton />
           <ImportJsonButton />
+          <ToolLibraryButton />
         </div>
       )}
       <p className={styles.helpLinkRow}>

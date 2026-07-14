@@ -142,6 +142,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - 未使用: 「未使用」バッジ（faint枠）＋✕活性
 - **（v2.6追加）**`ToolSelect`（工程エディタ）内のdoc.tools行も同一皮を適用する（in-use=使用中の工程でチェック中の意）
 - **（v2.7改訂: 2026-07-14ユーザーFB裁定）** ただし`ToolSelect`（工程エディタ・doc.tools行）は上記`ToolListEditor`（Setup側）と異なり、行内✕disabled＋行内注記の運用を**廃止**する。in-use行は✕自体を**非描画**（disabledでなく非表示）とし、削除可能（未使用）行のみ✕を表示する。行内個別の注記も廃止し、代わりにリスト下へ**一元ヒント1行**（「↳ 工程で使用中のツールは削除できません。ツールは今後ツールライブラリへ完全移行予定です」相当・faint文字色・sans 11–12px）を1つだけ配置する（技術計画v2.7 T60）。`ToolListEditor`（Setup側）は従来どおりdisabled＋行内注記のまま変更しない
+- **（v2.9改訂: 2026-07-14ユーザーFB裁定・技術計画v2.9 T66）** `ToolListEditor`（Setup側の使用ツール先行登録行）は**廃止**する（本節の記述はv2.3〜v2.8時点の意匠として据え置く歴史記述）。Setupの当該位置には代わりに`ToolLibraryHint`（1行のfaint文字・下線リンク付き誘導文言。「ツールはツールライブラリまたは工程編集画面から登録できます」相当）を配置する。リンクは`/tools`（ToolsPage）へ遷移する`ghost`ボタン皮のインラインリンクとする。**`PaletteEditor`行の意匠（使用カラーのGC等）は本改訂の対象外で不変**
 
 ### ToolsPage / TagChipEditor（v2.6追加・2026-07-13ユーザーFB裁定／v2.8改訂: 2026-07-14ユーザーFB裁定）
 - **ToolsPage一覧行（PC・768px〜）**: `PaletteEditor / ToolListEditor 行`と同一皮のraised面ピル行（radius-full・SwatchChipなし・ツール名sans 500のみ）。行内に`TagChipEditor`を内包し、末尾に削除✕円（danger文字色・§Button iconバリアント）
@@ -166,6 +167,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 ### AppFooter
 - 上辺1px `--color-gold-soft`。`© coat-codex ◆ 利用規約・免責`（菱区切り、リンクはdotted下線）
 - （2026-07-03改訂）`© coat-codex` の直前に封蝋ロゴ画像（18px・`aria-hidden`・`vertical-align: middle`）を追加
+- **（v2.9改訂: 2026-07-14ユーザーFB裁定）** 現行の正=**4リンク＋菱区切り**: `© coat-codex ◆ 利用規約・免責 ◆ 使い方・Q&A ◆ ツールライブラリ ◆ 更新履歴`（`/terms` / `/help` / `/tools` / `/updates`）。各リンクの意匠（dotted下線・`--color-link`）は不変。行の折返しはモバイル幅で許容する（既存の菱区切り運用のまま）
 
 ### EmptyState
 - 破線枠（gold-soft）＋封蝋 or ＋円＋明朝見出し＋1行説明＋CTA。Home空: 「最初の秘伝書を作る」(primary)＋インポート導線＋「データはこの端末のブラウザにのみ保存されます」
@@ -243,6 +245,13 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - **PartCard削除ボタン**: 上記「Card」節のとおり、controls列（ドラッグハンドル・↑↓）の末尾に削除✕を並べる。44pxタッチターゲットを維持し、ドラッグハンドル・↑↓・✕の3ボタンが密集しても誤タップ距離を確保する（実機検証はドラッグハンドルと削除✕の誤タップ距離を含める）。**（v2.7でカード内統合へ改訂。本節は左カラムcontrols列を採用していたv2.6時点の記録として据え置く。現行の正は本文§4「Card」節のpart（Overview）行を参照）**
 - **タグチップ**: 上記「ToolsPage / TagChipEditor」節のとおり`#名`表示＋除去✕。ライブラリ専用データのため、レシピ側（Setup/StepCard）の意匠には影響しない
 - **削除確認ダイアログ**は全箇所で既存「Dialog / Modal」節のconfirm=dangerボタン＋「取り消しできません」注記をそのまま適用し、本改訂で新規のダイアログ皮は作らない
+
+### D. Home導線＋Setupツール登録廃止＋更新履歴ページ（v2.9追加・2026-07-14ユーザーFB裁定。技術計画v2.9 §3.1/§3.3/§4.2 T64〜T67対応）
+
+- **Homeアクション行の3ボタン化**: 既存の「新規作成」（primaryピル）・「JSONインポート」（secondaryピル）の並びに、3つ目として「ツールライブラリ」ボタン（secondaryピル。上記Button節のsecondaryバリアントと同皮）を追加する。3ボタンは同一行に並べ、モバイル幅では折返しを許容する（固定幅禁止・可変幅の原則は上記Button節のとおり）。**`EmptyState`（Home空状態）のCTAは本改訂の対象外**で、従来どおり「最初の秘伝書を作る」＋インポート導線の2つのまま変更しない（上記EmptyState節参照）
+- **Setupのツール登録UI廃止**: 上記「PaletteEditor / ToolListEditor 行」節のv2.9改訂のとおり、Setupの`ToolListEditor`は廃止し`ToolLibraryHint`（1行の誘導文言＋リンク）に置換する。新規トークン・新規コンポーネント皮は作らない（既存のghostリンク文字色`--color-link`・faint文字色を流用）
+- **UpdatesPage（新設）**: 既存画面と同じ紙面トーン（羊皮紙面）で、`TermsPage`/`HelpPage`と同じ構造イディオムを踏襲する — `BackLink`→hero（overline＋明朝タイトル＋gloss、上記「見出しシステム」節の構成）→エントリ列。各エントリは`section`要素で、日付（mono 11–12px・`--color-ink-muted`）＋見出し（明朝または600 sansの小見出し）＋本文（sans本文サイズ）の3段構成とし、新しい順（降順）に縦積みする。エントリ間の区切りは1px `--color-line`。新規トークンは作らない
+- **AppFooter 4リンク化**: 上記「AppFooter」節のv2.9改訂のとおり、`/updates`を4番目のリンクとして菱区切りで追加する
 
 ## 9. アクセシビリティ・チェックリスト
 

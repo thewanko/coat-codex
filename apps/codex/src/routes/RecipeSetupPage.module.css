@@ -22,3 +22,17 @@
   color: var(--color-danger);
   font-size: var(--font-size-md);
 }
+
+/* v2.9 T66: Setupのツール登録UI廃止に伴う誘導文言（ToolLibraryHint相当）。
+   ToolSelectの.manageLinkに倣ったfaint文字＋下線リンク。 */
+.toolLibraryHint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
+}
+
+.toolLibraryHintLink {
+  color: var(--color-link);
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}

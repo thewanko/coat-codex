@@ -7,7 +7,8 @@
     "help": "Guía de uso y preguntas frecuentes",
     "backToOverview": "Volver a la vista general",
     "backToLibrary": "Volver a la biblioteca",
-    "tools": "Tool Library"
+    "tools": "Tool Library",
+    "updates": "Updates"
   },
   "techniques": {
     "prime": "Imprimación",
@@ -113,13 +114,9 @@
     "photosNote": "Puedes subir o cambiar la foto final más tarde",
     "paletteLabel": "Colores",
     "toolsLabel": "Herramientas",
-    "addTool": "+ Añadir herramienta",
-    "toolPlaceholder": "Nombre de la herramienta",
-    "usedInSteps": "Usado en {{count}} pasos",
-    "unused": "Sin usar",
+    "toolLibraryHint": "You can register tools from the Tool Library or from each step's tool field.",
     "loadError": "Error al cargar la receta",
     "notFound": "Receta no encontrada",
-    "inUseNote": "↳ En uso en pasos — quítalo de los pasos para poder eliminarlo",
     "makeCodex": "make codex!",
     "importOr": "o",
     "importTitle": "Reanudar desde una importación JSON",
@@ -473,5 +470,36 @@
     "importInvalid": "Import failed ({{error}})",
     "importFromRecipes": "Import from recipes",
     "importFromRecipesResult": "Added {{added}}, merged {{merged}}"
+  },
+  "updates": {
+    "overline": "LOG",
+    "title": "UPDATES",
+    "entries": {
+      "toolLibraryUx": {
+        "date": "2026-07-14",
+        "heading": "Tool library usability improvements",
+        "body": "The part editor's tool picker now always shows every tool registered in your library as a candidate. The tool library list is also easier to use on mobile, and a link to the tool library was added to Home. Tool registration when creating a new recipe now goes through the tool library. We also added this updates page."
+      },
+      "toolLibraryIntegration": {
+        "date": "2026-07-14",
+        "heading": "Part editor and tool library integration",
+        "body": "New tools you type in the part editor are now registered to the tool library automatically. You can filter suggestions from the library by tag, and bulk-import the tools used in a recipe into the library."
+      },
+      "toolLibraryLaunch": {
+        "date": "2026-07-14",
+        "heading": "Tool library launch",
+        "body": "Added a Tool Library screen (/tools) for managing tools across all your recipes. Tools can be organized with tags, and the library has its own dedicated export/import."
+      },
+      "partDelete": {
+        "date": "2026-07-14",
+        "heading": "Part deletion",
+        "body": "You can now delete a part from the part list, with a confirmation dialog. This also fixes a bug where photo data wasn't correctly reclaimed when deleting a step."
+      },
+      "publish": {
+        "date": "Early July 2026",
+        "heading": "Publishing and sharing",
+        "body": "You can now publish a finished recipe to Coat Scriptorium. We also added a help page covering how to use coat-codex."
+      }
+    }
   }
 }
