@@ -4,7 +4,9 @@
 
 ## 更新ログ（state.md 冒頭の「最終更新」「前回更新」行、新しい順）
 
-2026-11-03 Opus 5.5 向けにハーネスを最適化（役割のハイブリッド化、selfcheck 廃止、CLAUDE.md を skill と rules に分割、履歴のアーカイブ分離）。review R2 PASS、PR #77 マージ済み。
+前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。PR #78 マージ済み。
+
+前回更新: 2026-11-03 Opus 5.5 向けにハーネスを最適化（役割のハイブリッド化、selfcheck 廃止、CLAUDE.md を skill と rules に分割、履歴のアーカイブ分離）。review R2 PASS、PR #77 マージ済み。
 
 最終更新: 2026-07-14 (**codex M14完了: Home導線＋Setupツール登録廃止＋更新履歴ページ（T64〜T67）**〔ブランチ`impl/m14-nav-updates`・origin/main基点（M13=PR #74マージ済み）・技術計画v2.9〕。起点FB3点: ①ライブラリ導線の昇格（裁定=Homeアクション行・フッター併存）②Setupツール先行登録の削除＋ライブラリ誘導文言③機能更新履歴（裁定=アプリ内`/updates`ページ）。委譲前1次確認で**`setup.toolsLabel`はnoteMarkdown.tsエクスポータ使用中=削除禁止**を確定し委譲プロンプトへ固定。T64委譲中にimplが**ドキュメントドリフトを発見**（`/help`実装済みだが§3.1未記載でルート数が過小カウント）→裁定=v2.9で遡及文書化・総数10ルートへ是正。T64 docs→T65 Home導線∥T66 Setup削除（並列不可侵・`home.*`/`setup.*`キー棲み分け）→T67 /updatesページ（HelpPage同型・初期5エントリ・フッター4リンク化）。selfcheck省略裁定（機械確認セッション直接実施）→review R1 PASS(C0/H0/M1/L2)→**M1採用**（フッター`.row`にflex-wrap欠如=4リンク化で375px横はみ出しの芽→1行glue）・**L3採用**（テスト名「遷移する」vs実アサーション「存在確認」の乖離→名称是正）・L2残置（button/Link二重実装=指摘のみ）→同一レビュアーR2 PASS(C0/H0/M0/L0新規・マージ可)。全ゲート緑=build/lint/prettier/ルートtest **1771件**（Node 20・ShareDialog既知flake2回出現→再実行緑で切り分け・起票済みtask_f1598bc3）。**🖐出口実機（vite dev）**: Homeアクション行3ボタン（44px・ヒット真・クリックで/tools実遷移）・Setup=ツール入力不在＋誘導文言＋/toolsリンク実遷移・/updates直URL＋5エントリ＋日付・フッター4リンク・**deロケール（最長ラベル「Nutzungsbedingungen & Haftungsausschluss」）×375pxでflex-wrap 2行折返し＋横はみ出し0＋全リンクヒット真=M1修正の実証**・1280=フッター1行/アクション行横並び非退行・console違反ゼロ・cleanup済み（作成レシピ削除・言語ja復元）。**残=なし（PR #75マージ済み 2026-07-14＝M14クローズ）**)
 
