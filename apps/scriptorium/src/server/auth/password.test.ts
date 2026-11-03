@@ -4,6 +4,17 @@
 import { describe, expect, test } from "vitest";
 import { hashDeletePassword, verifyDeletePassword } from "./password";
 
+/** stored のハッシュ部を base64 デコードして mutate し、再エンコードした stored を返す */
+function mutateHash(
+  stored: string,
+  mutate: (hash: Uint8Array) => Uint8Array,
+): string {
+  const parts = stored.split("$");
+  const hash = Uint8Array.from(atob(parts[3]), (c) => c.charCodeAt(0));
+  parts[3] = btoa(String.fromCharCode(...mutate(hash)));
+  return parts.join("$");
+}
+
 describe("hashDeletePassword/verifyDeletePassword", () => {
   test("roundtrip: hashして同じパスワードでverifyするとtrue", async () => {
     const stored = await hashDeletePassword("correct-horse-battery-staple");
@@ -19,13 +30,35 @@ describe("hashDeletePassword/verifyDeletePassword", () => {
     );
   });
 
-  test("storedのハッシュ末尾1文字を改竄するとfalse", async () => {
+  test("storedのハッシュの末尾バイトを1ビット改竄するとfalse", async () => {
     const stored = await hashDeletePassword("some-password");
-    const tamperedLastChar = stored.at(-1) === "A" ? "B" : "A";
-    const tampered = stored.slice(0, -1) + tamperedLastChar;
+    const tampered = mutateHash(stored, (hash) => {
+      const copy = hash.slice();
+      copy[copy.length - 1] ^= 0x01;
+      return copy;
+    });
     await expect(verifyDeletePassword("some-password", tampered)).resolves.toBe(
       false,
     );
+  });
+
+  test("ハッシュ長が32バイトでなければ正しいパスワードでもfalse", async () => {
+    // このsaltでは "some-password" の PBKDF2 出力の33バイト目が 0x00 になる。
+    // 長さを検査しないと、0x00 を足した33バイトのハッシュが一致してしまう
+    // （旧テストの末尾 '=' → 'A' 置換が約1/256で通っていた原因）。
+    const salt = new Uint8Array(16);
+    salt.set([0x00, 0x00, 0x02, 0x3b]);
+    const stored = await hashDeletePassword("some-password", salt);
+    const wrongLengths = [
+      mutateHash(stored, (hash) => Uint8Array.of(...hash, 0x00)), // 33バイト
+      mutateHash(stored, (hash) => hash.slice(0, 31)), // 31バイト（先頭一致）
+      mutateHash(stored, () => new Uint8Array(0)), // 空
+    ];
+    for (const tampered of wrongLengths) {
+      await expect(
+        verifyDeletePassword("some-password", tampered),
+      ).resolves.toBe(false);
+    }
   });
 
   test("不正形式のstoredはすべてfalse（throwしない）", async () => {
