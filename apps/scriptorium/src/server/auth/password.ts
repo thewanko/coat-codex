@@ -91,8 +91,10 @@ export async function hashDeletePassword(
 
 /**
  * stored 形式のハッシュとパスワードを照合する。
- * 不正形式（要素数不足・algo不一致・iter非整数・base64デコード失敗など）は
- * throw せず false を返す。
+ * 不正形式（要素数不足・algo不一致・iter非整数・base64デコード失敗・
+ * ハッシュ長が DERIVED_KEY_BYTES 以外など）は throw せず false を返す。
+ * ハッシュ長を検査しないと、PBKDF2 の出力は長さを変えても先頭が共通なので、
+ * 切り詰めたハッシュや空のハッシュが一致してしまう。
  */
 export async function verifyDeletePassword(
   password: string,
@@ -115,7 +117,7 @@ export async function verifyDeletePassword(
   }
   const salt = fromBase64(saltB64);
   const expectedHash = fromBase64(hashB64);
-  if (!salt || !expectedHash) {
+  if (!salt || !expectedHash || expectedHash.length !== DERIVED_KEY_BYTES) {
     return false;
   }
 
@@ -123,7 +125,7 @@ export async function verifyDeletePassword(
     password,
     salt,
     iterations,
-    expectedHash.length * 8,
+    DERIVED_KEY_BYTES * 8,
   );
   return constantTimeEqual(derived, expectedHash);
 }
