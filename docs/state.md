@@ -4,9 +4,9 @@
 書き方: 「最終更新」は最新と前回の2件だけ残し、古い行は `docs/archive/state-history-2026.md` の「更新ログ」の先頭へ移す。各項目は3行以内。経緯や証跡は PR 本文とコミットへ書く。
 2026-07-14 までの完了履歴（codex M1〜M14、Scriptorium S0〜S8）は `docs/archive/state-history-2026.md` にある。必要なときに Grep する。
 
-最終更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。残: PR のマージ。
+最終更新: 2026-11-04 PaintPicker の PC幅でカラー欄が66px・候補の色名が幅0になる不具合を修正（ブランチ `fix/paintpicker-pc-width`）。PCパネルの塗料選択列は256pxでモバイルと同程度のため、PC専用の1行CSSを消して縦積みに統一し、デザイン仕様書§4を改訂（ユーザー裁定C）。残: PR のマージ。
 
-前回更新: 2026-11-03 Opus 5.5 向けにハーネスを最適化（役割のハイブリッド化、selfcheck 廃止、CLAUDE.md を skill と rules に分割、履歴のアーカイブ分離）。review R2 PASS、PR #77 マージ済み。
+前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。PR #78 マージ済み。
 
 ## 進行中
 
@@ -16,9 +16,9 @@
 
 1. /help のスクリーンショットの撮り直しが要るか確認する（M14 で Home のアクション行と Setup の画面が変わった。申し送りの /help 残置を参照）
 2. codex: 一覧で破損・未来バージョンの文書をスキップしたときの UX 改善（エラーカード表示など。B-4 レビュー L-1 の残件。i18n と技術計画 §2.7 のエラー提示方針との整合が必要）
-3. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）
-4. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
+3. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）4. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
 5. v1 後のバックログ（技術計画 v2 §7）: 生成 AI 相談レシピの取り込み、工程グループの拡張
+6. codex: 塗料の自由入力パネルで色ピッカー（`input[type=color]`、指定44px）が13pxに潰れる（`.hexRow` 内で縮む。2026-11-04 に PC パネル幅で実測、既存の不具合）
 
 ## 決定事項 (変更には理由が要る)
 

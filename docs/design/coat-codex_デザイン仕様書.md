@@ -129,7 +129,7 @@ radius: 通常 `--radius-sm`、ヘッダ出力群・言語切替は `--radius-fu
 - 帯下の文字は on-overlay で AA 確保。写真なしでも帯は表示
 
 ### PaintSlot（A〜E）＋ MixRatioInput（§8-B 反映）
-- PC/パネル: 1行 `A(朱金ラベル) → Brand select(84px) → Color select(flex) → SwatchChip → %入力(48px) → ✕`
+- PC/パネル: 1行 `A(朱金ラベル) → 塗料選択 → %入力(48px) → ✕`。塗料選択はモバイルと同じ縦積み（Brand select → レンジフィルタ → Color select（検索コンボ）→ SwatchChip、各全幅）**（2026-11-04改訂: ユーザー裁定）**。旧記述の「`Brand select(84px) → Color select(flex) → SwatchChip` を1行」は廃止する。理由: ①PCでも工程はパネル（`--panel-width` 480px）内に出るため、塗料選択の列幅は約256pxで決まる（モバイルの約247pxと同程度）。1行ではselectが最長の選択肢「その他（自由入力）」の幅まで広がり、カラー欄が66px・候補の色名が幅0に潰れていた ②84pxは12px文字を前提にした値で、Coat d'arms の追加（2026-07-03）より前に決めたもの。現行の16px文字では84pxに "Citadel" も収まらない
 - mobile: スロットを薄枠グループで2行（選択行／スウォッチ+配合行）
 - MIX行: `MIX` ラベル＋比率入力＋`⇄`注記＋右端に `計 n%`（100=success● / ≠100=danger●）
 - エラー時: 全%枠 error 皮、比率欄「—」disabled、下に `!` メッセージ。**autosaveは継続**し、出力に警告を継承

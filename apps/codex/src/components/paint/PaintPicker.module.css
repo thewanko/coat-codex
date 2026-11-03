@@ -1,7 +1,7 @@
-/* PaintPicker — PaintSlot 1行構成の一部（デザイン仕様書§4「PaintSlot（A〜E）」:
-   Brand select(84px) → Color select(flex) → SwatchChip）。
-   mobile(<768px)は縦積み: ブランド→レンジフィルタ→カラー検索（全幅）→確定表示（全幅・折り返し許可）。
-   カラー名が長く見切れるフィードバック対応。各要素をセルでラップしorderで並べ替える */
+/* PaintPicker — PaintSlotの塗料選択部（デザイン仕様書§4「PaintSlot（A〜E）」2026-11-04改訂）。
+   全幅の縦積み: ブランド→レンジフィルタ→カラー検索→確定表示（折り返し許可）。
+   PCも工程はパネル内に出て、この列は約256px（モバイルと同程度）なのでブレークポイントで分けない
+   （旧PCの1行構成ではselectが最長の選択肢の幅まで広がり、カラー欄が66pxに潰れた） */
 
 .root {
   display: flex;
@@ -16,27 +16,23 @@
 }
 
 .brandCell {
-  order: 1;
   width: 100%;
 }
 
 .rangeCell {
-  order: 2;
   width: 100%;
 }
 
 .colorCell {
-  order: 3;
   width: 100%;
 }
 
 .swatchCell {
-  order: 4;
   display: flex;
   width: 100%;
 }
 
-/* mobileの確定表示行: SwatchChip自身をinline-flexのまま全幅化し、
+/* 確定表示行: SwatchChip自身をinline-flexのまま全幅化し、
    名前（長いカラー名+レンジ）を1行ellipsisで隠さず折り返し許可する */
 .swatchCell > * {
   flex: 1;
@@ -46,37 +42,6 @@
 
 .brandCell :global(select) {
   width: 100%;
-}
-
-@media (min-width: 768px) {
-  /* PC(≥768px)は現行どおり1行構成（Brand→Color→Swatch）を維持し、
-     RangeFilterはその下の独立行に戻す（技術計画/デザイン仕様書§4のPC仕様）。
-     brand/color/swatchはdisplay:contentsで解いて元のDOM構造と同じflexレイアウトに戻す */
-  .row {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .brandCell,
-  .colorCell,
-  .swatchCell {
-    display: contents;
-  }
-
-  .rangeCell {
-    order: 99;
-    width: 100%;
-  }
-
-  .swatchCell > * {
-    flex: none;
-    white-space: normal;
-  }
-
-  .brandCell :global(select) {
-    width: auto;
-  }
 }
 
 .customPanel {
