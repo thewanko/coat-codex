@@ -4,10 +4,9 @@
 書き方: 「最終更新」は最新と前回の2件だけ残し、古い行は `docs/archive/state-history-2026.md` の「更新ログ」の先頭へ移す。各項目は3行以内。経緯や証跡は PR 本文とコミットへ書く。
 2026-07-14 までの完了履歴（codex M1〜M14、Scriptorium S0〜S8）は `docs/archive/state-history-2026.md` にある。必要なときに Grep する。
 
-最終更新: 2026-11-03 Opus 5.5 向けにハーネスを最適化（ブランチ `chore/opus55-harness`）。役割のハイブリッド化、selfcheck 廃止（hook・ESLint へ）、CLAUDE.md を skill（goal-loop・ui-verify）と `.claude/rules/deploy.md` に分割、履歴のアーカイブ分離、ルート `tsc -b` に scriptorium server を追加。
-review R1 FAIL（H4/M4/L5）→ 全件対応 → R2 PASS（L1 採用）。全ゲート緑（tsc・lint・prettier・test 1771件）。`.claude/settings.json` はユーザー承認のうえ反映し、実際の Write で hook の動作を確認済み。残: PR のマージ。
+最終更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。残: PR のマージ。
 
-前回更新: 2026-07-14 codex M14 完了（Home 導線、Setup のツール登録廃止、/updates 更新履歴ページ。T64〜T67、技術計画 v2.9）。PR #75 マージ済み＝M14 クローズ。
+前回更新: 2026-11-03 Opus 5.5 向けにハーネスを最適化（役割のハイブリッド化、selfcheck 廃止、CLAUDE.md を skill と rules に分割、履歴のアーカイブ分離）。review R2 PASS、PR #77 マージ済み。
 
 ## 進行中
 

@@ -24,7 +24,7 @@ description: coat-codex の goal loop（入口 → design → 実装・委譲 �
 
 - プロンプトに書くもの: 仕様の正の §番号、完了条件のコマンドと exit code の報告、触ってよいファイルと触ってはいけないファイル、Node 20 で実行すること、未コミットのツリーで `git stash`・`git restore`・`git checkout <path>` を使わないこと。
 - 並列に委譲するときは、互いの成果物ファイル名を明示して、相手のファイルに触れないよう指示する。
-- impl が Edit/Write した TS ファイルに型エラーがあると、フロントマターの Stop hook（`typecheck-gate.sh`）が1回だけ終了を差し戻す。この hook は、Bash（sed など）で書き換えたファイルと、型の変更が波及した未編集のファイルのエラーは見ない。だから裁定ではセッションが `npx tsc -b` と `npm run lint` を自分で再実行し、impl の exit code の報告をそのまま信じない（報告が不正確だったことが2回ある）。
+- impl の型エラーを終了時の hook で差し戻す仕組みは置かない。デスクトップアプリでは impl が報告を返してから終了するので、SubagentStop の hook が exit 2 を返しても差し戻しは届かない（2026-11-03 に実測）。裁定ではセッションが `npx tsc -b` と `npm run lint` を自分で再実行し、impl の exit code の報告をそのまま信じない（報告が不正確だったことが2回ある）。
 - impl の報告を受けたら、`git status --porcelain` を指示した成果物ファイルの一覧と突き合わせ、範囲外のファイルに触れていないか確かめる。
 - テストで `vi.fn` の呼び出し引数を `.mock.calls` で検証するときは、変数に関数型の注釈を付けず `vi.fn<(a: A, b: B) => R>()` の形で型を付ける。注釈を付けると Mock 型が消える。`_` 接頭辞の未使用引数はこのリポジトリの ESLint で通らない。
 - 依存注入でスタブする外部 API には、実装と同じ非同期のタイミング（マクロタスクの遅延）で返すスタブを最低1ケース入れる。即時に resolve するスタブでは Dexie のトランザクションの罠を検出できない。
@@ -44,6 +44,7 @@ description: coat-codex の goal loop（入口 → design → 実装・委譲 �
 
 - `npx tsc -b`、`npm run lint`、`npx prettier --check apps packages "./*.{js,ts,json}"`、`npm test`（Node 20）。ビルド設定に触れたら `npm run build` も。
 - UI に触れた変更は `ui-verify` skill に従って実機で確かめる。
+- ハーネスのゲート（hook・ESLint のルール・permissions）を足したり変えたりしたら、本物の実行経路（セッションの Write、本物の impl の起動など）で意図的なエラーを入れ、実際に止まることを確かめてから完成とする。模擬入力のテストだけでは完成にしない。
 
 ## /goal 条件
 

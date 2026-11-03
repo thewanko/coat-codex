@@ -48,13 +48,12 @@ goal loop engineering で開発している。セッション（Opus 5.5）が�
 ```
 CLAUDE.md                     # 毎セッション読まれる最小限の事実（コマンド・仕様の正・禁止事項・役割）
 .claude/
-  agents/impl.md              # model: sonnet / effort: medium  並列タスク用の実装担当（Stop hook で型検査）
+  agents/impl.md              # model: sonnet / effort: medium  並列タスク用の実装担当
   agents/review.md            # model: opus / effort: high      静的レビュー（読み取り専用）
   skills/goal-loop/SKILL.md   # ループの手順と規律（着手・委譲・/goal・出口のときに読み込まれる）
   skills/ui-verify/SKILL.md   # ブラウザ preview での実機検証の手順と既知の罠
   rules/deploy.md             # Cloudflare デプロイ構成の規則（該当ファイルを触ったときだけ読み込まれる）
   hooks/format-lint.sh        # PostToolUse: 編集したファイルを prettier で整形し、ESLint の指摘を渡す
-  hooks/typecheck-gate.sh     # impl の SubagentStop: 自分が編集した TS に型エラーがあれば差し戻す
   settings.json               # hook の登録、共有の許可、stash/restore 系の確認
   loop/lessons.md             # good/bad の教訓（過去分は loop/archive/ を Grep）
 docs/state.md                 # 現在地・次の候補・決定事項・申し送り（過去の履歴は docs/archive/）
