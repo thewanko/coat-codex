@@ -20,6 +20,33 @@ export default tseslint.config(
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      "no-console": ["error", { allow: ["warn", "error"] }],
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react-router-dom",
+              message: "react-router v7 は react-router から import する",
+            },
+          ],
+          patterns: [
+            {
+              group: ["react-router-dom/*"],
+              message: "react-router v7 は react-router から import する",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // CLI スクリプトは標準出力への表示が目的なので console を許可する
+    files: ["**/scripts/**/*.ts"],
+    rules: {
+      "no-console": "off",
+    },
   },
   {
     files: [
