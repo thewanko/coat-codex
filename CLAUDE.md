@@ -1,78 +1,37 @@
-# Goal Loop ハーネス
+# coat-codex
 
-このリポジトリは goal loop engineering で運用する。
-役割分離: design / 裁定 = セッション、impl = Sonnet、selfcheck = Haiku、review = Opus。
-セッションモデルは固定しない (ループ定義は `--model fable` でも `--model opus` でも同型で動く)。
+npm workspaces の monorepo。アプリは `apps/codex`（Vite + React 19 の SPA、データはブラウザの IndexedDB）と `apps/scriptorium`（Cloudflare Pages + Hono の worker、D1/R2）。共有パッケージは `packages/recipe-core`（schema・logic・exchange・convert）と `packages/recipe-ui`（両アプリ共用の UI 部品）。両アプリとも本番リリース済み。
 
-## 役割分離 (CRITICAL)
+## コマンド
 
-- **セッション (あなた) = design と裁定のみ**。実装の本体を書き始めたら役割逸脱 — 停止して impl に委譲し直す
-  - 例外: 裁定に必要な軽微な確認 (テスト再実行、1〜2 行の glue 修正) のみ可
-- **impl (sonnet)** = 実装。atomic な 1 タスクのみ受ける
-- **selfcheck (haiku)** = 機械的事前確認。事実の列挙のみで判断しない
-- **review (opus)** = 静的レビュー。read-only
-- **/goal evaluator (既定 haiku)** = ループ終了判定
+- テストは Node 20 で実行する。各シェルで先に `eval "$(fnm env)" && fnm use`。このマシンの既定の Node 25 では jsdom の localStorage が非互換で、i18n を使うテストが収集段階で全滅する。
+- テスト: `npm test`（全ワークスペース）。1ファイルだけなら `npx vitest run <path>`
+- 型検査: `npx tsc -b`（ルートの references で全ワークスペース、約5秒）。vitest は型を検査しないので、テストが緑でも型が通るとは限らない。
+- lint: `npm run lint`。整形の確認: `npx prettier --check apps packages "./*.{js,ts,json}"`
+- ビルド: `npm run build`
+- scriptorium のローカル実機: `npm run dev:pages -w apps/scriptorium`（事前に build。ローカルの D1/R2 は `.wrangler/state`、シードは `node apps/scriptorium/scripts/seed.mjs`）
 
-## ループ標準形 (毎ループこの順序)
+## 仕様の正
 
-1. **入口**: `docs/state.md` と `.claude/loop/lessons.md` を Read し、適用できる既存ルールを列挙してから着手
-2. **design**: タスクを atomic に分解し、/goal 条件を設計 (検証可能な形でのみ)
-3. **impl** subagent に委譲 (1 委譲 = 1 atomic task)
-4. **selfcheck** subagent で機械確認 → 異常があれば review に送らず impl に差し戻し
-5. **review** subagent で静的レビュー → severity 付き verdict
-6. **裁定**: selfcheck / review の結果を読んで採否と次手を決定。**design したターンと裁定のターンを分ける** (作って即裁定しない)
-7. **出口**: `docs/state.md` を更新し、`.claude/loop/lessons.md` に good/bad entry を追記。追記内容を出力に表示する
+- codex: `docs/coat-codex_技術計画_v2.md`、Scriptorium: `docs/coat-scriptorium_技術計画_v1.md`
+- 見た目: `docs/design/coat-codex_デザイン仕様書.md` と `docs/design/handoff/coat-codex 決定デザイン.dc.html`
 
-## 委譲・レビューの規律 (lessons.md昇格 2026-07-02)
+## 触ってはいけないもの
 
-- 成果物ファイルが重ならないタスクは並列委譲してよい。その際、**互いの成果物ファイル名を明示して不可侵を指示**する
-- review委譲時は観点をマイルストーンの性質に合わせて具体化する（ロジック層=境界値・写経テスト検出／データ層=非同期・リソース管理・トランザクション／UI層=デザイン仕様との突き合わせ・a11y）
-- impl委譲プロンプトには「仕様の正の§番号」「完了条件のコマンド列とexit code報告義務」「スコープ外ファイルの明示」を必ず含める
-- **新規/変更した`.ts`/`.tsx`を含むimpl委譲の完了条件には`npm run build`(tsc型検査)を必ず入れる。かつセッションは裁定で`npm run build`と`npm run lint`を独立再実行し、implのexit-code報告を鵜呑みにしない**（vitestはesbuild/isolatedModulesで型を検査せず「テスト緑」がtsc緑を代表しない。tsc増分キャッシュ〔tsBuildInfo〕や楽観報告で「build exit 0」が偽になり得る）。テストで`vi.fn`の呼び出し引数を`.mock.calls`検証する場合、変数へ関数型注釈を付けず`vi.fn<(a: A, b: B) => R>()`のジェネリック形で型付けする（注釈はMock型を消す・`_`接頭辞の未使用引数はこのリポジトリのeslintで非許容） (lessons.md昇格 2026-07-08: ST-18〔完了条件にtsc未課〕・ST-21〔tsc課すもimpl報告が不正確〕で同根2回目)
-- impl委譲が報告なしに終了（切断・上限）したら: `git status`＋全ゲート実行で残骸の完成度を判定 → ①ほぼ完成なら欠落のみセッションglue補完 ②成果物ゼロなら同一プロンプトで再委譲。中途半端な残骸の上への再委譲は禁止 (lessons.md昇格 2026-07-03)
-- レビュー指摘・タスク前提の事実（原因箇所・修正案の前提・再利用部品の能力）は、impl委譲前にセッションがRead/Grep/実機再現で1次確認する。前提と実態が食い違ったら（例: 「未実装」とされた対策が実装済み）委譲せず真因を確定してからdesignし直す (lessons.md昇格 2026-07-05)
-- **未コミット成果物がある作業ツリーでの`git stash`/`git checkout <path>`等のツリー復元操作は禁止**（特に並列impl委譲中は他エージェントの編集中ファイルまで巻き戻し・消失させる）。ベースライン比較・一時退避はcpバックアップコピーで行う。impl委譲プロンプトにもこの禁止を明記する (lessons.md昇格 2026-07-14: ST-33〔git checkoutで未コミット孤児削除を巻き戻し〕・M9〔並列委譲中のgit stash -uで他implのdocs編集を巻き込み〕で同根2回目)
-- レビュー指摘の修正バッチ後は必ず同一レビュアーでRound N+1判定を取り、「修正同士の複合作用・修正が導入した新規問題」を明示観点に含める。修正がUI状態管理（key・effect・確定タイミング）やオーバーレイUIのDOM位置（リフトアップ・portal化・レンダー先変更・ネストルート化等のマウント構造変更）に触れる場合は、「修正が無効化した暗黙の前提」（z-index序列・スタッキング文脈・イベント伝播経路）を観点に明示し、出口実機検証のヒットテストで全インタラクティブ要素を再確認する (lessons.md昇格 2026-07-03)
+- `docs/coat-codex_要件定義.md` は原典なので編集しない。
+- `package-lock.json` を手で編集しない。
+- `apps/codex/public/_redirects` と `404.html` は作らない（SPA フォールバックの仕様、技術計画 §5.2）。デプロイ構成の規則は `.claude/rules/deploy.md`。
+- 秘密情報（API キー・パスワード）をコードに書かない。`eslint-disable` を新しく足さない。`console.log`・`react-router-dom` の import（v7 は `react-router` 単体）・`@ts-ignore` は ESLint がエラーにする。
 
-## /goal 条件の規律
+## 作業の進め方
 
-- transcript に証跡が現れる形でのみ書く: テストの exit code / ファイル存在 + 全文表示 / review verdict の表示 / 残件数 0
-- 「production-ready」「十分に良い」等、機械判定できない表現は禁止
-- 必ず `or stop after N turns` を付ける。新種のループは N=2 の calibration から始める
+- マイルストーンやタスクに着手するとき、委譲するとき、`/goal` を書くときは `goal-loop` skill を読む。入口で `docs/state.md` と `.claude/loop/lessons.md` を読み、出口で両方を更新する。
+- 役割: セッションが設計・実装・裁定を行う。`impl`（Sonnet）は並列にできる独立タスクと機械的な大量変更に、`review`（Opus、読み取り専用）はマイルストーンの diff の独立レビューに使う。同じ作業を委譲しても答えは良くならないので、それ以外では委譲しない。
+- UI の動作をブラウザ preview で確かめるときは `ui-verify` skill を読む。
+- 未コミットの成果物がある作業ツリーで `git stash`・`git restore`・`git checkout <path>`（`--` の有無を問わない）を使わない。ブランチの切り替えは `git switch` で行う。並列で動く他のエージェントの編集まで巻き戻すため（2回起きた）。一時退避はファイルのコピーで行う。
 
-## token 規律
+## Opus 5.5 での運用
 
-- ループ開始前に `/usage` で 5h 枠・週次枠を確認。収まらないなら開始しない
-- 1 ループ完了ごとに `/clear` (goal も消えるので、複数ループを 1 goal に詰め込まない)
-- effort は high 始まり。xhigh は「high で 2 回失敗した実装ループ」のみ
-- selfcheck は review FAIL がほぼ出ないタスク種別では省略してよい
-
-## 実機検証の規律 (lessons.md昇格 2026-07-03)
-
-根本原因「検証が実利用を代表していない」の再発防止:
-
-- 操作系UIは `document.elementFromPoint(中心座標)` のヒットテストを必ず併用する（`el.click()`直呼びはヒットテストを素通りする）
-- 検証シナリオには**機能の分岐を変えるデータバリエーション**（写真あり/なし・0件/複数件・**旧schemaVersion文書の混在**〔スキーマ昇格タスクでは必須。fixture全新版のユニットテストではDB読み出し経路のマイグレーション欠落を検出できない〕）を必ず含める (2026-07-05追記)
-- アニメーション付きオーバーレイUIは座標検証前に `el.getAnimations().forEach(a => a.finish())`（非表示タブはCSSアニメーションが currentTime=0 で停止する）。**さらに背景タブはviewportが0×0のままレイアウトされず`elementFromPoint`が全対象でnull（偽陰性）になることがある**＝座標検証の前に`innerWidth > 0`を確認し、0ならpreview_screenshot/preview_resizeで描画を強制してから検証する（スクショは正常描画でもevalの座標系が死んでいる、という乖離が起きる）。**さらに背景タブではfocus()/blur()がactiveElementを変えずfocusout/focusinが発火しない**（.click()は動くため気づきにくい）＝onBlur/onFocus起点のUIが不発でも実バグと即断せず、①`__reactProps`でハンドラ結線とcontrolled valueを確認②`el.dispatchEvent(new FocusEvent('focusout',{bubbles:true}))`等フレームワークが購読する下位イベントを明示発火して結果状態を実測③RTLで同経路の回帰固定を確認、の3点緑なら「検証環境の限界」と記録して合格にする。**さらに背景タブはスクロールも凍結し得る**（`scrollTo`/`scrollIntoView`が無効・`document.scrollingElement.scrollHeight`がコンテンツ実高より小さく固まる＝ビューポート外要素のelementFromPointが全てnullの偽陰性）＝スクロールに頼らず**ビューポート高をコンテンツ全高まで広げて（resize）全対象を視界内に入れてから**ヒットテストする (lessons.md昇格 2026-07-08: 非表示タブのレンダリング停止2回目=viewport相／2026-07-09: 3回目=focus相／2026-07-14: 4回目=スクロール凍結相を追記)
-- レビューで危険パターンを1箇所指摘したら、同一パターンを Grep で横断適用する（指摘箇所だけ直して他を見ない、は禁止）
-- 依存注入でスタブする外部APIには「実装と同じ非同期タイミング（マクロタスク遅延）」のスタブを最低1ケース入れる（Dexie tx罠は即時resolveスタブでは検出できない）
-- ブレークポイントでレイアウトが分岐するUI（パネル/フルページ切替等）の検証は、**全ブレークポイント幅**で「遷移後に視認している画面」への elementFromPoint ヒットテストを行う。URL遷移の成立だけで合格にしない（目的のUIが画面外・背面で操作不能なことがある） (lessons.md昇格 2026-07-04)
-- **実機入力・OS権限に依存する挙動**（clipboard・Web Share・通知・実タッチのスクロール競合/touch-action・user activation）は**previewの合成イベント/権限モデルでは代表できない**。①設計段階で「結果分岐に依存しない多段防御」（タイムアウト付きフォールバック・bodyロック等、どの経路でも意図した結果へ到達する形）を要求仕様に含め、②preview検証の限界を出口レポートに明示し「ユーザー実機確認が必須の項目」として引き渡す (lessons.md昇格 2026-07-05)
-- **出力フォーマット/コーデックを指定するWeb API**（canvas.toBlob/toDataURL・MediaRecorder mimeType等）は**ベストエフォート仕様＝非対応形式でもエラーにならず別形式へ静かに縮退**する（例: SafariはcanvasのWebPエンコード非対応→PNGフォールバック）＝**previewのChromiumが実機Safariのコーデック対応を代表しない**。①指定形式の全対象ブラウザ対応（特にWebKit）を設計段階でcaniuse等で1次確認し、可能なら全ブラウザ共通形式（写真=JPEG）へ寄せて分岐自体を消す ②送信メタデータ（File type/拡張子）は宣言ハードコードでなく実blob.typeから導出する ③バイナリを受けるAPI境界はcontent-type宣言でなく実バイトのマジックバイトで検証する (lessons.md昇格 2026-07-08: 2026-07-05の環境ギャップfamily 2回目=コーデック相)
-- **デプロイ構成（Pagesのビルド設定・Functions/_worker.js検出・SPAフォールバック・リダイレクト）はローカル`wrangler pages dev`が本番Gitビルドを代表しない**（例: pages devはwrangler.toml隣接のfunctions/を拾うが、本番はRoot directory相対でしか探さない）。デプロイ構成に触れる変更は、マージ後の**本番/プレビューURLで「追加機能の正常応答」と「非APIルートのHTML 200＋root要素実在」の両方**を確認するまで完了としない。結合検証の否定アサーション（grep -c 0等）は必ず正例アサーションと対にする (lessons.md昇格 2026-07-07) 
-
-## 安全弁
-
-- impl が同一報告を 3 ターン以上繰り返したら context loss とみなし停止・報告。1 タスク内で 2 回発動したら当該タスクのみセッション直実装に切替え、BAD entry として記録する
-- `.claude/loop/lessons.md` で同一根本原因が 2 回目になったら、本ファイル (CLAUDE.md) の該当セクションへルールとして昇格する
-
-## プロジェクト固有 (coat-codex: npm workspaces monorepo / Vite + React 19 + TypeScript SPA)
-
-- 構成: monorepo（S0移行済み 2026-07-07）。アプリ本体 = `apps/codex/`・`apps/scriptorium/`（S3基盤済み 2026-07-07: SPA scaffold＋D1/R2＋Hono GET閲覧API＋Feed/Detail/法務ページ＋OGP。**サーバーは`dist/_worker.js`方式（advanced mode）のみ**=src/server/worker.tsをesbuildでバンドル。`functions/`ディレクトリはRoot=`/`構成の本番Gitビルドで検出されず【ローカルpages devでは検出できる=環境差】、catch-allは静的アセット遮蔽のため、いずれも禁止。**S6モデレーション済み 2026-07-08**: `server/routes/report.ts`・`server/moderation/`〔events/notifier=Resend REST/screenImage=Workers AIフックfail-open既定off〕・自動circuit open・通報/削除ダイアログUI。通知env=`MAIL_API_KEY`/`NOTIFY_EMAIL_TO`/`NOTIFY_EMAIL_FROM`。**S7 admin済み 2026-07-09**: `server/routes/admin.ts`＋`/admin` UI〔本認証=CF Access edge・Workerは`Cf-Access-Jwt-Assertion`ヘッダ存在のdefense-in-depth 401・ローカルUI検証は`.dev.vars`の`ACCESS_DEV_BYPASS=on`＝本番設定禁止〕。**S8硬化/QA済み 2026-07-09＝全マイルストーンクローズ・本番リリース状態**: セキュリティ応答ヘッダーCSP〔scriptorium=worker注入・codex=`public/_headers`〕・/privacy・flagged時R2削除・robots.txt/pages.dev noindex〔scriptorium=worker判定・codex=`_headers`ホスト指定`https://:project.pages.dev/*`。**Transform Ruleは自ゾーン外の*.pages.devに効かない=禁止**〕・i18n棚卸しテスト`usedKeys.test.ts`・通しQA/gitleaks履歴クリーン〔`docs/scriptorium/ST-34-通しQAチェックリスト.md`〕）、共有パッケージ = `packages/recipe-core`（S1切り出し済み 2026-07-07: schema/logic/exchange/convert）・`packages/recipe-ui`（S2切り出し済み 2026-07-07: SwatchChip注入化・CroppedPhoto・theme.css・MixBadge/TechniqueChip/StepListView・PhotoSourceProvider/usePhotoUrl・REQUIRED_I18N_KEYS。codexはApp.tsxでresolvePhotoUrlを注入。**S6でTurnstileWidget/turnstileScriptを移設**=両アプリ共用・named export）。ルートは設定と委譲スクリプトのみ
-- 仕様の正: codex = `docs/coat-codex_技術計画_v2.md`（v2.6）／Scriptorium = `docs/coat-scriptorium_技術計画_v1.md`（v1.7）。ビジュアルの正: `docs/design/coat-codex_デザイン仕様書.md`＋`docs/design/handoff/coat-codex 決定デザイン.dc.html`
-- scriptoriumローカル実機: `npm run dev:pages -w apps/scriptorium`（wrangler pages dev・要事前build。ローカルD1/R2は`.wrangler/state`共有・シードは`node scripts/seed.mjs`）
-- テスト: `npm test`（ルート・vitest projects経由で全workspace）。**実行は必ずNode 20（`.nvmrc`）で: `eval "$(fnm env)" && fnm use` を各シェルで先行実行**（このマシンのデフォルトnode v25はjsdomのlocalStorage非互換でi18n経由の全テストがcollectionクラッシュ=環境起因の全滅。impl委譲プロンプトにも明記する）
-- lint: `npm run lint`（ESLint）。フォーマット確認: `npx prettier --check apps packages "./*.{js,ts,json}"`
-- ビルド: `npm run build`（ルート・--workspaces委譲）
-- 触ってはいけないもの: `docs/coat-codex_要件定義.md`（原典・編集禁止）、`package-lock.json`の手編集、`apps/codex/public/_redirects`と`404.html`は**作成禁止**（§5.2 SPAフォールバック仕様）
-- 禁止パターン (selfcheck が Grep する): ハードコードされた API key / password、`console.log(` デバッグ残骸（`console.error`/`console.warn`は可）、`react-router-dom`からのimport（v7は`react-router`単体）、`@ts-ignore`・`eslint-disable`の新規追加
+- effort は既定の medium で始める。他人のコードのバグ、flaky テスト、スキーマ移行（Dexie の version、D1 マイグレーション）は high に上げる。xhigh と max は、測って効果があった作業だけに使う。
+- 依頼にない変更（ついでのリファクタや修正）はしない。気づいたことは報告にとどめる。
+- state.md・lessons・PR 本文・報告は短く書く。経緯や証跡の詳細は PR 本文とコミットメッセージへ。
