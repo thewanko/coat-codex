@@ -1,0 +1,1225 @@
+{
+  "manufacturer": "Citadel",
+  "source": "Warhammer Tone Pro (Games Workshop, pre-order 2026-10-10). Hex values sampled by warhue.app from the swatch graphics in GW's announcement (https://warhue.app/blog/warhammer-tone-pro-colour-chart); names cross-checked with retailer listings (loadeddice.uk). Unofficial, pre-release screen colours.",
+  "compiled_as_of": "2026-11",
+  "count": 152,
+  "note": "Warhammer Tone Pro paint names are trademarks of Games Workshop Ltd. Citadel Colour was renamed Warhammer Colour in March 2026; coat-codex keeps the brand id 'citadel'. GW publishes no hex values for Tone Pro: these are screen samples from marketing graphics (likely more saturated than dried paint). Tones are numbered 1 (darkest) to 5 (lightest). The two mediums have no source hex; #DADADA follows the existing Citadel medium entries.",
+  "colors": [
+    {
+      "manufacturer": "Citadel",
+      "name": "Carmine Blades 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#3C262A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carmine Blades 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#5B3539",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carmine Blades 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#750019",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carmine Blades 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#910022",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carmine Blades 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#C64D50",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodtoof Red 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#581E16",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodtoof Red 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#94001E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodtoof Red 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#AD072B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodtoof Red 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#D60020",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Bloodtoof Red 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#EF353C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Chotec Orange 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#93150B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Chotec Orange 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#B82F2D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Chotec Orange 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#E04A33",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Chotec Orange 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F56230",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Chotec Orange 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F78030",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ta'unar Ochre 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#BB5528",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ta'unar Ochre 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#D27144",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ta'unar Ochre 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#E78344",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ta'unar Ochre 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#EA9B6B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ta'unar Ochre 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#E9B06E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khemri Sands 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6C4B12",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khemri Sands 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#8D5E06",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khemri Sands 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#B1791E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khemri Sands 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#CF8400",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Khemri Sands 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#DC9A00",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hawkshroud Yellow 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F69113",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hawkshroud Yellow 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FBA200",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hawkshroud Yellow 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FEBB00",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hawkshroud Yellow 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FFD300",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hawkshroud Yellow 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FDE07E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Megaboss Yellow 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F9AD00",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Megaboss Yellow 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F8CE00",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Megaboss Yellow 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FFE440",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Megaboss Yellow 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#F8E85F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Megaboss Yellow 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FFF175",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plague Toad Venom 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#49892D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plague Toad Venom 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#549B32",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plague Toad Venom 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#80C234",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plague Toad Venom 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#9CC829",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Plague Toad Venom 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#C8D600",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kruleboyz Green 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#4A7D36",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kruleboyz Green 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#627F3C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kruleboyz Green 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#7A823F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kruleboyz Green 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#939859",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kruleboyz Green 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#AEB16C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lustria Green 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#004816",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lustria Green 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006929",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lustria Green 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#007931",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lustria Green 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#34AD40",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Lustria Green 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#4EB33F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kasrkin Green 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#001B1B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kasrkin Green 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#1F4530",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kasrkin Green 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#40713C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kasrkin Green 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#678E55",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Kasrkin Green 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#86A978",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hierotek Green 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#00321C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hierotek Green 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#00542D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hierotek Green 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006A2E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hierotek Green 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#00894E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hierotek Green 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#00B681",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Green Morkshroom 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#143230",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Green Morkshroom 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#004F48",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Green Morkshroom 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006458",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Green Morkshroom 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#007B6D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Green Morkshroom 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#37AC83",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphon Blue 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#002F34",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphon Blue 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#004650",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphon Blue 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006874",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphon Blue 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#008D92",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Seraphon Blue 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#00B7B9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Craventhrone Cloak 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#08232E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Craventhrone Cloak 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#12373E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Craventhrone Cloak 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#164858",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Craventhrone Cloak 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#41717D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Craventhrone Cloak 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#598A8E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormwolf Blue 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#233F55",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormwolf Blue 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#405568",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormwolf Blue 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#54697D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormwolf Blue 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6E95A4",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Stormwolf Blue 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#87AFB9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Scinari Blue 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#004789",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Scinari Blue 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#005895",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Scinari Blue 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006C9A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Scinari Blue 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#0088BB",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Scinari Blue 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#009AB9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Gorkshroom 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#002356",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Gorkshroom 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#004487",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Gorkshroom 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#0057A3",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Gorkshroom 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#006CAD",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blue Gorkshroom 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#007BB2",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramar Blue 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#001A42",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramar Blue 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#0F3062",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramar Blue 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#0D4F88",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramar Blue 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#436CA1",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Ultramar Blue 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6D9ECF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shalaxi Violet 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#130040",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shalaxi Violet 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#262E6D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shalaxi Violet 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#324E99",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shalaxi Violet 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6472B9",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shalaxi Violet 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#7E8BC8",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Enrapturess Dusk 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#1E1435",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Enrapturess Dusk 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#413549",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Enrapturess Dusk 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#534D5E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Enrapturess Dusk 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6E6773",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Enrapturess Dusk 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#817A86",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hive Fleet Purple 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#1E1A40",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hive Fleet Purple 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#3C1E54",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hive Fleet Purple 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#655192",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hive Fleet Purple 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#8769B1",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Hive Fleet Purple 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#8F82AE",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magnus the Red 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#3A202D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magnus the Red 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#4A123E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magnus the Red 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#76003F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magnus the Red 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#9A1B59",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Magnus the Red 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#AA4277",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eye of Terror 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#920030",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eye of Terror 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#BD0047",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eye of Terror 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#C20060",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eye of Terror 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#D4417B",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Eye of Terror 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#DB6499",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carthalos Skin 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#241815",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carthalos Skin 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#2D140C",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carthalos Skin 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#4E2212",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carthalos Skin 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#5F3A37",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Carthalos Skin 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#795346",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestine Skin 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#CD8169",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestine Skin 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#D58B70",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestine Skin 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#D99578",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestine Skin 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#EAA889",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Celestine Skin 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#DDB398",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gnarlwood 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#342928",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gnarlwood 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#514235",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gnarlwood 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#725C44",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gnarlwood 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#776857",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Gnarlwood 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#887B67",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necrolith Bone 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#877561",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necrolith Bone 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#B0916A",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necrolith Bone 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#B99F7D",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necrolith Bone 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#C1AB86",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Necrolith Bone 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#BCB79E",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dataslate Grey 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#2B2D28",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dataslate Grey 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#3E3D35",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dataslate Grey 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#555650",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dataslate Grey 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#737069",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Dataslate Grey 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#878983",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blackstone Void 1",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#000208",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blackstone Void 2",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#4E5458",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blackstone Void 3",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#6E7074",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blackstone Void 4",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#9B9D9F",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blackstone Void 5",
+      "range": "tone pro",
+      "finish": null,
+      "hex": "#FFFFFF",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Shading Medium",
+      "range": "tone pro",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": null
+    },
+    {
+      "manufacturer": "Citadel",
+      "name": "Blending Medium",
+      "range": "tone pro",
+      "finish": "medium",
+      "hex": "#DADADA",
+      "hex_gradient_end": null
+    }
+  ]
+}

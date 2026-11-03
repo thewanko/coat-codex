@@ -6,7 +6,7 @@
 
 最終更新: 2026-11-04 PaintPicker の PC幅でカラー欄が66px・候補の色名が幅0になる不具合を修正（ブランチ `fix/paintpicker-pc-width`）。PCパネルの塗料選択列は256pxでモバイルと同程度のため、PC専用の1行CSSを消して縦積みに統一し、デザイン仕様書§4を改訂（ユーザー裁定C）。残: PR のマージ。
 
-前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。PR #78 マージ済み。
+前回更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。PR #79 マージ済み。
 
 ## 進行中
 
@@ -14,17 +14,19 @@
 
 ## 次の候補 (優先順)
 
-1. /help のスクリーンショットの撮り直しが要るか確認する（M14 で Home のアクション行と Setup の画面が変わった。申し送りの /help 残置を参照）
-2. codex: 一覧で破損・未来バージョンの文書をスキップしたときの UX 改善（エラーカード表示など。B-4 レビュー L-1 の残件。i18n と技術計画 §2.7 のエラー提示方針との整合が必要）
-3. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）4. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
-5. v1 後のバックログ（技術計画 v2 §7）: 生成 AI 相談レシピの取り込み、工程グループの拡張
-6. codex: 塗料の自由入力パネルで色ピッカー（`input[type=color]`、指定44px）が13pxに潰れる（`.hexRow` 内で縮む。2026-11-04 に PC パネル幅で実測、既存の不具合）
+1. scriptorium: `password.test.ts` の「末尾1文字の改竄」テストが約1/256で flaky（末尾の `=` を `A` に置き換えると 0x00 が1バイト増えるだけになり、PBKDF2 は先頭32バイトが元と同じなので、33バイト目が 0 だと一致してしまう）
+2. /help のスクリーンショットの撮り直しが要るか確認する（M14 で Home のアクション行と Setup の画面が変わった。申し送りの /help 残置を参照）
+3. codex: 一覧で破損・未来バージョンの文書をスキップしたときの UX 改善（エラーカード表示など。B-4 レビュー L-1 の残件。i18n と技術計画 §2.7 のエラー提示方針との整合が必要）
+4. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）
+5. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
+6. v1 後のバックログ（技術計画 v2 §7）: 生成 AI 相談レシピの取り込み、工程グループの拡張
+7. codex: 塗料の自由入力パネルで色ピッカー（`input[type=color]`、指定44px）が13pxに潰れる（`.hexRow` 内で縮む。2026-11-04 に PC パネル幅で実測、既存の不具合）
 
 ## 決定事項 (変更には理由が要る)
 
 - 仕様の正 = docs/coat-codex_技術計画_v2.md。ビジュアルの正 = デザイン仕様書＋決定デザインdc.html＋theme.css（**無改変**で src/styles/ へコピー済み。改変は決定稿の改訂を経ること）
 - @dnd-kit/core@6.3.1 + @dnd-kit/sortable@10.0.0 で確定（新@dnd-kit/reactは見送り）
-- プリセット塗料ブランドは**Citadel（334色）／Vallejo（255色）／Coat d'arms（150色）の3種**（2026-07-03改訂: 全色チャート由来・range付き。AKはチャート入手不可で除外=自由入力で記録可、入手次第マスタ方式で復活）。マスタ=docs/paints/*-master.json、収録数未決は解消
+- プリセット塗料ブランドは**Citadel（486色＝334色＋tone pro 152件。tone proのhexは非公式サンプリング値、2026-11-03追加）／Vallejo（255色）／Coat d'arms（150色）の3種**（2026-07-03改訂: 全色チャート由来・range付き。AKはチャート入手不可で除外=自由入力で記録可、入手次第マスタ方式で復活）。マスタ=docs/paints/*-master.json、収録数未決は解消
 - レビュー運用: マイルストーンの diff は出口で独立した review（Opus）に通す。selfcheck は 2026-11-03 に廃止（hook と ESLint で機械化）
 - **Setupの使用カラー先行登録は廃止**（2026-07-03決定、v2.3）: 色は工程のPaintPickerからのみ追加。参照0のpalette色は保存時に自動GC（チップ写真Blob含む）。トレードオフ: 参照を外したcustom色は再入力が必要（プリセットは再検索で復元可）
 - **工程ツールは「その場追加＋登録済み選択」**（2026-07-03決定、v2.3）: ToolSelectで新規ツール名をその場登録→doc.toolsへ追加＋即チェック。SetupのToolListEditorは2026-07-14のM14で廃止（Setupはツールライブラリ /tools への誘導のみ）
