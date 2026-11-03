@@ -4,9 +4,9 @@
 書き方: 「最終更新」は最新と前回の2件だけ残し、古い行は `docs/archive/state-history-2026.md` の「更新ログ」の先頭へ移す。各項目は3行以内。経緯や証跡は PR 本文とコミットへ書く。
 2026-07-14 までの完了履歴（codex M1〜M14、Scriptorium S0〜S8）は `docs/archive/state-history-2026.md` にある。必要なときに Grep する。
 
-最終更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。残: PR のマージ。
+最終更新: 2026-11-04 PaintPicker の PC幅でカラー欄が66px・候補の色名が幅0になる不具合を修正（ブランチ `fix/paintpicker-pc-width`）。PCパネルの塗料選択列は256pxでモバイルと同程度のため、PC専用の1行CSSを消して縦積みに統一し、デザイン仕様書§4を改訂（ユーザー裁定C）。残: PR のマージ。
 
-前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。PR #78 マージ済み。
+前回更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。PR #79 マージ済み。
 
 ## 進行中
 
@@ -14,13 +14,13 @@
 
 ## 次の候補 (優先順)
 
-1. codex: PC幅（≥768px）の塗料ピッカーでカラー入力欄が約66pxしかなく、候補の色名が幅0で見えない（PC幅は1行の flex 配置で、ブランド select の幅が auto のため、とみられる。既存の contrast でも同じで、tone pro の追加とは無関係。2026-11-03 に実機で確認）
-2. scriptorium: `password.test.ts` の「末尾1文字の改竄」テストが約1/256で flaky（末尾の `=` を `A` に置き換えると 0x00 が1バイト増えるだけになり、PBKDF2 は先頭32バイトが元と同じなので、33バイト目が 0 だと一致してしまう）
-3. /help のスクリーンショットの撮り直しが要るか確認する（M14 で Home のアクション行と Setup の画面が変わった。申し送りの /help 残置を参照）
-4. codex: 一覧で破損・未来バージョンの文書をスキップしたときの UX 改善（エラーカード表示など。B-4 レビュー L-1 の残件。i18n と技術計画 §2.7 のエラー提示方針との整合が必要）
-5. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）
-6. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
-7. v1 後のバックログ（技術計画 v2 §7）: 生成 AI 相談レシピの取り込み、工程グループの拡張
+1. scriptorium: `password.test.ts` の「末尾1文字の改竄」テストが約1/256で flaky（末尾の `=` を `A` に置き換えると 0x00 が1バイト増えるだけになり、PBKDF2 は先頭32バイトが元と同じなので、33バイト目が 0 だと一致してしまう）
+2. /help のスクリーンショットの撮り直しが要るか確認する（M14 で Home のアクション行と Setup の画面が変わった。申し送りの /help 残置を参照）
+3. codex: 一覧で破損・未来バージョンの文書をスキップしたときの UX 改善（エラーカード表示など。B-4 レビュー L-1 の残件。i18n と技術計画 §2.7 のエラー提示方針との整合が必要）
+4. codex: ShareDialog テストの既知の flake（起票済み task_f1598bc3）
+5. Scriptorium の任意項目（技術計画 v1 §9）: WAF、使用量アラート、D1 バックアップの文書化、gitleaks の CI 統合。検索や7言語化などは §10 のバックログ
+6. v1 後のバックログ（技術計画 v2 §7）: 生成 AI 相談レシピの取り込み、工程グループの拡張
+7. codex: 塗料の自由入力パネルで色ピッカー（`input[type=color]`、指定44px）が13pxに潰れる（`.hexRow` 内で縮む。2026-11-04 に PC パネル幅で実測、既存の不具合）
 
 ## 決定事項 (変更には理由が要る)
 

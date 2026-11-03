@@ -1,5 +1,5 @@
 /* PaintSlot — デザイン仕様書§4「PaintSlot（A〜E）＋ MixRatioInput」
-   PC: 1行 `A(朱金ラベル) → Brand select → Color select → SwatchChip → %入力(48px) → ✕`
+   PC: 1行 `A(朱金ラベル) → 塗料選択（PaintPickerの縦積み）→ %入力(48px) → ✕`
    mobile: 薄枠グループで2行（選択行／スウォッチ+配合行） */
 
 .root {
