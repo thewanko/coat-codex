@@ -4,9 +4,9 @@
 書き方: 「最終更新」は最新と前回の2件だけ残し、古い行は `docs/archive/state-history-2026.md` の「更新ログ」の先頭へ移す。各項目は3行以内。経緯や証跡は PR 本文とコミットへ書く。
 2026-07-14 までの完了履歴（codex M1〜M14、Scriptorium S0〜S8）は `docs/archive/state-history-2026.md` にある。必要なときに Grep する。
 
-最終更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。残: PR のマージ。
+最終更新: 2026-11-04 scriptorium の削除パスワード照合でハッシュ長を検査（ブランチ `fix/password-hash-length`）。改ざんテストが base64 末尾の `=` を置き換えて33バイト化しており、約1/256で一致して落ちていた。照合は長さが32バイト以外なら false（切り詰め・空のハッシュも一致していた）。残: PR のマージ。
 
-前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。PR #78 マージ済み。
+前回更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。PR #79 マージ済み。
 
 ## 進行中
 
