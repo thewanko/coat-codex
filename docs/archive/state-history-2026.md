@@ -4,6 +4,8 @@
 
 ## 更新ログ（state.md 冒頭の「最終更新」「前回更新」行、新しい順）
 
+前回更新: 2026-11-03 Citadel にレンジ `tone pro`（Warhammer Tone Pro 30色×5トーン＋メディウム2種＝152件、334→486件）を追加（ブランチ `feat/citadel-tone-pro`）。hex は GW 非公開のため warhue.app が告知画像から抽出した非公式値（原本 `docs/paints/citadel-tonepro-master.json`、原文 HTML と150件照合済み）。review R1 PASS（L2件は不採用）。PR #79 マージ済み。
+
 前回更新: 2026-11-03 impl の型検査ゲート（終了時の hook）を廃止（ブランチ `fix/typecheck-gate-subagentstop`）。本物の impl で試すと、デスクトップアプリでは impl が報告を返してから終了するため、SubagentStop の hook が exit 2 を返しても差し戻しが届かなかった。型エラーは従来どおり裁定でセッションが `npx tsc -b`・`npm run lint` を再実行して見つける。PR #78 マージ済み。
 
 前回更新: 2026-11-03 Opus 5.5 向けにハーネスを最適化（役割のハイブリッド化、selfcheck 廃止、CLAUDE.md を skill と rules に分割、履歴のアーカイブ分離）。review R2 PASS、PR #77 マージ済み。
